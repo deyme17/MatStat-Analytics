@@ -1,26 +1,32 @@
-from models.hist_model import Hist
+from models.graph_models import Hist
 from controllers.stat_func import variation_series, create_characteristic_table
 from PyQt6.QtWidgets import QTableWidgetItem
 import math
 import numpy as np
 
-def plot_histogram(window):
+def plot_graphs(window):
     if window.data is not None and not window.data.empty:
-        # Create histogram
-        hist_model = Hist(window.data, bins=window.bins_spinbox.value())
-        variation_data = variation_series(window.data)
-        print("\nVariation Series:")
-        print(variation_data)
+        # variation series
+        var_series = variation_series(window.data)
+        print('Variation Series:')
+        print(var_series)
 
-        # Plot histogram
-        hist_model.plot_hist(ax=window.ax)
+        # hist
+        hist_model = Hist(window.data, bins=window.bins_spinbox.value())
+        window.hist_ax.clear()
+        hist_model.plot_hist(ax=window.hist_ax)
+        window.hist_canvas.draw()
         
-        # Update characteristics table
+        # EDF
+        window.edf_ax.clear()
+        hist_model.plot_EDF(ax=window.edf_ax)
+        window.edf_canvas.draw()
+        
+        # characteristics table
         update_characteristics_table(hist_model, window.char_table)
-        
-        window.canvas.draw()
     else:
         print("No data loaded or data is empty.")
+
 
 def set_default_bins(data):
     bins = 10
