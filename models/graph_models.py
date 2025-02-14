@@ -30,32 +30,18 @@ class Hist:
             ax.clear()
             
             # cumulative freq
-            cumulative_counts = np.cumsum(self.bin_counts)
-            total_counts = cumulative_counts[-1]
-            cumulative_relative_frequencies = cumulative_counts / total_counts
-            
-            x_values = []
-            y_values = []
-            
-            # start
-            x_values.append(self.bin_edges[0])
-            y_values.append(0)
-            
-            for i in range(len(self.bin_edges) - 1):
-                x_values.extend([self.bin_edges[i], self.bin_edges[i + 1]])
-                y_values.extend([cumulative_relative_frequencies[i], cumulative_relative_frequencies[i]])
-            
-            # final
-            x_values.append(self.bin_edges[-1])
-            y_values.append(1)
+            cum_counts = np.cumsum(self.bin_counts)
+            total_counts = cum_counts[-1]
+            cum_rel_freq = cum_counts / total_counts
             
             # plot
-            ax.plot(x_values, y_values, 'c-', linewidth=2)
+            for i in range(len(self.bin_edges) - 1):
+                x_values = [self.bin_edges[i], self.bin_edges[i + 1]]
+                y_values = [cum_rel_freq[i], cum_rel_freq[i]]
+                ax.plot(x_values, y_values, 'c->', linewidth=2)
             
-            # points
-            for i in range(len(self.bin_edges)):
-                ax.plot(self.bin_edges[i], cumulative_relative_frequencies[i - 1] if i > 0 else 0, 'co', markersize=6)
-                ax.plot(self.bin_edges[i], cumulative_relative_frequencies[i] if i < len(self.bin_edges) - 1 else 1, 'co', markersize=6, markerfacecolor='white')
+            # final point
+            ax.plot(self.bin_edges[-1], 1, 'c>', markersize=10)
             
             ax.grid(True, alpha=0.3)
             ax.set_xlabel('Values')
