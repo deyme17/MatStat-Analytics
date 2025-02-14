@@ -41,7 +41,7 @@ class Hist:
                 ax.plot(x_values, y_values, 'c->', linewidth=2)
             
             # final point
-            ax.plot(self.bin_edges[-1], 1, 'c>', markersize=10)
+            ax.plot(self.bin_edges[-1], 1, 'c>', markersize=2)
             
             ax.grid(True, alpha=0.3)
             ax.set_xlabel('Values')
