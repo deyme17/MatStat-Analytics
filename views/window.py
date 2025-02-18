@@ -53,12 +53,18 @@ class Window(QMainWindow):
         self.tab_widget.addTab(self.hist_canvas, "Histogram")
         self.tab_widget.addTab(self.edf_canvas, "Empirical Distribution Function")
 
-        # table
+        # tables
         self.char_table = QTableWidget()
         self.char_table.setColumnCount(2)
         self.char_table.setHorizontalHeaderLabels(['Characteristic', 'Value'])
         self.char_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.char_table.setMinimumWidth(300)  
+        self.char_table.setMinimumWidth(250)  
+
+        self.ci_table = QTableWidget()
+        self.ci_table.setColumnCount(3)  
+        self.ci_table.setHorizontalHeaderLabels(['Characteristic', 'Lower conf_interval', 'Upper conf_interval'])
+        self.ci_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.ci_table.setMinimumWidth(250)
 
         # layout
         controls_layout = QHBoxLayout()
@@ -68,14 +74,21 @@ class Window(QMainWindow):
         controls_layout.addWidget(self.plot_button)
         controls_layout.addStretch()
 
-        plot_and_table_layout = QHBoxLayout()
-        plot_and_table_layout.addWidget(self.tab_widget, stretch=2)  
-        plot_and_table_layout.addWidget(self.char_table, stretch=1)  
+        # Create a vertical layout for tables
+        tables_layout = QVBoxLayout()
+        tables_layout.addWidget(self.char_table)
+        tables_layout.addWidget(self.ci_table)
 
-        ver_layout = QVBoxLayout()
-        ver_layout.addLayout(controls_layout)
-        ver_layout.addLayout(plot_and_table_layout)
+        # Main layout with plot and tables side by side
+        plot_and_tables_layout = QHBoxLayout()
+        plot_and_tables_layout.addWidget(self.tab_widget, stretch=2)
+        plot_and_tables_layout.addLayout(tables_layout, stretch=1)
+
+        # Final vertical layout
+        main_layout = QVBoxLayout()
+        main_layout.addLayout(controls_layout)
+        main_layout.addLayout(plot_and_tables_layout)
 
         central_widget = QWidget()
-        central_widget.setLayout(ver_layout)
+        central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)

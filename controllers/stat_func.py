@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from scipy.stats import skew, kurtosis
+from scipy.stats import skew, kurtosis, t, norm, chi2
 import math
 
 def variation_series(data):
@@ -50,4 +50,67 @@ def create_characteristic_table(hist):
 
         'Median': median,
         'Median absolute deviation': mad
+    })
+
+
+def confidence_intervals(data, confidence_level=0.95, precision=2):
+    n = len(data)
+    mean = np.mean(data)
+    std_dev = np.std(data, ddof=1)
+    variance = np.var(data, ddof=1)
+    median = np.median(data)
+    skewness = skew(data)
+    excess = kurtosis(data)
+    
+    # freesom deg
+    df = n - 1
+    
+    # crit vals
+    t_crit = t.ppf((1 + confidence_level) / 2, df=df)
+    chi2_lower = chi2.ppf((1 - confidence_level) / 2, df=df)
+    chi2_upper = chi2.ppf((1 + confidence_level) / 2, df=df)
+    
+    # std err (se)
+    se_mean = std_dev / np.sqrt(n)
+    se_skewness = np.sqrt(6 * n * (n - 1) / ((n - 2) * (n + 1) * (n + 3)))
+    se_kurtosis = 2 * se_skewness * np.sqrt((n * n - 1) / ((n - 3) * (n + 5)))
+    
+    # conf intervals
+    mean_ci = (
+        round(mean - t_crit * se_mean, precision),
+        round(mean + t_crit * se_mean, precision)
+    )
+    
+    variance_ci = (
+        round((n - 1) * variance / chi2_upper, precision),
+        round((n - 1) * variance / chi2_lower, precision)
+    )
+    
+    std_dev_ci = (
+        round(np.sqrt((n - 1) * variance / chi2_upper), precision),
+        round(np.sqrt((n - 1) * variance / chi2_lower), precision)
+    )
+    
+    skewness_ci = (
+        round(skewness - t_crit * se_skewness, precision),
+        round(skewness + t_crit * se_skewness, precision)
+    )
+    
+    kurtosis_ci = (
+        round(excess - t_crit * se_kurtosis, precision),
+        round(excess + t_crit * se_kurtosis, precision)
+    )
+    
+    median_ci = (
+        round(median - t_crit * (std_dev / np.sqrt(n)), precision),
+        round(median + t_crit * (std_dev / np.sqrt(n)), precision)
+    )
+    
+    return pd.Series({
+        'Mean CI': mean_ci,
+        'Standard Deviation CI': std_dev_ci,
+        'Variance CI': variance_ci,
+        'Median CI': median_ci,
+        'Skewness CI': skewness_ci,
+        'Excess CI': kurtosis_ci
     })

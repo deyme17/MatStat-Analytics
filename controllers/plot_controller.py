@@ -1,5 +1,5 @@
 from models.graph_models import Hist
-from controllers.stat_func import variation_series, create_characteristic_table
+from controllers.stat_func import variation_series, create_characteristic_table, confidence_intervals
 from PyQt6.QtWidgets import QTableWidgetItem
 import math
 import numpy as np
@@ -8,8 +8,6 @@ def plot_graphs(window):
     if window.data is not None and not window.data.empty:
         # variation series
         var_series = variation_series(window.data)
-        print('Variation Series:')
-        print(var_series)
 
         # hist
         hist_model = Hist(window.data, bins=window.bins_spinbox.value())
@@ -18,12 +16,14 @@ def plot_graphs(window):
         window.hist_canvas.draw()
         
         # EDF
-        window.edf_ax.clear()
         hist_model.plot_EDF(ax=window.edf_ax)
         window.edf_canvas.draw()
         
         # characteristics table
         update_characteristics_table(hist_model, window.char_table)
+        
+        # confidence intervals table
+        update_confidence_intervals_table(window.data, window.ci_table)
     else:
         print("No data loaded or data is empty.")
 
@@ -52,3 +52,14 @@ def update_characteristics_table(hist_model, table):
     for idx, (name, value) in enumerate(characteristics.items()):
         table.setItem(idx, 0, QTableWidgetItem(str(name)))
         table.setItem(idx, 1, QTableWidgetItem(str(value)))
+
+
+def update_confidence_intervals_table(data, table):
+    ci = confidence_intervals(data)
+    
+    table.setRowCount(len(ci))
+    
+    for idx, (name, value) in enumerate(ci.items()):
+        table.setItem(idx, 0, QTableWidgetItem(str(name)))
+        table.setItem(idx, 1, QTableWidgetItem(str(value[0])))  # Lower CI
+        table.setItem(idx, 2, QTableWidgetItem(str(value[1])))  # Upper CI
