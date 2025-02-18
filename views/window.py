@@ -31,6 +31,13 @@ class Window(QMainWindow):
         self.bins_spinbox.setValue(10)
         self.bins_spinbox.setEnabled(False)
 
+        # precision control
+        self.precision_label = QLabel('Precision:')
+        self.precision_spinbox = QSpinBox()
+        self.precision_spinbox.setRange(1, 6) 
+        self.precision_spinbox.setValue(2)
+        self.precision_spinbox.setEnabled(True) 
+
         # plot 
         self.plot_button = QPushButton('Plot Graphs')
         self.plot_button.setEnabled(False)
@@ -39,7 +46,7 @@ class Window(QMainWindow):
         # Create tab widget
         self.tab_widget = QTabWidget()
         
-        # Histogram tab
+        # hist tab
         self.hist_figure = Figure(figsize=(8, 6))
         self.hist_canvas = FigureCanvas(self.hist_figure)
         self.hist_ax = self.hist_figure.add_subplot(111)
@@ -49,7 +56,7 @@ class Window(QMainWindow):
         self.edf_canvas = FigureCanvas(self.edf_figure)
         self.edf_ax = self.edf_figure.add_subplot(111)
         
-        # Add tabs
+        # tabs
         self.tab_widget.addTab(self.hist_canvas, "Histogram")
         self.tab_widget.addTab(self.edf_canvas, "Empirical Distribution Function")
 
@@ -66,18 +73,20 @@ class Window(QMainWindow):
         controls_layout.addWidget(self.bins_label)
         controls_layout.addWidget(self.bins_spinbox)
         controls_layout.addWidget(self.plot_button)
-        controls_layout.addStretch()
+        controls_layout.addStretch()  
+        controls_layout.addWidget(self.precision_label)
+        controls_layout.addWidget(self.precision_spinbox)
 
-        # Create a vertical layout for tables
+        # ver layout
         tables_layout = QVBoxLayout()
         tables_layout.addWidget(self.char_table)
 
-        # Main layout with plot and tables side by side
+        # m layout
         plot_and_tables_layout = QHBoxLayout()
         plot_and_tables_layout.addWidget(self.tab_widget, stretch=2)
         plot_and_tables_layout.addLayout(tables_layout, stretch=1)
 
-        # Final vertical layout
+        # final ver layout)
         main_layout = QVBoxLayout()
         main_layout.addLayout(controls_layout)
         main_layout.addLayout(plot_and_tables_layout)

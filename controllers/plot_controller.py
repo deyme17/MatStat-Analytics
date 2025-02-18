@@ -20,12 +20,12 @@ def plot_graphs(window):
         hist_model.plot_EDF(ax=window.edf_ax)
         window.edf_canvas.draw()
         
-        update_merged_table(hist_model, window.data, window.char_table)
+        update_merged_table(hist_model, window.data, window.char_table, window.precision_spinbox.value())
 
 
-def update_merged_table(hist_model, data, table):
+def update_merged_table(hist_model, data, table, precision):
     characteristics = create_characteristic_table(hist_model)
-    ci = confidence_intervals(data)
+    ci = confidence_intervals(data, precision=precision)
     
     table.setColumnCount(3)
     table.setHorizontalHeaderLabels(['Value', 'Lower CI', 'Upper CI'])
@@ -42,8 +42,10 @@ def update_merged_table(hist_model, data, table):
     rows = []
     for char_name, char_value in characteristics.items():
         ci_name = ci_mapping.get(char_name)
+        
         if ci_name and ci_name in ci:
             ci_values = ci[ci_name]
+            char_value = round(float(char_value), precision)
             rows.append((char_name, char_value, ci_values[0], ci_values[1]))
         else:
             rows.append((char_name, char_value, '-', '-'))
@@ -57,7 +59,6 @@ def update_merged_table(hist_model, data, table):
         table.setItem(idx, 0, QTableWidgetItem(str(value)))
         table.setItem(idx, 1, QTableWidgetItem(str(lower)))
         table.setItem(idx, 2, QTableWidgetItem(str(upper)))
-
 
 def set_default_bins(data):
     bins = 10
