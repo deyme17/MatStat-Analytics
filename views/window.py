@@ -55,16 +55,10 @@ class Window(QMainWindow):
 
         # tables
         self.char_table = QTableWidget()
-        self.char_table.setColumnCount(2)
-        self.char_table.setHorizontalHeaderLabels(['Characteristic', 'Value'])
+        self.char_table.setColumnCount(3)
+        self.char_table.setHorizontalHeaderLabels(['Value', 'Lower CI', 'Upper CI'])
         self.char_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.char_table.setMinimumWidth(250)  
-
-        self.ci_table = QTableWidget()
-        self.ci_table.setColumnCount(3)  
-        self.ci_table.setHorizontalHeaderLabels(['Characteristic', 'Lower conf_interval', 'Upper conf_interval'])
-        self.ci_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.ci_table.setMinimumWidth(250)
+        self.char_table.setMinimumWidth(400)
 
         # layout
         controls_layout = QHBoxLayout()
@@ -77,7 +71,6 @@ class Window(QMainWindow):
         # Create a vertical layout for tables
         tables_layout = QVBoxLayout()
         tables_layout.addWidget(self.char_table)
-        tables_layout.addWidget(self.ci_table)
 
         # Main layout with plot and tables side by side
         plot_and_tables_layout = QHBoxLayout()
