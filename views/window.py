@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import (
     QMainWindow, QVBoxLayout, QPushButton, QWidget, QHBoxLayout,
-    QSpinBox, QLabel, QTableWidget, QTableWidgetItem, QHeaderView, QTabWidget
+    QSpinBox, QLabel, QTableWidget, QTableWidgetItem, QHeaderView, QTabWidget,
+    QDoubleSpinBox
 )
 from PyQt6.QtGui import QIcon
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -36,7 +37,16 @@ class Window(QMainWindow):
         self.precision_spinbox = QSpinBox()
         self.precision_spinbox.setRange(1, 6) 
         self.precision_spinbox.setValue(2)
-        self.precision_spinbox.setEnabled(True) 
+        self.precision_spinbox.setEnabled(True)
+        
+        # confidence level control
+        self.confidence_label = QLabel('Confidence Level:')
+        self.confidence_spinbox = QDoubleSpinBox()
+        self.confidence_spinbox.setRange(0.80, 0.99)
+        self.confidence_spinbox.setSingleStep(0.01)
+        self.confidence_spinbox.setValue(0.95)
+        self.confidence_spinbox.setDecimals(2)
+        self.confidence_spinbox.setEnabled(True)
 
         # plot 
         self.plot_button = QPushButton('Plot Graphs')
@@ -73,7 +83,9 @@ class Window(QMainWindow):
         controls_layout.addWidget(self.bins_label)
         controls_layout.addWidget(self.bins_spinbox)
         controls_layout.addWidget(self.plot_button)
-        controls_layout.addStretch()  
+        controls_layout.addStretch()
+        controls_layout.addWidget(self.confidence_label)
+        controls_layout.addWidget(self.confidence_spinbox)
         controls_layout.addWidget(self.precision_label)
         controls_layout.addWidget(self.precision_spinbox)
 
