@@ -1,29 +1,47 @@
 from models.graph_models import Hist
-from controllers.stat_func import variation_series, create_characteristic_table, confidence_intervals
+from utils.stat_func import variation_series, create_characteristic_table, confidence_intervals
 from PyQt6.QtWidgets import QTableWidgetItem
 import math
 import numpy as np
 
 def plot_graphs(window):
+    """
+    Plot graphs and update data tables based on current data and settings.
+    
+    Args:
+        window: The main application window
+    """
     if window.data is not None and not window.data.empty:
-        # var series
         var_series = variation_series(window.data)
-        print(var_series)
+        #print(var_series)
 
         # hist
         hist_model = Hist(window.data, bins=window.bins_spinbox.value())
+        
+        # plot histogram
         window.hist_ax.clear()
         hist_model.plot_hist(ax=window.hist_ax)
         window.hist_canvas.draw()
         
-        # EDF
+        # plot EDF
+        window.edf_ax.clear()
         hist_model.plot_EDF(ax=window.edf_ax)
         window.edf_canvas.draw()
         
+        # update characteristics table
         update_merged_table(hist_model, window.data, window.char_table, window)
 
 
 def update_merged_table(hist_model, data, table, window):
+    """
+    Update the statistical data and confidence intervals.
+    
+    Args:
+        hist_model: The histogram model
+        data: The data series
+        table: The table widget to update
+        window: The main application window
+    """
     precision = window.precision_spinbox.value()
     confidence_level = window.confidence_spinbox.value()
     
@@ -35,10 +53,10 @@ def update_merged_table(hist_model, data, table, window):
     
     ci_mapping = {
         'Mean': 'Mean CI',
-        'RMS deviation': 'Standard Deviation CI',
+        'RMS deviation': 'Std Deviation CI',
         'Variance': 'Variance CI',
-        'Median': 'Median CI',
-        'Assymetry coefficient': 'Skewness CI',
+        'MED': 'MED CI',
+        'Assymetry coeff.': 'Assymetry coeff. CI',
         'Excess': 'Excess CI'
     }
     
@@ -56,14 +74,24 @@ def update_merged_table(hist_model, data, table, window):
     # update table
     table.setRowCount(len(rows))
     for idx, (name, value, lower, upper) in enumerate(rows):
-        # header
+        # set header
         table.setVerticalHeaderItem(idx, QTableWidgetItem(str(name)))
-        # vals
+        # set values
         table.setItem(idx, 0, QTableWidgetItem(str(value)))
         table.setItem(idx, 1, QTableWidgetItem(str(lower)))
         table.setItem(idx, 2, QTableWidgetItem(str(upper)))
 
+
 def set_default_bins(data):
+    """
+    Calculate the default number of bins based on data size.
+    
+    Args:
+        data: The data series
+        
+    Returns:
+        int: The recommended number of bins
+    """
     bins = 10
 
     if not data.empty:
