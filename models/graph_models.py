@@ -1,6 +1,7 @@
 import seaborn as sns
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 class Hist:
     def __init__(self, data, bins=10):
@@ -24,6 +25,10 @@ class Hist:
             ax.set_title('Histogram with Density Curve')
             ax.set_xlabel('Values')
             ax.set_ylabel('Relative Frequency')
+            
+            # layout
+            ax.figure.tight_layout()
+            ax.figure.canvas.draw()
 
     def plot_EDF(self, ax):
         if self.data is not None:
@@ -50,3 +55,7 @@ class Hist:
             
             # limits
             ax.set_ylim(-0.05, 1.05)
+            
+            # layout
+            ax.figure.tight_layout()
+            ax.figure.canvas.draw() 
