@@ -54,7 +54,7 @@ class Window(QMainWindow):
         self.precision_spinbox.valueChanged.connect(lambda: plot_graphs(self))  
         
         # confidence level
-        self.confidence_label = QLabel('Confidence:')
+        self.confidence_label = QLabel('Confidence level (for CI):')
         self.confidence_spinbox = QDoubleSpinBox()
         self.confidence_spinbox.setRange(0.80, 0.99)
         self.confidence_spinbox.setSingleStep(0.01)
@@ -122,7 +122,7 @@ class Window(QMainWindow):
         self.standardize_button = QPushButton("Standardize")
         self.standardize_button.setEnabled(False)
         self.standardize_button.clicked.connect(self.ui_controller.standardize_data)
-        self.standardize_button.setMinimumHeight(30)  # Increased height
+        self.standardize_button.setMinimumHeight(30)  
         
         # log transform
         self.log_button = QPushButton("Log Transform")
@@ -148,24 +148,13 @@ class Window(QMainWindow):
         
         # navigate
         nav_layout = QHBoxLayout()
-        self.prev_button = QPushButton("← Previous")
-        self.prev_button.setEnabled(False)
-        self.prev_button.clicked.connect(self.ui_controller.previous_data)
-        self.prev_button.setMinimumHeight(30) 
-        
-        self.next_button = QPushButton("Next →")
-        self.next_button.setEnabled(False)
-        self.next_button.clicked.connect(self.ui_controller.next_data)
-        self.next_button.setMinimumHeight(30)
         
         self.original_button = QPushButton("Original")
         self.original_button.setEnabled(False)
         self.original_button.clicked.connect(self.ui_controller.original_data)
         self.original_button.setMinimumHeight(30)
         
-        nav_layout.addWidget(self.prev_button)
         nav_layout.addWidget(self.original_button)
-        nav_layout.addWidget(self.next_button)
         
         # proc layout
         process_layout.addWidget(self.standardize_button)

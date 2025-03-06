@@ -40,6 +40,7 @@ def load_data_file(window):
             from controllers.plot_controller import set_default_bins
             window.bins_spinbox.setValue(set_default_bins(window.data))
             
+            # plot
             plot_graphs(window)
             
             print(f'File {path} selected successfully')

@@ -48,28 +48,6 @@ class UIController:
             self.update_navigation_buttons()
             plot_graphs(window)
 
-    def previous_data(self):
-        """Navigate to previous data version"""
-        window = self.window
-        prev_data = window.data_processor.get_previous_data()
-        if prev_data is not None:
-            window.data = prev_data
-            self.update_data_version_selection()
-            self.update_transformation_label()
-            self.update_navigation_buttons()
-            plot_graphs(window)
-
-    def next_data(self):
-        """Navigate to next data version"""
-        window = self.window
-        next_data = window.data_processor.get_next_data()
-        if next_data is not None:
-            window.data = next_data
-            self.update_data_version_selection()
-            self.update_transformation_label()
-            self.update_navigation_buttons()
-            plot_graphs(window)
-
     def original_data(self):
         """Return to original data"""
         window = self.window
@@ -91,11 +69,6 @@ class UIController:
             window.data_version_combo.setCurrentIndex(window.data_processor.current_index)
             window.data_version_combo.blockSignals(False)
 
-            # navigation
-            window.prev_button.setEnabled(window.data_processor.current_index > 0)
-            window.next_button.setEnabled(
-                window.data_processor.current_index < len(descriptions) - 1
-            )
             window.original_button.setEnabled(window.data_processor.current_transformation != "Original")
 
             self.update_navigation_buttons()
@@ -120,9 +93,4 @@ class UIController:
     def update_navigation_buttons(self):
         """Updates navigation buttons"""
         window = self.window
-        descriptions = window.data_processor.get_all_data_descriptions()
-        window.prev_button.setEnabled(window.data_processor.current_index > 0)
-        window.next_button.setEnabled(
-            window.data_processor.current_index < len(descriptions) - 1
-        )
         window.original_button.setEnabled(window.data_processor.is_transformed())
