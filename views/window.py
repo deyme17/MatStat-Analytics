@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import (
     QMainWindow, QVBoxLayout, QPushButton, QWidget, QHBoxLayout,
     QSpinBox, QLabel, QTableWidget, QTableWidgetItem, QHeaderView, QTabWidget,
-    QDoubleSpinBox, QComboBox, QGroupBox, QMessageBox
+    QDoubleSpinBox, QComboBox, QGroupBox, QMessageBox, QCheckBox
 )
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import QSize
@@ -21,7 +21,6 @@ class Window(QMainWindow):
         self.setWindowIcon(QIcon("resources/MatStat.jpeg"))
         self.resize(1200, 600) 
 
-        # init data models
         self.data_model = Data()
         self.data_processor = DataProcessor()
         self.ui_controller = UIController(self)
@@ -37,11 +36,6 @@ class Window(QMainWindow):
         self.load_data_button.setFixedSize(80, 25)
         self.load_data_button.clicked.connect(lambda: load_data_file(self))
 
-        self.plot_button = QPushButton('Plot Graphs')
-        self.plot_button.setFixedSize(80, 25)
-        self.plot_button.setEnabled(False)
-        self.plot_button.clicked.connect(lambda: plot_graphs(self))
-
         # bins
         self.bins_label = QLabel('Classes:')
         self.bins_label.setFixedWidth(60)  
@@ -49,13 +43,15 @@ class Window(QMainWindow):
         self.bins_spinbox.setRange(1, 100)
         self.bins_spinbox.setValue(10)
         self.bins_spinbox.setEnabled(False)
-        self.bins_spinbox.setFixedWidth(80) 
+        self.bins_spinbox.setFixedWidth(80)
+        self.bins_spinbox.valueChanged.connect(lambda: plot_graphs(self))  
 
         # precision
         self.precision_label = QLabel('Precision:')
         self.precision_spinbox = QSpinBox()
         self.precision_spinbox.setRange(1, 6) 
         self.precision_spinbox.setValue(2)
+        self.precision_spinbox.valueChanged.connect(lambda: plot_graphs(self))  
         
         # confidence level
         self.confidence_label = QLabel('Confidence:')
@@ -64,6 +60,14 @@ class Window(QMainWindow):
         self.confidence_spinbox.setSingleStep(0.01)
         self.confidence_spinbox.setValue(0.95)
         self.confidence_spinbox.setDecimals(2)
+        self.confidence_spinbox.valueChanged.connect(lambda: plot_graphs(self))
+
+        # distribution checkboxes
+        self.normal_dist_checkbox = QCheckBox("Normal Distribution")
+        self.normal_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
+        
+        self.exponential_dist_checkbox = QCheckBox("Exponential Distribution")
+        self.exponential_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
 
         # left panel tabs
         self.left_tab_widget = QTabWidget()
@@ -100,12 +104,15 @@ class Window(QMainWindow):
         layout = QVBoxLayout()
         
         # data version selection
-        self.data_version_label = QLabel("Select Data Version:")
+        self.data_version_label = QLabel("Select loaded dataset:")
         self.data_version_combo = QComboBox()
         self.data_version_combo.setEnabled(False)
         self.data_version_combo.currentIndexChanged.connect(
             self.ui_controller.on_data_version_changed
         )
+        
+        # transformation status label
+        self.transformation_label = QLabel("Current state: Original")
         
         # data processing
         process_group = QGroupBox("Process Data")
@@ -123,7 +130,7 @@ class Window(QMainWindow):
         self.log_button.clicked.connect(self.ui_controller.log_transform_data)
         self.log_button.setMinimumHeight(30)
         
-        # hhift data
+        # shift data
         shift_layout = QHBoxLayout()
         self.shift_label = QLabel("Shift by:")
         self.shift_spinbox = QDoubleSpinBox()
@@ -169,6 +176,7 @@ class Window(QMainWindow):
         # others layout
         layout.addWidget(self.data_version_label)
         layout.addWidget(self.data_version_combo)
+        layout.addWidget(self.transformation_label)
         layout.addWidget(process_group)
         layout.addLayout(nav_layout)
         layout.addStretch()
@@ -180,7 +188,7 @@ class Window(QMainWindow):
     
         controls_layout = QHBoxLayout()
         controls_layout.addWidget(self.load_data_button)
-        controls_layout.addWidget(self.plot_button)
+
         controls_layout.addStretch()
         controls_layout.addWidget(self.confidence_label)
         controls_layout.addWidget(self.confidence_spinbox)
@@ -193,10 +201,17 @@ class Window(QMainWindow):
         bins_layout.addWidget(self.bins_spinbox)
         bins_layout.addStretch()
         
+        # distribution checkboxes layout
+        dist_layout = QHBoxLayout()
+        dist_layout.addWidget(self.normal_dist_checkbox)
+        dist_layout.addWidget(self.exponential_dist_checkbox)
+        dist_layout.addStretch()
+        
         # graph panel
         right_panel = QVBoxLayout()
         right_panel.addWidget(self.graph_tab_widget, stretch=1)
         right_panel.addLayout(bins_layout)
+        right_panel.addLayout(dist_layout)
         
         # main layout
         main_panel = QHBoxLayout()

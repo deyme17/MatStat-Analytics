@@ -1,79 +1,89 @@
-from utils.stat_func import standardize_data, log_transform_data, shift_data
-import numpy as np
-import pandas as pd
-
 class DataProcessor:
-
     def __init__(self):
-        self.data_history = []
-        self.current_index = -1
-        self.original_data = None
-        
-    def add_data(self, data):
-        # save origin data
-        if self.original_data is None:
-            self.original_data = data.copy()
-            self.data_history = [("Original Data", data.copy())]
-            self.current_index = 0
-        else:
-            if self.current_index < len(self.data_history) - 1:
-                self.data_history = self.data_history[:self.current_index + 1]
-            # new data to history
-            self.data_history.append(("New Data", data.copy()))
-            self.current_index = len(self.data_history) - 1
-    
+        self.data_history = []  
+        self.transformed_data = None 
+        self.current_index = -1  
+        self.current_transformation = "Original"
+
+    def add_data(self, data, filename="New Data"):
+        """Add a new loaded dataset (not transformations)"""
+        self.data_history.append((filename, data.copy()))
+        self.current_index = len(self.data_history) - 1
+        self.reset_transformation()
+        return data
+
+    def is_transformed(self):
+        """Check if the data has been transformed"""
+        return self.transformed_data is not None
+
+    def reset_transformation(self):
+        """Resets the data version to the origin"""
+        self.transformed_data = None
+        self.current_transformation = "Original"
+
     def standardize_data(self, data):
         """Standardize the data"""
-        processed_data = standardize_data(data)
-        self.data_history.append(("Standardized", processed_data))
-        self.current_index = len(self.data_history) - 1
-        return processed_data
+        from utils.stat_func import standardize_data
+        self.transformed_data = standardize_data(data)
+        self.current_transformation = "Standardized"
+        return self.transformed_data
 
     def log_transform_data(self, data):
         """Logarithmization"""
-        processed_data = log_transform_data(data)
-        self.data_history.append(("Log Transform", processed_data))
-        self.current_index = len(self.data_history) - 1
-        return processed_data
+        from utils.stat_func import log_transform_data
+        self.transformed_data = log_transform_data(data)
+        self.current_transformation = "Log Transform"
+        return self.transformed_data
 
     def shift_data(self, data, shift_value):
         """Shifts the data"""
-        processed_data = shift_data(data, shift_value)
-        self.data_history.append((f"Shifted by {shift_value}", processed_data))
-        self.current_index = len(self.data_history) - 1
-        return processed_data
-    
+        from utils.stat_func import shift_data
+        self.transformed_data = shift_data(data, shift_value)
+        self.current_transformation = f"Shifted by {shift_value}"
+        return self.transformed_data
+
     def get_previous_data(self):
-        """Go to prev version of data"""
+        """Go to previous dataset (not transformation)"""
         if self.current_index > 0:
             self.current_index -= 1
+            self.reset_transformation()
             return self.data_history[self.current_index][1]
         return None
-    
+
     def get_next_data(self):
-        """Go to next version of data"""
+        """Go to next dataset (not transformation)"""
         if self.current_index < len(self.data_history) - 1:
             self.current_index += 1
+            self.reset_transformation()
             return self.data_history[self.current_index][1]
         return None
-    
+
     def get_original_data(self):
-        """Go to origin data"""
-        self.current_index = 0
-        return self.data_history[0][1]
-    
+        """Go to original version of current dataset"""
+        self.reset_transformation()
+        return self.data_history[self.current_index][1]
+
     def get_current_data(self):
-        """Go to current data"""
+        """Get current dataset with any applied transformations"""
         if self.current_index >= 0:
+            if self.transformed_data is not None:
+                return self.transformed_data
             return self.data_history[self.current_index][1]
         return None
-    
+
     def get_data_description(self):
-        """Get description of data"""
+        """Get description of current data state"""
         if self.current_index >= 0:
-            return self.data_history[self.current_index][0]
+            base_name = self.data_history[self.current_index][0]
+            if self.current_transformation != "Original":
+                return f"{base_name} ({self.current_transformation})"
+            return base_name
         return "No Data"
-        
+
     def get_all_data_descriptions(self):
-        """Get all versions of data"""
+        """Get all loaded datasets (not transformations)"""
         return [desc for desc, _ in self.data_history]
+
+    def get_current_transformation(self):
+        """Get current transformation description"""
+        return self.current_transformation

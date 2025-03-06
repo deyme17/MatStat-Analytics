@@ -5,31 +5,30 @@ import math
 import numpy as np
 
 def plot_graphs(window):
-    """
-    Plot graphs and update data tables based on current data and settings.
-    
-    Args:
-        window: The main application window
-    """
     if window.data is not None and not window.data.empty:
+        # variation series
         var_series = variation_series(window.data)
-        #print(var_series)
 
         # hist
         hist_model = Hist(window.data, bins=window.bins_spinbox.value())
-        
-        # plot histogram
         window.hist_ax.clear()
-        hist_model.plot_hist(ax=window.hist_ax)
+        
+        # Check which distributions are selected
+        show_normal = window.normal_dist_checkbox.isChecked()
+        show_exponential = window.exponential_dist_checkbox.isChecked()
+        
+        # Plot histogram with selected distributions
+        hist_model.plot_hist(window.hist_ax, show_normal, show_exponential)
         window.hist_canvas.draw()
         
-        # plot EDF
-        window.edf_ax.clear()
-        hist_model.plot_EDF(ax=window.edf_ax)
+        # EDF
+        hist_model.plot_EDF(window.edf_ax)
         window.edf_canvas.draw()
         
         # update characteristics table
         update_merged_table(hist_model, window.data, window.char_table, window)
+    else:
+        print("No data loaded or data is empty.")
 
 
 def update_merged_table(hist_model, data, table, window):
@@ -69,7 +68,7 @@ def update_merged_table(hist_model, data, table, window):
             char_value = round(float(char_value), precision)
             rows.append((char_name, char_value, ci_values[0], ci_values[1]))
         else:
-            rows.append((char_name, char_value, '-', '-'))
+            rows.append((char_name, char_value, 'N/A', 'N/A'))
     
     # update table
     table.setRowCount(len(rows))

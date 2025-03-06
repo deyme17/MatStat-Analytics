@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QFileDialog
-from controllers.ui_controller import UIController
+import os
+from controllers.plot_controller import plot_graphs
 
 def load_data_file(window):
     """
@@ -16,15 +17,16 @@ def load_data_file(window):
     )
 
     if path:
+        filename = os.path.basename(path)
+        
         data = window.data_model.load_data(path)
 
         if data is not None and not data.empty:
             window.data = data
-            window.data_processor.add_data(data)
+            window.data_processor.add_data(data, filename)
             
             # enable UI
             window.bins_spinbox.setEnabled(True)
-            window.plot_button.setEnabled(True)
             window.standardize_button.setEnabled(True)
             window.log_button.setEnabled(True)
             window.shift_spinbox.setEnabled(True)
@@ -37,6 +39,8 @@ def load_data_file(window):
             # set default bins
             from controllers.plot_controller import set_default_bins
             window.bins_spinbox.setValue(set_default_bins(window.data))
+            
+            plot_graphs(window)
             
             print(f'File {path} selected successfully')
         else:
