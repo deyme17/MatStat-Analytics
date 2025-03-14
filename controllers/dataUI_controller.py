@@ -1,6 +1,6 @@
-from controllers.plot_controller import plot_graphs
+from views.plot_controller import plot_graphs
 
-class UIController:
+class DataUIController:
     """Controller for UI interactions and data operations"""
 
     def __init__(self, window):
@@ -15,6 +15,10 @@ class UIController:
             window.data = window.data_processor.get_current_data()
             self.update_transformation_label()
             self.update_navigation_buttons()
+            
+            window.normal_anomaly_button.setEnabled(True)
+            window.asymmetry_anomaly_button.setEnabled(True)
+                    
             plot_graphs(window)
 
     def standardize_data(self):
@@ -49,14 +53,38 @@ class UIController:
             plot_graphs(window)
 
     def original_data(self):
-        """Return to original data"""
+        """Return to the original data state without transformations or anomalies."""
         window = self.window
-        orig_data = window.data_processor.get_original_data()
-        if orig_data is not None:
-            window.data = orig_data
-            self.update_transformation_label()
-            self.update_navigation_buttons()
-            plot_graphs(window)
+        
+        # handle reset after anomaly removal
+        if hasattr(self, 'anomalies_removed') and self.anomalies_removed:
+            if hasattr(window, 'original_data_backup'):
+                # restore orig data
+                window.data = window.original_data_backup.copy()
+                
+                # update the data in data_processor
+                current_index = window.data_processor.current_index
+                filename = window.data_processor.get_data_description()
+                window.data_processor.data_history[current_index] = (filename, window.data.copy())
+                
+                # reset flags
+                self.anomalies_removed = False
+                delattr(window, 'original_data_backup')
+                
+                # enable anomaly buttons
+                window.normal_anomaly_button.setEnabled(True)
+                window.asymmetry_anomaly_button.setEnabled(True)
+        
+        # reset any transformations
+        window.data_processor.reset_transformation()
+        window.data = window.data_processor.get_current_data()
+        self.update_transformation_label()
+        
+        # update the plots
+        plot_graphs(window)
+        
+        # update navigation buttons state
+        self.update_navigation_buttons()
 
     def update_data_versions(self):
         """Update the available data versions in the dropdown"""
@@ -68,8 +96,6 @@ class UIController:
             window.data_version_combo.addItems(descriptions)
             window.data_version_combo.setCurrentIndex(window.data_processor.current_index)
             window.data_version_combo.blockSignals(False)
-
-            window.original_button.setEnabled(window.data_processor.current_transformation != "Original")
 
             self.update_navigation_buttons()
             self.update_transformation_label()
@@ -90,7 +116,18 @@ class UIController:
         current_trans = window.data_processor.get_current_transformation()
         window.transformation_label.setText(f"Current state: {current_trans}")
 
+    def is_transformed(self):
+        """Check if data has been transformed."""
+        return self.transformed_data is not None
+
     def update_navigation_buttons(self):
-        """Updates navigation buttons"""
+        """Updates navigation buttons."""
         window = self.window
-        window.original_button.setEnabled(window.data_processor.is_transformed())
+        # enable original button if data has been transformed OR anomalies have been removed
+        is_transformed = window.data_processor.transformed_data is not None
+        
+        # create a flag to track if anomalies were removed
+        if not hasattr(self, 'anomalies_removed'):
+            self.anomalies_removed = False
+            
+        window.original_button.setEnabled(is_transformed or self.anomalies_removed)

@@ -1,47 +1,53 @@
 class DataProcessor:
+    """
+    A class for handling data processing.
+    """
+
     def __init__(self):
         self.data_history = []  
         self.transformed_data = None 
         self.current_index = -1  
         self.current_transformation = "Original"
-
-    def add_data(self, data, filename="New Data"):
-        """Add a new loaded dataset (not transformations)"""
-        self.data_history.append((filename, data.copy()))
-        self.current_index = len(self.data_history) - 1
-        self.reset_transformation()
-        return data
-
-    def is_transformed(self):
-        """Check if the data has been transformed"""
-        return self.transformed_data is not None
-
-    def reset_transformation(self):
-        """Resets the data version to the origin"""
-        self.transformed_data = None
-        self.current_transformation = "Original"
+        self.original_file_index = -1
 
     def standardize_data(self, data):
         """Standardize the data"""
-        from utils.stat_func import standardize_data
+        from utils.data_func import standardize_data
         self.transformed_data = standardize_data(data)
         self.current_transformation = "Standardized"
         return self.transformed_data
 
     def log_transform_data(self, data):
         """Logarithmization"""
-        from utils.stat_func import log_transform_data
+        from utils.data_func import log_transform_data
         self.transformed_data = log_transform_data(data)
         self.current_transformation = "Log Transform"
         return self.transformed_data
 
     def shift_data(self, data, shift_value):
         """Shifts the data"""
-        from utils.stat_func import shift_data
+        from utils.data_func import shift_data
         self.transformed_data = shift_data(data, shift_value)
         self.current_transformation = f"Shifted by {shift_value}"
         return self.transformed_data
+    
+    def add_data(self, data, filename="New Data"):
+        """Add a new loaded dataset (not transformations)"""
+        self.data_history.append((filename, data.copy()))
+        self.current_index = len(self.data_history) - 1
+        self.original_file_index = self.current_index
+        self.reset_transformation()
+        return data
 
+    def reset_transformation(self):
+        """Resets the data version to the origin"""
+        self.transformed_data = None
+        self.current_transformation = "Original"
+
+    def is_modified(self):
+        """Check if data has been modified (transformed)."""
+        return self.transformed_data is not None
+    
     def get_previous_data(self):
         """Go to previous dataset (not transformation)"""
         if self.current_index > 0:

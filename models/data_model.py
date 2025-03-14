@@ -1,11 +1,24 @@
 import pandas as pd
-import numpy as np
 
 class Data:
+    """
+    A class for handling data loading and preprocessing from a text file.
+    """
+
     def __init__(self):
         self.data = None
 
     def load_data(self, path):
+        """
+        Loads numerical data from a text file, converting values from string format.
+        
+        Parameters:
+            path (str): The file path to load data from.
+        
+        Returns:
+            pd.Series: A Pandas Series containing the valid numerical data, or None if loading fails.
+        """
+        
         try:
             with open(path, 'r') as file:
                 lines = [line.strip().replace(',', '.') for line in file]

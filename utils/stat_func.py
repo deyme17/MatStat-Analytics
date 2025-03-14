@@ -1,9 +1,18 @@
 import pandas as pd
 import numpy as np
 from scipy.stats import skew, kurtosis, t, norm, chi2
-import math
+from PyQt6.QtWidgets import QTableWidgetItem
 
 def variation_series(data):
+    """
+    Constructs a variation series from the given data.
+    
+    Parameters:
+        data (pd.Series): Input data series.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing values, their frequencies, and relative frequencies.
+    """
     value_counts = data.value_counts()
     value_counts = value_counts.sort_index()
     
@@ -17,7 +26,17 @@ def variation_series(data):
         'Relative Frequency': relative_frequencies
     })
 
+
 def create_characteristic_table(hist):
+    """
+    Creates a characteristic table with statistical measures from histogram data.
+    
+    Parameters:
+        hist (object): Histogram object containing data and bin count.
+
+    Returns:
+        pd.Series: A series with various statistical characteristics.
+    """
     data_num = len(hist.data)  
     splitting_step = round(data_num / hist.bins, 2)
 
@@ -32,7 +51,6 @@ def create_characteristic_table(hist):
 
     median = round(np.median(hist.data), 2)
     mad = round(np.median(np.abs(hist.data - median)), 2)
-
 
     return pd.Series({
         'Classes': hist.bins,
@@ -54,6 +72,18 @@ def create_characteristic_table(hist):
 
 
 def confidence_intervals(data, confidence_level=0.95, precision=2):
+    """
+    Computes confidence intervals for various statistical measures.
+    
+    Parameters:
+        data (pd.Series): Input data series.
+        confidence_level (float, optional): Confidence level for intervals. Default is 0.95.
+        precision (int, optional): Rounding precision. Default is 2.
+
+    Returns:
+        pd.Series: A series containing confidence intervals for mean, variance, standard deviation,
+                   median, skewness, and kurtosis.
+    """
     n = len(data)
     mean = np.mean(data)
     std_dev = np.std(data, ddof=1)
@@ -62,20 +92,20 @@ def confidence_intervals(data, confidence_level=0.95, precision=2):
     skewness = skew(data)
     excess = kurtosis(data)
     
-    # freesom deg
+    # Degrees of freedom
     df = n - 1
     
-    # crit vals
+    # Critical values
     t_crit = t.ppf((1 + confidence_level) / 2, df=df)
     chi2_lower = chi2.ppf((1 - confidence_level) / 2, df=df)
     chi2_upper = chi2.ppf((1 + confidence_level) / 2, df=df)
     
-    # std err (se)
+    # Standard errors
     se_mean = std_dev / np.sqrt(n)
     se_skewness = np.sqrt(6 * n * (n - 1) / ((n - 2) * (n + 1) * (n + 3)))
     se_kurtosis = 2 * se_skewness * np.sqrt((n * n - 1) / ((n - 3) * (n + 5)))
     
-    # conf intervals
+    # Confidence intervals
     mean_ci = (
         round(mean - t_crit * se_mean, precision),
         round(mean + t_crit * se_mean, precision)
@@ -115,18 +145,74 @@ def confidence_intervals(data, confidence_level=0.95, precision=2):
         'Excess CI': kurtosis_ci
     })
 
-def standardize_data(data):
-    mean = data.mean()
-    std = data.std()
-    return (data - mean) / std
+def update_merged_table(hist_model, data, table, window):
+    """
+    Update the statistical data and confidence intervals.
+    
+    Args:
+        hist_model: The histogram model
+        data: The data series
+        table: The table widget to update
+        window: The main application window
+    """
+    precision = window.precision_spinbox.value()
+    confidence_level = window.confidence_spinbox.value()
+    
+    characteristics = create_characteristic_table(hist_model)
+    ci = confidence_intervals(data, confidence_level=confidence_level, precision=precision)
+    
+    table.setColumnCount(3)
+    table.setHorizontalHeaderLabels(['Value', 'Lower CI', 'Upper CI'])
+    
+    ci_mapping = {
+        'Mean': 'Mean CI',
+        'RMS deviation': 'Std Deviation CI',
+        'Variance': 'Variance CI',
+        'MED': 'MED CI',
+        'Assymetry coeff.': 'Assymetry coeff. CI',
+        'Excess': 'Excess CI'
+    }
+    
+    rows = []
+    for char_name, char_value in characteristics.items():
+        ci_name = ci_mapping.get(char_name)
+        
+        if ci_name and ci_name in ci:
+            ci_values = ci[ci_name]
+            char_value = round(float(char_value), precision)
+            rows.append((char_name, char_value, ci_values[0], ci_values[1]))
+        else:
+            rows.append((char_name, char_value, 'N/A', 'N/A'))
+    
+    # update table
+    table.setRowCount(len(rows))
+    for idx, (name, value, lower, upper) in enumerate(rows):
+        # set header
+        table.setVerticalHeaderItem(idx, QTableWidgetItem(str(name)))
+        # set values
+        table.setItem(idx, 0, QTableWidgetItem(str(value)))
+        table.setItem(idx, 1, QTableWidgetItem(str(lower)))
+        table.setItem(idx, 2, QTableWidgetItem(str(upper)))
 
-def log_transform_data(data):
-    min_value = data.min()
-    if min_value <= 0:
-        shift = abs(min_value) + 1
-        return np.log(data + shift)
-    else:
-        return np.log(data)
 
-def shift_data(data, shift_value):
-    return data + shift_value
+def set_default_bins(data):
+    """
+    Calculate the default number of bins based on data size.
+    
+    Args:
+        data: The data series
+        
+    Returns:
+        int: The recommended number of bins
+    """
+    bins = 10
+
+    if not data.empty:
+        classes = len(data)
+
+        if classes <= 100:
+            bins = int(classes ** (1 / 2)) if classes % 2 == 1 else int(classes ** (1 / 2)) - 1
+        else:
+            bins = int(classes ** (1 / 3)) if classes % 2 == 1 else int(classes ** (1 / 3)) - 1
+
+    return max(bins, 1)

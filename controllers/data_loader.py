@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QFileDialog
 import os
-from controllers.plot_controller import plot_graphs
+from views.plot_controller import plot_graphs
 
 def load_data_file(window):
     """
@@ -32,12 +32,14 @@ def load_data_file(window):
             window.shift_spinbox.setEnabled(True)
             window.shift_button.setEnabled(True)
             window.data_version_combo.setEnabled(True)
+            window.normal_anomaly_button.setEnabled(True)
+            window.asymmetry_anomaly_button.setEnabled(True)
             
             # update data versions
             window.ui_controller.update_data_versions()
             
             # set default bins
-            from controllers.plot_controller import set_default_bins
+            from utils.stat_func import set_default_bins
             window.bins_spinbox.setValue(set_default_bins(window.data))
             
             # plot

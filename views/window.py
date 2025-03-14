@@ -4,14 +4,14 @@ from PyQt6.QtWidgets import (
     QDoubleSpinBox, QComboBox, QGroupBox, QMessageBox, QCheckBox
 )
 from PyQt6.QtGui import QIcon
-from PyQt6.QtCore import QSize
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from models.data_model import Data
 from models.data_processor import DataProcessor
 from controllers.data_loader import load_data_file
-from controllers.plot_controller import plot_graphs
-from controllers.ui_controller import UIController
+from views.plot_controller import plot_graphs
+from controllers.dataUI_controller import DataUIController
+from controllers.anomaly_controller import AnomalyController
 
 class Window(QMainWindow):
     """Main window for statistical data analysis application."""
@@ -23,7 +23,7 @@ class Window(QMainWindow):
 
         self.data_model = Data()
         self.data_processor = DataProcessor()
-        self.ui_controller = UIController(self)
+        self.ui_controller = DataUIController(self)
         self.data = None
 
         self._create_widgets()
@@ -146,6 +146,29 @@ class Window(QMainWindow):
         shift_layout.addWidget(self.shift_spinbox)
         shift_layout.addWidget(self.shift_button)
         
+        # anomaly detection group
+        anomaly_group = QGroupBox("Anomaly Detection")
+        anomaly_layout = QVBoxLayout()
+        
+        # create anomaly controller
+        self.anomaly_controller = AnomalyController(self)
+        
+        # normal distribution anomaly detection
+        self.normal_anomaly_button = QPushButton("Remove Anomalies (Normal)")
+        self.normal_anomaly_button.setEnabled(False)
+        self.normal_anomaly_button.clicked.connect(self.anomaly_controller.remove_normal_anomalies)
+        self.normal_anomaly_button.setMinimumHeight(30)
+        
+        # simple anomaly detection
+        self.asymmetry_anomaly_button = QPushButton("Remove Anomalies")
+        self.asymmetry_anomaly_button.setEnabled(False)
+        self.asymmetry_anomaly_button.clicked.connect(self.anomaly_controller.remove_anomalies)
+        self.asymmetry_anomaly_button.setMinimumHeight(30)
+        
+        anomaly_layout.addWidget(self.normal_anomaly_button)
+        anomaly_layout.addWidget(self.asymmetry_anomaly_button)
+        anomaly_group.setLayout(anomaly_layout)
+        
         # navigate
         nav_layout = QHBoxLayout()
         
@@ -167,6 +190,7 @@ class Window(QMainWindow):
         layout.addWidget(self.data_version_combo)
         layout.addWidget(self.transformation_label)
         layout.addWidget(process_group)
+        layout.addWidget(anomaly_group)
         layout.addLayout(nav_layout)
         layout.addStretch()
         
