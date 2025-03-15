@@ -9,7 +9,7 @@ from matplotlib.figure import Figure
 from models.data_model import Data
 from models.data_processor import DataProcessor
 from controllers.data_loader import load_data_file
-from views.plot_controller import plot_graphs
+from controllers.plot_controller import plot_graphs
 from controllers.dataUI_controller import DataUIController
 from controllers.anomaly_controller import AnomalyController
 

@@ -1,4 +1,4 @@
-from views.plot_controller import plot_graphs
+from controllers.plot_controller import plot_graphs
 
 class DataUIController:
     """Controller for UI interactions and data operations"""

@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QFileDialog
 import os
-from views.plot_controller import plot_graphs
+from controllers.plot_controller import plot_graphs
 
 def load_data_file(window):
     """

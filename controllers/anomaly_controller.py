@@ -1,5 +1,5 @@
 from utils.data_func import detect_anomalies, detect_normal_anomalies
-from views.plot_controller import plot_graphs
+from controllers.plot_controller import plot_graphs
 import numpy as np
 
 class AnomalyController:
