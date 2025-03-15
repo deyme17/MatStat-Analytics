@@ -9,20 +9,22 @@ from matplotlib.figure import Figure
 from models.data_model import Data
 from models.data_processor import DataProcessor
 from controllers.data_loader import load_data_file
-from controllers.plot_controller import plot_graphs
+from views.plot_graphs import plot_graphs
 from controllers.dataUI_controller import DataUIController
 from controllers.anomaly_controller import AnomalyController
 
 class Window(QMainWindow):
     """Main window for statistical data analysis application."""
-    def __init__(self):
+    def __init__(self, data_model, data_processor):
         super().__init__()
         self.setWindowTitle('MatStat')
         self.setWindowIcon(QIcon("resources/MatStat.jpeg"))
         self.resize(1200, 600) 
 
-        self.data_model = Data()
-        self.data_processor = DataProcessor()
+        # import some models
+        self.data_model = data_model
+        self.data_processor = data_processor
+
         self.ui_controller = DataUIController(self)
         self.data = None
 

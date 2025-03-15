@@ -1,6 +1,6 @@
 from models.graph_models import Hist
-from utils.stat_func import variation_series, update_merged_table
 from models.stat_distributions import StatisticalDistributions
+from utils.stat_func import variation_series, update_merged_table
 
 def plot_graphs(window):
     if window.data is not None and not window.data.empty:
