@@ -26,7 +26,7 @@ class AnomalyController:
         if len(anomalies) > 0:
             # store orig data
             if not hasattr(self.window, 'original_data_backup'):
-                self.window.original_data_backup = self.window.data.copy()
+                self.window.original_data_backup = self.window.data_processor.get_original_data()
             
             self.window.ui_controller.anomalies_removed = True
             

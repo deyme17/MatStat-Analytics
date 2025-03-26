@@ -56,35 +56,32 @@ class DataUIController:
         """Return to the original data state without transformations or anomalies."""
         window = self.window
         
-        # handle reset after anomaly removal
-        if hasattr(self, 'anomalies_removed') and self.anomalies_removed:
-            if hasattr(window, 'original_data_backup'):
-                # restore orig data
-                window.data = window.original_data_backup.copy()
-                
-                # update the data in data_processor
-                current_index = window.data_processor.current_index
-                filename = window.data_processor.get_data_description()
-                window.data_processor.data_history[current_index] = (filename, window.data.copy())
-                
-                # reset flags
-                self.anomalies_removed = False
-                delattr(window, 'original_data_backup')
-                
-                # enable anomaly buttons
-                window.normal_anomaly_button.setEnabled(True)
-                window.asymmetry_anomaly_button.setEnabled(True)
-        
-        # reset any transformations
+        # reset to orig data
         window.data_processor.reset_transformation()
-        window.data = window.data_processor.get_current_data()
+        
+        # restore from orig backup if exists
+        if hasattr(window, 'original_data_backup'):
+            window.data = window.original_data_backup.copy()
+            
+            # update data in data_processor
+            current_index = window.data_processor.current_index
+            filename = window.data_processor.get_data_description().split(' (')[0]
+            window.data_processor.data_history[current_index] = (filename, window.data.copy())
+            
+            # remove backup and reset flags
+            delattr(window, 'original_data_backup')
+        else:
+            window.data = window.data_processor.get_original_data()
+        
+        if hasattr(self, 'anomalies_removed'):
+            self.anomalies_removed = False
+        
+        window.normal_anomaly_button.setEnabled(True)
+        window.asymmetry_anomaly_button.setEnabled(True)
+        
         self.update_transformation_label()
-        
-        # update the plots
-        plot_graphs(window)
-        
-        # update navigation buttons state
         self.update_navigation_buttons()
+        plot_graphs(window)
 
     def update_data_versions(self):
         """Update the available data versions in the dropdown"""
