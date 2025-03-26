@@ -11,7 +11,10 @@ def plot_graphs(window):
         hist_model = Hist(window.data, bins=window.bins_spinbox.value())
         window.hist_ax.clear()
         
+        # style
         hist_model.plot_hist(window.hist_ax, False, False)
+        window.hist_ax.set_facecolor('#f0f8ff')  # Light Blue Background
+        window.hist_ax.grid(color='#b0e0e6', linestyle='--', alpha=0.7)
         
         show_normal = window.normal_dist_checkbox.isChecked()
         show_exponential = window.exponential_dist_checkbox.isChecked()
@@ -21,16 +24,24 @@ def plot_graphs(window):
             dist_handler = StatisticalDistributions()
             
             if show_normal:
-                dist_handler.plot_distribution(window.hist_ax, window.data, 'Normal', color='r', label='Normal Distribution')
+                dist_handler.plot_distribution(window.hist_ax, window.data, 'Normal', 
+                                               color='#4169e1',  # Royal Blue 
+                                               linewidth=2, 
+                                               label='Normal Distribution')
                 
             if show_exponential:
-                dist_handler.plot_distribution(window.hist_ax, window.data, 'Exponential', color='y', label='Exponential Distribution')
+                dist_handler.plot_distribution(window.hist_ax, window.data, 'Exponential', 
+                                               color='#1e90ff',  # Dodger Blue
+                                               linewidth=2, 
+                                               label='Exponential Distribution')
 
-        
+        window.hist_ax.legend(framealpha=0.5)
         window.hist_canvas.draw()
         
         # plot EDF
         hist_model.plot_EDF(window.edf_ax)
+        window.edf_ax.set_facecolor('#f0f8ff')
+        window.edf_ax.grid(color='#b0e0e6', linestyle='--', alpha=0.7)
         window.edf_canvas.draw()
         
         # update characteristics table
