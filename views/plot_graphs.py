@@ -25,13 +25,13 @@ def plot_graphs(window):
             
             if show_normal:
                 dist_handler.plot_distribution(window.hist_ax, window.data, 'Normal', 
-                                               color='#4169e1',  # Royal Blue 
+                                               color='r',  
                                                linewidth=2, 
                                                label='Normal Distribution')
                 
             if show_exponential:
                 dist_handler.plot_distribution(window.hist_ax, window.data, 'Exponential', 
-                                               color='#1e90ff',  # Dodger Blue
+                                               color='r',  
                                                linewidth=2, 
                                                label='Exponential Distribution')
 

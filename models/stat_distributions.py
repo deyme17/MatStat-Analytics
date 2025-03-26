@@ -24,8 +24,11 @@ class StatisticalDistributions:
         else:
             raise ValueError(f"Distribution '{dist_name}' not supported")
     
-    def plot_distribution(self, ax, data, dist_name, color='r', label=None):
-        """Plot the specified distribution fitted to data."""
+    def plot_distribution(self, ax, data, dist_name, color='r', label=None, **kwargs):
+        """
+        Plot the specified distribution fitted to data.
+        Additional kwargs like linewidth can be passed.
+        """
         if dist_name not in self.available_distributions:
             return False
 
@@ -34,10 +37,10 @@ class StatisticalDistributions:
         params = self.fit_distribution(data, dist_name)
         pdf_values = self._get_pdf_values(x, dist_name, params)
         
-        # plot
+        # plot with passed kwargs
         if label is None:
             label = f"{dist_name} Distribution"
-        ax.plot(x, pdf_values, color=color, label=label)
+        ax.plot(x, pdf_values, color=color, label=label, **kwargs)
         return True
     
     def _get_pdf_values(self, x, dist_name, params):
@@ -78,4 +81,4 @@ class StatisticalDistributions:
         min_val = np.min(data)
         if min_val <= 0:
             data = data - min_val + 0.01
-        return stats.weibull_min.fit(data)[:-1]  # ignoring location parameter
+        return stats.weibull_min.fit(data)[:-1]

@@ -1,8 +1,9 @@
 import pandas as pd
+import os
 
 class Data:
     """
-    A class for handling data loading and preprocessing from a text file.
+    A class for handling data loading and preprocessing from various file types.
     """
 
     def __init__(self):
@@ -10,7 +11,7 @@ class Data:
 
     def load_data(self, path):
         """
-        Loads numerical data from a text file, converting values from string format.
+        Loads numerical data from various file types, converting values as needed.
         
         Parameters:
             path (str): The file path to load data from.
@@ -20,25 +21,50 @@ class Data:
         """
         
         try:
-            with open(path, 'r') as file:
-                lines = [line.strip().replace(',', '.') for line in file]
+            file_extension = os.path.splitext(path)[1].lower()
 
-                valid_data = []
-                for x in lines:
-                    if not x:
-                        continue
+            if file_extension in ['.xlsx', '.xls']:
+                df = pd.read_excel(path)
+
+            elif file_extension == '.csv':
+                df = pd.read_csv(path, decimal=',')
+
+            elif file_extension == '.txt':
+                with open(path, 'r') as file:
+                    lines = [line.strip().replace(',', '.') for line in file]
+
+                    valid_data = []
+                    for x in lines:
+                        if not x:
+                            continue
+                        
+                        try:
+                            if ',' in x:
+                                x = x.split(',')[1]
+                            valid_data.append(float(x))
+                        except ValueError:
+                            print(f"Skipping invalid value: {x}")
                     
-                    try:
-                        valid_data.append(float(x))
-                    except ValueError:
-                        print(f"Skipping invalid value: {x}")
-                
-                if not valid_data:
-                    print("No valid data found in file")
-                    return None
-                
-                self.data = pd.Series(valid_data)
-                
+                    if not valid_data:
+                        print("No valid data found in file")
+                        return None
+                    
+                    self.data = pd.Series(valid_data)
+                    return self.data
+            else:
+                print(f"Unsupported file type: {file_extension}")
+                return None
+
+            if len(df.columns) > 1:
+                df = df.iloc[:, -1]
+            
+            df = pd.to_numeric(df, errors='coerce').dropna()
+            
+            if df.empty:
+                print("No valid numerical data found in file")
+                return None
+            
+            self.data = df
             return self.data
             
         except FileNotFoundError:

@@ -13,7 +13,11 @@ def load_data_file(window):
         window,
         'Select the File',
         '',
-        'Text Files (*.txt);;All Files (*)'
+        'All Supported Files (*.txt *.csv *.xlsx *.xls);;'
+        'Text Files (*.txt);;'
+        'CSV Files (*.csv);;'
+        'Excel Files (*.xlsx *.xls);;'
+        'All Files (*)'
     )
 
     if path:
