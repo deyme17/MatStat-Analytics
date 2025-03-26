@@ -19,31 +19,29 @@ class Data:
         Returns:
             pd.Series: A Pandas Series containing the valid numerical data, or None if loading fails.
         """
-        
         try:
             file_extension = os.path.splitext(path)[1].lower()
 
             if file_extension in ['.xlsx', '.xls']:
                 df = pd.read_excel(path)
-
             elif file_extension == '.csv':
                 df = pd.read_csv(path, decimal=',')
-
             elif file_extension == '.txt':
-                with open(path, 'r') as file:
-                    lines = [line.strip().replace(',', '.') for line in file]
-
+          
+                with open(path, 'r', encoding='utf-8') as file:
+                    lines = [line.strip().replace(',', '.') for line in file if line.strip()]
+                    
                     valid_data = []
                     for x in lines:
-                        if not x:
-                            continue
-                        
                         try:
-                            if ',' in x:
-                                x = x.split(',')[1]
-                            valid_data.append(float(x))
+                            if ',' in x or '.' in x:
+                                num = float(x.replace(',', '.'))
+                            else:
+                                num = float(x)
+                            valid_data.append(num)
                         except ValueError:
                             print(f"Skipping invalid value: {x}")
+                            continue
                     
                     if not valid_data:
                         print("No valid data found in file")
@@ -56,7 +54,7 @@ class Data:
                 return None
 
             if len(df.columns) > 1:
-                df = df.iloc[:, -1]
+                df = df.iloc[:, -1] 
             
             df = pd.to_numeric(df, errors='coerce').dropna()
             

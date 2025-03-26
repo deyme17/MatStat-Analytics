@@ -1,4 +1,4 @@
-from scipy import stats
+from scipy import stats, interpolate
 import numpy as np
 
 def standardize_data(data):
@@ -111,3 +111,93 @@ def detect_anomalies(data):
         'lower_limit': lower_limit,
         'upper_limit': upper_limit
     }
+
+def detect_missing_values(data):
+    """
+    Detect missing values in the dataset.
+    
+    Args:
+        data (pd.Series): Input data series
+    
+    Returns:
+        dict: Information about missing values
+    """
+    missing_mask = data.isna()
+    return {
+        'total_missing': missing_mask.sum(),
+        'missing_percentage': missing_mask.mean() * 100,
+        'missing_indices': missing_mask[missing_mask].index.tolist()
+    }
+
+def interpolate_missing_values(data, method='linear'):
+    """
+    Interpolate missing values using various methods.
+    
+    Args:
+        data (pd.Series): Input data series
+        method (str): Interpolation method ('linear', 'quadratic', 'cubic')
+    
+    Returns:
+        pd.Series: Data series with interpolated values
+    """
+    methods = {
+        'linear': 1,
+        'quadratic': 2,
+        'cubic': 3
+    }
+    
+    if method not in methods:
+        raise ValueError(f"Method {method} not supported. Choose from: {list(methods.keys())}")
+    
+    # Create x values (indices or time values if available)
+    x = data.index
+    valid_mask = ~data.isna()
+    
+    # Interpolation
+    f = interpolate.interp1d(
+        x[valid_mask], 
+        data[valid_mask], 
+        kind=method, 
+        fill_value='extrapolate'
+    )
+    
+    interpolated_data = data.copy()
+    interpolated_data[data.isna()] = f(x[data.isna()])
+    
+    return interpolated_data
+
+def replace_missing_with_mean(data):
+    """
+    Replace missing values with mean of the dataset.
+    
+    Args:
+        data (pd.Series): Input data series
+    
+    Returns:
+        pd.Series: Data series with missing values replaced by mean
+    """
+    return data.fillna(data.mean())
+
+def replace_missing_with_median(data):
+    """
+    Replace missing values with median of the dataset.
+    
+    Args:
+        data (pd.Series): Input data series
+    
+    Returns:
+        pd.Series: Data series with missing values replaced by median
+    """
+    return data.fillna(data.median())
+
+def drop_missing_values(data):
+    """
+    Drop rows containing missing values.
+    
+    Args:
+        data (pd.Series): Input data series
+    
+    Returns:
+        pd.Series: Data series with missing rows dropped
+    """
+    return data.dropna()
