@@ -1,6 +1,7 @@
 import seaborn as sns
-from scipy.stats import norm
+from scipy.stats import norm, t, gaussian_kde
 import numpy as np
+from scipy.interpolate import interp1d
 
 class Hist:
     """
@@ -37,7 +38,7 @@ class Hist:
 
         # Calculate bin edges and counts safely
         try:
-            self.bin_edges = np.linspace(self.data.min(), self.data.max(), self.bins + 1)
+            self.bin_edges = np.linspace(np.nanmin(self.data), np.nanmax(self.data), self.bins + 1)
             self.bin_counts, _ = np.histogram(self.data, bins=self.bin_edges)
         except Exception as e:
             # Fallback for edge cases
@@ -64,26 +65,8 @@ class Hist:
                              edgecolor='black', alpha=0.7, stat='probability', 
                              label='Histogram')
                 
-                # normal distribution
-                if show_normal:
-                    mean = np.nanmean(self.data)
-                    std_dev = np.nanstd(self.data)
-                    x = np.linspace(np.nanmin(self.data), np.nanmax(self.data), 1000)
-                    y = norm.pdf(x, mean, std_dev)
-                    ax.plot(x, y, 'r-', label='Normal Distribution')
-                
-                # exp distribution
-                if show_exponential:
-                    # Ensure all data is positive for exponential
-                    data_exp = self.data.copy()
-                    min_val = np.nanmin(data_exp)
-                    if min_val <= 0:
-                        data_exp = data_exp - min_val + 0.01
-                        
-                    lambda_ = 1 / np.nanmean(data_exp)
-                    x = np.linspace(0, np.nanmax(data_exp), 1000)
-                    y_exp = lambda_ * np.exp(-lambda_ * x)
-                    ax.plot(x, y_exp, 'g-', label='Exponential Distribution')
+                # Normal distribution implementation for StatisticalDistributions
+                # class to use
                 
                 ax.grid(True, alpha=0.3)
                 ax.set_title('Histogram with Density Curve')
@@ -102,36 +85,60 @@ class Hist:
                         ha='center', va='center', transform=ax.transAxes)
                 ax.figure.canvas.draw()
 
-    def plot_EDF(self, ax):
+    def plot_EDF(self, ax, show_smooth_edf=True):
         """
-        Plots the empirical distribution function (EDF) based on cumulative relative frequencies.
+        Plots the empirical distribution function (EDF) with confidence interval.
+        Uses your original step function with cyan arrows and optionally adds a smooth EDF curve
+        with confidence interval.
         
         Parameters:
             ax (matplotlib.axes.Axes): The axes on which to plot the EDF.
+            show_smooth_edf (bool): Whether to show the smooth EDF curve with CI.
         """
         if self.data is not None and len(self.data) > 0:
             ax.clear()
             
             try:
-                # cumulative frequencies
-                cum_counts = np.cumsum(self.bin_counts)
-                total_counts = cum_counts[-1] if len(cum_counts) > 0 else 1  # Prevent division by zero
-                cum_rel_freq = cum_counts / total_counts if total_counts > 0 else np.zeros_like(cum_counts)
+                n = len(self.data)
+                alpha = 0.05  # for 95% CI
                 
-                # plot EDF
+                # Calculate cumulative frequencies for the step function
+                cum_counts = np.cumsum(self.bin_counts)
+                total_counts = cum_counts[-1]
+                cum_rel_freq = cum_counts / total_counts
+                
+                # Plot the EDF as a step function using your original cyan arrows
                 for i in range(len(self.bin_edges) - 1):
                     x_values = [self.bin_edges[i], self.bin_edges[i + 1]]
                     y_values = [cum_rel_freq[i], cum_rel_freq[i]]
                     ax.plot(x_values, y_values, 'c->', linewidth=2)
                 
                 # final point
-                if len(self.bin_edges) > 0:
-                    ax.plot(self.bin_edges[-1], 1, 'c>', markersize=2)
+                ax.plot(self.bin_edges[-1], 1, 'c>', markersize=2)
+                
+                # Add smooth EDF with confidence interval if requested
+                if show_smooth_edf:
+                    # Calculate EDF points for smooth curve
+                    x_sorted = np.sort(self.data)
+                    y_edf = np.arange(1, n + 1) / n
+                    
+                    # Plot the EDF as a smooth curve (red color)
+                    ax.plot(x_sorted, y_edf, '-', color='red', linewidth=2, label='Smooth EDF')
+                    
+                    # Calculate confidence bands for EDF using DKW inequality
+                    epsilon = np.sqrt(np.log(2/alpha) / (2 * n))
+                    y_upper = np.minimum(1, y_edf + epsilon)
+                    y_lower = np.maximum(0, y_edf - epsilon)
+                    
+                    # Plot confidence bands for EDF (light blue)
+                    ax.fill_between(x_sorted, y_lower, y_upper, color='skyblue', alpha=0.3, label='95% CI')
                 
                 ax.grid(True, alpha=0.3)
                 ax.set_xlabel('Values')
-                ax.set_ylabel('Cumulative Relative Frequency')
+                ax.set_ylabel('Probability')
                 ax.set_title('Empirical Distribution Function')
+                if show_smooth_edf:
+                    ax.legend()
                 
                 # limits
                 ax.set_ylim(-0.05, 1.05)
@@ -139,6 +146,7 @@ class Hist:
                 # layout
                 ax.figure.tight_layout()
                 ax.figure.canvas.draw()
+                
             except Exception as e:
                 print(f"Error plotting EDF: {str(e)}")
                 # Clear the axis in case of error

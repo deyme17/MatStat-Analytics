@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import (
     QMainWindow, QVBoxLayout, QPushButton, QWidget, QHBoxLayout,
     QSpinBox, QLabel, QTableWidget, QTableWidgetItem, QHeaderView, QTabWidget,
-    QDoubleSpinBox, QComboBox, QGroupBox, QMessageBox, QCheckBox
+    QDoubleSpinBox, QComboBox, QGroupBox, QMessageBox, QCheckBox, QGridLayout
 )
 from PyQt6.QtGui import QIcon, QFont, QPalette, QColor
 from PyQt6.QtCore import Qt
@@ -65,11 +65,39 @@ class Window(QMainWindow):
         self.confidence_spinbox.setDecimals(2)
         self.confidence_spinbox.valueChanged.connect(lambda: plot_graphs(self))
 
-        self.normal_dist_checkbox = QCheckBox("Normal Distribution")
-        self.normal_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
+        # Distribution group box with just 4 distributions
+        self.dist_group = QGroupBox("Statistical Distributions")
+        dist_layout = QVBoxLayout()
         
-        self.exponential_dist_checkbox = QCheckBox("Exponential Distribution")
+        dist_row = QHBoxLayout()
+        # Create checkboxes for the 4 required distributions
+        self.normal_dist_checkbox = QCheckBox("Normal")
+        self.normal_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
+        dist_row.addWidget(self.normal_dist_checkbox)
+        
+        self.exponential_dist_checkbox = QCheckBox("Exponential")
         self.exponential_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
+        dist_row.addWidget(self.exponential_dist_checkbox)
+        
+        self.uniform_dist_checkbox = QCheckBox("Uniform")
+        self.uniform_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
+        dist_row.addWidget(self.uniform_dist_checkbox)
+        
+        self.weibull_dist_checkbox = QCheckBox("Weibull")
+        self.weibull_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
+        dist_row.addWidget(self.weibull_dist_checkbox)
+        
+        # Add EDF options
+        edf_options_row = QHBoxLayout()
+        self.show_smooth_edf_checkbox = QCheckBox("Show Smooth EDF with CI")
+        self.show_smooth_edf_checkbox.setChecked(True)
+        self.show_smooth_edf_checkbox.stateChanged.connect(lambda: plot_graphs(self))
+        edf_options_row.addWidget(self.show_smooth_edf_checkbox)
+        edf_options_row.addStretch()
+        
+        dist_layout.addLayout(dist_row)
+        dist_layout.addLayout(edf_options_row)
+        self.dist_group.setLayout(dist_layout)
 
         # button styles
         button_style = """
@@ -275,15 +303,12 @@ class Window(QMainWindow):
         bins_layout.addWidget(self.bins_spinbox)
         bins_layout.addStretch()
         
-        dist_layout = QHBoxLayout()
-        dist_layout.addWidget(self.normal_dist_checkbox)
-        dist_layout.addWidget(self.exponential_dist_checkbox)
-        dist_layout.addStretch()
-        
         right_panel = QVBoxLayout()
         right_panel.addWidget(self.graph_tab_widget, stretch=1)
         right_panel.addLayout(bins_layout)
-        right_panel.addLayout(dist_layout)
+        
+        # Add the distribution group to the right panel
+        right_panel.addWidget(self.dist_group)
         
         main_panel = QHBoxLayout()
         main_panel.addWidget(self.left_tab_widget, stretch=1)
