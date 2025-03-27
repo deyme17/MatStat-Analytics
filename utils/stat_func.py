@@ -41,6 +41,8 @@ def create_characteristic_table(hist):
     splitting_step = round(data_num / hist.bins, 2)
 
     mean = round(np.mean(hist.data), 2)
+    minimum = round(np.min(hist.data), 2)
+    maximum = round(np.max(hist.data), 2)
     sigma = round(np.std(hist.data, ddof=1), 2)
     variance = round(np.var(hist.data, ddof=1), 2)
 
@@ -58,6 +60,8 @@ def create_characteristic_table(hist):
         'Splitting step': splitting_step,
 
         'Mean': mean,
+        'Minimum': minimum,
+        'Maximum': maximum,
         'Variance': variance,
         'RMS deviation': sigma,
 
