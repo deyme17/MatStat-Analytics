@@ -10,13 +10,11 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import sys
 
-from models.data_model import Data
-from models.data_processor import DataProcessor
+from controllers.missing_controller import MissingDataController
 from controllers.data_loader import load_data_file
 from views.plot_graphs import plot_graphs
 from controllers.dataUI_controller import DataUIController
 from controllers.anomaly_controller import AnomalyController
-from controllers.missing_controller import MissingDataController
 
 class Window(QMainWindow):
     def __init__(self, data_model, data_processor):
@@ -38,12 +36,6 @@ class Window(QMainWindow):
 
         self._create_widgets()
         self._create_layout()
-
-        self.missing_values_widget = QWidget()
-        self._create_missing_values_tab()
-        self.left_tab_widget.addTab(self.missing_values_widget, "Missing Values")
-
-        self._create_data_processing_tab()
 
     def _create_widgets(self):
         self.load_data_button = QPushButton('Load Data')
@@ -132,6 +124,7 @@ class Window(QMainWindow):
         
         self.transformation_label = QLabel("Current state: Original")
         
+        # Process Data group
         process_group = QGroupBox("Process Data")
         process_layout = QVBoxLayout()
         
@@ -160,6 +153,7 @@ class Window(QMainWindow):
         shift_layout.addWidget(self.shift_spinbox)
         shift_layout.addWidget(self.shift_button)
         
+        # Anomaly Detection group
         anomaly_group = QGroupBox("Anomaly Detection")
         anomaly_layout = QVBoxLayout()
         
@@ -179,6 +173,48 @@ class Window(QMainWindow):
         anomaly_layout.addWidget(self.asymmetry_anomaly_button)
         anomaly_group.setLayout(anomaly_layout)
         
+        # Missing Data group
+        missing_group = QGroupBox("Missing Data")
+        missing_layout = QVBoxLayout()
+        
+        self.missing_controller = MissingDataController(self)
+        
+        # Info labels about missing data
+        missing_info_layout = QVBoxLayout()
+        self.missing_count_label = QLabel("Total Missing: 0")
+        self.missing_percentage_label = QLabel("Missing Percentage: 0.00%")
+        missing_info_layout.addWidget(self.missing_count_label)
+        missing_info_layout.addWidget(self.missing_percentage_label)
+        
+        # Buttons for handling missing data
+        self.impute_mean_button = QPushButton("Replace with Mean")
+        self.impute_mean_button.setEnabled(False)
+        self.impute_mean_button.clicked.connect(self.missing_controller.impute_with_mean)
+        self.impute_mean_button.setMinimumHeight(30)
+        
+        self.impute_median_button = QPushButton("Replace with Median")
+        self.impute_median_button.setEnabled(False)
+        self.impute_median_button.clicked.connect(self.missing_controller.impute_with_median)
+        self.impute_median_button.setMinimumHeight(30)
+        
+        self.interpolate_linear_button = QPushButton("Interpolate (Linear)")
+        self.interpolate_linear_button.setEnabled(False)
+        self.interpolate_linear_button.clicked.connect(lambda: self.missing_controller.interpolate_missing("linear"))
+        self.interpolate_linear_button.setMinimumHeight(30)
+        
+        self.drop_missing_button = QPushButton("Drop Missing Values")
+        self.drop_missing_button.setEnabled(False)
+        self.drop_missing_button.clicked.connect(self.missing_controller.drop_missing_values)
+        self.drop_missing_button.setMinimumHeight(30)
+        
+        missing_layout.addLayout(missing_info_layout)
+        missing_layout.addWidget(self.impute_mean_button)
+        missing_layout.addWidget(self.impute_median_button)
+        missing_layout.addWidget(self.interpolate_linear_button)
+        missing_layout.addWidget(self.drop_missing_button)
+        missing_group.setLayout(missing_layout)
+        
+        # Navigation layout
         nav_layout = QHBoxLayout()
         
         self.original_button = QPushButton("Original")
@@ -188,11 +224,13 @@ class Window(QMainWindow):
         
         nav_layout.addWidget(self.original_button)
         
+        # Add the elements to the process layout
         process_layout.addWidget(self.standardize_button)
         process_layout.addWidget(self.log_button)
         process_layout.addLayout(shift_layout)
         process_group.setLayout(process_layout)
         
+        # Apply stylesheet to group boxes
         group_style = """
         QGroupBox {
             border: 2px solid #87ceeb;
@@ -208,12 +246,15 @@ class Window(QMainWindow):
         """
         process_group.setStyleSheet(group_style)
         anomaly_group.setStyleSheet(group_style)
+        missing_group.setStyleSheet(group_style)
         
+        # Add all elements to the main layout
         layout.addWidget(self.data_version_label)
         layout.addWidget(self.data_version_combo)
         layout.addWidget(self.transformation_label)
         layout.addWidget(process_group)
         layout.addWidget(anomaly_group)
+        layout.addWidget(missing_group)
         layout.addLayout(nav_layout)
         layout.addStretch()
         
@@ -255,70 +296,6 @@ class Window(QMainWindow):
         central_widget = QWidget()
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
-
-    def _create_missing_values_tab(self):
-        self.missing_controller = MissingDataController(self)
-        layout = QVBoxLayout()
-        
-        missing_info_group = QGroupBox("Missing Values Information")
-        missing_info_layout = QVBoxLayout()
-        
-        self.missing_count_label = QLabel("Total Missing: 0")
-        self.missing_percentage_label = QLabel("Missing Percentage: 0%")
-        missing_info_layout.addWidget(self.missing_count_label)
-        missing_info_layout.addWidget(self.missing_percentage_label)
-        
-        # Add table for detailed missing values info
-        self.missing_details_table = QTableWidget()
-        self.missing_details_table.setColumnCount(3)
-        self.missing_details_table.setHorizontalHeaderLabels(['Column', 'Missing Count', 'Missing %'])
-        self.missing_details_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        missing_info_layout.addWidget(self.missing_details_table)
-        
-        missing_info_group.setLayout(missing_info_layout)
-        
-        imputation_group = QGroupBox("Imputation Methods")
-        imputation_layout = QVBoxLayout()
-        
-        self.mean_impute_button = QPushButton("Replace with Mean")
-        self.mean_impute_button.clicked.connect(self.missing_controller.impute_with_mean)
-        self.mean_impute_button.setEnabled(False)
-        
-        self.median_impute_button = QPushButton("Replace with Median")
-        self.median_impute_button.clicked.connect(self.missing_controller.impute_with_median)
-        self.median_impute_button.setEnabled(False)
-        
-        self.linear_interp_button = QPushButton("Linear Interpolation")
-        self.linear_interp_button.clicked.connect(lambda: self.missing_controller.interpolate_missing('linear'))
-        self.linear_interp_button.setEnabled(False)
-        
-        self.quadratic_interp_button = QPushButton("Quadratic Interpolation")
-        self.quadratic_interp_button.clicked.connect(lambda: self.missing_controller.interpolate_missing('quadratic'))
-        self.quadratic_interp_button.setEnabled(False)
-        
-        self.drop_missing_button = QPushButton("Drop Missing Rows")
-        self.drop_missing_button.clicked.connect(self.missing_controller.drop_missing_values)
-        self.drop_missing_button.setEnabled(False)
-        
-        imputation_layout.addWidget(self.mean_impute_button)
-        imputation_layout.addWidget(self.median_impute_button)
-        imputation_layout.addWidget(self.linear_interp_button)
-        imputation_layout.addWidget(self.quadratic_interp_button)
-        imputation_layout.addWidget(self.drop_missing_button)
-        imputation_group.setLayout(imputation_layout)
-        
-        layout.addWidget(missing_info_group)
-        layout.addWidget(imputation_group)
-        layout.addStretch()
-        
-        self.missing_values_widget.setLayout(layout)
-
-    def update_data_reference(self, data):
-        """Update data reference in all controllers."""
-        self.data = data
-        self.ui_controller.update_data_reference(data)
-        self.anomaly_controller.update_data_reference(data)
-        self.missing_controller.update_data_reference(data)
         
     def show_error_message(self, title, message):
         QMessageBox.critical(self, title, message)

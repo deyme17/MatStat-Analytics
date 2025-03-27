@@ -31,17 +31,32 @@ class StatisticalDistributions:
         """
         if dist_name not in self.available_distributions:
             return False
-
-        x = np.linspace(np.min(data) * 0.8, np.max(data) * 1.2, 1000)
         
-        params = self.fit_distribution(data, dist_name)
-        pdf_values = self._get_pdf_values(x, dist_name, params)
+        # Make sure data has no NaN values
+        data_clean = data.dropna() if hasattr(data, 'dropna') else data[~np.isnan(data)]
         
-        # plot with passed kwargs
-        if label is None:
-            label = f"{dist_name} Distribution"
-        ax.plot(x, pdf_values, color=color, label=label, **kwargs)
-        return True
+        # Check if we have enough data after removing NaN
+        if len(data_clean) == 0:
+            return False
+        
+        try:
+            # Safe min/max calculation
+            data_min = np.nanmin(data)
+            data_max = np.nanmax(data)
+            
+            x = np.linspace(data_min * 0.8, data_max * 1.2, 1000)
+            
+            params = self.fit_distribution(data_clean, dist_name)
+            pdf_values = self._get_pdf_values(x, dist_name, params)
+            
+            # plot with passed kwargs
+            if label is None:
+                label = f"{dist_name} Distribution"
+            ax.plot(x, pdf_values, color=color, label=label, **kwargs)
+            return True
+        except Exception as e:
+            print(f"Error plotting {dist_name} distribution: {str(e)}")
+            return False
     
     def _get_pdf_values(self, x, dist_name, params):
         """Calculate PDF values for the given distribution and parameters."""
@@ -61,15 +76,26 @@ class StatisticalDistributions:
     
     def _fit_normal(self, data):
         """Fit normal distribution and return parameters (mean, std)."""
-        return stats.norm.fit(data)
-    
+        # Remove NaN values
+        data_clean = data.dropna() if hasattr(data, 'dropna') else data[~np.isnan(data)]
+        
+        if len(data_clean) == 0:
+            raise ValueError("No valid data points after removing NaN values")
+        
+        return stats.norm.fit(data_clean)
+
     def _fit_exponential(self, data):
         """Fit exponential distribution and return parameters (scale)."""
+        # Remove NaN values
+        data_clean = data.dropna() if hasattr(data, 'dropna') else data[~np.isnan(data)]
+        
+        if len(data_clean) == 0:
+            raise ValueError("No valid data points after removing NaN values")
+        
         # shift data if necessary to make it positive
-        min_val = np.min(data)
+        min_val = np.nanmin(data_clean)
         if min_val <= 0:
-            data = data - min_val + 0.01
-        return (1/np.mean(data),)
+            data_clean = data_clean - min_val + 0.01
     
     def _fit_uniform(self, data):
         """Fit uniform distribution and return parameters (min, max)."""

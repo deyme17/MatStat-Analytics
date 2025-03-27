@@ -5,6 +5,7 @@ class DataUIController:
 
     def __init__(self, window):
         self.window = window
+        self.anomalies_removed = False
 
     def on_data_version_changed(self, index):
         """Handle data version change in dropdown"""
@@ -16,10 +17,38 @@ class DataUIController:
             self.update_transformation_label()
             self.update_navigation_buttons()
             
-            window.normal_anomaly_button.setEnabled(True)
-            window.asymmetry_anomaly_button.setEnabled(True)
+            # Check for missing values before enabling operation buttons
+            self.check_and_handle_missing_values()
+            
+            # Update missing data controller with new dataset
+            window.missing_controller.update_data_reference(window.data)
                     
             plot_graphs(window)
+    
+    def check_and_handle_missing_values(self):
+        """Check for missing values and update UI state accordingly"""
+        window = self.window
+        
+        # Skip if data is not available
+        if window.data is None:
+            return
+        
+        # Check if data has missing values
+        has_missing = window.data.isna().sum() > 0 if hasattr(window.data, 'isna') else False
+        
+        # Enable/disable data processing buttons based on missing values
+        window.standardize_button.setEnabled(not has_missing)
+        window.log_button.setEnabled(not has_missing)
+        window.shift_spinbox.setEnabled(not has_missing)
+        window.shift_button.setEnabled(not has_missing)
+        window.normal_anomaly_button.setEnabled(not has_missing)
+        window.asymmetry_anomaly_button.setEnabled(not has_missing)
+        
+        # Enable missing data panel buttons if missing values exist
+        window.impute_mean_button.setEnabled(has_missing)
+        window.impute_median_button.setEnabled(has_missing)
+        window.interpolate_linear_button.setEnabled(has_missing)
+        window.drop_missing_button.setEnabled(has_missing)
 
     def standardize_data(self):
         """Standardize the current data"""
@@ -29,6 +58,10 @@ class DataUIController:
             window.data = window.data_processor.standardize_data(current_data)
             self.update_transformation_label()
             self.update_navigation_buttons()
+            
+            # Update missing data controller
+            window.missing_controller.update_data_reference(window.data)
+            
             plot_graphs(window)
 
     def log_transform_data(self):
@@ -39,6 +72,10 @@ class DataUIController:
             window.data = window.data_processor.log_transform_data(current_data)
             self.update_transformation_label()
             self.update_navigation_buttons()
+            
+            # Update missing data controller
+            window.missing_controller.update_data_reference(window.data)
+            
             plot_graphs(window)
 
     def shift_data(self):
@@ -50,25 +87,38 @@ class DataUIController:
             window.data = window.data_processor.shift_data(current_data, shift_value)
             self.update_transformation_label()
             self.update_navigation_buttons()
+            
+            # Update missing data controller
+            window.missing_controller.update_data_reference(window.data)
+            
             plot_graphs(window)
 
     def original_data(self):
         """Return to the original data state without transformations or anomalies."""
         window = self.window
         
-        # reset to orig data
+        # Reset to orig data
         window.data_processor.reset_transformation()
         
-        # restore from orig backup if exists
-        if hasattr(window, 'original_data_backup'):
+        # Check if we have original data with missing values to restore
+        if hasattr(window, 'original_data_with_missing'):
+            window.data = window.original_data_with_missing.copy()
+            
+            # Update data in data_processor
+            current_index = window.data_processor.current_index
+            filename = window.data_processor.get_data_description().split(' (')[0]
+            window.data_processor.data_history[current_index] = (filename, window.data.copy())
+        
+        # Restore from orig backup if exists (for anomalies)
+        elif hasattr(window, 'original_data_backup'):
             window.data = window.original_data_backup.copy()
             
-            # update data in data_processor
+            # Update data in data_processor
             current_index = window.data_processor.current_index
             filename = window.data_processor.get_data_description().split(' (')[0]
             window.data_processor.data_history[current_index] = (filename, window.data.copy())
             
-            # remove backup and reset flags
+            # Remove backup
             delattr(window, 'original_data_backup')
         else:
             window.data = window.data_processor.get_original_data()
@@ -76,8 +126,25 @@ class DataUIController:
         if hasattr(self, 'anomalies_removed'):
             self.anomalies_removed = False
         
-        window.normal_anomaly_button.setEnabled(True)
-        window.asymmetry_anomaly_button.setEnabled(True)
+        # Update missing data controller
+        window.missing_controller.update_data_reference(window.data)
+        
+        # Check for missing values in original data
+        has_missing = window.data.isna().sum() > 0 if hasattr(window.data, 'isna') else False
+        
+        # Enable/disable operation buttons based on missing values
+        window.standardize_button.setEnabled(not has_missing)
+        window.log_button.setEnabled(not has_missing)
+        window.shift_spinbox.setEnabled(not has_missing)
+        window.shift_button.setEnabled(not has_missing)
+        window.normal_anomaly_button.setEnabled(not has_missing)
+        window.asymmetry_anomaly_button.setEnabled(not has_missing)
+        
+        # Enable missing data panel buttons if missing values exist
+        window.impute_mean_button.setEnabled(has_missing)
+        window.impute_median_button.setEnabled(has_missing)
+        window.interpolate_linear_button.setEnabled(has_missing)
+        window.drop_missing_button.setEnabled(has_missing)
         
         self.update_transformation_label()
         self.update_navigation_buttons()
@@ -96,6 +163,9 @@ class DataUIController:
 
             self.update_navigation_buttons()
             self.update_transformation_label()
+            
+            # Check for missing values
+            self.check_and_handle_missing_values()
 
     def update_data_version_selection(self):
         """Update the selected data version in dropdown"""
