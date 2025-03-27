@@ -12,6 +12,7 @@ Key Features
 3. Advanced Options:
  - Confidence intervals (custom precision)
  - Data transformations (normalization, log, shift)
- - Outlier detection
+ - Outlier handling
+ - Missing data handling
 
 4. Visualization: Histograms, distribution plots, cumulative distribution function
