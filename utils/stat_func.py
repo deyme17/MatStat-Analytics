@@ -92,20 +92,20 @@ def confidence_intervals(data, confidence_level=0.95, precision=2):
     skewness = skew(data)
     excess = kurtosis(data)
     
-    # Degrees of freedom
+    # degrees of freedom
     df = n - 1
     
-    # Critical values
+    # critical values
     t_crit = t.ppf((1 + confidence_level) / 2, df=df)
     chi2_lower = chi2.ppf((1 - confidence_level) / 2, df=df)
     chi2_upper = chi2.ppf((1 + confidence_level) / 2, df=df)
     
-    # Standard errors
+    # std errors
     se_mean = std_dev / np.sqrt(n)
     se_skewness = np.sqrt(6 * n * (n - 1) / ((n - 2) * (n + 1) * (n + 3)))
     se_kurtosis = 2 * se_skewness * np.sqrt((n * n - 1) / ((n - 3) * (n + 5)))
     
-    # Confidence intervals
+    # confidence intervals
     mean_ci = (
         round(mean - t_crit * se_mean, precision),
         round(mean + t_crit * se_mean, precision)

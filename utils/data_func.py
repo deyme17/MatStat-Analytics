@@ -149,11 +149,9 @@ def interpolate_missing_values(data, method='linear'):
     if method not in methods:
         raise ValueError(f"Method {method} not supported. Choose from: {list(methods.keys())}")
     
-    # Create x values (indices or time values if available)
     x = data.index
     valid_mask = ~data.isna()
     
-    # Interpolation
     f = interpolate.interp1d(
         x[valid_mask], 
         data[valid_mask], 

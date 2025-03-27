@@ -65,12 +65,10 @@ class Window(QMainWindow):
         self.confidence_spinbox.setDecimals(2)
         self.confidence_spinbox.valueChanged.connect(lambda: plot_graphs(self))
 
-        # Distribution group box with just 4 distributions
         self.dist_group = QGroupBox("Statistical Distributions")
         dist_layout = QVBoxLayout()
         
         dist_row = QHBoxLayout()
-        # Create checkboxes for the 4 required distributions
         self.normal_dist_checkbox = QCheckBox("Normal")
         self.normal_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
         dist_row.addWidget(self.normal_dist_checkbox)
@@ -87,7 +85,7 @@ class Window(QMainWindow):
         self.weibull_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
         dist_row.addWidget(self.weibull_dist_checkbox)
         
-        # Add EDF options
+        # EDF options
         edf_options_row = QHBoxLayout()
         self.show_smooth_edf_checkbox = QCheckBox("Show Smooth EDF with CI")
         self.show_smooth_edf_checkbox.setChecked(True)
@@ -152,7 +150,7 @@ class Window(QMainWindow):
         
         self.transformation_label = QLabel("Current state: Original")
         
-        # Process Data group
+        # process Data group
         process_group = QGroupBox("Process Data")
         process_layout = QVBoxLayout()
         
@@ -181,7 +179,7 @@ class Window(QMainWindow):
         shift_layout.addWidget(self.shift_spinbox)
         shift_layout.addWidget(self.shift_button)
         
-        # Anomaly Detection group
+        # anomaly group
         anomaly_group = QGroupBox("Anomaly Detection")
         anomaly_layout = QVBoxLayout()
         
@@ -201,20 +199,20 @@ class Window(QMainWindow):
         anomaly_layout.addWidget(self.asymmetry_anomaly_button)
         anomaly_group.setLayout(anomaly_layout)
         
-        # Missing Data group
+        # missings group
         missing_group = QGroupBox("Missing Data")
         missing_layout = QVBoxLayout()
         
         self.missing_controller = MissingDataController(self)
         
-        # Info labels about missing data
+        # info labels about missing data
         missing_info_layout = QVBoxLayout()
         self.missing_count_label = QLabel("Total Missing: 0")
         self.missing_percentage_label = QLabel("Missing Percentage: 0.00%")
         missing_info_layout.addWidget(self.missing_count_label)
         missing_info_layout.addWidget(self.missing_percentage_label)
         
-        # Buttons for handling missing data
+        # buttons for handling missing data
         self.impute_mean_button = QPushButton("Replace with Mean")
         self.impute_mean_button.setEnabled(False)
         self.impute_mean_button.clicked.connect(self.missing_controller.impute_with_mean)
@@ -242,7 +240,7 @@ class Window(QMainWindow):
         missing_layout.addWidget(self.drop_missing_button)
         missing_group.setLayout(missing_layout)
         
-        # Navigation layout
+        # navig
         nav_layout = QHBoxLayout()
         
         self.original_button = QPushButton("Original")
@@ -252,13 +250,13 @@ class Window(QMainWindow):
         
         nav_layout.addWidget(self.original_button)
         
-        # Add the elements to the process layout
+        # elements to the process layout
         process_layout.addWidget(self.standardize_button)
         process_layout.addWidget(self.log_button)
         process_layout.addLayout(shift_layout)
         process_group.setLayout(process_layout)
         
-        # Apply stylesheet to group boxes
+        # stylesheet to group
         group_style = """
         QGroupBox {
             border: 2px solid #87ceeb;
@@ -276,7 +274,7 @@ class Window(QMainWindow):
         anomaly_group.setStyleSheet(group_style)
         missing_group.setStyleSheet(group_style)
         
-        # Add all elements to the main layout
+        # ddd all elements to the main layout
         layout.addWidget(self.data_version_label)
         layout.addWidget(self.data_version_combo)
         layout.addWidget(self.transformation_label)
@@ -307,7 +305,7 @@ class Window(QMainWindow):
         right_panel.addWidget(self.graph_tab_widget, stretch=1)
         right_panel.addLayout(bins_layout)
         
-        # Add the distribution group to the right panel
+        # add the dist group
         right_panel.addWidget(self.dist_group)
         
         main_panel = QHBoxLayout()

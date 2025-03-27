@@ -27,22 +27,22 @@ def load_data_file(window):
         data = window.data_model.load_data(path)
 
         if data is not None and not data.empty:
-            # Store original data for potential restoration
+            # store original data
             if not hasattr(window, 'original_data_with_missing'):
                 window.original_data_with_missing = data.copy()
             
             window.data = data
             window.data_processor.add_data(data, filename)
             
-            # Check for missing values
+            # check for missing vals
             missing_info = detect_missing_values(data)
             has_missing = missing_info['total_missing'] > 0
             
-            # Enable/disable UI elements based on missing values
+            # enable/disable UI
             window.bins_spinbox.setEnabled(True)
             window.data_version_combo.setEnabled(True)
             
-            # Enable/disable operation buttons based on missing values
+            # enable/disable operation buttons
             window.standardize_button.setEnabled(not has_missing)
             window.log_button.setEnabled(not has_missing)
             window.shift_spinbox.setEnabled(not has_missing)
@@ -50,23 +50,23 @@ def load_data_file(window):
             window.normal_anomaly_button.setEnabled(not has_missing)
             window.asymmetry_anomaly_button.setEnabled(not has_missing)
             
-            # Enable missing data buttons if missing values exist
+            # enable missing data buttons
             window.impute_mean_button.setEnabled(has_missing)
             window.impute_median_button.setEnabled(has_missing)
             window.interpolate_linear_button.setEnabled(has_missing)
             window.drop_missing_button.setEnabled(has_missing)
             
-            # Update data versions
+            # update data versions
             window.ui_controller.update_data_versions()
             
-            # Update missing controller
+            # update missing controller
             window.missing_controller.update_data_reference(window.data)
             
-            # Set default bins
+            # set default bins
             from utils.stat_func import set_default_bins
             window.bins_spinbox.setValue(set_default_bins(window.data))
             
-            # Show notification if missing values detected
+            # notify about missings
             if has_missing:
                 window.show_info_message(
                     "Missing Values Detected",
@@ -74,7 +74,7 @@ def load_data_file(window):
                     "Please handle missing values before performing data operations."
                 )
             
-            # Plot graphs
+            # plot graphs
             plot_graphs(window)
             
             print(f'File {path} selected successfully')

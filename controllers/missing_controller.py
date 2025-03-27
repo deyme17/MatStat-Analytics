@@ -31,36 +31,35 @@ class MissingDataController:
     def _update_window_data(self, new_data):
         """Update the data in the window and data processor."""
         if self.data is not None:
-            # Before updating, store original data with missing values if not already stored
+            # store orig data
             if not hasattr(self.window, 'original_data_with_missing'):
                 self.window.original_data_with_missing = self.window.data_processor.get_original_data().copy()
             
-            # Update the window's data reference
+            # update the windows data reference
             self.window.data = new_data
             self.data = new_data
             
-            # Update the data in the data processor
+            # update the data in the data processor
             current_index = self.window.data_processor.current_index
             if current_index >= 0:
                 filename = self.window.data_processor.get_data_description()
-                # Update the data in the history
+                # update the data in the history
                 self.window.data_processor.data_history[current_index] = (filename, new_data.copy())
-                # If there's a transformed version, update it as well
+                # If transformed version - update
                 if self.window.data_processor.transformed_data is not None:
                     self.window.data_processor.transformed_data = new_data.copy()
             
-            # Enable operation buttons now that missing values are handled
+            # enable operation buttons
             self._enable_operation_buttons()
             
-            # Make sure original button is enabled now that we've modified the data
             self.window.original_button.setEnabled(True)
     
     def _enable_operation_buttons(self):
         """Enable data operation buttons after missing values have been handled."""
-        # Check if we still have missing values
+        # check if we have missings
         has_missing = self.data.isna().sum() > 0 if hasattr(self.data, 'isna') else False
         
-        # Enable/disable buttons based on missing values status
+        # enable/disable buttons
         self.window.standardize_button.setEnabled(not has_missing)
         self.window.log_button.setEnabled(not has_missing)
         self.window.shift_spinbox.setEnabled(not has_missing)
@@ -68,7 +67,7 @@ class MissingDataController:
         self.window.normal_anomaly_button.setEnabled(not has_missing)
         self.window.asymmetry_anomaly_button.setEnabled(not has_missing)
         
-        # Update missing data panel buttons
+        # update missing data panel buttons
         self.window.impute_mean_button.setEnabled(has_missing)
         self.window.impute_median_button.setEnabled(has_missing)
         self.window.interpolate_linear_button.setEnabled(has_missing)

@@ -13,7 +13,6 @@ class StatisticalDistributions:
             'Weibull': self._fit_weibull,
         }
         
-        # Distribution colors for consistency
         self.dist_colors = {
             'Normal': 'red',
             'Exponential': 'green',
@@ -31,7 +30,6 @@ class StatisticalDistributions:
     
     def fit_distribution(self, data, dist_name):
         """Fit specified distribution to data and return parameters."""
-        # Make sure we have clean data
         data_clean = data.dropna() if hasattr(data, 'dropna') else data[~np.isnan(data)]
         
         if len(data_clean) == 0:
@@ -60,53 +58,47 @@ class StatisticalDistributions:
         if dist_name not in self.available_distributions:
             return False
 
-        # Make sure we have clean data
         data_clean = data.dropna() if hasattr(data, 'dropna') else data[~np.isnan(data)]
         
         if len(data_clean) == 0:
             return False
 
         try:
-            # Get histogram values for proper normalization
+            # get hist vals for proper normalization
             hist_values, bin_edges = np.histogram(data_clean, bins='auto', density=True)
             max_hist_value = np.max(hist_values) if len(hist_values) > 0 else 1.0
             
-            # Use default distribution color if none specified
             if color is None:
                 color = self.get_distribution_color(dist_name)
                 
-            # Generate x values based on distribution type
             if dist_name == 'Exponential':
-                # For exponential, start from 0 (or minimum if positive)
                 min_val = np.nanmin(data_clean)
                 x_min = max(0, min_val * 0.8) if min_val > 0 else 0
                 x_max = np.nanmax(data_clean) * 1.2
             elif dist_name == 'Uniform':
-                # For uniform, use exact bounds
                 params = self.fit_distribution(data_clean, dist_name)
-                x_min = params[0] - 0.1 * (params[1] - params[0])  # Add margin
-                x_max = params[1] + 0.1 * (params[1] - params[0])  # Add margin
+                x_min = params[0] - 0.1 * (params[1] - params[0])  
+                x_max = params[1] + 0.1 * (params[1] - params[0])  
             else:
-                # For other distributions, use data range plus margin
                 x_min = np.nanmin(data_clean) * 0.8
                 x_max = np.nanmax(data_clean) * 1.2
 
             x = np.linspace(x_min, x_max, 1000)
             
-            # Fit distribution and get PDF values
+            # fit dist
             params = self.fit_distribution(data_clean, dist_name)
             pdf_values = self._get_pdf_values(x, dist_name, params)
             
-            # Scale PDF to match histogram height
+            # scaling
             pdf_max = np.max(pdf_values) if len(pdf_values) > 0 else 1.0
             if pdf_max > 0:
                 pdf_values = pdf_values * (max_hist_value / pdf_max)
             
-            # Default label
+            # label
             if label is None:
                 label = f"{dist_name} Distribution"
             
-            # Plot main distribution line
+            # plot
             ax.plot(x, pdf_values, color=color, label=label, **kwargs)
                 
             return True
@@ -120,16 +112,14 @@ class StatisticalDistributions:
             return stats.norm.pdf(x, loc=params[0], scale=params[1])
         
         elif dist_name == 'Exponential':
-            # Use scale parameter (1/lambda) directly
             return stats.expon.pdf(x, loc=0, scale=1/params[0] if params[0] > 0 else 1)
         
         elif dist_name == 'Uniform':
             return stats.uniform.pdf(x, loc=params[0], scale=params[1]-params[0])
         
         elif dist_name == 'Weibull':
-            # Make sure parameters are valid
-            shape = max(0.1, params[0])  # shape parameter must be positive
-            scale = max(0.1, params[1])  # scale parameter must be positive
+            shape = max(0.1, params[0]) 
+            scale = max(0.1, params[1])
             return stats.weibull_min.pdf(x, c=shape, loc=0, scale=scale)
             
         else:
@@ -139,20 +129,18 @@ class StatisticalDistributions:
         """Fit normal distribution and return parameters (mean, std)."""
         mean = np.nanmean(data)
         std = np.nanstd(data)
-        if std == 0:  # Prevent division by zero
+        if std == 0:
             std = 0.01
         return (mean, std)
     
     def _fit_exponential(self, data):
         """Fit exponential distribution and return parameters (lambda)."""
-        # shift data if necessary to make it positive
         min_val = np.nanmin(data)
         if min_val <= 0:
             data = data - min_val + 0.01
             
-        # Lambda parameter (rate) = 1/mean
         mean = np.nanmean(data)
-        if mean == 0:  # Prevent division by zero
+        if mean == 0:
             mean = 0.01
         return (1/mean,)
     
@@ -160,31 +148,27 @@ class StatisticalDistributions:
         """Fit uniform distribution and return parameters (min, max)."""
         min_val = np.nanmin(data)
         max_val = np.nanmax(data)
-        if min_val == max_val:  # Prevent zero range
+        if min_val == max_val:
             max_val = min_val + 0.01
         return (min_val, max_val)
     
     def _fit_weibull(self, data):
         """Fit Weibull distribution and return parameters (shape, scale)."""
-        # shift data if necessary to make it positive
         min_val = np.nanmin(data)
         if min_val <= 0:
             data = data - min_val + 0.01
         
         try:
-            # Use scipy to fit the Weibull distribution, fixing location at 0
             shape, _, scale = stats.weibull_min.fit(data, floc=0)
-            # Ensure parameters are valid
-            shape = max(0.1, shape)  # shape must be positive
-            scale = max(0.1, scale)  # scale must be positive
+            shape = max(0.1, shape) 
+            scale = max(0.1, scale) 
             return (shape, scale)
         except:
-            # Fallback if fit fails
             mean = np.nanmean(data)
             std = np.nanstd(data)
             if std == 0:
                 std = 0.01
-            # Approximate Weibull parameters
-            shape = 1.5  # Default shape
-            scale = mean / 0.9  # Approximate scale
+
+            shape = 1.5  
+            scale = mean / 0.9  
             return (shape, scale)

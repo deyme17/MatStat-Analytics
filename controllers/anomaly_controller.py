@@ -11,7 +11,7 @@ class AnomalyController:
     def remove_normal_anomalies(self):
         """Remove anomalies using normal distribution."""
         if self.window.data is not None:
-            # Check for missing values first
+            # check missing vals
             if hasattr(self.window.data, 'isna') and self.window.data.isna().sum() > 0:
                 self.window.show_error_message(
                     "Missing Values Error", 
@@ -25,7 +25,7 @@ class AnomalyController:
     def remove_anomalies(self):
         """Remove anomalies using asymmetry coefficient."""
         if self.window.data is not None:
-            # Check for missing values first
+            # check missing vals
             if hasattr(self.window.data, 'isna') and self.window.data.isna().sum() > 0:
                 self.window.show_error_message(
                     "Missing Values Error", 
