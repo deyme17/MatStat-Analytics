@@ -75,7 +75,7 @@ def detect_normal_anomalies(data, threshold=3):
 
 def detect_ci_anomalies(data, confidence_level=0.95):
     """
-    Detect anomalies using confidence intervals based on empirical distribution function.
+    Detect anomalies using confidence intervals and variation series.
     
     Args:
         data: numpy array or pandas Series

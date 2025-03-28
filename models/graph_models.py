@@ -1,5 +1,6 @@
 import seaborn as sns
 from scipy.stats import norm, t, gaussian_kde
+from scipy.interpolate import make_interp_spline
 import numpy as np
 from scipy.interpolate import interp1d
 
@@ -115,9 +116,22 @@ class Hist:
                 if show_smooth_edf:
                     x_sorted = np.sort(self.data)
                     y_edf = np.arange(1, n + 1) / n
+
+                    from scipy.ndimage import gaussian_filter1d
+                    x_smooth = np.linspace(np.min(self.data), np.max(self.data), 300)
+        
+                    from scipy import interpolate
+                    f_linear = interpolate.interp1d(x_sorted, y_edf, kind='linear', 
+                                                  bounds_error=False, fill_value=(0, 1))
+                    y_interp = f_linear(x_smooth)
+                    y_smooth = gaussian_filter1d(y_interp, sigma=8)
                     
-                    # plot smooth curve
-                    ax.plot(x_sorted, y_edf, '-', color='red', linewidth=2, label='Smooth EDF')
+                    y_smooth[0] = 0.0
+                    y_smooth[-1] = 1.0
+                    y_smooth = np.clip(y_smooth, 0, 1)
+                    
+                    # plot thr EFD curve
+                    ax.plot(x_smooth, y_smooth, '-', color='red', linewidth=2, label='EDF Curve')
                     
                     # calculate confidence bands
                     epsilon = np.sqrt(np.log(2/alpha) / (2 * n))

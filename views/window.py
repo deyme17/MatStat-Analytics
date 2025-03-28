@@ -185,12 +185,12 @@ class Window(QMainWindow):
 
         self.anomaly_controller = AnomalyController(self)
 
-        self.normal_anomaly_button = QPushButton("Remove Anomalies (Normal)")
+        self.normal_anomaly_button = QPushButton("Remove Anomalies (3σ)")
         self.normal_anomaly_button.setEnabled(False)
         self.normal_anomaly_button.clicked.connect(self.anomaly_controller.remove_normal_anomalies)
         self.normal_anomaly_button.setMinimumHeight(30)
 
-        self.asymmetry_anomaly_button = QPushButton("Remove Anomalies")
+        self.asymmetry_anomaly_button = QPushButton("Remove Anomalies (A)")
         self.asymmetry_anomaly_button.setEnabled(False)
         self.asymmetry_anomaly_button.clicked.connect(self.anomaly_controller.remove_anomalies)
         self.asymmetry_anomaly_button.setMinimumHeight(30)
@@ -200,7 +200,7 @@ class Window(QMainWindow):
         anomaly_layout.addWidget(self.asymmetry_anomaly_button)
 
         # ci anomaly detection
-        self.confidence_anomaly_button = QPushButton("Remove Anomalies (Data Conf. Level)")
+        self.confidence_anomaly_button = QPushButton("Remove Anomalies (γ)")
         self.confidence_anomaly_button.setEnabled(False)
         self.confidence_anomaly_button.clicked.connect(self.anomaly_controller.remove_confidence_interval_anomalies)
         self.confidence_anomaly_button.setMinimumHeight(30)
@@ -208,7 +208,7 @@ class Window(QMainWindow):
 
         # gamma control
         gamma_layout = QHBoxLayout()
-        self.anomaly_gamma_label = QLabel("Data CI (1-γ):")
+        self.anomaly_gamma_label = QLabel("Data Confident level (1-γ):")
         self.anomaly_gamma_spinbox = QDoubleSpinBox()
         self.anomaly_gamma_spinbox.setRange(0.80, 0.99)
         self.anomaly_gamma_spinbox.setSingleStep(0.01)
