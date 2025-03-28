@@ -44,26 +44,6 @@ class DataProcessor:
         self.transformed_data = None
         self.current_transformation = "Original"
 
-    def is_modified(self):
-        """Check if data has been modified (transformed)."""
-        return self.transformed_data is not None
-    
-    def get_previous_data(self):
-        """Go to previous dataset (not transformation)"""
-        if self.current_index > 0:
-            self.current_index -= 1
-            self.reset_transformation()
-            return self.data_history[self.current_index][1]
-        return None
-
-    def get_next_data(self):
-        """Go to next dataset (not transformation)"""
-        if self.current_index < len(self.data_history) - 1:
-            self.current_index += 1
-            self.reset_transformation()
-            return self.data_history[self.current_index][1]
-        return None
-
     def get_original_data(self):
         """Go to original version of current dataset"""
         self.reset_transformation()
