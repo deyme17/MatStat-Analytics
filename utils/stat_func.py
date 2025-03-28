@@ -166,7 +166,7 @@ def update_merged_table(hist_model, data, table, window):
     ci = confidence_intervals(data, confidence_level=confidence_level, precision=precision)
     
     table.setColumnCount(3)
-    table.setHorizontalHeaderLabels(['Value', 'Lower CI', 'Upper CI'])
+    table.setHorizontalHeaderLabels(['Lower CI', 'Value', 'Upper CI'])
     
     ci_mapping = {
         'Mean': 'Mean CI',
@@ -190,12 +190,12 @@ def update_merged_table(hist_model, data, table, window):
     
     # update table
     table.setRowCount(len(rows))
-    for idx, (name, value, lower, upper) in enumerate(rows):
+    for idx, (name, lower, value, upper) in enumerate(rows):
         # set header
         table.setVerticalHeaderItem(idx, QTableWidgetItem(str(name)))
         # set values
-        table.setItem(idx, 0, QTableWidgetItem(str(value)))
         table.setItem(idx, 1, QTableWidgetItem(str(lower)))
+        table.setItem(idx, 0, QTableWidgetItem(str(value)))
         table.setItem(idx, 2, QTableWidgetItem(str(upper)))
 
 

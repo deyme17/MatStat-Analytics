@@ -122,7 +122,7 @@ class Window(QMainWindow):
         
         self.char_table = QTableWidget()
         self.char_table.setColumnCount(3)
-        self.char_table.setHorizontalHeaderLabels(['Value', 'Lower CI', 'Upper CI'])
+        self.char_table.setHorizontalHeaderLabels(['Lower CI', 'Value', 'Upper CI'])
         self.char_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.left_tab_widget.addTab(self.char_table, "Statistic")
         
