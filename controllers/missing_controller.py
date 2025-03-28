@@ -66,6 +66,8 @@ class MissingDataController:
         self.window.shift_button.setEnabled(not has_missing)
         self.window.normal_anomaly_button.setEnabled(not has_missing)
         self.window.asymmetry_anomaly_button.setEnabled(not has_missing)
+        self.window.confidence_anomaly_button.setEnabled(not has_missing)
+        self.window.anomaly_gamma_spinbox.setEnabled(not has_missing)
         
         # update missing data panel buttons
         self.window.impute_mean_button.setEnabled(has_missing)

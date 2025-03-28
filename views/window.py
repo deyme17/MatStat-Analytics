@@ -182,21 +182,44 @@ class Window(QMainWindow):
         # anomaly group
         anomaly_group = QGroupBox("Anomaly Detection")
         anomaly_layout = QVBoxLayout()
-        
+
         self.anomaly_controller = AnomalyController(self)
-        
+
         self.normal_anomaly_button = QPushButton("Remove Anomalies (Normal)")
         self.normal_anomaly_button.setEnabled(False)
         self.normal_anomaly_button.clicked.connect(self.anomaly_controller.remove_normal_anomalies)
         self.normal_anomaly_button.setMinimumHeight(30)
-        
+
         self.asymmetry_anomaly_button = QPushButton("Remove Anomalies")
         self.asymmetry_anomaly_button.setEnabled(False)
         self.asymmetry_anomaly_button.clicked.connect(self.anomaly_controller.remove_anomalies)
         self.asymmetry_anomaly_button.setMinimumHeight(30)
-        
+
+        # add main buttons first
         anomaly_layout.addWidget(self.normal_anomaly_button)
         anomaly_layout.addWidget(self.asymmetry_anomaly_button)
+
+        # ci anomaly detection
+        self.confidence_anomaly_button = QPushButton("Remove Anomalies (Data Conf. Level)")
+        self.confidence_anomaly_button.setEnabled(False)
+        self.confidence_anomaly_button.clicked.connect(self.anomaly_controller.remove_confidence_interval_anomalies)
+        self.confidence_anomaly_button.setMinimumHeight(30)
+        anomaly_layout.addWidget(self.confidence_anomaly_button)
+
+        # gamma control
+        gamma_layout = QHBoxLayout()
+        self.anomaly_gamma_label = QLabel("Data CI (1-γ):")
+        self.anomaly_gamma_spinbox = QDoubleSpinBox()
+        self.anomaly_gamma_spinbox.setRange(0.80, 0.99)
+        self.anomaly_gamma_spinbox.setSingleStep(0.01)
+        self.anomaly_gamma_spinbox.setValue(0.95)
+        self.anomaly_gamma_spinbox.setDecimals(2)
+        self.anomaly_gamma_spinbox.setEnabled(False)
+
+        gamma_layout.addWidget(self.anomaly_gamma_label)
+        gamma_layout.addWidget(self.anomaly_gamma_spinbox)
+
+        anomaly_layout.addLayout(gamma_layout)
         anomaly_group.setLayout(anomaly_layout)
         
         # missings group

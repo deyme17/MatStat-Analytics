@@ -42,6 +42,8 @@ class DataUIController:
         window.shift_button.setEnabled(not has_missing)
         window.normal_anomaly_button.setEnabled(not has_missing)
         window.asymmetry_anomaly_button.setEnabled(not has_missing)
+        window.confidence_anomaly_button.setEnabled(not has_missing)
+        window.anomaly_gamma_spinbox.setEnabled(not has_missing)
         
         # enable missing data panel buttons
         window.impute_mean_button.setEnabled(has_missing)
@@ -138,6 +140,8 @@ class DataUIController:
         window.shift_button.setEnabled(not has_missing)
         window.normal_anomaly_button.setEnabled(not has_missing)
         window.asymmetry_anomaly_button.setEnabled(not has_missing)
+        window.confidence_anomaly_button.setEnabled(not has_missing) 
+        window.anomaly_gamma_spinbox.setEnabled(not has_missing)    
         
         # enable missing data panel buttons
         window.impute_mean_button.setEnabled(has_missing)

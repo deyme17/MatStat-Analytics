@@ -1,4 +1,4 @@
-from utils.data_func import detect_anomalies, detect_normal_anomalies
+from utils.data_func import detect_anomalies, detect_normal_anomalies, detect_ci_anomalies
 from views.plot_graphs import plot_graphs
 import numpy as np
 
@@ -36,6 +36,22 @@ class AnomalyController:
             result = detect_anomalies(self.window.data)
             self._process_anomalies(result)
 
+    def remove_confidence_interval_anomalies(self):
+        """Remove anomalies using confidence intervals."""
+        if self.window.data is not None:
+            # check missing vals
+            if hasattr(self.window.data, 'isna') and self.window.data.isna().sum() > 0:
+                self.window.show_error_message(
+                    "Missing Values Error", 
+                    "Please handle all missing values before detecting anomalies."
+                )
+                return
+            
+            data_confidence_level = self.window.anomaly_gamma_spinbox.value()
+            
+            result = detect_ci_anomalies(self.window.data, data_confidence_level)
+            self._process_anomalies(result)
+
     def _process_anomalies(self, result):
         """Process detected anomalies and update data."""
         anomalies = result['anomalies']
@@ -64,7 +80,14 @@ class AnomalyController:
             # disable anomaly detection buttons
             self.window.normal_anomaly_button.setEnabled(False)
             self.window.asymmetry_anomaly_button.setEnabled(False)
+            self.window.confidence_anomaly_button.setEnabled(False)
+            self.window.anomaly_gamma_spinbox.setEnabled(False)
             
-            self.window.show_info_message("Anomalies Removed", f"Removed {len(anomalies)} anomalous data points.")
+            self.window.show_info_message(
+                "Anomalies Removed", 
+                f"Removed {len(anomalies)} anomalous data points.\n"
+                f"Lower limit: {result['lower_limit']:.4f}\n"
+                f"Upper limit: {result['upper_limit']:.4f}"
+            )
         else:
             self.window.show_info_message("No Anomalies", "No anomalies were detected in the current dataset.")
