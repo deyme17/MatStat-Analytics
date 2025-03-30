@@ -60,10 +60,10 @@ def create_characteristic_table(hist):
         'Splitting step': splitting_step,
 
         'Mean': mean,
-        'Minimum': minimum,
-        'Maximum': maximum,
         'Variance': variance,
         'RMS deviation': sigma,
+        'Minimum': minimum,
+        'Maximum': maximum,
 
         'Assymetry coeff.': skewness,
         'Excess': excess,

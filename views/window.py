@@ -87,7 +87,7 @@ class Window(QMainWindow):
         
         # EDF options
         edf_options_row = QHBoxLayout()
-        self.show_smooth_edf_checkbox = QCheckBox("Show Smooth EDF with CI")
+        self.show_smooth_edf_checkbox = QCheckBox("Show EDF curve with CI")
         self.show_smooth_edf_checkbox.setChecked(True)
         self.show_smooth_edf_checkbox.stateChanged.connect(lambda: plot_graphs(self))
         edf_options_row.addWidget(self.show_smooth_edf_checkbox)
