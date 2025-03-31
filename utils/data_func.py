@@ -75,7 +75,7 @@ def detect_normal_anomalies(data, threshold=3):
 
 def detect_ci_anomalies(data, confidence_level=0.95):
     """
-    Detect anomalies using confidence intervals and variation series.
+    Detect anomalies using confidence intervals based on empirical distribution function.
     
     Args:
         data: numpy array or pandas Series
@@ -85,14 +85,13 @@ def detect_ci_anomalies(data, confidence_level=0.95):
         Dictionary with anomaly indices and threshold values
     """
     sorted_data = np.sort(data)
-    gamma = 1 - confidence_level
-    
     n = len(data)
+
+    gamma = 1 - confidence_level
+
+    lower_index = max(0, int(np.round(gamma * n)) - 1)
+    upper_index = min(n - 1, int(np.round((1 - gamma) * n)) - 1)
     
-
-    lower_index = max(0, int(np.floor(gamma * n)))
-    upper_index = min(n - 1, int(np.ceil((1 - gamma) * n)) - 1)
-
     lower_limit = sorted_data[lower_index]
     upper_limit = sorted_data[upper_index]
     
