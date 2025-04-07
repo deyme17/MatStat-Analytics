@@ -1,8 +1,8 @@
 import seaborn as sns
-from scipy.stats import norm, t, gaussian_kde
-from scipy.interpolate import make_interp_spline
+from scipy import stats
 import numpy as np
-from scipy.interpolate import interp1d
+from scipy.ndimage import gaussian_filter1d
+from scipy import interpolate
 
 class Hist:
     """
@@ -83,8 +83,8 @@ class Hist:
     def plot_EDF(self, ax, show_smooth_edf=True, confidence_level=0.95):
         """
         Plots the empirical distribution function (EDF) with confidence interval.
-        Uses your original step function with cyan arrows and optionally adds a smooth EDF curve
-        with confidence interval.
+        Uses step function with cyan arrows and optionally adds a smooth EDF curve
+        with confidence interval calculated using dispersion estimate.
         
         Parameters:
             ax (matplotlib.axes.Axes): The axes on which to plot the EDF.
@@ -112,36 +112,43 @@ class Hist:
                 # final point
                 ax.plot(self.bin_edges[-1], 1, 'c>', markersize=2)
                 
-                # add smooth EDF
+                # smooth EDF with confidence intervals
                 if show_smooth_edf:
                     x_sorted = np.sort(self.data)
                     y_edf = np.arange(1, n + 1) / n
 
-                    from scipy.ndimage import gaussian_filter1d
+                    # create smooth x points
                     x_smooth = np.linspace(np.min(self.data), np.max(self.data), 300)
-        
-                    from scipy import interpolate
-                    f_linear = interpolate.interp1d(x_sorted, y_edf, kind='linear', 
-                                                  bounds_error=False, fill_value=(0, 1))
-                    y_interp = f_linear(x_smooth)
-                    y_smooth = gaussian_filter1d(y_interp, sigma=8)
                     
+                    # interpolate EDF values
+                    f_linear = interpolate.interp1d(x_sorted, y_edf, kind='linear', 
+                                                bounds_error=False, fill_value=(0, 1))
+                    y_interp = f_linear(x_smooth)
+                    
+                    # Gaussian smoothing
+                    sigma = 8
+                    y_smooth = gaussian_filter1d(y_interp, sigma=sigma)
+                    
+                    # limits
                     y_smooth[0] = 0.0
                     y_smooth[-1] = 1.0
                     y_smooth = np.clip(y_smooth, 0, 1)
                     
-                    # plot thr EFD curve
+                    # plot the smooth EDF curve
                     ax.plot(x_smooth, y_smooth, '-', color='red', linewidth=2, label='EDF Curve')
                     
-                    # calculate confidence bands
-                    epsilon = np.sqrt(np.log(2/alpha) / (2 * n))
-                    y_upper = np.minimum(1, y_edf + epsilon)
-                    y_lower = np.maximum(0, y_edf - epsilon)
+                    # confidence bands
+                    from scipy import stats
+                    u_quantile = stats.norm.ppf(1 - alpha/2)
+                    dispersion_estimate = y_smooth * (1 - y_smooth) / n
+                    ci_width = u_quantile * np.sqrt(dispersion_estimate)
                     
-                    # plot confidence bands
-                    ax.fill_between(x_sorted, y_lower, y_upper, color='skyblue', alpha=0.3, 
+                    y_upper = np.minimum(1, y_smooth + ci_width)
+                    y_lower = np.maximum(0, y_smooth - ci_width)
+                    
+                    ax.fill_between(x_smooth, y_lower, y_upper, color='skyblue', alpha=0.3, 
                                 label=f'{confidence_level*100:.0f}% CI')
-                
+                    
                 ax.grid(True, alpha=0.3)
                 ax.set_xlabel('Values')
                 ax.set_ylabel('Probability')
