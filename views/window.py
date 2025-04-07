@@ -74,6 +74,11 @@ class Window(QMainWindow):
         self.bins_spinbox.setFixedWidth(80)
         self.bins_spinbox.valueChanged.connect(lambda: plot_graphs(self))  
 
+        # EDF options
+        self.show_smooth_edf_checkbox = QCheckBox("Show EDF curve with CI")
+        self.show_smooth_edf_checkbox.setChecked(False)
+        self.show_smooth_edf_checkbox.stateChanged.connect(lambda: plot_graphs(self))
+
         self.precision_label = QLabel('Precision:')
         self.precision_spinbox = QSpinBox()
         self.precision_spinbox.setRange(1, 6) 
@@ -108,14 +113,8 @@ class Window(QMainWindow):
         self.weibull_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
         dist_layout.addWidget(self.weibull_dist_checkbox, 1, 1)
 
-        # EDF options
-        self.show_smooth_edf_checkbox = QCheckBox("Show EDF curve with CI")
-        self.show_smooth_edf_checkbox.setChecked(True)
-        self.show_smooth_edf_checkbox.stateChanged.connect(lambda: plot_graphs(self))
-        dist_layout.addWidget(self.show_smooth_edf_checkbox, 2, 0, 1, 2)
-
         self.dist_group.setLayout(dist_layout)
-        self.dist_group.setMinimumHeight(120)
+        self.dist_group.setMinimumHeight(100)
 
         # button styles
         button_style = """
@@ -342,12 +341,14 @@ class Window(QMainWindow):
         bins_layout = QHBoxLayout()
         bins_layout.addWidget(self.bins_label)
         bins_layout.addWidget(self.bins_spinbox)
+        bins_layout.addSpacing(70)
+        bins_layout.addWidget(self.show_smooth_edf_checkbox)
         bins_layout.addStretch()
         
         right_panel = QVBoxLayout()
         right_panel.addWidget(self.graph_tab_widget, stretch=1)
         right_panel.addLayout(bins_layout)
-        
+
         # add the dist group
         right_panel.addWidget(self.dist_group)
         
