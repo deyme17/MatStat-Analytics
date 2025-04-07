@@ -6,6 +6,7 @@ from views.window import Window
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setStyle("Fusion")
 
     data_model = Data()
     data_processor = DataProcessor()

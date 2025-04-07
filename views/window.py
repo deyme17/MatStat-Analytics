@@ -29,6 +29,29 @@ class Window(QMainWindow):
         palette.setColor(QPalette.ColorRole.Base, QColor(245, 250, 255))
         self.setPalette(palette)
 
+        # app_style
+        app_style = """
+        QWidget {
+            background-color: rgb(240, 248, 255);
+            color: black;
+        }
+        QPushButton, QCheckBox, QLabel, QSpinBox, QDoubleSpinBox, QComboBox, QTableWidget {
+            background-color: rgb(240, 248, 255);
+            color: black;
+        }
+        QGroupBox {
+            background-color: rgb(240, 248, 255);
+            color: black;
+            border: 2px solid #87ceeb;
+            border-radius: 10px;
+        }
+        QTableWidget {
+            background-color: rgb(255, 255, 255);
+            color: black;
+        }
+        """
+        self.setStyleSheet(app_style)
+
         self.data_model = data_model
         self.data_processor = data_processor
         self.ui_controller = DataUIController(self)
@@ -65,37 +88,34 @@ class Window(QMainWindow):
         self.confidence_spinbox.setDecimals(2)
         self.confidence_spinbox.valueChanged.connect(lambda: plot_graphs(self))
 
+        # stat_distributions
         self.dist_group = QGroupBox("Statistical Distributions")
-        dist_layout = QVBoxLayout()
-        
-        dist_row = QHBoxLayout()
+        dist_layout = QGridLayout()
+
         self.normal_dist_checkbox = QCheckBox("Normal")
         self.normal_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
-        dist_row.addWidget(self.normal_dist_checkbox)
-        
+        dist_layout.addWidget(self.normal_dist_checkbox, 0, 0)
+
         self.exponential_dist_checkbox = QCheckBox("Exponential")
         self.exponential_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
-        dist_row.addWidget(self.exponential_dist_checkbox)
-        
+        dist_layout.addWidget(self.exponential_dist_checkbox, 0, 1)
+
         self.uniform_dist_checkbox = QCheckBox("Uniform")
         self.uniform_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
-        dist_row.addWidget(self.uniform_dist_checkbox)
-        
+        dist_layout.addWidget(self.uniform_dist_checkbox, 1, 0)
+
         self.weibull_dist_checkbox = QCheckBox("Weibull")
         self.weibull_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
-        dist_row.addWidget(self.weibull_dist_checkbox)
-        
+        dist_layout.addWidget(self.weibull_dist_checkbox, 1, 1)
+
         # EDF options
-        edf_options_row = QHBoxLayout()
         self.show_smooth_edf_checkbox = QCheckBox("Show EDF curve with CI")
         self.show_smooth_edf_checkbox.setChecked(True)
         self.show_smooth_edf_checkbox.stateChanged.connect(lambda: plot_graphs(self))
-        edf_options_row.addWidget(self.show_smooth_edf_checkbox)
-        edf_options_row.addStretch()
-        
-        dist_layout.addLayout(dist_row)
-        dist_layout.addLayout(edf_options_row)
+        dist_layout.addWidget(self.show_smooth_edf_checkbox, 2, 0, 1, 2)
+
         self.dist_group.setLayout(dist_layout)
+        self.dist_group.setMinimumHeight(120)
 
         # button styles
         button_style = """
