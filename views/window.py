@@ -156,6 +156,12 @@ class Window(QMainWindow):
         self.edf_canvas = FigureCanvas(self.edf_figure)
         self.edf_ax = self.edf_figure.add_subplot(111)
         self.graph_tab_widget.addTab(self.edf_canvas, "Empirical Distribution Function")
+        
+        # exp probability plot tab
+        self.prob_plot_figure = Figure(figsize=(8.5, 5))
+        self.prob_plot_canvas = FigureCanvas(self.prob_plot_figure)
+        self.prob_plot_ax = self.prob_plot_figure.add_subplot(111)
+        self.graph_tab_widget.addTab(self.prob_plot_canvas, "Exponential Probability Plot")
 
     def _create_data_processing_tab(self):
         layout = QVBoxLayout()

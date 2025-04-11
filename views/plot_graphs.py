@@ -1,6 +1,7 @@
 from models.graph_models import Hist
 from models.stat_distributions import StatisticalDistributions
 from utils.stat_func import variation_series, update_merged_table
+from views.probability_plot import plot_exponential_grid
 import pandas as pd
 import numpy as np
 
@@ -76,6 +77,17 @@ def plot_graphs(window):
         except Exception as e:
             window.show_error_message("EDF Plot Error", 
                                     f"Could not plot Empirical Distribution Function: {str(e)}")
+        
+        # plot exp probability grid
+        try:
+            plot_exponential_grid(
+                window.prob_plot_ax,
+                data_no_nan,
+            )
+            window.prob_plot_canvas.draw()
+        except Exception as e:
+            window.show_error_message("Probability Plot Error",
+                                    f"Could not plot Exponential Probability Plot: {str(e)}")
         
         # update char table
         try:

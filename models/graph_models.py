@@ -138,7 +138,6 @@ class Hist:
                     ax.plot(x_smooth, y_smooth, '-', color='red', linewidth=2, label='EDF Curve')
                     
                     # confidence bands
-                    from scipy import stats
                     u_quantile = stats.norm.ppf(1 - alpha/2)
                     dispersion_estimate = y_smooth * (1 - y_smooth) / n
                     ci_width = u_quantile * np.sqrt(dispersion_estimate)
@@ -162,7 +161,7 @@ class Hist:
                 # layout
                 ax.figure.tight_layout()
                 ax.figure.canvas.draw()
-                
+
             except Exception as e:
                 print(f"Error plotting EDF: {str(e)}")
 
