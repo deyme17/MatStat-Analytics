@@ -1,3 +1,4 @@
+from scipy.stats import chisquare, kstest, norm, expon, uniform, weibull_min, laplace
 import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
@@ -107,6 +108,73 @@ class StatisticalDistributions:
         except Exception as e:
             print(f"Error plotting {dist_name} distribution: {str(e)}")
             return False
+    
+    def get_distribution_object(self, dist_name, params):
+        """
+        Get scipy distribution object with fitted parameters.
+        
+        Parameters:
+            dist_name: Name of the distribution
+            params: Parameters for the distribution as returned by fit_distribution()
+            
+        Returns:
+            A scipy.stats distribution object
+        """
+        if dist_name == 'Normal':
+            return stats.norm(loc=params[0], scale=params[1])
+        elif dist_name == 'Exponential':
+            return stats.expon(scale=1/params[0]) if params[0] > 0 else stats.expon()
+        elif dist_name == 'Uniform':
+            return stats.uniform(loc=params[0], scale=params[1]-params[0])
+        elif dist_name == 'Weibull':
+            return stats.weibull_min(c=params[0], scale=params[1])
+        elif dist_name == 'Laplace':
+            return stats.laplace(loc=params[0], scale=params[1])
+        else:
+            raise ValueError(f"Unsupported distribution: {dist_name}")
+    
+    def perform_goodness_of_fit_tests(self, data, dist_name, num_bins=10):
+        """
+        Perform both Pearson's Chi-squared and Kolmogorov-Smirnov goodness-of-fit tests.
+        
+        Parameters:
+            data: Input data
+            dist_name: Name of the distribution to test against
+            num_bins: Number of bins for histogram (Chi-squared test)
+            
+        Returns:
+            Dictionary with test statistics and p-values
+        """
+        data_clean = data.dropna() if hasattr(data, 'dropna') else data[~np.isnan(data)]
+        
+        if len(data_clean) == 0:
+            raise ValueError("No valid data points after removing NaN values")
+            
+        # fit distr
+        params = self.fit_distribution(data_clean, dist_name)
+        
+        dist_obj = self.get_distribution_object(dist_name, params)
+        
+        # chi-squared test
+        hist_counts, bin_edges = np.histogram(data_clean, bins=num_bins)
+        
+        cdf_values = [dist_obj.cdf(edge) for edge in bin_edges]
+        expected_probs = np.diff(cdf_values)
+        expected_counts = expected_probs * len(data_clean)
+        
+        expected_counts = np.where(expected_counts < 1, 1, expected_counts)
+        
+        chi2_stat, chi2_p = chisquare(hist_counts, expected_counts)
+        
+        # Kolmogorov test
+        ks_stat, ks_p = kstest(data_clean, dist_obj.cdf)
+        
+        return {
+            'chi2_statistic': chi2_stat,
+            'chi2_p_value': chi2_p,
+            'ks_statistic': ks_stat,
+            'ks_p_value': ks_p
+        }
     
     def _get_pdf_values(self, x, dist_name, params):
         """Calculate PDF values for the given distribution and parameters."""

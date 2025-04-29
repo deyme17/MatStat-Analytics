@@ -3,6 +3,8 @@ from models.stat_distributions import StatisticalDistributions
 from utils.stat_func import variation_series, update_merged_table
 import pandas as pd
 import numpy as np
+from scipy import stats
+from scipy.stats import chisquare, kstest
 
 def plot_graphs(window):
     if window.data is None or window.data.empty:
@@ -32,35 +34,82 @@ def plot_graphs(window):
     
     # dists to show
     dist_mapping = {
-        'Normal': window.normal_dist_checkbox.isChecked(),
-        'Exponential': window.exponential_dist_checkbox.isChecked(),
-        'Uniform': window.uniform_dist_checkbox.isChecked() if hasattr(window, 'uniform_dist_checkbox') else False,
-        'Weibull': window.weibull_dist_checkbox.isChecked() if hasattr(window, 'weibull_dist_checkbox') else False,
-        'Laplace': window.laplace_dist_checkbox.isChecked() if hasattr(window, 'laplace_dist_checkbox') else False
+        'Normal': window.normal_dist_radio.isChecked(),
+        'Exponential': window.exponential_dist_radio.isChecked(),
+        'Uniform': window.uniform_dist_radio.isChecked(),
+        'Weibull': window.weibull_dist_radio.isChecked(),
+        'Laplace': window.laplace_dist_radio.isChecked()
     }
     
-    any_distribution = any(dist_mapping.values())
+    # get the selected distribution
+    selected_dist = None
+    for dist_name, is_selected in dist_mapping.items():
+        if is_selected:
+            selected_dist = dist_name
+            break
+    
+    # reset goodness-of-fit labels
+    window.chi2_value_label.setText("statistic: -, p-value: -")
+    window.ks_value_label.setText("statistic: -, p-value: -")
     
     # plot dists
-    if any_distribution:
+    if selected_dist:
         dist_handler = StatisticalDistributions()
         
-        for dist_name, show_dist in dist_mapping.items():
-            if show_dist:
-                try:
-                    color = dist_handler.get_distribution_color(dist_name)
+        try:
+            color = dist_handler.get_distribution_color(selected_dist)
+            
+            dist_handler.plot_distribution(
+                window.hist_ax, 
+                data_no_nan, 
+                selected_dist, 
+                color=color,
+                linewidth=2, 
+                label=f'{selected_dist}'
+            )
+            
+            # calc goodness-of-fit tests
+            try:
+                params = dist_handler.fit_distribution(data_no_nan, selected_dist)
+                
+                hist_counts, bin_edges = np.histogram(data_no_nan, bins=window.bins_spinbox.value())
+                
+                dist_map = {
+                    'Normal': lambda p: stats.norm(loc=p[0], scale=p[1]),
+                    'Exponential': lambda p: stats.expon(scale=1/p[0]) if p[0] > 0 else stats.expon(),
+                    'Uniform': lambda p: stats.uniform(loc=p[0], scale=p[1]-p[0]),
+                    'Weibull': lambda p: stats.weibull_min(c=p[0], scale=p[1]),
+                    'Laplace': lambda p: stats.laplace(loc=p[0], scale=p[1])
+                }
+                
+                if selected_dist in dist_map:
+                    dist_obj = dist_map[selected_dist](params)
                     
-                    dist_handler.plot_distribution(
-                        window.hist_ax, 
-                        data_no_nan, 
-                        dist_name, 
-                        color=color,
-                        linewidth=2, 
-                        label=f'{dist_name}'
-                    )
-                except Exception as e:
-                    window.show_error_message(f"{dist_name} Distribution Error", 
-                                           f"Could not plot {dist_name} distribution: {str(e)}")
+                    # Calculate expected frequencies
+                    cdf_values = [dist_obj.cdf(edge) for edge in bin_edges]
+                    expected_probs = np.diff(cdf_values)
+                    expected_counts = expected_probs * len(data_no_nan)
+                    
+                    expected_counts = np.where(expected_counts < 1, 1, expected_counts)
+                    expected_counts *= hist_counts.sum() / expected_counts.sum()
+
+                    # chi-square
+                    chi2_stat, chi2_p = chisquare(hist_counts, expected_counts)
+                    
+                    # Kolmogorov
+                    ks_stat, ks_p = kstest(data_no_nan, dist_obj.cdf)
+                    
+                    window.chi2_value_label.setText(f"statistic: {chi2_stat:.4f}, p-value: {chi2_p:.4f}")
+                    window.ks_value_label.setText(f"statistic: {ks_stat:.4f}, p-value: {ks_p:.4f}")
+                    
+            except Exception as e:
+                print(f"Error calculating goodness-of-fit tests: {str(e)}")
+                window.chi2_value_label.setText(f"Error: {str(e)}")
+                window.ks_value_label.setText(f"Error: {str(e)}")
+            
+        except Exception as e:
+            window.show_error_message(f"{selected_dist} Distribution Error", 
+                                   f"Could not plot {selected_dist} distribution: {str(e)}")
 
     window.hist_ax.legend(framealpha=0.5)
     window.hist_ax.set_xlabel('Value')

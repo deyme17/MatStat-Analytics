@@ -1,7 +1,8 @@
 from PyQt6.QtWidgets import (
     QMainWindow, QVBoxLayout, QPushButton, QWidget, QHBoxLayout,
     QSpinBox, QLabel, QTableWidget, QTableWidgetItem, QHeaderView, QTabWidget,
-    QDoubleSpinBox, QComboBox, QGroupBox, QMessageBox, QCheckBox, QGridLayout
+    QDoubleSpinBox, QComboBox, QGroupBox, QMessageBox, QCheckBox, QGridLayout,
+    QRadioButton, QButtonGroup
 )
 from PyQt6.QtGui import QIcon, QFont, QPalette, QColor
 from PyQt6.QtCore import Qt
@@ -93,32 +94,57 @@ class Window(QMainWindow):
         self.confidence_spinbox.setDecimals(2)
         self.confidence_spinbox.valueChanged.connect(lambda: plot_graphs(self))
 
-        # stat_distributions
         self.dist_group = QGroupBox("Statistical Distributions")
+        self.dist_group.setMaximumHeight(80)
         dist_layout = QGridLayout()
-
-        self.normal_dist_checkbox = QCheckBox("Normal")
-        self.normal_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
-        dist_layout.addWidget(self.normal_dist_checkbox, 0, 0)
-
-        self.exponential_dist_checkbox = QCheckBox("Exponential")
-        self.exponential_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
-        dist_layout.addWidget(self.exponential_dist_checkbox, 0, 1)
-
-        self.uniform_dist_checkbox = QCheckBox("Uniform")
-        self.uniform_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
-        dist_layout.addWidget(self.uniform_dist_checkbox, 1, 0)
-
-        self.weibull_dist_checkbox = QCheckBox("Weibull")
-        self.weibull_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
-        dist_layout.addWidget(self.weibull_dist_checkbox, 1, 1)
-
-        self.laplace_dist_checkbox = QCheckBox("Lapalce")
-        self.laplace_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
-        dist_layout.addWidget(self.laplace_dist_checkbox, 0, 2)
-
+        dist_layout.setVerticalSpacing(2)
+        
+        self.dist_button_group = QButtonGroup(self)
+        
+        self.normal_dist_radio = QRadioButton("Normal")
+        self.normal_dist_radio.toggled.connect(lambda: plot_graphs(self))
+        dist_layout.addWidget(self.normal_dist_radio, 0, 0)
+        self.dist_button_group.addButton(self.normal_dist_radio)
+        
+        self.exponential_dist_radio = QRadioButton("Exponential")
+        self.exponential_dist_radio.toggled.connect(lambda: plot_graphs(self))
+        dist_layout.addWidget(self.exponential_dist_radio, 0, 1)
+        self.dist_button_group.addButton(self.exponential_dist_radio)
+        
+        self.uniform_dist_radio = QRadioButton("Uniform")
+        self.uniform_dist_radio.toggled.connect(lambda: plot_graphs(self))
+        dist_layout.addWidget(self.uniform_dist_radio, 1, 0)
+        self.dist_button_group.addButton(self.uniform_dist_radio)
+        
+        self.weibull_dist_radio = QRadioButton("Weibull")
+        self.weibull_dist_radio.toggled.connect(lambda: plot_graphs(self))
+        dist_layout.addWidget(self.weibull_dist_radio, 1, 1)
+        self.dist_button_group.addButton(self.weibull_dist_radio)
+        
+        self.laplace_dist_radio = QRadioButton("Laplace")
+        self.laplace_dist_radio.toggled.connect(lambda: plot_graphs(self))
+        dist_layout.addWidget(self.laplace_dist_radio, 0, 2)
+        self.dist_button_group.addButton(self.laplace_dist_radio)
+        
         self.dist_group.setLayout(dist_layout)
-        self.dist_group.setMinimumHeight(100)
+        
+        self.gof_group = QGroupBox("Goodness-of-fit Tests")
+        gof_layout = QGridLayout()
+        gof_layout.setContentsMargins(10, 25, 10, 10)
+        
+        self.chi2_test_label = QLabel("Pearson's χ² test:")
+        gof_layout.addWidget(self.chi2_test_label, 0, 0)
+        
+        self.chi2_value_label = QLabel("statistic: , p-value: ")
+        gof_layout.addWidget(self.chi2_value_label, 0, 1)
+        
+        self.ks_test_label = QLabel("Kolmogorov-Smirnov test:")
+        gof_layout.addWidget(self.ks_test_label, 1, 0)
+        
+        self.ks_value_label = QLabel("statistic: , p-value: ")
+        gof_layout.addWidget(self.ks_value_label, 1, 1)
+        
+        self.gof_group.setLayout(gof_layout)
 
         # button styles
         button_style = """
@@ -349,12 +375,18 @@ class Window(QMainWindow):
         bins_layout.addWidget(self.show_smooth_edf_checkbox)
         bins_layout.addStretch()
         
+        self.dist_group.setFixedHeight(100)
+        self.gof_group.setFixedHeight(100)
+        self.gof_group.setContentsMargins(10, 20, 10, 10)
+
+        dist_gof_layout = QHBoxLayout()
+        dist_gof_layout.addWidget(self.dist_group, 1)
+        dist_gof_layout.addWidget(self.gof_group, 1)
+
         right_panel = QVBoxLayout()
         right_panel.addWidget(self.graph_tab_widget, stretch=1)
         right_panel.addLayout(bins_layout)
-
-        # add the dist group
-        right_panel.addWidget(self.dist_group)
+        right_panel.addLayout(dist_gof_layout)
         
         main_panel = QHBoxLayout()
         main_panel.addWidget(self.left_tab_widget, stretch=1)
