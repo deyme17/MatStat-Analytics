@@ -140,11 +140,11 @@ class Hist:
                     # confidence bands
                     from scipy import stats
                     u_quantile = stats.norm.ppf(1 - alpha/2)
-                    dispersion_estimate = y_smooth * (1 - y_smooth) / n
-                    ci_width = u_quantile * np.sqrt(dispersion_estimate)
-                    
-                    y_upper = np.minimum(1, y_smooth + ci_width)
-                    y_lower = np.maximum(0, y_smooth - ci_width)
+                    dispersion = 0.25 / n
+                    ci_width = u_quantile * np.sqrt(dispersion)
+
+                    y_upper = np.clip(y_smooth + ci_width, 0, 1)
+                    y_lower = np.clip(y_smooth - ci_width, 0, 1)
                     
                     ax.fill_between(x_smooth, y_lower, y_upper, color='skyblue', alpha=0.3, 
                                 label=f'{confidence_level*100:.0f}% CI')
