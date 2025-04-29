@@ -11,6 +11,7 @@ class StatisticalDistributions:
             'Exponential': self._fit_exponential,
             'Uniform': self._fit_uniform,
             'Weibull': self._fit_weibull,
+            'Laplace': self._fit_laplace,
         }
         
         self.dist_colors = {
@@ -18,6 +19,7 @@ class StatisticalDistributions:
             'Exponential': 'green',
             'Uniform': 'purple',
             'Weibull': 'orange',
+            'Laplace': 'pink',
         }
     
     def get_available_distributions(self):
@@ -121,7 +123,10 @@ class StatisticalDistributions:
             shape = max(0.1, params[0]) 
             scale = max(0.1, params[1])
             return stats.weibull_min.pdf(x, c=shape, loc=0, scale=scale)
-            
+        
+        elif dist_name == 'Laplace':
+            return stats.laplace.pdf(x, loc=params[0], scale=params[1])
+
         else:
             return np.zeros_like(x)
     
@@ -172,3 +177,16 @@ class StatisticalDistributions:
             shape = 1.5  
             scale = mean / 0.9  
             return (shape, scale)
+        
+    def _fit_laplace(self, data):
+        """Fit Laplace distribution and return parameters (shift, scale)."""
+        try:
+            shift, scale = stats.laplace.fit(data)
+            scale = max(0.01, scale)
+            return (shift, scale)
+        except:
+            shift = np.nanmean(data)
+            scale = np.nanstd(data)
+            if scale == 0:
+                scale = 0.01
+            return (shift, scale)

@@ -113,6 +113,10 @@ class Window(QMainWindow):
         self.weibull_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
         dist_layout.addWidget(self.weibull_dist_checkbox, 1, 1)
 
+        self.laplace_dist_checkbox = QCheckBox("Lapalce")
+        self.laplace_dist_checkbox.stateChanged.connect(lambda: plot_graphs(self))
+        dist_layout.addWidget(self.laplace_dist_checkbox, 0, 2)
+
         self.dist_group.setLayout(dist_layout)
         self.dist_group.setMinimumHeight(100)
 
