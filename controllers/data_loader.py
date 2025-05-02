@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QFileDialog
 import os
-from views.plot_graphs import plot_graphs
+from views.graph_plotter import GraphPlotter
 from funcs.data_func import detect_missing_values
 
 def load_data_file(window):
@@ -77,7 +77,7 @@ def load_data_file(window):
                 )
             
             # plot graphs
-            plot_graphs(window)
+            GraphPlotter(window).plot_all()
             
             print(f'File {path} selected successfully')
         else:

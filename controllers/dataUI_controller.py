@@ -1,4 +1,4 @@
-from views.plot_graphs import plot_graphs
+from views.graph_plotter import GraphPlotter
 
 class DataUIController:
     """Controller for UI interactions and data operations"""
@@ -23,7 +23,7 @@ class DataUIController:
             # update missing data controller
             window.missing_controller.update_data_reference(window.data)
                     
-            plot_graphs(window)
+            GraphPlotter(window).plot_all()
     
     def check_and_handle_missing_values(self):
         """Check for missing values and update UI state accordingly"""
@@ -63,7 +63,7 @@ class DataUIController:
             # update missing data controller
             window.missing_controller.update_data_reference(window.data)
             
-            plot_graphs(window)
+            GraphPlotter(window).plot_all()
 
     def log_transform_data(self):
         """Apply logarithmic transformation to current data"""
@@ -77,7 +77,7 @@ class DataUIController:
             # update missing data controller
             window.missing_controller.update_data_reference(window.data)
             
-            plot_graphs(window)
+            GraphPlotter(window).plot_all()
 
     def shift_data(self):
         """Shift data by specified value"""
@@ -92,7 +92,7 @@ class DataUIController:
             # update missing data controller
             window.missing_controller.update_data_reference(window.data)
             
-            plot_graphs(window)
+            GraphPlotter(window).plot_all()
 
     def original_data(self):
         """Return to the original data state without transformations or anomalies."""
@@ -151,7 +151,7 @@ class DataUIController:
         
         self.update_transformation_label()
         self.update_navigation_buttons()
-        plot_graphs(window)
+        GraphPlotter(window).plot_all()
 
     def update_data_versions(self):
         """Update the available data versions in the dropdown"""

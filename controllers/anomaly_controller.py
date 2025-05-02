@@ -1,5 +1,5 @@
 from funcs.data_func import detect_anomalies, detect_normal_anomalies, detect_ci_anomalies
-from views.plot_graphs import plot_graphs
+from views.graph_plotter import GraphPlotter
 import numpy as np
 
 class AnomalyController:
@@ -75,7 +75,7 @@ class AnomalyController:
             
             # update UI
             self.window.ui_controller.update_navigation_buttons()
-            plot_graphs(self.window)
+            GraphPlotter(self.window).plot_all()
             
             # disable anomaly detection buttons
             self.window.normal_anomaly_button.setEnabled(False)

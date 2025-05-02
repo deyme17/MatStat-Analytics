@@ -5,7 +5,7 @@ from funcs.data_func import (
     replace_missing_with_median,
     drop_missing_values
 )
-from views.plot_graphs import plot_graphs
+from views.graph_plotter import GraphPlotter
 import numpy as np
 from PyQt6.QtWidgets import QMessageBox
 
@@ -81,7 +81,7 @@ class MissingDataController:
             try:
                 new_data = replace_missing_with_mean(self.data)
                 self._update_window_data(new_data)
-                plot_graphs(self.window)
+                GraphPlotter(self.window).plot_all()
                 self.update_missing_values_info()
                 self.window.show_info_message("Success", "Missing values replaced with mean successfully.")
             except Exception as e:
@@ -93,7 +93,7 @@ class MissingDataController:
             try:
                 new_data = replace_missing_with_median(self.data)
                 self._update_window_data(new_data)
-                plot_graphs(self.window)
+                GraphPlotter(self.window).plot_all()
                 self.update_missing_values_info()
                 self.window.show_info_message("Success", "Missing values replaced with median successfully.")
             except Exception as e:
@@ -105,7 +105,7 @@ class MissingDataController:
             try:
                 new_data = interpolate_missing_values(self.data, method)
                 self._update_window_data(new_data)
-                plot_graphs(self.window)
+                GraphPlotter(self.window).plot_all()
                 self.update_missing_values_info()
                 self.window.show_info_message("Success", f"Missing values interpolated ({method}) successfully.")
             except Exception as e:
@@ -121,7 +121,7 @@ class MissingDataController:
                 dropped_count = original_length - new_length
                 
                 self._update_window_data(new_data)
-                plot_graphs(self.window)
+                GraphPlotter(self.window).plot_all()
                 self.update_missing_values_info()
                 
                 if dropped_count > 0:

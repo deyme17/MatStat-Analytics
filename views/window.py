@@ -1,19 +1,21 @@
 from PyQt6.QtWidgets import (
     QMainWindow, QVBoxLayout, QPushButton, QWidget, QHBoxLayout,
     QSpinBox, QLabel, QTableWidget, QHeaderView, QTabWidget,
-    QDoubleSpinBox, QGroupBox, QMessageBox, QCheckBox, QGridLayout,
-    QRadioButton, QButtonGroup
+    QDoubleSpinBox, QMessageBox, QCheckBox
 )
 from PyQt6.QtGui import QIcon, QPalette, QColor
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 from controllers.data_loader import load_data_file
-from views.plot_graphs import plot_graphs
 from controllers.dataUI_controller import DataUIController
-from views.data_processing_tab import DataProcessingTab
-from utils.ui_styles import appStyle, groupStyle, buttonStyle
+from controllers.anomaly_controller import AnomalyController
+from controllers.missing_controller import MissingDataController
 
+from views.data_processing_tab import DataProcessingTab
+from views.widgets import DistributionWidget, create_test_group, create_graph_widgets
+from views.graph_plotter import GraphPlotter
+from utils.ui_styles import appStyle, buttonStyle
 
 class Window(QMainWindow):
     def __init__(self, data_model, data_processor):
@@ -28,9 +30,9 @@ class Window(QMainWindow):
         self.data_model = data_model
         self.data_processor = data_processor
         self.ui_controller = DataUIController(self)
+        self.anomaly_controller = AnomalyController(self)
+        self.missing_controller = MissingDataController(self)
         self.data = None
-
-        self.group_style = groupStyle
 
         self._create_widgets()
         self._create_layout()
@@ -48,23 +50,21 @@ class Window(QMainWindow):
         self.load_data_button.clicked.connect(lambda: load_data_file(self))
 
         self.bins_label = QLabel('Classes:')
-        self.bins_label.setFixedWidth(60)
         self.bins_spinbox = QSpinBox()
         self.bins_spinbox.setRange(1, 100)
         self.bins_spinbox.setValue(10)
         self.bins_spinbox.setEnabled(False)
-        self.bins_spinbox.setFixedWidth(80)
-        self.bins_spinbox.valueChanged.connect(lambda: plot_graphs(self))
+        self.bins_spinbox.valueChanged.connect(lambda: GraphPlotter(self).plot_all())
 
         self.show_smooth_edf_checkbox = QCheckBox("Show EDF curve with CI")
         self.show_smooth_edf_checkbox.setChecked(False)
-        self.show_smooth_edf_checkbox.stateChanged.connect(lambda: plot_graphs(self))
+        self.show_smooth_edf_checkbox.stateChanged.connect(lambda: GraphPlotter(self).plot_all())
 
         self.precision_label = QLabel('Precision:')
         self.precision_spinbox = QSpinBox()
         self.precision_spinbox.setRange(1, 6)
         self.precision_spinbox.setValue(2)
-        self.precision_spinbox.valueChanged.connect(lambda: plot_graphs(self))
+        self.precision_spinbox.valueChanged.connect(lambda: GraphPlotter(self).plot_all())
 
         self.confidence_label = QLabel('Confidence level (for CI):')
         self.confidence_spinbox = QDoubleSpinBox()
@@ -72,80 +72,27 @@ class Window(QMainWindow):
         self.confidence_spinbox.setSingleStep(0.01)
         self.confidence_spinbox.setValue(0.95)
         self.confidence_spinbox.setDecimals(2)
-        self.confidence_spinbox.valueChanged.connect(lambda: plot_graphs(self))
+        self.confidence_spinbox.valueChanged.connect(lambda: GraphPlotter(self).plot_all())
 
-        self._create_distribution_test_widgets()
-        self._create_graph_widgets()
-        self._create_statistic_tab()
+        self.dist_group = DistributionWidget(on_change=lambda: GraphPlotter(self).plot_all())
+        self.gof_group, self.test_labels = create_test_group(["Pearson's χ² test", "Kolmogorov-Smirnov test"])
+        self.chi2_value_label = self.test_labels["Pearson's χ² test"]
+        self.ks_value_label = self.test_labels["Kolmogorov-Smirnov test"]
 
-        self.left_tab_widget = QTabWidget()
-        self.left_tab_widget.addTab(DataProcessingTab(self), "Data Processing")
-        self.left_tab_widget.addTab(self.char_table, "Statistic")
+        self.graph_tab_widget, self.graph_axes, self.graph_canvases = create_graph_widgets(["Histogram", "Empirical Distribution Function"])
+        self.hist_ax = self.graph_axes["Histogram"]
+        self.hist_canvas = self.graph_canvases["Histogram"]
+        self.edf_ax = self.graph_axes["Empirical Distribution Function"]
+        self.edf_canvas = self.graph_canvases["Empirical Distribution Function"]
 
-    def _create_distribution_test_widgets(self):
-        self.dist_group = QGroupBox("Statistical Distributions")
-        self.dist_group.setMaximumHeight(80)
-        dist_layout = QGridLayout()
-        dist_layout.setVerticalSpacing(2)
-
-        self.dist_button_group = QButtonGroup(self)
-
-        def _create_dist_radio(dist_name, x, y):
-            radio = QRadioButton(dist_name)
-            radio.toggled.connect(lambda: plot_graphs(self))
-            dist_layout.addWidget(radio, y, x)
-            self.dist_button_group.addButton(radio)
-            return radio
-
-        self.normal_dist_radio = _create_dist_radio("Normal", 0, 0)
-        self.exponential_dist_radio = _create_dist_radio("Exponential", 1, 0)
-        self.uniform_dist_radio = _create_dist_radio("Uniform", 0, 1)
-        self.weibull_dist_radio = _create_dist_radio("Weibull", 1, 1)
-        self.laplace_dist_radio = _create_dist_radio("Laplace", 2, 0)
-        self.dist_group.setLayout(dist_layout)
-
-        self.gof_group = QGroupBox("Goodness-of-fit Tests")
-        gof_layout = QGridLayout()
-        gof_layout.setContentsMargins(10, 25, 10, 10)
-
-        def _create_test_label(test_name, y):
-            label = QLabel(f'{test_name}: ')
-            value = QLabel("statistic: , p-value: ")
-            gof_layout.addWidget(label, y, 0)
-            gof_layout.addWidget(value, y, 1)
-            return label, value
-
-        self.chi2_test_label, self.chi2_value_label = _create_test_label("Pearson's χ² test", 0)
-        self.ks_test_label, self.ks_value_label = _create_test_label("Kolmogorov-Smirnov test", 1)
-        self.gof_group.setLayout(gof_layout)
-
-    def _create_graph_widgets(self):
-        self.graph_tab_widget = QTabWidget()
-
-        self.hist_figure = Figure(figsize=(8.5, 5))
-        self.hist_canvas = FigureCanvas(self.hist_figure)
-        self.hist_ax = self.hist_figure.add_subplot(111)
-        self.graph_tab_widget.addTab(self.hist_canvas, "Histogram")
-
-        self.edf_figure = Figure(figsize=(8.5, 5))
-        self.edf_canvas = FigureCanvas(self.edf_figure)
-        self.edf_ax = self.edf_figure.add_subplot(111)
-        self.graph_tab_widget.addTab(self.edf_canvas, "Empirical Distribution Function")
-
-    def _create_statistic_tab(self):
         self.char_table = QTableWidget()
         self.char_table.setColumnCount(3)
         self.char_table.setHorizontalHeaderLabels(['Lower CI', 'Value', 'Upper CI'])
         self.char_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
-    def _create_nav_layout(self):
-        nav_layout = QHBoxLayout()
-        self.original_button = QPushButton("Original")
-        self.original_button.setEnabled(False)
-        self.original_button.clicked.connect(self.ui_controller.original_data)
-        self.original_button.setMinimumHeight(30)
-        nav_layout.addWidget(self.original_button)
-        return nav_layout
+        self.left_tab_widget = QTabWidget()
+        self.left_tab_widget.addTab(DataProcessingTab(self), "Data Processing")
+        self.left_tab_widget.addTab(self.char_table, "Statistic")
 
     def _create_layout(self):
         controls_layout = QHBoxLayout()
@@ -183,6 +130,15 @@ class Window(QMainWindow):
         central_widget = QWidget()
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
+
+    def _create_nav_layout(self):
+        nav_layout = QHBoxLayout()
+        self.original_button = QPushButton("Original")
+        self.original_button.setEnabled(False)
+        self.original_button.clicked.connect(self.ui_controller.original_data)
+        self.original_button.setMinimumHeight(30)
+        nav_layout.addWidget(self.original_button)
+        return nav_layout
 
     def show_error_message(self, title, message):
         QMessageBox.critical(self, title, message)

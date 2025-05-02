@@ -11,6 +11,14 @@ QGroupBox::title {
     padding: 0 3px;
 }
 """
+groupMargin = """QGroupBox::title {
+            subcontrol-origin: margin;
+            subcontrol-position: top left;
+            margin-top: -8px;
+            left: 10px;
+            padding: 0 5px;
+            }
+            """
 
 appStyle = """
 QWidget {
