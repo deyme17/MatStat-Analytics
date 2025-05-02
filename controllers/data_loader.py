@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QFileDialog
 import os
 from views.plot_graphs import plot_graphs
-from utils.data_func import detect_missing_values
+from funcs.data_func import detect_missing_values
 
 def load_data_file(window):
     """
@@ -65,7 +65,7 @@ def load_data_file(window):
             window.missing_controller.update_data_reference(window.data)
             
             # set default bins
-            from utils.stat_func import set_default_bins
+            from funcs.stat_func import set_default_bins
             window.bins_spinbox.setValue(set_default_bins(window.data))
             
             # notify about missings

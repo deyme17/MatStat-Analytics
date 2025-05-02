@@ -4,7 +4,7 @@ from models.stat_distributions.exponential import ExponentialDistribution
 from models.stat_distributions.weibull import WeibullDistribution
 from models.stat_distributions.uniform import UniformDistribution
 from models.stat_distributions.laplace import LaplaceDistribution
-from utils.stat_func import variation_series, update_merged_table
+from funcs.stat_func import variation_series, update_merged_table
 import pandas as pd
 import numpy as np
 from scipy import stats

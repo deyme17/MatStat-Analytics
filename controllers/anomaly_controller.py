@@ -1,4 +1,4 @@
-from utils.data_func import detect_anomalies, detect_normal_anomalies, detect_ci_anomalies
+from funcs.data_func import detect_anomalies, detect_normal_anomalies, detect_ci_anomalies
 from views.plot_graphs import plot_graphs
 import numpy as np
 

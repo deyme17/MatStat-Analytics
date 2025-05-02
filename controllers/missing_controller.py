@@ -1,4 +1,4 @@
-from utils.data_func import (
+from funcs.data_func import (
     detect_missing_values, 
     interpolate_missing_values, 
     replace_missing_with_mean, 

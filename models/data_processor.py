@@ -12,21 +12,21 @@ class DataProcessor:
 
     def standardize_data(self, data):
         """Standardize the data"""
-        from utils.data_func import standardize_data
+        from funcs.data_func import standardize_data
         self.transformed_data = standardize_data(data)
         self.current_transformation = "Standardized"
         return self.transformed_data
 
     def log_transform_data(self, data):
         """Logarithmization"""
-        from utils.data_func import log_transform_data
+        from funcs.data_func import log_transform_data
         self.transformed_data = log_transform_data(data)
         self.current_transformation = "Log Transform"
         return self.transformed_data
 
     def shift_data(self, data, shift_value):
         """Shifts the data"""
-        from utils.data_func import shift_data
+        from funcs.data_func import shift_data
         self.transformed_data = shift_data(data, shift_value)
         self.current_transformation = f"Shifted by {shift_value}"
         return self.transformed_data
