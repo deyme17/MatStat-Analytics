@@ -12,7 +12,7 @@ from controllers.dataUI_controller import DataUIController
 from controllers.anomaly_controller import AnomalyController
 from controllers.missing_controller import MissingDataController
 
-from views.data_processing_tab import DataProcessingTab
+from views.tabs import DataProcessingTab
 from views.widgets import DistributionWidget, create_test_group, create_graph_widgets
 from views.graph_plotter import GraphPlotter
 from utils.ui_styles import appStyle, buttonStyle
