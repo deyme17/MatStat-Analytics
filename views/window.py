@@ -17,6 +17,7 @@ from views.widgets.graphs_widget import DistributionWidget, create_graph_widgets
 from views.graph_plotter import GraphPlotter
 from utils.ui_styles import appStyle, buttonStyle
 
+
 class Window(QMainWindow):
     def __init__(self, data_model, data_processor):
         super().__init__()
@@ -33,6 +34,8 @@ class Window(QMainWindow):
         self.anomaly_controller = AnomalyController(self)
         self.missing_controller = MissingDataController(self)
         self.data = None
+
+        self.graph_plotter = GraphPlotter(self)
 
         self._create_widgets()
         self._create_layout()
@@ -54,17 +57,17 @@ class Window(QMainWindow):
         self.bins_spinbox.setRange(1, 100)
         self.bins_spinbox.setValue(10)
         self.bins_spinbox.setEnabled(False)
-        self.bins_spinbox.valueChanged.connect(lambda: GraphPlotter(self).plot_all())
+        self.bins_spinbox.valueChanged.connect(lambda: self.graph_plotter.plot_all())
 
         self.show_smooth_edf_checkbox = QCheckBox("Show EDF curve with CI")
         self.show_smooth_edf_checkbox.setChecked(False)
-        self.show_smooth_edf_checkbox.stateChanged.connect(lambda: GraphPlotter(self).plot_all())
+        self.show_smooth_edf_checkbox.stateChanged.connect(lambda: self.graph_plotter.plot_all())
 
         self.precision_label = QLabel('Precision:')
         self.precision_spinbox = QSpinBox()
         self.precision_spinbox.setRange(1, 6)
         self.precision_spinbox.setValue(2)
-        self.precision_spinbox.valueChanged.connect(lambda: GraphPlotter(self).plot_all())
+        self.precision_spinbox.valueChanged.connect(lambda: self.graph_plotter.plot_all())
 
         self.confidence_label = QLabel('Confidence level (for CI):')
         self.confidence_spinbox = QDoubleSpinBox()
@@ -72,9 +75,9 @@ class Window(QMainWindow):
         self.confidence_spinbox.setSingleStep(0.01)
         self.confidence_spinbox.setValue(0.95)
         self.confidence_spinbox.setDecimals(2)
-        self.confidence_spinbox.valueChanged.connect(lambda: GraphPlotter(self).plot_all())
+        self.confidence_spinbox.valueChanged.connect(lambda: self.graph_plotter.plot_all())
 
-        self.dist_group = DistributionWidget(on_change=lambda: GraphPlotter(self).plot_all())
+        self.dist_group = DistributionWidget(on_change=lambda: self.graph_plotter.plot_all())
         self.gof_group, self.test_labels = create_test_group(["Pearson's χ² test", "Kolmogorov-Smirnov test"])
         self.chi2_value_label = self.test_labels["Pearson's χ² test"]
         self.ks_value_label = self.test_labels["Kolmogorov-Smirnov test"]

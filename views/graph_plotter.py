@@ -15,14 +15,14 @@ class GraphPlotter:
             self.window.show_error_message("Data Error", "All values are NaN.")
             return
 
-        self.draw_histogram(data)
-        self.draw_distribution_overlay(data)
-        self.draw_edf(data)
-        self.update_characteristics_table(data)
+        self._draw_histogram(data)
+        self._draw_distribution_overlay(data)
+        self._draw_edf(data)
+        self._update_characteristics_table(data)
 
-    def draw_histogram(self, data):
+    def _draw_histogram(self, data):
         self.window.hist_ax.clear()
-        from models.graph_models import Hist
+        from models.graph_model.hist_models import Hist
         hist_model = Hist(data, bins=self.window.bins_spinbox.value())
         hist_model.plot_hist(self.window.hist_ax)
 
@@ -32,7 +32,7 @@ class GraphPlotter:
         self.window.hist_ax.set_ylabel('Frequency')
         self.window.hist_canvas.draw()
 
-    def draw_distribution_overlay(self, data):
+    def _draw_distribution_overlay(self, data):
         dist = self.window.dist_group.get_selected_distribution()
         self.window.chi2_value_label.setText("statistic: , p-value: ")
         self.window.ks_value_label.setText("statistic: , p-value: ")
@@ -64,11 +64,11 @@ class GraphPlotter:
         self.window.hist_ax.legend(framealpha=0.5)
         self.window.hist_canvas.draw()
 
-    def draw_edf(self, data):
+    def _draw_edf(self, data):
         show_smooth = self.window.show_smooth_edf_checkbox.isChecked()
         confidence = self.window.confidence_spinbox.value()
 
-        from models.graph_models import Hist
+        from models.graph_model.hist_models import Hist
         hist_model = Hist(data, bins=self.window.bins_spinbox.value())
 
         self.window.edf_ax.clear()
@@ -79,7 +79,7 @@ class GraphPlotter:
         self.window.edf_ax.set_ylabel('Cumulative Probability')
         self.window.edf_canvas.draw()
 
-    def update_characteristics_table(self, data):
-        from models.graph_models import Hist
+    def _update_characteristics_table(self, data):
+        from models.graph_model.hist_models import Hist
         hist_model = Hist(data, bins=self.window.bins_spinbox.value())
         update_merged_table(hist_model, data, self.window.char_table, self.window)
