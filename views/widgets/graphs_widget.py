@@ -1,11 +1,13 @@
-from PyQt6.QtWidgets import QGroupBox, QGridLayout, QRadioButton, QButtonGroup, QLabel, QTabWidget
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from PyQt6.QtWidgets import QGroupBox, QGridLayout, QRadioButton, QButtonGroup, QLabel
 from matplotlib.figure import Figure
 from utils.ui_styles import groupMargin
 from models.stat_distributions import (
     NormalDistribution, ExponentialDistribution,
     UniformDistribution, WeibullDistribution, LaplaceDistribution
 )
+from PyQt6.QtWidgets import QTabWidget
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+
 
 class DistributionWidget(QGroupBox):
     def __init__(self, on_change=None, parent=None):
@@ -40,8 +42,7 @@ class DistributionWidget(QGroupBox):
             if dist_class:
                 return dist_class()
         return None
-
-
+    
 def create_test_group(test_names):
     group = QGroupBox("Goodness-of-fit Tests")
     layout = QGridLayout()

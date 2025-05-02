@@ -12,8 +12,8 @@ from controllers.dataUI_controller import DataUIController
 from controllers.anomaly_controller import AnomalyController
 from controllers.missing_controller import MissingDataController
 
-from views.tabs import DataProcessingTab
-from views.widgets import DistributionWidget, create_test_group, create_graph_widgets
+from views.tabs.data_processing_tab import DataProcessingTab
+from views.widgets.graphs_widget import DistributionWidget, create_graph_widgets, create_test_group
 from views.graph_plotter import GraphPlotter
 from utils.ui_styles import appStyle, buttonStyle
 
