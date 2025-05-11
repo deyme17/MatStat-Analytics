@@ -1,136 +1,56 @@
-from funcs.data_func import (
-    detect_missing_values, 
-    interpolate_missing_values, 
-    replace_missing_with_mean, 
-    replace_missing_with_median,
-    drop_missing_values
-)
-from views.graph_plotter import GraphPlotter
-import numpy as np
-from PyQt6.QtWidgets import QMessageBox
+from services.missing_service import MissingService
 
 class MissingDataController:
-    """Controller for handling missing data detection and removal."""
-    
     def __init__(self, window):
         self.window = window
         self.data = None
 
     def update_data_reference(self, data):
-        """Update the data reference and UI elements."""
         self.data = data
         self.update_missing_values_info()
+        self.window.state_controller.update_state_for_data(data)
 
     def update_missing_values_info(self):
-        """Update the missing values information labels."""
         if self.data is not None:
-            missing_info = detect_missing_values(self.data)
-            self.window.missing_count_label.setText(f"Total Missing: {missing_info['total_missing']}")
-            self.window.missing_percentage_label.setText(f"Missing Percentage: {missing_info['missing_percentage']:.2f}%")
-    
-    def _update_window_data(self, new_data):
-        """Update the data in the window and data processor."""
+            info = MissingService.detect_missing(self.data)
+            self.window.missing_count_label.setText(f"Total Missing: {info['total_missing']}")
+            self.window.missing_percentage_label.setText(f"Missing Percentage: {info['missing_percentage']:.2f}%")
+
+    def _update_after_imputation(self, new_data, message):
         if self.data is not None:
-            # store orig data
-            if not hasattr(self.window, 'original_data_with_missing'):
-                self.window.original_data_with_missing = self.window.data_processor.get_original_data().copy()
-            
-            # update the windows data reference
             self.window.data = new_data
             self.data = new_data
-            
-            # update the data in the data processor
-            current_index = self.window.data_processor.current_index
-            if current_index >= 0:
-                filename = self.window.data_processor.get_data_description()
-                # update the data in the history
-                self.window.data_processor.data_history[current_index] = (filename, new_data.copy())
-                # If transformed version - update
-                if self.window.data_processor.transformed_data is not None:
-                    self.window.data_processor.transformed_data = new_data.copy()
-            
-            # enable operation buttons
-            self._enable_operation_buttons()
-            
+            self.window.version_manager.update_current_data(new_data)
+
+            if self.window.transform_manager.transformed_data is not None:
+                self.window.transform_manager.transformed_data = new_data.copy()
+
+            self.window.graph_controller.set_data(new_data)
+            self.window.stat_controller.update_statistics_table()
+            self.update_missing_values_info()
+            self.window.state_controller.update_state_for_data(new_data)
+
             self.window.original_button.setEnabled(True)
-    
-    def _enable_operation_buttons(self):
-        """Enable data operation buttons after missing values have been handled."""
-        # check if we have missings
-        has_missing = self.data.isna().sum() > 0 if hasattr(self.data, 'isna') else False
-        
-        # enable/disable buttons
-        self.window.standardize_button.setEnabled(not has_missing)
-        self.window.log_button.setEnabled(not has_missing)
-        self.window.shift_spinbox.setEnabled(not has_missing)
-        self.window.shift_button.setEnabled(not has_missing)
-        self.window.normal_anomaly_button.setEnabled(not has_missing)
-        self.window.asymmetry_anomaly_button.setEnabled(not has_missing)
-        self.window.confidence_anomaly_button.setEnabled(not has_missing)
-        self.window.anomaly_gamma_spinbox.setEnabled(not has_missing)
-        
-        # update missing data panel buttons
-        self.window.impute_mean_button.setEnabled(has_missing)
-        self.window.impute_median_button.setEnabled(has_missing)
-        self.window.interpolate_linear_button.setEnabled(has_missing)
-        self.window.drop_missing_button.setEnabled(has_missing)
-    
+            self.window.show_info_message("Success", message)
+
     def impute_with_mean(self):
-        """Replace missing values with the mean of the dataset."""
         if self.data is not None:
-            try:
-                new_data = replace_missing_with_mean(self.data)
-                self._update_window_data(new_data)
-                GraphPlotter(self.window).plot_all()
-                self.update_missing_values_info()
-                self.window.show_info_message("Success", "Missing values replaced with mean successfully.")
-            except Exception as e:
-                self.window.show_error_message("Error", f"Failed to replace with mean: {str(e)}")
-    
+            new_data = MissingService.replace_missing_with_mean(self.data)
+            self._update_after_imputation(new_data, "Missing values replaced with mean successfully.")
+
     def impute_with_median(self):
-        """Replace missing values with the median of the dataset."""
         if self.data is not None:
-            try:
-                new_data = replace_missing_with_median(self.data)
-                self._update_window_data(new_data)
-                GraphPlotter(self.window).plot_all()
-                self.update_missing_values_info()
-                self.window.show_info_message("Success", "Missing values replaced with median successfully.")
-            except Exception as e:
-                self.window.show_error_message("Error", f"Failed to replace with median: {str(e)}")
-    
+            new_data = MissingService.replace_missing_with_median(self.data)
+            self._update_after_imputation(new_data, "Missing values replaced with median successfully.")
+
     def interpolate_missing(self, method):
-        """Interpolate missing values using the specified method."""
         if self.data is not None:
-            try:
-                new_data = interpolate_missing_values(self.data, method)
-                self._update_window_data(new_data)
-                GraphPlotter(self.window).plot_all()
-                self.update_missing_values_info()
-                self.window.show_info_message("Success", f"Missing values interpolated ({method}) successfully.")
-            except Exception as e:
-                self.window.show_error_message("Error", f"Failed to interpolate missing values: {str(e)}")
-    
+            new_data = MissingService.interpolate_missing(self.data, method)
+            self._update_after_imputation(new_data, f"Missing values interpolated ({method}) successfully.")
+
     def drop_missing_values(self):
-        """Drop rows with missing values from the dataset."""
         if self.data is not None:
-            try:
-                original_length = len(self.data)
-                new_data = drop_missing_values(self.data)
-                new_length = len(new_data)
-                dropped_count = original_length - new_length
-                
-                self._update_window_data(new_data)
-                GraphPlotter(self.window).plot_all()
-                self.update_missing_values_info()
-                
-                if dropped_count > 0:
-                    self.window.show_info_message(
-                        "Success", 
-                        f"Dropped {dropped_count} rows with missing values.\n"
-                        f"New dataset has {new_length} rows."
-                    )
-                else:
-                    self.window.show_info_message("Info", "No rows with missing values found to drop.")
-            except Exception as e:
-                self.window.show_error_message("Error", f"Failed to drop missing values: {str(e)}")
+            original_len = len(self.data)
+            new_data = MissingService.drop_missing(self.data)
+            dropped = original_len - len(new_data)
+            self._update_after_imputation(new_data, f"Dropped {dropped} rows with missing values.")
