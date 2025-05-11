@@ -12,7 +12,7 @@ class DataProcessingTab(QWidget):
         self.data_version_label = QLabel("Select loaded dataset:")
         self.data_version_combo = QComboBox()
         self.data_version_combo.setEnabled(False)
-        self.data_version_combo.currentIndexChanged.connect(parent.ui_controller.on_data_version_changed)
+        self.data_version_combo.currentIndexChanged.connect(parent.data_version_controller.on_data_version_changed)
 
         self.transformation_label = QLabel("Current state: Original")
 
