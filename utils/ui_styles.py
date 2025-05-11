@@ -2,7 +2,7 @@ groupStyle = """
 QGroupBox {
     border: 2px solid #87ceeb;
     border-radius: 10px;
-    margin-top: 10px;
+    margin-top: 5px;
     background-color: rgba(135, 206, 235, 0.1);
 }
 QGroupBox::title {
@@ -25,33 +25,44 @@ QWidget {
     background-color: rgb(240, 248, 255);
     color: black;
 }
+
+/* Загальні стилі для всіх основних елементів */
 QPushButton, QCheckBox, QLabel, QSpinBox, QDoubleSpinBox, QComboBox, QTableWidget {
     background-color: rgb(240, 248, 255);
     color: black;
 }
+
+/* Стиль кнопок */
+QPushButton {
+    background-color: #5dade2;
+    color: white;
+    border-radius: 5px;
+    padding: 5px;
+}
+QPushButton:hover {
+    background-color: #2e86c1;
+}
+QPushButton:disabled {
+    background-color: #bdc3c7;
+    color: #666666;
+}
+
+/* Стиль для груп */
 QGroupBox {
     background-color: rgb(240, 248, 255);
     color: black;
     border: 2px solid #87ceeb;
     border-radius: 10px;
 }
+QGroupBox:disabled {
+    background-color: rgb(230, 230, 230);
+    border: 2px dashed #aaa;
+    color: gray;
+}
+
+/* Таблиця */
 QTableWidget {
     background-color: rgb(255, 255, 255);
     color: black;
-}
-"""
-
-buttonStyle = """
-QPushButton {
-    background-color: #3498db;
-    color: white;
-    border-radius: 5px;
-    padding: 5px;
-}
-QPushButton:hover {
-    background-color: #2980b9;
-}
-QPushButton:disabled {
-    background-color: #bdc3c7;
 }
 """
