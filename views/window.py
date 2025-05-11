@@ -1,25 +1,29 @@
-from PyQt6.QtWidgets import (
-    QMainWindow, QVBoxLayout, QPushButton, QWidget, QHBoxLayout,
-    QSpinBox, QLabel, QTableWidget, QHeaderView, QTabWidget,
-    QDoubleSpinBox, QMessageBox, QCheckBox
-)
+from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QHBoxLayout, QTabWidget, QMessageBox
 from PyQt6.QtGui import QIcon, QPalette, QColor
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
 
 from controllers.data_loader import load_data_file
-from controllers.dataUI_controller import DataUIController
+from controllers.data_transform_controller import DataTransformController
 from controllers.anomaly_controller import AnomalyController
 from controllers.missing_controller import MissingDataController
+from controllers.ui_state_controller import UIStateController
+from controllers.data_version_controller import DataVersionController
+from controllers.graph_controller import GraphController
+from controllers.statistic_controller import StatisticController
+
+from services.data_history_manager import DataHistoryManager
+from services.data_transformer import DataTransformer
 
 from views.tabs.data_processing_tab import DataProcessingTab
-from views.widgets.graphs_widget import DistributionWidget, create_graph_widgets, create_test_group
-from views.graph_plotter import GraphPlotter
-from utils.ui_styles import appStyle, buttonStyle
+from views.tabs.stat_table_tab import StatisticTab
+from views.tabs.gof_test_tab import GOFTestTab
+from views.widgets.statwidgets.graph_panel import GraphPanel
+from views.widgets.window_widget import WindowWidgets
+from utils.ui_styles import appStyle
+from factory import Factory
 
 
 class Window(QMainWindow):
-    def __init__(self, data_model, data_processor):
+    def __init__(self):
         super().__init__()
         self.setWindowTitle('MatStat Analytics')
         self.setWindowIcon(QIcon("resources/MatStat.jpeg"))
@@ -28,16 +32,20 @@ class Window(QMainWindow):
         self._init_palette()
         self.setStyleSheet(appStyle)
 
-        self.data_model = data_model
-        self.data_processor = data_processor
-        self.ui_controller = DataUIController(self)
-        self.anomaly_controller = AnomalyController(self)
-        self.missing_controller = MissingDataController(self)
+        # Data
         self.data = None
+        self.anomalies_removed = False
 
-        self.graph_plotter = GraphPlotter(self)
+        # add controllers and services
+        Factory.create(self)
 
-        self._create_widgets()
+        # Widgets
+        self.widgets = WindowWidgets(self)
+        self.graph_panel = GraphPanel(self, on_dist_change=self.evaluate_distribution_change)
+        self.graph_controller = GraphController(self.graph_panel)
+
+        # UI Tabs
+        self._create_tabs()
         self._create_layout()
 
     def _init_palette(self):
@@ -46,102 +54,46 @@ class Window(QMainWindow):
         palette.setColor(QPalette.ColorRole.Base, QColor(245, 250, 255))
         self.setPalette(palette)
 
-    def _create_widgets(self):
-        self.load_data_button = QPushButton('Load Data')
-        self.load_data_button.setFixedSize(80, 25)
-        self.load_data_button.setStyleSheet(buttonStyle)
-        self.load_data_button.clicked.connect(lambda: load_data_file(self))
-
-        self.bins_label = QLabel('Classes:')
-        self.bins_spinbox = QSpinBox()
-        self.bins_spinbox.setRange(1, 100)
-        self.bins_spinbox.setValue(10)
-        self.bins_spinbox.setEnabled(False)
-        self.bins_spinbox.valueChanged.connect(lambda: self.graph_plotter.plot_all())
-
-        self.show_smooth_edf_checkbox = QCheckBox("Show EDF curve with CI")
-        self.show_smooth_edf_checkbox.setChecked(False)
-        self.show_smooth_edf_checkbox.stateChanged.connect(lambda: self.graph_plotter.plot_all())
-
-        self.precision_label = QLabel('Precision:')
-        self.precision_spinbox = QSpinBox()
-        self.precision_spinbox.setRange(1, 6)
-        self.precision_spinbox.setValue(2)
-        self.precision_spinbox.valueChanged.connect(lambda: self.graph_plotter.plot_all())
-
-        self.confidence_label = QLabel('Confidence level (for CI):')
-        self.confidence_spinbox = QDoubleSpinBox()
-        self.confidence_spinbox.setRange(0.80, 0.99)
-        self.confidence_spinbox.setSingleStep(0.01)
-        self.confidence_spinbox.setValue(0.95)
-        self.confidence_spinbox.setDecimals(2)
-        self.confidence_spinbox.valueChanged.connect(lambda: self.graph_plotter.plot_all())
-
-        self.dist_group = DistributionWidget(on_change=lambda: self.graph_plotter.plot_all())
-        self.gof_group, self.test_labels = create_test_group(["Pearson's χ² test", "Kolmogorov-Smirnov test"])
-        self.chi2_value_label = self.test_labels["Pearson's χ² test"]
-        self.ks_value_label = self.test_labels["Kolmogorov-Smirnov test"]
-
-        self.graph_tab_widget, self.graph_axes, self.graph_canvases = create_graph_widgets(["Histogram", "Empirical Distribution Function"])
-        self.hist_ax = self.graph_axes["Histogram"]
-        self.hist_canvas = self.graph_canvases["Histogram"]
-        self.edf_ax = self.graph_axes["Empirical Distribution Function"]
-        self.edf_canvas = self.graph_canvases["Empirical Distribution Function"]
-
-        self.char_table = QTableWidget()
-        self.char_table.setColumnCount(3)
-        self.char_table.setHorizontalHeaderLabels(['Lower CI', 'Value', 'Upper CI'])
-        self.char_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-
+    def _create_tabs(self):
         self.left_tab_widget = QTabWidget()
-        self.left_tab_widget.addTab(DataProcessingTab(self), "Data Processing")
-        self.left_tab_widget.addTab(self.char_table, "Statistic")
+        self.data_tab = DataProcessingTab(self)
+        self.stat_tab = StatisticTab()
+        self.gof_tab = GOFTestTab(self)
+
+        self.left_tab_widget.addTab(self.data_tab, "Data Processing")
+        self.left_tab_widget.addTab(self.stat_tab, "Statistic")
+        self.left_tab_widget.addTab(self.gof_tab, "Goodness-of-Fit Tests")
 
     def _create_layout(self):
-        controls_layout = QHBoxLayout()
-        controls_layout.addWidget(self.load_data_button)
-        controls_layout.addStretch()
-        controls_layout.addWidget(self.confidence_label)
-        controls_layout.addWidget(self.confidence_spinbox)
-        controls_layout.addWidget(self.precision_label)
-        controls_layout.addWidget(self.precision_spinbox)
-
-        bins_layout = QHBoxLayout()
-        bins_layout.addWidget(self.bins_label)
-        bins_layout.addWidget(self.bins_spinbox)
-        bins_layout.addSpacing(70)
-        bins_layout.addWidget(self.show_smooth_edf_checkbox)
-        bins_layout.addStretch()
-
-        dist_gof_layout = QHBoxLayout()
-        dist_gof_layout.addWidget(self.dist_group, 1)
-        dist_gof_layout.addWidget(self.gof_group, 1)
-
-        right_panel = QVBoxLayout()
-        right_panel.addWidget(self.graph_tab_widget, stretch=1)
-        right_panel.addLayout(bins_layout)
-        right_panel.addLayout(dist_gof_layout)
-
         main_panel = QHBoxLayout()
         main_panel.addWidget(self.left_tab_widget, stretch=1)
-        main_panel.addLayout(right_panel, stretch=3)
+        main_panel.addWidget(self.graph_panel, stretch=3)
 
         main_layout = QVBoxLayout()
-        main_layout.addLayout(controls_layout)
+
+        controls_bar = self.widgets.create_controls_bar()
+        self.precision_spinbox.valueChanged.connect(lambda: self.stat_controller.update_statistics_table())
+        self.load_data_button.clicked.connect(lambda: load_data_file(self))
+
+        main_layout.addLayout(controls_bar)
         main_layout.addLayout(main_panel, stretch=1)
 
         central_widget = QWidget()
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
 
+    def evaluate_distribution_change(self):
+        if not hasattr(self, "graph_panel") or not hasattr(self, "gof_tab"):
+            return
+        self.graph_panel.plot_all()
+        selected_dist = self.graph_panel.get_selected_distribution()
+        if selected_dist is None:
+            self.gof_tab.clear_tests()
+        else:
+            self.gof_tab.evaluate_tests()
+
     def _create_nav_layout(self):
-        nav_layout = QHBoxLayout()
-        self.original_button = QPushButton("Original")
-        self.original_button.setEnabled(False)
-        self.original_button.clicked.connect(self.ui_controller.original_data)
-        self.original_button.setMinimumHeight(30)
-        nav_layout.addWidget(self.original_button)
-        return nav_layout
+        return self.widgets.create_nav_layout()
 
     def show_error_message(self, title, message):
         QMessageBox.critical(self, title, message)
