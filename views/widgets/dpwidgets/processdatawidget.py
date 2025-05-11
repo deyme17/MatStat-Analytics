@@ -9,11 +9,11 @@ class ProcessDataWidget(QGroupBox):
 
         window.standardize_button = QPushButton("Standardize")
         window.standardize_button.setEnabled(False)
-        window.standardize_button.clicked.connect(window.ui_controller.standardize_data)
+        window.standardize_button.clicked.connect(window.transform_controller.standardize_data)
 
         window.log_button = QPushButton("Log Transform")
         window.log_button.setEnabled(False)
-        window.log_button.clicked.connect(window.ui_controller.log_transform_data)
+        window.log_button.clicked.connect(window.transform_controller.log_transform_data)
 
         shift_layout = QHBoxLayout()
         window.shift_label = QLabel("Shift by:")
@@ -24,7 +24,7 @@ class ProcessDataWidget(QGroupBox):
         window.shift_spinbox.setEnabled(False)
         window.shift_button = QPushButton("Apply")
         window.shift_button.setEnabled(False)
-        window.shift_button.clicked.connect(window.ui_controller.shift_data)
+        window.shift_button.clicked.connect(window.transform_controller.shift_data)
 
         shift_layout.addWidget(window.shift_label)
         shift_layout.addWidget(window.shift_spinbox)

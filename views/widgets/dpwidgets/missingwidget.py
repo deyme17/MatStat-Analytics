@@ -1,5 +1,4 @@
 from PyQt6.QtWidgets import QGroupBox, QVBoxLayout, QPushButton, QLabel
-from controllers.missing_controller import MissingDataController
 from utils.ui_styles import groupStyle
 
 class MissingWidget(QGroupBox):
@@ -7,8 +6,6 @@ class MissingWidget(QGroupBox):
         super().__init__("Missing Data")
         self.setStyleSheet(groupStyle)
         layout = QVBoxLayout()
-
-        window.missing_controller = MissingDataController(window)
 
         window.missing_count_label = QLabel("Total Missing: 0")
         window.missing_percentage_label = QLabel("Missing Percentage: 0.00%")

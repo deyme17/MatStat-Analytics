@@ -1,5 +1,4 @@
 from PyQt6.QtWidgets import QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QDoubleSpinBox
-from controllers.anomaly_controller import AnomalyController
 from utils.ui_styles import groupStyle
 
 class AnomalyWidget(QGroupBox):
@@ -8,24 +7,21 @@ class AnomalyWidget(QGroupBox):
         self.setStyleSheet(groupStyle)
         layout = QVBoxLayout()
 
-        window.anomaly_controller = AnomalyController(window)
-
-        window.normal_anomaly_button = QPushButton("Remove Anomalies (3σ)")
+        window.normal_anomaly_button = QPushButton("Remove 3σ anomalies")
         window.normal_anomaly_button.setEnabled(False)
         window.normal_anomaly_button.clicked.connect(window.anomaly_controller.remove_normal_anomalies)
 
-        window.asymmetry_anomaly_button = QPushButton("Remove Anomalies (A)")
+        window.asymmetry_anomaly_button = QPushButton("Remove assymetry anomalies")
         window.asymmetry_anomaly_button.setEnabled(False)
-        window.asymmetry_anomaly_button.clicked.connect(window.anomaly_controller.remove_anomalies)
+        window.asymmetry_anomaly_button.clicked.connect(window.anomaly_controller.remove_asymmetry_anomalies)
 
-        window.confidence_anomaly_button = QPushButton("Remove Anomalies (γ)")
+        window.confidence_anomaly_button = QPushButton("Remove Anomalies by γ")
         window.confidence_anomaly_button.setEnabled(False)
         window.confidence_anomaly_button.clicked.connect(
-            window.anomaly_controller.remove_confidence_interval_anomalies
+            window.anomaly_controller.remove_conf_anomalies
         )
-
         gamma_layout = QHBoxLayout()
-        window.anomaly_gamma_label = QLabel("Data Confident level (1-γ):")
+        window.anomaly_gamma_label = QLabel("Significance level (1-γ):")
         window.anomaly_gamma_spinbox = QDoubleSpinBox()
         window.anomaly_gamma_spinbox.setRange(0.80, 0.99)
         window.anomaly_gamma_spinbox.setSingleStep(0.01)
