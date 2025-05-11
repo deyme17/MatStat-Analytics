@@ -17,7 +17,6 @@ class EmpiricalDistribution:
             n = len(self.data)
             alpha = 1 - confidence_level
 
-            # plot
             if bin_edges is not None:
                 bin_counts, _ = np.histogram(self.data, bins=bin_edges)
                 cum_counts = np.cumsum(bin_counts)
@@ -43,20 +42,29 @@ class EmpiricalDistribution:
 
                 ax.plot(x_smooth, y_smooth, '-', color='red', label='EDF Smooth', linewidth=2)
 
-                # cl bands
+                # confidence band
                 u = stats.norm.ppf(1 - alpha / 2)
                 dispersion = 0.25 / n
                 ci_width = u * np.sqrt(dispersion)
-                ax.fill_between(x_smooth, np.clip(y_smooth - ci_width, 0, 1),
-                                np.clip(y_smooth + ci_width, 0, 1), color='skyblue', alpha=0.3,
-                                label=f'{confidence_level*100:.0f}% CI')
+                ax.fill_between(
+                    x_smooth,
+                    np.clip(y_smooth - ci_width, 0, 1),
+                    np.clip(y_smooth + ci_width, 0, 1),
+                    color='skyblue',
+                    alpha=0.3,
+                    label=f"{confidence_level * 100:.0f}% CI"
+                )
 
             ax.set_ylim(-0.05, 1.05)
             ax.set_xlabel('Values')
             ax.set_ylabel('Probability')
             ax.set_title('Empirical Distribution Function')
             ax.grid(True, alpha=0.3)
-            ax.legend()
+
+            handles, labels = ax.get_legend_handles_labels()
+            if handles:
+                ax.legend()
+
             ax.figure.tight_layout()
             ax.figure.canvas.draw()
 
