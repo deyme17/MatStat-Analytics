@@ -16,7 +16,7 @@ def kolmogorov_smirnov_test(data, dist, alpha=0.05):
 
     z = np.sqrt(n) * dn
     critical = kstwobign.ppf(1 - alpha)
-    p_value = 1 - _kolmogorov_cdf(z)
+    p_value = 1 - _kolmogorov_cdf(z, n)
 
     return {
         "dn": dn,
@@ -26,11 +26,31 @@ def kolmogorov_smirnov_test(data, dist, alpha=0.05):
         "passed": z <= critical
     }
 
-def _kolmogorov_cdf(z):
-    if z < 1.18:
+def _kolmogorov_cdf(z, N, terms=100):
+    if z <= 0 or N <= 0:
         return 0.0
-    sum_term = 0.0
-    for k in range(1, 101):
-        term = (-1) ** (k - 1) * np.exp(-2 * (k ** 2) * (z ** 2))
-        sum_term += term
-    return max(0.0, min(1.0, 1 - 2 * sum_term))
+
+    sqrt_N = np.sqrt(N)
+    total_sum = 0.0
+
+    for k in range(1, terms + 1):
+        k2 = k ** 2
+        k4 = k ** 4
+        f1 = k2 - 0.5 * (1 - (-1) ** k)
+        f2 = 5 * k2 + 22 - 7.5 * (1 - (-1) ** k)
+
+        exp_term = np.exp(-2 * k2 * z ** 2)
+
+        main_part = 1 \
+            - (2 * k2 * z) / (3 * sqrt_N) \
+            - (1 / (18 * N)) * ((f1 - 4 * (f1 + 3)) * k2 * z ** 2 + 8 * k4)
+
+        correction = (k * z) / (27 * np.sqrt(N ** 3)) * (
+            (f2 / 5) - (4 * (f2 + 45) * k2 * z ** 2) / 15 + 8 * k4
+        )
+
+        term = (-1) ** k * exp_term * (main_part + correction)
+        total_sum += term
+
+    result = 1 + 2 * total_sum
+    return max(0.0, min(1.0, result))
