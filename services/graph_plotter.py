@@ -93,7 +93,7 @@ class GraphPlotter:
                                 label=f"Confidence level: {confidence * 100:.0f}%")
 
                 ax.legend()
-                ax.set_title("Statistical CDF with Confidence Interval")
+                ax.set_title("EDF and Statistical CDF with Confidence Interval")
                 ax.set_ylim(-0.05, 1.05)
 
         except Exception as e:
