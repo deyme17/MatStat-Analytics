@@ -31,9 +31,12 @@ class GOFTestTab(QWidget):
 
     def evaluate_tests(self):
         dist = self.window.graph_panel.get_selected_distribution()
-        if dist is None or self.window.data is None:
+        model = self.window.data_model
+
+        if dist is None or model is None or model.series.empty:
             return
-        data = self.window.data.dropna()
+
+        data = model.series.dropna()
         if data.empty:
             return
 
@@ -44,4 +47,3 @@ class GOFTestTab(QWidget):
     def clear_tests(self):
         self.pearson_panel.clear()
         self.ks_panel.clear()
-
