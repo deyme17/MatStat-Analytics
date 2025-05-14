@@ -1,4 +1,5 @@
 from services.transformation_service import TransformationService
+from services.ui_refresh_service import UIRefreshService
 
 class DataTransformController:
     def __init__(self, window):
@@ -24,20 +25,10 @@ class DataTransformController:
         new_model = self.window.data_model.add_version(new_series, label)
         self.window.data_model = new_model
 
-        # 🔁 Зберегти в менеджері
         self.window.version_manager.update_current_data(new_model)
 
-        self._update_all()
+        UIRefreshService.refresh_all(self.window, self.window.data_model.series)
         self.window.original_button.setEnabled(True)
-
-    def _update_all(self):
-        self.window.graph_controller.set_data(self.window.data_model.series)
-        self.window.missing_controller.update_data_reference(self.window.data_model.series)
-        self.window.state_controller.update_state_for_data(self.window.data_model.series)
-        self.window.stat_controller.update_statistics_table()
-        self.window.state_controller.update_transformation_label()
-        self.window.state_controller.update_navigation_buttons()
-        self.window.gof_tab.evaluate_tests()
 
     def is_transformed(self):
         return len(self.window.data_model.history) > 0

@@ -1,3 +1,5 @@
+from services.ui_refresh_service import UIRefreshService
+
 class DataVersionController:
     def __init__(self, window):
         self.window = window
@@ -18,13 +20,7 @@ class DataVersionController:
             self.window.original_button.setEnabled(False)
             self.window.missing_controller.update_data_reference(original.series)
 
-            has_missing = original.series.isna().sum() > 0
-            if has_missing:
-                self.window.graph_panel.clear()
-                self.window.stat_controller.clear()
-                self.window.gof_tab.clear_tests()
-
-            self._update_all()
+            UIRefreshService.refresh_all(self.window, original.series)
 
     def update_data_versions(self):
         self.window.data_version_combo.blockSignals(True)
@@ -53,19 +49,5 @@ class DataVersionController:
 
     def _update_all(self):
         series = self.window.data_model.series
-        has_missing = series.isna().sum() > 0
-
-        self.window.state_controller.update_state_for_data(series)
-        self.window.state_controller.update_transformation_label()
-        self.window.state_controller.update_navigation_buttons()
         self.window.graph_panel.bins_spinbox.setValue(self.window.data_model.bins)
-
-        if has_missing:
-            self.window.graph_panel.clear()
-            self.window.graph_panel.data = None
-            self.window.stat_controller.clear()
-            self.window.gof_tab.clear_tests()
-        else:
-            self.window.graph_controller.set_data(series)
-            self.window.stat_controller.update_statistics_table()
-            self.window.gof_tab.evaluate_tests()
+        UIRefreshService.refresh_all(self.window, series)

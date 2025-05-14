@@ -1,5 +1,6 @@
 from services.missing_service import MissingService
 from models.data_model import DataModel
+from services.ui_refresh_service import UIRefreshService
 
 class MissingDataController:
     def __init__(self, window):
@@ -25,16 +26,10 @@ class MissingDataController:
         # save
         self.window.version_manager.update_current_data(new_model)
 
-        self.window.graph_controller.set_data(new_series)
-        self.window.stat_controller.update_statistics_table()
+        UIRefreshService.refresh_all(self.window, new_series)
         self.update_missing_values_info()
-        self.window.state_controller.update_state_for_data(new_series)
-        self.window.state_controller.update_transformation_label()
-        self.window.state_controller.update_navigation_buttons()
-        self.window.gof_tab.evaluate_tests()
-
-        self.window.original_button.setEnabled(True)
         self.window.show_info_message("Success", message)
+
 
     def impute_with_mean(self):
         if self.data is not None:

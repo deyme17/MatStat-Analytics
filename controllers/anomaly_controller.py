@@ -1,5 +1,6 @@
 from services.anomaly_service import AnomalyService
 from models.data_model import DataModel
+from services.ui_refresh_service import UIRefreshService
 
 class AnomalyController:
     def __init__(self, window):
@@ -40,15 +41,7 @@ class AnomalyController:
 
         # save
         self.window.version_manager.update_current_data(new_model)
-
-        self.window.graph_controller.set_data(cleaned)
-        self.window.stat_controller.update_statistics_table()
-        self.window.state_controller.update_state_for_data(cleaned)
-        self.window.state_controller.update_transformation_label()
-        self.window.state_controller.update_navigation_buttons()
-        self.window.gof_tab.evaluate_tests()
-
-        self.window.original_button.setEnabled(True)
+        UIRefreshService.refresh_all(self.window, cleaned)
 
         self.window.show_info_message(
             "Anomalies Removed",
