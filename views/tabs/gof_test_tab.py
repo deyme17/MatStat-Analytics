@@ -7,8 +7,10 @@ class GOFTestTab(QWidget):
         super().__init__()
         self.window = window
 
-        self.pearson_panel = PearsonChi2Panel(window)
-        self.ks_panel = KolmogorovSmirnovPanel(window)
+        self.tests = [
+            PearsonChi2Panel(window),
+            KolmogorovSmirnovPanel(window)
+        ]
 
         self.alpha_spinbox = QDoubleSpinBox()
         self.alpha_spinbox.setRange(0.01, 0.99)
@@ -24,8 +26,8 @@ class GOFTestTab(QWidget):
 
         layout = QVBoxLayout()
         layout.addLayout(alpha_layout)
-        layout.addWidget(self.pearson_panel)
-        layout.addWidget(self.ks_panel)
+        for panel in self.tests:
+            layout.addWidget(panel)
         layout.addStretch()
         self.setLayout(layout)
 
@@ -41,9 +43,9 @@ class GOFTestTab(QWidget):
             return
 
         alpha = self.alpha_spinbox.value()
-        self.pearson_panel.evaluate(data, dist, alpha)
-        self.ks_panel.evaluate(data, dist, alpha)
+        for test in self.tests:
+            test.evaluate(data, dist, alpha)
 
     def clear_tests(self):
-        self.pearson_panel.clear()
-        self.ks_panel.clear()
+        for test in self.tests:
+            test.clear()
