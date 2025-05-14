@@ -26,7 +26,7 @@ class GraphPanel(QWidget):
         self.confidence_spinbox.setValue(0.95)
         self.confidence_spinbox.setDecimals(2)
 
-        self.show_smooth_edf_checkbox = QCheckBox("Show EDF curve with CI")
+        self.show_smooth_edf_checkbox = QCheckBox("Show EDF curve")
         self.show_smooth_edf_checkbox.setChecked(False)
 
         self.dist_selector = DistributionSelector(on_change=on_dist_change or self.plot_all)
