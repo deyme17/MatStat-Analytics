@@ -25,11 +25,11 @@ class Hist:
             self.bin_edges = np.linspace(self.min, self.max, self.bins + 1)
             self.bin_counts = np.zeros(self.bins)
 
-    def plot_hist(self, ax):
+    def plot_hist(self, ax, show_kde):
         if self.data is not None and self.n > 0:
             ax.clear()
             try:
-                sns.histplot(self.data, bins=self.bins, kde=True, ax=ax, 
+                sns.histplot(self.data, bins=self.bins, kde=show_kde, ax=ax, 
                              edgecolor='black', alpha=0.7, stat='probability', 
                              label='Histogram')
 
