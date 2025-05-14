@@ -27,7 +27,7 @@ class Hist:
             self.bin_edges = np.linspace(np.nanmin(self.data), np.nanmax(self.data), self.bins + 1)
             self.bin_counts = np.zeros(self.bins)
 
-    def plot_hist(self, ax, show_normal=False, show_exponential=False):
+    def plot_hist(self, ax):
         if self.data is not None and len(self.data) > 0:
             ax.clear()
             try:
@@ -49,7 +49,7 @@ class Hist:
                         ha='center', va='center', transform=ax.transAxes)
                 ax.figure.canvas.draw()
 
-    def plot_EDF(self, ax, show_smooth_edf=True, confidence_level=0.95):
+    def plot_EDF(self, ax, show_edf_curve=False):
         if self.data is not None and len(self.data) > 0:
             edf_plotter = EmpiricalDistribution(self.data)
-            edf_plotter.plot(ax, bin_edges=self.bin_edges, show_smooth_edf=show_smooth_edf, confidence_level=confidence_level)
+            edf_plotter.plot(ax, bin_edges=self.bin_edges, show_edf_curve=show_edf_curve)

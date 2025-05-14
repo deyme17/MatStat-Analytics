@@ -1,6 +1,5 @@
 import numpy as np
-from scipy import interpolate, stats
-from scipy.ndimage import gaussian_filter1d
+from scipy import interpolate
 
 class EmpiricalDistribution:
     def __init__(self, data):
@@ -12,10 +11,9 @@ class EmpiricalDistribution:
         if len(self.data) == 0:
             raise ValueError("No valid data points for EDF")
 
-    def plot(self, ax, bin_edges=None, show_smooth_edf=True, confidence_level=0.95):
+    def plot(self, ax, bin_edges=None, show_edf_curve=False):
         try:
             n = len(self.data)
-            alpha = 1 - confidence_level
 
             if bin_edges is not None:
                 bin_counts, _ = np.histogram(self.data, bins=bin_edges)
@@ -29,31 +27,15 @@ class EmpiricalDistribution:
 
                 ax.plot(bin_edges[-1], 1, 'c>', markersize=2)
 
-            if show_smooth_edf:
+            if show_edf_curve:
                 y_edf = np.arange(1, n + 1) / n
-                x_smooth = np.linspace(self.data.min(), self.data.max(), 300)
+                x_curve = np.linspace(self.data.min(), self.data.max(), 300)
 
                 f_interp = interpolate.interp1d(self.data, y_edf, kind='linear',
                                                 bounds_error=False, fill_value=(0, 1))
-                y_interp = f_interp(x_smooth)
+                y_interp = f_interp(x_curve)
 
-                y_smooth = gaussian_filter1d(y_interp, sigma=8)
-                y_smooth = np.clip(y_smooth, 0, 1)
-
-                ax.plot(x_smooth, y_smooth, '-', color='red', label='EDF Smooth', linewidth=2)
-
-                # confidence band
-                u = stats.norm.ppf(1 - alpha / 2)
-                dispersion = 0.25 / n
-                ci_width = u * np.sqrt(dispersion)
-                ax.fill_between(
-                    x_smooth,
-                    np.clip(y_smooth - ci_width, 0, 1),
-                    np.clip(y_smooth + ci_width, 0, 1),
-                    color='skyblue',
-                    alpha=0.3,
-                    label=f"{confidence_level * 100:.0f}% CI"
-                )
+                ax.plot(x_curve, y_interp, '-', color='c', label='EDF Curve', linewidth=2, alpha=0.1)
 
             ax.set_ylim(-0.05, 1.05)
             ax.set_xlabel('Values')
