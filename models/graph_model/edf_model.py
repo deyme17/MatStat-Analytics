@@ -8,13 +8,15 @@ class EmpiricalDistribution:
         else:
             self.data = np.sort(data[~np.isnan(data)])
 
-        if len(self.data) == 0:
+        self.n = len(self.data)
+        self.min = self.data[0]
+        self.max = self.data[-1]
+
+        if self.n == 0:
             raise ValueError("No valid data points for EDF")
 
     def plot(self, ax, bin_edges=None, show_edf_curve=False):
         try:
-            n = len(self.data)
-
             if bin_edges is not None:
                 bin_counts, _ = np.histogram(self.data, bins=bin_edges)
                 cum_counts = np.cumsum(bin_counts)
@@ -28,8 +30,8 @@ class EmpiricalDistribution:
                 ax.plot(bin_edges[-1], 1, 'c>', markersize=2)
 
             if show_edf_curve:
-                y_edf = np.arange(1, n + 1) / n
-                x_curve = np.linspace(self.data.min(), self.data.max(), 300)
+                y_edf = np.arange(1, self.n + 1) / self.n
+                x_curve = np.linspace(self.min, self.max, 300)
 
                 f_interp = interpolate.interp1d(self.data, y_edf, kind='linear',
                                                 bounds_error=False, fill_value=(0, 1))
