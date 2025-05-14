@@ -1,19 +1,18 @@
-from controllers.data_transform_controller import DataTransformController
-from controllers.data_version_controller import DataVersionController
-from controllers.ui_state_controller import UIStateController
-from controllers.anomaly_controller import AnomalyController
-from controllers.missing_controller import MissingDataController
-from controllers.statistic_controller import StatisticController
+from controllers.data_controllers.data_transform_controller import DataTransformController
+from controllers.data_controllers.data_version_controller import DataVersionController
+from controllers.ui_controllers.ui_state_controller import UIStateController
+from controllers.analysis_controller.anomaly_controller import AnomalyController
+from controllers.analysis_controller.missing_controller import MissingDataController
+from controllers.analysis_controller.statistic_controller import StatisticController
 
-from services.data_history_manager import DataHistoryManager
-from services.data_transformer import DataTransformer
+from services.data_services.data_history_manager import DataHistoryManager
+
 
 class Factory:
     @staticmethod
     def create(window):
         # Services
         window.version_manager = DataHistoryManager()
-        window.transform_manager = DataTransformer()
 
         # Controllers
         window.transform_controller = DataTransformController(window)

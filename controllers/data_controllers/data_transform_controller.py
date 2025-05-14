@@ -1,5 +1,5 @@
-from services.transformation_service import TransformationService
-from services.ui_refresh_service import UIRefreshService
+from services.data_services.transformation_service import TransformationService
+from services.ui_services.ui_refresh_service import UIRefreshService
 
 class DataTransformController:
     def __init__(self, window):

@@ -1,6 +1,6 @@
-from services.anomaly_service import AnomalyService
+from services.analysis_services.anomaly_service import AnomalyService
 from models.data_model import DataModel
-from services.ui_refresh_service import UIRefreshService
+from services.ui_services.ui_refresh_service import UIRefreshService
 
 class AnomalyController:
     def __init__(self, window):

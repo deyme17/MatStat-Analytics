@@ -1,4 +1,4 @@
-from services.statistics_service import StatisticsService
+from services.analysis_services.statistics_service import StatisticsService
 
 class StatisticController:
     def __init__(self, window):

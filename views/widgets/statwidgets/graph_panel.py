@@ -5,7 +5,7 @@ from funcs.def_bins import get_default_bin_count
 from PyQt6.QtWidgets import QScrollArea, QWidget
 
 from views.widgets.statwidgets.stat_dist_selector import DistributionSelector
-from services.graph_plotter import GraphPlotter
+from services.ui_services.graph_plotter import GraphPlotter
 
 
 class GraphPanel(QWidget):

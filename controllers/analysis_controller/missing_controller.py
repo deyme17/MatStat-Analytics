@@ -1,6 +1,6 @@
-from services.missing_service import MissingService
+from services.analysis_services.missing_service import MissingService
 from models.data_model import DataModel
-from services.ui_refresh_service import UIRefreshService
+from services.ui_services.ui_refresh_service import UIRefreshService
 
 class MissingDataController:
     def __init__(self, window):

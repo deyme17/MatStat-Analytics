@@ -1,17 +1,8 @@
 from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QHBoxLayout, QTabWidget, QMessageBox
 from PyQt6.QtGui import QIcon, QPalette, QColor
 
-from controllers.data_loader import load_data_file
-from controllers.data_transform_controller import DataTransformController
-from controllers.anomaly_controller import AnomalyController
-from controllers.missing_controller import MissingDataController
-from controllers.ui_state_controller import UIStateController
-from controllers.data_version_controller import DataVersionController
-from controllers.graph_controller import GraphController
-from controllers.statistic_controller import StatisticController
-
-from services.data_history_manager import DataHistoryManager
-from services.data_transformer import DataTransformer
+from controllers.data_controllers.data_loader import load_data_file
+from controllers.ui_controllers.graph_controller import GraphController
 
 from views.tabs.data_processing_tab import DataProcessingTab
 from views.tabs.stat_table_tab import StatisticTab

@@ -1,4 +1,4 @@
-from services.graph_plotter import GraphPlotter
+from services.ui_services.graph_plotter import GraphPlotter
 import pandas as pd
 
 class GraphController:

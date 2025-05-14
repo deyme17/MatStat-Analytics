@@ -1,4 +1,4 @@
-from services.ui_refresh_service import UIRefreshService
+from services.ui_services.ui_refresh_service import UIRefreshService
 
 class DataVersionController:
     def __init__(self, window):

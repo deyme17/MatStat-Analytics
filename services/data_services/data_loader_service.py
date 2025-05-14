@@ -1,6 +1,6 @@
 import os
 from PyQt6.QtWidgets import QFileDialog
-from services.missing_service import MissingService
+from services.analysis_services.missing_service import MissingService
 from funcs.def_bins import get_default_bin_count
 import pandas as pd
 

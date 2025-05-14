@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.stats import norm
-from services.statistics_service import StatisticsService
+from services.analysis_services.statistics_service import StatisticsService
 
 class GraphPlotter:
     def __init__(self, panel):
