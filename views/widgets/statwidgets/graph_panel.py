@@ -26,8 +26,8 @@ class GraphPanel(QWidget):
         self.confidence_spinbox.setValue(0.95)
         self.confidence_spinbox.setDecimals(2)
 
-        self.show_smooth_edf_checkbox = QCheckBox("Show EDF curve")
-        self.show_smooth_edf_checkbox.setChecked(False)
+        self.show_additional_kde = QCheckBox("Show additional KDE")
+        self.show_additional_kde.setChecked(False)
 
         self.dist_selector = DistributionSelector(on_change=on_dist_change or self.plot_all)
         self.graph_plotter = GraphPlotter(self)
@@ -36,7 +36,7 @@ class GraphPanel(QWidget):
 
         self.bins_spinbox.valueChanged.connect(self.plot_all)
         self.confidence_spinbox.valueChanged.connect(self.plot_all)
-        self.show_smooth_edf_checkbox.stateChanged.connect(self.plot_all)
+        self.show_additional_kde.stateChanged.connect(self.plot_all)
 
         self.data = None
 
@@ -74,7 +74,7 @@ class GraphPanel(QWidget):
         params_layout.addWidget(QLabel("Confidence Level (CI):"))
         params_layout.addWidget(self.confidence_spinbox)
         params_layout.addStretch()
-        params_layout.addWidget(self.show_smooth_edf_checkbox)
+        params_layout.addWidget(self.show_additional_kde)
 
         layout.addLayout(params_layout)
         layout.addWidget(self.dist_selector)
