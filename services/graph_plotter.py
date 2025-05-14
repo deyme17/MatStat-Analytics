@@ -48,6 +48,9 @@ class GraphPlotter:
         self.panel.hist_canvas.draw()
 
     def _draw_distribution_overlay(self, data):
+        if data.isna().sum() > 0:
+            return
+
         dist = self.panel.get_selected_distribution()
         if dist is None:
             return
@@ -72,6 +75,9 @@ class GraphPlotter:
         self.panel.hist_canvas.draw()
 
     def _draw_distribution_cdf(self, ax, data):
+        if data.isna().sum() > 0:
+            return
+
         dist = self.panel.get_selected_distribution()
         if dist is None:
             return

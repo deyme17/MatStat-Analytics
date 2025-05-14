@@ -1,9 +1,8 @@
 import os
 from PyQt6.QtWidgets import QFileDialog
 from services.missing_service import MissingService
-from services.statistics_service import StatisticsService
-import pandas as pd
 from funcs.def_bins import get_default_bin_count
+import pandas as pd
 
 class DataLoaderService:
     @staticmethod
@@ -25,14 +24,11 @@ class DataLoaderService:
 
             if file_extension in ['.xlsx', '.xls']:
                 df = pd.read_excel(path)
-
             elif file_extension == '.csv':
                 df = pd.read_csv(path, decimal=',')
-
             elif file_extension == '.txt':
                 with open(path, 'r') as file:
                     lines = [line.strip().replace(',', '.') for line in file]
-
                     valid_data = []
                     for x in lines:
                         if not x:
@@ -43,13 +39,10 @@ class DataLoaderService:
                             valid_data.append(float(x))
                         except ValueError:
                             print(f"Skipping invalid value: {x}")
-
                     if not valid_data:
                         print("No valid data found in file")
                         return None
-
                     return pd.Series(valid_data)
-
             else:
                 print(f"Unsupported file type: {file_extension}")
                 return None
@@ -58,7 +51,6 @@ class DataLoaderService:
                 df = df.iloc[:, -1]
 
             df = pd.to_numeric(df, errors='coerce')
-
             if df.empty:
                 print("No valid numerical data found in file")
                 return None
@@ -76,9 +68,7 @@ class DataLoaderService:
             return None
 
     @staticmethod
-    def postprocess_loaded_data(window, filename, data):
-        window.version_manager.add_data(data, filename)
-        
+    def postprocess_loaded_data(window, data):
         missing_info = MissingService.detect_missing(data)
         has_missing = missing_info['total_missing'] > 0
 
@@ -113,7 +103,16 @@ class DataLoaderService:
                 f"({missing_info['missing_percentage']:.2f}%).\n"
                 "Please handle missing values before performing data operations."
             )
+            
             window.graph_panel.clear()
+            window.graph_panel.data = None
+            window.gof_tab.clear_tests()
+            window.stat_controller.clear()
         else:
-            window.graph_panel.set_data(data)
+            window.graph_controller.set_data(window.data_model.series)
             window.stat_controller.update_statistics_table()
+            window.gof_tab.evaluate_tests()
+
+        window.state_controller.update_state_for_data(data)
+        window.state_controller.update_transformation_label()
+        window.state_controller.update_navigation_buttons()
