@@ -7,7 +7,7 @@ class ExponentialDistribution(StatisticalDistribution):
     
     def __init__(self):
         super().__init__()
-        self.color = 'green'
+        self.color = 'yellow'
         self.name = 'Exponential'
     
     def fit(self, data):
