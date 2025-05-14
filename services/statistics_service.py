@@ -1,57 +1,54 @@
 import pandas as pd
 import numpy as np
-from scipy.stats import skew, kurtosis, t, chi2
+from scipy.stats import skew, kurtosis, t, chi2, norm
 from PyQt6.QtWidgets import QTableWidgetItem
 
 class StatisticsService:
     @staticmethod
+    def _common_stats(data):
+        return {
+            'n': len(data),
+            'mean': np.mean(data),
+            'std_dev': np.std(data, ddof=1),
+            'variance': np.var(data, ddof=1),
+            'median': np.median(data),
+            'skewness': skew(data),
+            'excess': kurtosis(data)
+        }
+
+    @staticmethod
     def get_characteristics(hist) -> pd.Series:
-        data_num = len(hist.data)
-        splitting_step = round(data_num / hist.bins, 2)
+        stats = StatisticsService._common_stats(hist.data)
 
-        mean = round(np.mean(hist.data), 2)
-        minimum = round(np.min(hist.data), 2)
-        maximum = round(np.max(hist.data), 2)
-        sigma = round(np.std(hist.data, ddof=1), 2)
-        variance = round(np.var(hist.data, ddof=1), 2)
-
-        skewness = round(skew(hist.data), 2)
-        excess = round(kurtosis(hist.data), 2)
-        contrec_excess = round(1 / (excess + 3), 2) if (excess + 3) != 0 else 0
-        pearson_variation = round((sigma / mean) * 100, 2) if mean != 0 else 0
-
-        median = round(np.median(hist.data), 2)
-        mad = round(np.median(np.abs(hist.data - median)), 2)
+        splitting_step = round(stats['n'] / hist.bins, 2)
+        contrec_excess = round(1 / (stats['excess'] + 3), 2) if (stats['excess'] + 3) != 0 else 0
+        pearson_variation = round((stats['std_dev'] / stats['mean']) * 100, 2) if stats['mean'] != 0 else 0
+        mad = round(np.median(np.abs(hist.data - stats['median'])), 2)
 
         return pd.Series({
             'Classes': hist.bins,
-            'Number of data': data_num,
+            'Number of data': stats['n'],
             'Splitting step': splitting_step,
-            'Mean': mean,
-            'Variance': variance,
-            'RMS deviation': sigma,
-            'Minimum': minimum,
-            'Maximum': maximum,
-            'Assymetry coeff.': skewness,
-            'Excess': excess,
+            'Mean': round(stats['mean'], 2),
+            'Variance': round(stats['variance'], 2),
+            'RMS deviation': round(stats['std_dev'], 2),
+            'Minimum': round(np.min(hist.data), 2),
+            'Maximum': round(np.max(hist.data), 2),
+            'Assymetry coeff.': round(stats['skewness'], 2),
+            'Excess': round(stats['excess'], 2),
             'Contrec excess': contrec_excess,
             'Pearson var (%)': pearson_variation,
-            'MED': median,
+            'MED': round(stats['median'], 2),
             'MAD': mad
         })
 
     @staticmethod
     def compute_intervals(data: pd.Series, confidence_level=0.95, precision=2) -> pd.Series:
-        n = len(data)
-        mean = np.mean(data)
-        std_dev = np.std(data, ddof=1)
-        variance = np.var(data, ddof=1)
-        median = np.median(data)
-        skewness = skew(data)
-        excess = kurtosis(data)
+        stats = StatisticsService._common_stats(data)
+        n, mean, std_dev, variance = stats['n'], stats['mean'], stats['std_dev'], stats['variance']
+        median, skewness, excess = stats['median'], stats['skewness'], stats['excess']
 
         df = n - 1
-
         t_crit = t.ppf((1 + confidence_level) / 2, df=df)
         chi2_lower = chi2.ppf((1 - confidence_level) / 2, df=df)
         chi2_upper = chi2.ppf((1 + confidence_level) / 2, df=df)
@@ -60,36 +57,52 @@ class StatisticsService:
         se_skewness = np.sqrt(6 * n * (n - 1) / ((n - 2) * (n + 1) * (n + 3)))
         se_kurtosis = 2 * se_skewness * np.sqrt((n * n - 1) / ((n - 3) * (n + 5)))
 
-        mean_ci = (round(mean - t_crit * se_mean, precision), round(mean + t_crit * se_mean, precision))
-        variance_ci = (
-            round((n - 1) * variance / chi2_upper, precision),
-            round((n - 1) * variance / chi2_lower, precision)
-        )
-        std_dev_ci = (
-            round(np.sqrt((n - 1) * variance / chi2_upper), precision),
-            round(np.sqrt((n - 1) * variance / chi2_lower), precision)
-        )
-        skewness_ci = (
-            round(skewness - t_crit * se_skewness, precision),
-            round(skewness + t_crit * se_skewness, precision)
-        )
-        kurtosis_ci = (
-            round(excess - t_crit * se_kurtosis, precision),
-            round(excess + t_crit * se_kurtosis, precision)
-        )
-        median_ci = (
-            round(median - t_crit * (std_dev / np.sqrt(n)), precision),
-            round(median + t_crit * (std_dev / np.sqrt(n)), precision)
-        )
-
         return pd.Series({
-            'Mean CI': mean_ci,
-            'Std Deviation CI': std_dev_ci,
-            'Variance CI': variance_ci,
-            'MED CI': median_ci,
-            'Assymetry coeff. CI': skewness_ci,
-            'Excess CI': kurtosis_ci
+            'Mean CI': (round(mean - t_crit * se_mean, precision), round(mean + t_crit * se_mean, precision)),
+            'Std Deviation CI': (
+                round(np.sqrt((n - 1) * variance / chi2_upper), precision),
+                round(np.sqrt((n - 1) * variance / chi2_lower), precision)
+            ),
+            'Variance CI': (
+                round((n - 1) * variance / chi2_upper, precision),
+                round((n - 1) * variance / chi2_lower, precision)
+            ),
+            'MED CI': (
+                round(median - t_crit * (std_dev / np.sqrt(n)), precision),
+                round(median + t_crit * (std_dev / np.sqrt(n)), precision)
+            ),
+            'Assymetry coeff. CI': (
+                round(skewness - t_crit * se_skewness, precision),
+                round(skewness + t_crit * se_skewness, precision)
+            ),
+            'Excess CI': (
+                round(excess - t_crit * se_kurtosis, precision),
+                round(excess + t_crit * se_kurtosis, precision)
+            )
         })
+
+    @staticmethod
+    def get_cdf_with_confidence(data: pd.Series, dist, confidence_level=0.95):
+        try:
+            params = dist.fit(data)
+            dist_obj = dist.get_distribution_object(params)
+            if not dist_obj:
+                return None
+
+            stats = StatisticsService._common_stats(data)
+            n = stats['n']
+            x_vals = np.linspace(data.min(), data.max(), 300)
+            cdf_vals = dist_obj.cdf(x_vals)
+
+            u = norm.ppf(1 - (1 - confidence_level) / 2)
+            ci_width = u * np.sqrt(0.25 / n)
+            ci_lower = np.clip(cdf_vals - ci_width, 0, 1)
+            ci_upper = np.clip(cdf_vals + ci_width, 0, 1)
+
+            return x_vals, cdf_vals, ci_lower, ci_upper
+        except Exception as e:
+            print(f"CDF confidence error: {e}")
+            return None
 
     @staticmethod
     def update_table(table, hist_model, data, precision, confidence_level):
