@@ -33,8 +33,7 @@ class Window(QMainWindow):
         self.setStyleSheet(appStyle)
 
         # Data
-        self.data = None
-        self.anomalies_removed = False
+        self.data_model = None
 
         # add controllers and services
         Factory.create(self)
@@ -84,6 +83,8 @@ class Window(QMainWindow):
 
     def evaluate_distribution_change(self):
         if not hasattr(self, "graph_panel") or not hasattr(self, "gof_tab"):
+            return
+        if self.data_model is None or self.data_model.series.empty:
             return
         self.graph_panel.plot_all()
         selected_dist = self.graph_panel.get_selected_distribution()
