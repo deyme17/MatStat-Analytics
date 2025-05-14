@@ -5,26 +5,25 @@ class GraphController:
     def __init__(self, panel):
         self.panel = panel
         self.plotter = GraphPlotter(panel)
-        self.data = None
+        self.data_model = None
 
-    def set_data(self, data: pd.Series):
-        self.data = data
-        self.panel.data = data
-        if data is not None:
+    def set_data(self, series: pd.Series):
+        self.panel.data = series
+        if series is not None:
             self.plot_all()
 
     def plot_all(self):
-        if self.data is not None and not self.data.empty:
+        if self.panel.data is not None and not self.panel.data.empty:
             self.plotter.plot_all()
 
     def plot_histogram(self):
-        if self.data is not None and not self.data.empty:
-            self.plotter._draw_histogram(self.data)
+        if self.panel.data is not None and not self.panel.data.empty:
+            self.plotter._draw_histogram(self.panel.data)
 
     def plot_edf(self):
-        if self.data is not None and not self.data.empty:
-            self.plotter._draw_edf(self.data)
+        if self.panel.data is not None and not self.panel.data.empty:
+            self.plotter._draw_edf(self.panel.data)
 
     def plot_overlay(self):
-        if self.data is not None and not self.data.empty:
-            self.plotter._draw_distribution_overlay(self.data)
+        if self.panel.data is not None and not self.panel.data.empty:
+            self.plotter._draw_distribution_overlay(self.panel.data)

@@ -1,5 +1,3 @@
-from PyQt6.QtWidgets import QSpinBox, QDoubleSpinBox
-
 class UIStateController:
     def __init__(self, window):
         self.window = window
@@ -37,10 +35,11 @@ class UIStateController:
         self.window.drop_missing_button.setEnabled(enabled)
 
     def update_transformation_label(self):
-        current = self.window.transform_manager.current_transformation
-        self.window.transformation_label.setText(f"Current state: {current}")
+        text = self.window.data_model.current_transformation if self.window.data_model else "Original"
+        self.window.transformation_label.setText(f"Current state: {text}")
 
     def update_navigation_buttons(self):
-        is_transformed = self.window.transform_manager.transformed_data is not None
-        was_anomaly_removed = getattr(self.window, 'anomalies_removed', False)
-        self.window.original_button.setEnabled(is_transformed or was_anomaly_removed)
+        model = self.window.data_model
+        has_history = model and len(model.history) > 0
+        was_anomaly_removed = getattr(model, 'anomalies_removed', False)
+        self.window.original_button.setEnabled(has_history or was_anomaly_removed)

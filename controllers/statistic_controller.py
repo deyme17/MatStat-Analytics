@@ -6,19 +6,23 @@ class StatisticController:
         self.window = window
 
     def update_statistics_table(self):
-        data = self.window.data
-        if data is None or data.empty:
+        model = self.window.data_model
+        if model is None or model.series.empty:
             return
 
         bins = self.window.graph_panel.bins_spinbox.value()
-        hist_model = Hist(data, bins=bins)
+        model.update_bins(bins)
 
         confidence = self.window.graph_panel.confidence_spinbox.value()
 
         StatisticsService.update_table(
             self.window.stat_tab.conf_table,
-            hist_model,
-            data,
+            model.hist,
+            model.series,
             precision=self.window.precision_spinbox.value(),
             confidence_level=confidence
         )
+        
+    def clear(self):
+        self.window.stat_tab.conf_table.clearContents()
+        self.window.stat_tab.conf_table.setRowCount(0)

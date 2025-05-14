@@ -1,4 +1,6 @@
 from services.data_loader_service import DataLoaderService
+from models.data_model import DataModel
+from funcs.def_bins import get_default_bin_count
 import os
 
 def load_data_file(window):
@@ -12,9 +14,12 @@ def load_data_file(window):
         print(f"Failed to load file {path} or file is empty")
         return
 
-    DataLoaderService.postprocess_loaded_data(window, filename, data)
+    bin_count = get_default_bin_count(data)
+    model = DataModel(data, bins=bin_count, label="Original")
+    window.version_manager.add_dataset(filename, model)
+    window.data_model = model
 
-    window.data = window.version_manager.get_current_data()
-    window.graph_controller.set_data(window.data)
-    window.stat_controller.update_statistics_table()
+    DataLoaderService.postprocess_loaded_data(window, data)
+    window.original_button.setEnabled(False)
+
     print(f'File {path} selected successfully')
