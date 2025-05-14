@@ -1,5 +1,4 @@
 from services.statistics_service import StatisticsService
-from models.graph_model.hist_models import Hist
 
 class StatisticController:
     def __init__(self, window):
@@ -10,6 +9,7 @@ class StatisticController:
         if model is None or model.series.empty:
             return
 
+        # Оновлюємо бінінг і гістограму
         bins = self.window.graph_panel.bins_spinbox.value()
         model.update_bins(bins)
 
@@ -22,7 +22,7 @@ class StatisticController:
             precision=self.window.precision_spinbox.value(),
             confidence_level=confidence
         )
-        
+
     def clear(self):
         self.window.stat_tab.conf_table.clearContents()
         self.window.stat_tab.conf_table.setRowCount(0)

@@ -19,32 +19,42 @@ class DataModel:
         if self.series.empty:
             raise ValueError("No valid data points in series")
 
-        self.n = len(self.series)
-        self.min = self.series.min()
-        self.max = self.series.max()
-        self.mean = self.series.mean()
-        self.std = self.series.std(ddof=1)
-        self.var = self.series.var(ddof=1)
-
-        self.hist = Hist(self.series, bins)
-        self.edf = EmpiricalDistribution(self.series)
+        self._cache = {}
+        self._recompute_cache()
 
         self.anomalies_removed = False
         self.history = history or []
 
-    def describe(self):
-        return {
-            "n": self.n,
-            "mean": self.mean,
-            "std": self.std,
-            "var": self.var,
-            "min": self.min,
-            "max": self.max
+    def _recompute_cache(self):
+        self._cache['hist'] = Hist(self.series, self.bins)
+        self._cache['edf'] = EmpiricalDistribution(self.series)
+        self._cache['stats'] = {
+            "n": len(self.series),
+            "mean": self.series.mean(),
+            "std": self.series.std(ddof=1),
+            "var": self.series.var(ddof=1),
+            "min": self.series.min(),
+            "max": self.series.max()
         }
+
+    def clear_cache(self):
+        self._cache.clear()
+        self._recompute_cache()
+
+    @property
+    def hist(self):
+        return self._cache.get('hist')
+
+    @property
+    def edf(self):
+        return self._cache.get('edf')
+
+    def describe(self):
+        return self._cache.get('stats')
 
     def update_bins(self, bins: int):
         self.bins = bins
-        self.hist = Hist(self.series, bins)
+        self._cache['hist'] = Hist(self.series, bins)
 
     def apply_transformation(self, func, label=None):
         transformed = func(self.series)
