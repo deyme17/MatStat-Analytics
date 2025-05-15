@@ -97,7 +97,7 @@ class GraphPlotter:
         ax = self.panel.edf_ax
         ax.clear()
 
-        model.edf.plot(ax, show_edf_curve=show_kde)
+        model.edf.plot(ax, bin_edges=model.hist.bin_edges, show_edf_curve=show_kde)
         self._draw_distribution_cdf(ax, model.series)
 
         ax.set_facecolor('#f0f8ff')
