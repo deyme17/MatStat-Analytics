@@ -34,7 +34,7 @@ class Hist:
                              label='Histogram')
 
                 ax.grid(True, alpha=0.3)
-                ax.set_title('Histogram with Density Curve')
+                ax.set_title('Histogram')
                 ax.set_xlabel('Values')
                 ax.set_ylabel('Relative Frequency')
                 ax.legend()
