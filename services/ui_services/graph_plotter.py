@@ -15,10 +15,12 @@ class GraphPlotter:
         data = data.dropna()
         if data.empty:
             return
+        
+        self.panel.window.data_model.update_bins(self.panel.bins_spinbox.value())
+        self.panel.window.stat_controller.update_statistics_table()
 
         self._cached_stats.clear()
         self._draw_histogram()
-        self._draw_distribution_overlay()
         self._draw_edf()
 
     def _draw_histogram(self):
@@ -29,6 +31,8 @@ class GraphPlotter:
 
         hist_model = model.hist
         hist_model.plot_hist(ax, show_kde=show_kde)
+
+        self._draw_distribution_overlay()
 
         ax.set_facecolor('#f0f8ff')
         ax.grid(color='#b0e0e6', linestyle='--', alpha=0.7)
