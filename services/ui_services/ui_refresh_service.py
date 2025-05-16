@@ -8,6 +8,9 @@ class UIRefreshService:
             window.stat_controller.clear()
             window.gof_tab.clear_tests()
         else:
+            if window.data_model:
+                window.data_model.update_bins(window.graph_panel.bins_spinbox.value())
+                
             window.graph_controller.set_data(series)
             window.stat_controller.update_statistics_table()
             window.gof_tab.evaluate_tests()

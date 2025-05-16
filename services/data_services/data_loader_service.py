@@ -1,6 +1,7 @@
 import os
 from PyQt6.QtWidgets import QFileDialog
 from services.analysis_services.missing_service import MissingService
+from services.ui_services.ui_refresh_service import UIRefreshService
 from funcs.def_bins import get_default_bin_count
 import pandas as pd
 
@@ -103,16 +104,10 @@ class DataLoaderService:
                 f"({missing_info['missing_percentage']:.2f}%).\n"
                 "Please handle missing values before performing data operations."
             )
-            
+
             window.graph_panel.clear()
             window.graph_panel.data = None
             window.gof_tab.clear_tests()
             window.stat_controller.clear()
         else:
-            window.graph_controller.set_data(window.data_model.series)
-            window.stat_controller.update_statistics_table()
-            window.gof_tab.evaluate_tests()
-
-        window.state_controller.update_state_for_data(data)
-        window.state_controller.update_transformation_label()
-        window.state_controller.update_navigation_buttons()
+            UIRefreshService.refresh_all(window, window.data_model.series)
