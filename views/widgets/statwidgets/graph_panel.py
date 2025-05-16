@@ -17,8 +17,9 @@ class GraphPanel(QWidget):
         self.edf_canvas, self.edf_ax = self._create_canvas("Empirical Distribution Function")
 
         self.bins_spinbox = QSpinBox()
-        self.bins_spinbox.setRange(1, 100)
+        self.bins_spinbox.setRange(1, 999)
         self.bins_spinbox.setValue(10)
+        self.bins_spinbox.setMaximumWidth(100)
 
         self.confidence_spinbox = QDoubleSpinBox()
         self.confidence_spinbox.setRange(0.80, 0.99)
@@ -88,6 +89,7 @@ class GraphPanel(QWidget):
     def set_data(self, data):
         self.data = data
 
+        self.bins_spinbox.setMaximum(len(data))
         default_bins = get_default_bin_count(data)
         self.bins_spinbox.setValue(default_bins)
 
