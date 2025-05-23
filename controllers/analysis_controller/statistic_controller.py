@@ -8,8 +8,7 @@ class StatisticController:
         model = self.window.data_model
         if model is None or model.series.empty:
             return
-
-        # Оновлюємо бінінг і гістограму
+        
         bins = self.window.graph_panel.bins_spinbox.value()
         model.update_bins(bins)
 
