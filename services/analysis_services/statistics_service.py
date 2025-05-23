@@ -93,9 +93,9 @@ class StatisticsService:
             n = stats['n']
             x_vals = np.linspace(data.min(), data.max(), 300)
             cdf_vals = dist_obj.cdf(x_vals)
-
-            u = norm.ppf(1 - (1 - confidence_level) / 2)
-            ci_width = u * np.sqrt(0.25 / n)
+            
+            z_1_alpha = norm.ppf(confidence_level)
+            ci_width = z_1_alpha / np.sqrt(n)
             ci_lower = np.clip(cdf_vals - ci_width, 0, 1)
             ci_upper = np.clip(cdf_vals + ci_width, 0, 1)
 
