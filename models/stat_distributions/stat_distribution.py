@@ -20,7 +20,11 @@ class StatisticalDistribution(ABC):
     def get_pdf(self, x, params):
         """Calculate PDF values for given parameters."""
         pass
-    
+
+    def get_cdf_variance(self, x, data, params):
+        """Calculates the variance of a theoretical distribution function"""
+        pass
+
     def get_distribution_object(self, params):
         """Get scipy distribution object with fitted parameters."""
         return None

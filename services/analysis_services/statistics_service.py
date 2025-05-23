@@ -89,15 +89,24 @@ class StatisticsService:
             if not dist_obj:
                 return None
 
-            stats = StatisticsService._common_stats(data)
-            n = stats['n']
-            x_vals = np.linspace(data.min(), data.max(), 300)
+            x_vals = np.linspace(np.nanmin(data), np.nanmax(data), 300)
             cdf_vals = dist_obj.cdf(x_vals)
-            
-            z_1_alpha = norm.ppf(confidence_level)
-            ci_width = z_1_alpha / np.sqrt(n)
-            ci_lower = np.clip(cdf_vals - ci_width, 0, 1)
-            ci_upper = np.clip(cdf_vals + ci_width, 0, 1)
+
+            if hasattr(dist, "get_cdf_variance"):
+                try:
+                    cdf_var = dist.get_cdf_variance(x_vals, data, params)
+                    z = norm.ppf(confidence_level)
+                    ci_lower = np.clip(cdf_vals - z * np.sqrt(cdf_var), 0, 1)
+                    ci_upper = np.clip(cdf_vals + z * np.sqrt(cdf_var), 0, 1)
+                except Exception as e:
+                    print(f"Error in variance-based CI: {e}")
+                    ci_lower = np.clip(cdf_vals, 0, 1)
+                    ci_upper = np.clip(cdf_vals, 0, 1)
+            else:
+                n = len(data)
+                ci_width = norm.ppf(confidence_level) / np.sqrt(n)
+                ci_lower = np.clip(cdf_vals - ci_width, 0, 1)
+                ci_upper = np.clip(cdf_vals + ci_width, 0, 1)
 
             return x_vals, cdf_vals, ci_lower, ci_upper
         except Exception as e:

@@ -20,5 +20,21 @@ class NormalDistribution(StatisticalDistribution):
     def get_pdf(self, x, params):
         return stats.norm.pdf(x, loc=params[0], scale=params[1])
     
+    def get_cdf_variance(self, x, data, params):
+        mean, std = params
+        n = len(data)
+        
+        d_mean = (std ** 2) / n
+        d_std = (std ** 2) / (2 * n)
+        cov = 0
+
+        coeff = 1 / (std * np.sqrt(2 * np.pi))
+        exp_component = np.exp(-((x - mean) ** 2) / (2 * std ** 2))
+
+        dF_dmean = -coeff * exp_component
+        dF_dstd = -((x - mean) / (std ** 2 * np.sqrt(2 * np.pi))) * exp_component
+
+        return (dF_dmean ** 2) * d_mean + (dF_dstd ** 2) * d_std + 2 * dF_dmean * dF_dstd * cov
+    
     def get_distribution_object(self, params):
         return stats.norm(loc=params[0], scale=params[1])

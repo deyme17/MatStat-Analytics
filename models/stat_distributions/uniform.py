@@ -23,6 +23,22 @@ class UniformDistribution(StatisticalDistribution):
     def get_distribution_object(self, params):
         return stats.uniform(loc=params[0], scale=params[1]-params[0])
     
+    def get_cdf_variance(self, x, data, params):
+        a, b = params
+        n = len(data)
+
+        D_a = (b - a)**2 / (12 * n)
+        D_b = (b - a)**2 / (12 * n)
+        cov_ab = -(b - a)**2 / (12 * n)
+
+        denom = (b - a)**4
+
+        term1 = ((x - b) ** 2) * D_a / denom
+        term2 = ((x - a) ** 2) * D_b / denom
+        term3 = 2 * (x - a) * (x - b) * cov_ab / denom
+
+        return term1 + term2 - term3
+    
     def _get_plot_range(self, data):
         params = self.fit(data)
         x_min = params[0] - 0.1 * (params[1] - params[0])  

@@ -23,6 +23,12 @@ class ExponentialDistribution(StatisticalDistribution):
     def get_pdf(self, x, params):
         return stats.expon.pdf(x, loc=0, scale=1/params[0] if params[0] > 0 else 1)
     
+    def get_cdf_variance(self, x, data, params):
+        lambda_hat = params[0]
+        n = len(data)
+        
+        return np.power(x, 2) * np.exp(-2 * lambda_hat * x) * (lambda_hat ** 2) / n
+
     def get_distribution_object(self, params):
         return stats.expon(scale=1/params[0]) if params[0] > 0 else stats.expon()
     
