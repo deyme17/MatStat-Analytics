@@ -40,6 +40,7 @@ class NormalDistribution(StatisticalDistribution):
         return variance
 
     def get_inverse_cdf(self, x, params):
+        x = np.clip(x, 1e-10, 1 - 1e-10)
         loc=params[0]
         scale=params[1]
         return stats.norm.ppf(x, loc=loc, scale=scale)
