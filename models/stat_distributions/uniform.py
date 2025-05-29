@@ -28,3 +28,20 @@ class UniformDistribution(StatisticalDistribution):
         x_min = params[0] - 0.1 * (params[1] - params[0])  
         x_max = params[1] + 0.1 * (params[1] - params[0])
         return x_min, x_max
+    
+    def get_cdf_variance(self, x_vals, data):
+        params = self.fit(data)
+        a, b = params
+        n = data.dropna().shape[0]
+
+        var_a = (b - a)**2 / (12 * n)
+        var_b = (b - a)**2 / (12 * n)
+        cov_ab = 0
+
+        denom = (b - a) ** 4
+        term1 = ((x_vals - b) ** 2) * var_a / denom
+        term2 = ((x_vals - a) ** 2) * var_b / denom
+        term3 = -2 * (x_vals - a) * (x_vals - b) * cov_ab / denom
+
+        variance = term1 + term2 + term3
+        return variance

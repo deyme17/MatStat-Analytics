@@ -20,6 +20,11 @@ class StatisticalDistribution(ABC):
     def get_pdf(self, x, params):
         """Calculate PDF values for given parameters."""
         pass
+
+    @abstractmethod
+    def get_cdf_variance(self, data):
+        """Calculate variance of the CDF."""
+        pass
     
     def get_distribution_object(self, params):
         """Get scipy distribution object with fitted parameters."""

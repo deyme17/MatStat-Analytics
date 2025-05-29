@@ -37,3 +37,20 @@ class WeibullDistribution(StatisticalDistribution):
     
     def get_distribution_object(self, params):
         return stats.weibull_min(c=params[0], scale=params[1])
+    
+    def get_cdf_variance(self, x_vals, data):
+        params = self.fit(data)
+        alpha, beta = params
+
+        n = data.dropna().shape[0]
+
+        dF_dalpha = - (x_vals ** beta) / (alpha ** 2) * np.exp(- (x_vals ** beta) / alpha)
+
+        safe_x = np.where(x_vals == 0, 1e-10, x_vals)
+        dF_dbeta = (x_vals ** beta) * np.log(safe_x) / alpha * np.exp(- (x_vals ** beta) / alpha)
+
+        var_alpha = alpha ** 2 / n
+        var_beta = beta ** 2 / n
+
+        variance = (dF_dalpha ** 2) * var_alpha + (dF_dbeta ** 2) * var_beta
+        return variance
