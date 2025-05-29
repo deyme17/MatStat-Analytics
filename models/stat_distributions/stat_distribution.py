@@ -25,11 +25,15 @@ class StatisticalDistribution(ABC):
     def get_cdf_variance(self, x_vals, params, n):
         """Calculate variance of the CDF."""
         pass
+
+    @abstractmethod
+    def get_inverse_cdf(self, x, params):
+        pass
     
     def get_distribution_object(self, params):
         """Get scipy distribution object with fitted parameters."""
         return None
-    
+
     def get_plot_data(self, data, params):
         x_min, x_max = self._get_plot_range(data)
         x = np.linspace(x_min, x_max, 1000)

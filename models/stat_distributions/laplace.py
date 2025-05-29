@@ -48,3 +48,8 @@ class LaplaceDistribution(StatisticalDistribution):
 
         variance = (dF_dlambda ** 2) * var_lambda + (dF_dmu ** 2) * var_mu
         return variance
+
+    def get_inverse_cdf(self, x, params):
+        loc = params[0]
+        scale = params[1]
+        return stats.laplace.ppf(x, loc=loc, scale=scale)

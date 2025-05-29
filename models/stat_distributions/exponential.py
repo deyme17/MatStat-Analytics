@@ -36,3 +36,7 @@ class ExponentialDistribution(StatisticalDistribution):
         lam = params[0]
         variance = (x_vals ** 2) * np.exp(-2 * lam * x_vals) * (lam ** 2) / n
         return variance
+
+    def get_inverse_cdf(self, x, params):
+        lam = params[0]
+        return -np.log(1 - x) / lam

@@ -38,3 +38,8 @@ class NormalDistribution(StatisticalDistribution):
 
         variance = (dF_dm ** 2) * var_m + (dF_dsigma ** 2) * var_sigma
         return variance
+
+    def get_inverse_cdf(self, x, params):
+        loc=params[0]
+        scale=params[1]
+        return stats.norm.ppf(x, loc=loc, scale=scale)

@@ -43,3 +43,8 @@ class UniformDistribution(StatisticalDistribution):
 
         variance = term1 + term2 + term3
         return variance
+    
+    def get_inverse_cdf(self, x, params):
+        a = params[0]
+        b = params[1]-params[0]
+        return a + (b - a) * x

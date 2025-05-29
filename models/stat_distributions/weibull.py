@@ -55,3 +55,8 @@ class WeibullDistribution(StatisticalDistribution):
 
         variance = (dF_dalpha ** 2) * var_alpha + (dF_dbeta ** 2) * var_beta
         return variance
+    
+    def get_inverse_cdf(self, x, params):
+        shape = max(0.1, params[0]) 
+        scale = max(0.1, params[1])
+        return scale * (-np.log(1 - x))**(1 / shape)
