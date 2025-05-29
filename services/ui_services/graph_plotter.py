@@ -5,11 +5,23 @@ from services.analysis_services.statistics_service import StatisticsService
 import numpy as np
 
 class GraphPlotter:
+    """
+    Handles drawing of histogram, EDF, and distribution overlays on the graph panel.
+    """
+
     def __init__(self, panel):
+        """
+        Initialize the plotter with the target graph panel.
+
+        :param panel: custom graph panel containing axes and user controls
+        """
         self.panel = panel
-        self._cached_stats = {}
+        self._cached_stats = {}  # internal cache for data stats
 
     def plot_all(self):
+        """
+        Plot histogram, EDF, and distribution overlay for current panel data.
+        """
         data = self.panel.data
         if data is None or data.empty:
             return
@@ -24,6 +36,9 @@ class GraphPlotter:
         self._draw_edf()
 
     def _draw_histogram(self):
+        """
+        Draw histogram with optional KDE curve.
+        """
         model = self.panel.window.data_model
         show_kde = self.panel.show_additional_kde.isChecked()
         ax = self.panel.hist_ax
@@ -38,6 +53,9 @@ class GraphPlotter:
         self.panel.hist_canvas.draw()
 
     def _draw_distribution_overlay(self):
+        """
+        Draw theoretical distribution curve over the histogram.
+        """
         data = self.panel.data
         if data.isna().sum() > 0:
             return
@@ -55,6 +73,12 @@ class GraphPlotter:
         self.panel.hist_canvas.draw()
 
     def _draw_distribution_cdf(self, ax, data):
+        """
+        Draw statistical CDF with confidence intervals on the EDF plot.
+
+        :param ax: target Matplotlib axis
+        :param data: input data series
+        """
         if data.isna().sum() > 0:
             return
 
@@ -82,6 +106,9 @@ class GraphPlotter:
             ax.text(0.5, 0.5, f"Error plotting CDF: {str(e)}", ha='center', va='center', transform=ax.transAxes)
 
     def _draw_edf(self):
+        """
+        Draw Empirical Distribution Function (EDF) and overlay theoretical CDF.
+        """
         model = self.panel.window.data_model
         show_kde = self.panel.show_additional_kde.isChecked()
         ax = self.panel.edf_ax
@@ -97,6 +124,12 @@ class GraphPlotter:
         self.panel.edf_canvas.draw()
 
     def _get_cached_stats(self, data):
+        """
+        Cache and return basic stats for the given data object.
+
+        :param data: input data series
+        :return: dictionary with length, min, max
+        """
         data_id = id(data)
         if data_id not in self._cached_stats:
             self._cached_stats[data_id] = {

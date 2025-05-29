@@ -5,6 +5,11 @@ class WindowWidgets:
         self.window = window
 
     def create_controls_bar(self):
+        """
+        Creates the top control bar with:
+        - Load Data button
+        - Precision label and spinbox
+        """
         self.window.load_data_button = QPushButton('Load Data')
         self.window.load_data_button.setFixedSize(80, 25)
 
@@ -21,6 +26,10 @@ class WindowWidgets:
         return layout
 
     def create_nav_layout(self):
+        """
+        Creates navigation layout with:
+        - Original button to revert to original data
+        """
         layout = QHBoxLayout()
         self.window.original_button = QPushButton("Original")
         self.window.original_button.setEnabled(False)

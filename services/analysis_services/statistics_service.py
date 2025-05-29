@@ -4,8 +4,18 @@ from scipy.stats import skew, kurtosis, ttest_1samp, t, chi2, norm
 from PyQt6.QtWidgets import QTableWidgetItem
 
 class StatisticsService:
+    """
+    Service for computing descriptive statistics, confidence intervals, and statistical tests.
+    """
+
     @staticmethod
-    def _common_stats(data):
+    def _common_stats(data: pd.Series) -> dict:
+        """
+        Compute common descriptive statistics.
+
+        :param data: input pandas Series
+        :return: dictionary with n, mean, std, var, median, skewness, excess
+        """
         return {
             'n': len(data),
             'mean': np.mean(data),
@@ -18,6 +28,12 @@ class StatisticsService:
 
     @staticmethod
     def get_characteristics(hist) -> pd.Series:
+        """
+        Compute rounded descriptive stats and shape characteristics from histogram.
+
+        :param hist: histogram model
+        :return: pandas Series with labeled values
+        """
         stats = StatisticsService._common_stats(hist.data)
 
         splitting_step = round(stats['n'] / hist.bins, 2)
@@ -43,7 +59,15 @@ class StatisticsService:
         })
 
     @staticmethod
-    def compute_intervals(data: pd.Series, confidence_level=0.95, precision=2) -> pd.Series:
+    def compute_intervals(data: pd.Series, confidence_level: float = 0.95, precision: int = 2) -> pd.Series:
+        """
+        Compute confidence intervals for various characteristics.
+
+        :param data: input pandas Series
+        :param confidence_level: confidence level for intervals
+        :param precision: number of decimals in output
+        :return: pandas Series with confidence intervals as tuples
+        """
         stats = StatisticsService._common_stats(data)
         n, mean, std_dev, variance = stats['n'], stats['mean'], stats['std_dev'], stats['variance']
         median, skewness, excess = stats['median'], stats['skewness'], stats['excess']
@@ -82,7 +106,15 @@ class StatisticsService:
         })
 
     @staticmethod
-    def get_cdf_with_confidence(data: pd.Series, dist, confidence_level=0.95):
+    def get_cdf_with_confidence(data: pd.Series, dist, confidence_level: float = 0.95):
+        """
+        Return empirical CDF with confidence intervals based on the given distribution.
+
+        :param data: input data series
+        :param dist: fitted StatisticalDistribution
+        :param confidence_level: confidence level for intervals
+        :return: tuple of (x values, CDF values, lower CI, upper CI) or None
+        """
         stats = StatisticsService._common_stats(data)
         n = stats['n']
 
@@ -102,14 +134,30 @@ class StatisticsService:
         ci_upper = np.clip(cdf_vals + epsilon, 0, 1)
 
         return x_vals, cdf_vals, ci_lower, ci_upper
-    
+
     @staticmethod
-    def perform_t_test(sample, true_mean):
+    def perform_t_test(sample: pd.Series, true_mean: float) -> dict:
+        """
+        Perform one-sample t-test comparing sample mean to true mean.
+
+        :param sample: input data
+        :param true_mean: value to test against
+        :return: dictionary with t-statistic and p-value
+        """
         t_stat, p_value = ttest_1samp(sample, popmean=true_mean)
         return {'t_statistic': t_stat, 'p_value': p_value}
 
     @staticmethod
-    def update_table(table, hist_model, data, precision, confidence_level):
+    def update_table(table, hist_model, data: pd.Series, precision: int, confidence_level: float):
+        """
+        Update QTableWidget with descriptive statistics and confidence intervals.
+
+        :param table: QTableWidget to update
+        :param hist_model: histogram model
+        :param data: input data series
+        :param precision: decimal precision for values
+        :param confidence_level: confidence level for intervals
+        """
         char = StatisticsService.get_characteristics(hist_model)
         ci = StatisticsService.compute_intervals(data, confidence_level, precision)
 

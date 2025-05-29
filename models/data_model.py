@@ -4,17 +4,26 @@ from models.graph_model.hist_models import Hist
 from models.graph_model.edf_model import EmpiricalDistribution
 
 class DataModel:
-    def __init__(
-        self,
-        series: pd.Series,
-        bins: int = 10,
-        label: str = "Original",
-        history=None
-    ):
-        self.label = label
-        self.original = series.copy()
-        self.series = series.reset_index(drop=True)
-        self.bins = bins
+    """
+    Model that holds the current data series along with histogram, EDF, and statistics cache.
+    Supports versioning and transformations.
+    """
+
+    def __init__(self, series: pd.Series, bins: int = 10, label: str = "Original", history=None):
+        """
+        Initialize DataModel with original data and histogram/EDF/statistics cache.
+
+        :param series: input pandas Series
+        :param bins: number of histogram bins
+        :param label: description label for current version
+        :param history: list of previous DataModel versions
+        :raises ValueError: if input series is empty
+        """
+        self.label = label                                 # version label
+        self.original = series.copy()                      # full original series
+        self.series = series.reset_index(drop=True)        # cleaned current series
+        self.bins = bins                                   
+        self.anomalies_removed = False                     
 
         if self.series.empty:
             raise ValueError("No valid data points in series")
@@ -22,10 +31,10 @@ class DataModel:
         self._cache = {}
         self._recompute_cache()
 
-        self.anomalies_removed = False
-        self.history = history or []
+        self.history = history or []                       # list of previous versions
 
     def _recompute_cache(self):
+        """Recompute and store histogram, EDF, and descriptive stats in cache."""
         self._cache['hist'] = Hist(self.series, self.bins)
         self._cache['edf'] = EmpiricalDistribution(self.series)
         self._cache['stats'] = {
@@ -38,29 +47,52 @@ class DataModel:
         }
 
     def clear_cache(self):
+        """Clear and recompute all cached values."""
         self._cache.clear()
         self._recompute_cache()
 
     @property
-    def hist(self):
+    def hist(self) -> Hist:
+        """Return histogram object."""
         return self._cache.get('hist')
 
     @property
-    def edf(self):
+    def edf(self) -> EmpiricalDistribution:
+        """Return empirical distribution function object."""
         return self._cache.get('edf')
 
-    def describe(self):
+    def describe(self) -> dict:
+        """Return dictionary with descriptive statistics."""
         return self._cache.get('stats')
 
     def update_bins(self, bins: int):
+        """
+        Update histogram bin count and recompute histogram cache.
+
+        :param bins: new number of bins
+        """
         self.bins = bins
         self._cache['hist'] = Hist(self.series, bins)
 
-    def apply_transformation(self, func, label=None):
+    def apply_transformation(self, func, label: str = None) -> 'DataModel':
+        """
+        Apply transformation function to current series and return a new version.
+
+        :param func: function to apply to series
+        :param label: optional label for new version
+        :return: new DataModel with updated series and history
+        """
         transformed = func(self.series)
         return self.add_version(transformed, label or "Transformed")
 
-    def add_version(self, new_series, label):
+    def add_version(self, new_series: pd.Series, label: str) -> 'DataModel':
+        """
+        Create a new version of the model with updated series and current history.
+
+        :param new_series: transformed series
+        :param label: description for the new version
+        :return: new DataModel instance
+        """
         return DataModel(
             new_series,
             bins=self.bins,
@@ -68,11 +100,21 @@ class DataModel:
             history=self.history + [self]
         )
 
-    def revert_to_original(self):
+    def revert_to_original(self) -> 'DataModel':
+        """
+        Revert to the original version in the transformation history.
+
+        :return: first DataModel in the history or self if history is empty
+        """
         return self.history[0] if self.history else self
 
     @property
-    def current_transformation(self):
+    def current_transformation(self) -> str:
+        """
+        Return a human-readable description of the transformation path.
+
+        :return: transformation chain as string
+        """
         if not self.history:
             return "Original"
         steps = [m.label for m in self.history[1:] + [self]]

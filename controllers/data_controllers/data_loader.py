@@ -4,6 +4,11 @@ from utils.def_bins import get_default_bin_count
 import os
 
 def load_data_file(window):
+    """
+    Load a data file selected by the user and initialize the DataModel.
+
+    :param window: main application window
+    """
     path = DataLoaderService.select_file(window)
     if not path:
         return

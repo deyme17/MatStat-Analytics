@@ -3,17 +3,39 @@ import pandas as pd
 from scipy import stats
 
 class AnomalyService:
+    """
+    Service for detecting anomalies in numeric data using different statistical methods.
+    """
+
     @staticmethod
-    def detect_normal_anomalies(data: pd.Series, threshold=3) -> dict:
+    def detect_normal_anomalies(data: pd.Series, threshold: float = 3) -> dict:
+        """
+        Detect anomalies based on the normal distribution (±threshold * std).
+
+        :param data: input data series
+        :param threshold: number of standard deviations for the bounds
+        :return: dictionary with anomaly indices and bounds
+        """
         mean = np.mean(data)
         std = np.std(data, ddof=1)
         lower = mean - threshold * std
         upper = mean + threshold * std
         anomalies = np.where((data < lower) | (data > upper))[0]
-        return {'anomalies': anomalies, 'lower_limit': lower, 'upper_limit': upper}
+        return {
+            'anomalies': anomalies,
+            'lower_limit': lower,
+            'upper_limit': upper
+        }
 
     @staticmethod
-    def detect_conf_anomalies(data: pd.Series, confidence_level=0.95) -> dict:
+    def detect_conf_anomalies(data: pd.Series, confidence_level: float = 0.95) -> dict:
+        """
+        Detect anomalies using confidence interval based on order statistics.
+
+        :param data: input data series
+        :param confidence_level: confidence level for the interval
+        :return: dictionary with anomaly indices and bounds
+        """
         sorted_data = np.sort(data)
         n = len(data)
         gamma = 1 - confidence_level
@@ -22,15 +44,26 @@ class AnomalyService:
         lower = sorted_data[lower_index]
         upper = sorted_data[upper_index]
         anomalies = np.where((data < lower) | (data > upper))[0]
-        return {'anomalies': anomalies, 'lower_limit': lower, 'upper_limit': upper}
+        return {
+            'anomalies': anomalies,
+            'lower_limit': lower,
+            'upper_limit': upper
+        }
 
     @staticmethod
     def detect_asymmetry_anomalies(data: pd.Series) -> dict:
+        """
+        Detect anomalies using asymmetry and kurtosis-adjusted limits.
+
+        :param data: input data series
+        :return: dictionary with anomaly indices and bounds
+        """
         N = len(data)
         mean = np.mean(data)
         std = np.std(data, ddof=1)
         skewness = stats.skew(data)
         excess = stats.kurtosis(data)
+
         t1 = 2 + 0.2 * np.log10(0.04 * N)
         t2 = np.sqrt(np.sqrt(19 * np.sqrt(excess + 2) + 1))
 
@@ -45,4 +78,8 @@ class AnomalyService:
             upper = mean + t1 * std
 
         anomalies = np.where((data < lower) | (data > upper))[0]
-        return {'anomalies': anomalies, 'lower_limit': lower, 'upper_limit': upper}
+        return {
+            'anomalies': anomalies,
+            'lower_limit': lower,
+            'upper_limit': upper
+        }

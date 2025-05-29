@@ -2,8 +2,21 @@ import numpy as np
 from scipy import interpolate
 
 class EDFRenderer:
+    """
+    Renderer for drawing the Empirical Distribution Function (EDF)
+    as a step function and optional interpolated curve.
+    """
+
     @staticmethod
     def render(ax, data, bin_edges=None, show_edf_curve=False):
+        """
+        Render the EDF on a given Matplotlib axis.
+
+        :param ax: Matplotlib axis to draw on
+        :param data: pandas Series or NumPy array of values
+        :param bin_edges: optional array of bin edges for step approximation
+        :param show_edf_curve: whether to show a smoothed EDF curve
+        """
         data = np.sort(data.dropna().values)
         n = len(data)
 
@@ -21,8 +34,9 @@ class EDFRenderer:
         if show_edf_curve:
             y_edf = np.arange(1, n + 1) / n
             x_curve = np.linspace(data[0], data[-1], 300)
-            f_interp = interpolate.interp1d(data, y_edf, kind='linear',
-                                            bounds_error=False, fill_value=(0, 1))
+            f_interp = interpolate.interp1d(
+                data, y_edf, kind='linear', bounds_error=False, fill_value=(0, 1)
+            )
             y_interp = f_interp(x_curve)
             ax.plot(x_curve, y_interp, '-', color='c', label='EDF Curve', linewidth=2, alpha=0.1)
 

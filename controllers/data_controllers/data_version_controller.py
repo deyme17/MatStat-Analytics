@@ -1,10 +1,19 @@
 from services.ui_services.ui_refresh_service import UIRefreshService
 
 class DataVersionController:
+    """
+    Controller for managing dataset versions (original and transformed).
+    """
+
     def __init__(self, window):
         self.window = window
 
     def on_data_version_changed(self, index):
+        """
+        Called when the user selects a different version from the dropdown.
+
+        :param index: Index of the selected version in the dropdown.
+        """
         labels = self.window.version_manager.get_all_descriptions()
         if 0 <= index < len(labels):
             label = labels[index]
@@ -13,16 +22,21 @@ class DataVersionController:
             self._update_all()
 
     def original_data(self):
+        """
+        Revert to the original dataset version and update UI accordingly.
+        """
         original = self.window.version_manager.get_original_data()
         if original:
             self.window.data_model = original
             self.window.version_manager.update_current_data(original)
             self.window.original_button.setEnabled(False)
             self.window.missing_controller.update_data_reference(original.series)
-
             UIRefreshService.refresh_all(self.window, original.series)
 
     def update_data_versions(self):
+        """
+        Update dropdown menu with all available data versions.
+        """
         self.window.data_version_combo.blockSignals(True)
         self.window.data_version_combo.clear()
 
@@ -37,6 +51,9 @@ class DataVersionController:
         self._update_all()
 
     def update_data_version_selection(self):
+        """
+        Sync the dropdown selection with the currently active dataset.
+        """
         labels = self.window.version_manager.get_all_descriptions()
         current = self.window.version_manager.get_data_description()
 
@@ -48,6 +65,9 @@ class DataVersionController:
         self.window.state_controller.update_navigation_buttons()
 
     def _update_all(self):
+        """
+        Internal helper to refresh UI after switching dataset.
+        """
         series = self.window.data_model.series
         self.window.graph_panel.bins_spinbox.setValue(self.window.data_model.bins)
         UIRefreshService.refresh_all(self.window, series)

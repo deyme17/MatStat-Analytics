@@ -3,18 +3,35 @@ from scipy.stats import t
 from models.stat_distributions.stat_distribution import StatisticalDistribution
 
 class SimulationService:
+    """
+    Service for simulating samples from distributions and evaluating T-tests.
+    """
+
     @staticmethod
     def generate_sample(distribution: StatisticalDistribution, size: int, params: dict) -> np.ndarray:
         """
         Generate a random sample from a distribution using the inverse CDF method.
+
+        :param distribution: instance of StatisticalDistribution
+        :param size: number of values to generate
+        :param params: distribution parameters
+        :return: numpy array of sampled values
         """
         u = np.random.uniform(0, 1, size)
         return distribution.get_inverse_cdf(u, params)
-    
+
     @staticmethod
-    def run_experiment(distribution: StatisticalDistribution, sizes: list[int], n_repeat: int, true_mean: float, alpha: float = 0.05) -> list[dict]:
+    def run_experiment(distribution: StatisticalDistribution, sizes: list[int], n_repeat: int,
+                       true_mean: float, alpha: float = 0.05) -> list[dict]:
         """
-        Run repeated T-tests on samples generated from a distribution.
+        Run repeated T-tests on simulated samples of varying sizes.
+
+        :param distribution: instance of StatisticalDistribution
+        :param sizes: list of sample sizes to test
+        :param n_repeat: number of repetitions per sample size
+        :param true_mean: theoretical mean to test against
+        :param alpha: significance level for critical t-value
+        :return: list of dictionaries with t-statistics summary per sample size
         """
         from services.analysis_services.statistics_service import StatisticsService
         results = []

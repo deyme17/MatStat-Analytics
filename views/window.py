@@ -16,6 +16,10 @@ from factory import Factory
 
 
 class Window(QMainWindow):
+    """
+    Main application window for the MatStat Analytics tool.
+    """
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle('MatStat Analytics')
@@ -25,28 +29,32 @@ class Window(QMainWindow):
         self._init_palette()
         self.setStyleSheet(appStyle)
 
-        # Data
+        # Data model for currently loaded dataset
         self.data_model = None
 
-        # add controllers and services
+        # Register controllers and services via Factory
         Factory.create(self)
 
-        # Widgets
+        # UI Widget
         self.widgets = WindowWidgets(self)
-        self.graph_panel = GraphPanel(self, on_dist_change=self.evaluate_distribution_change)
-        self.graph_controller = GraphController(self.graph_panel)
 
         # UI Tabs
         self._create_tabs()
         self._create_layout()
 
     def _init_palette(self):
+        """
+        Configure the application’s color palette using light tones.
+        """
         palette = self.palette()
         palette.setColor(QPalette.ColorRole.Window, QColor(240, 248, 255))
         palette.setColor(QPalette.ColorRole.Base, QColor(245, 250, 255))
         self.setPalette(palette)
 
     def _create_tabs(self):
+        """
+        Create and add the main application tabs.
+        """
         self.left_tab_widget = QTabWidget()
         self.data_tab = DataProcessingTab(self)
         self.stat_tab = StatisticTab()
@@ -59,15 +67,22 @@ class Window(QMainWindow):
         self.left_tab_widget.addTab(self.sim_tab, "Simulation")
 
     def _create_layout(self):
+        """
+        Define and apply the main layout including tabs, graph panel and controls.
+        """
         main_panel = QHBoxLayout()
         main_panel.addWidget(self.left_tab_widget, stretch=1)
         main_panel.addWidget(self.graph_panel, stretch=3)
 
         main_layout = QVBoxLayout()
-
         controls_bar = self.widgets.create_controls_bar()
-        self.precision_spinbox.valueChanged.connect(lambda: self.stat_controller.update_statistics_table())
-        self.load_data_button.clicked.connect(lambda: load_data_file(self))
+
+        self.precision_spinbox.valueChanged.connect(
+            lambda: self.stat_controller.update_statistics_table()
+        )
+        self.load_data_button.clicked.connect(
+            lambda: load_data_file(self)
+        )
 
         main_layout.addLayout(controls_bar)
         main_layout.addLayout(main_panel, stretch=1)
@@ -76,23 +91,20 @@ class Window(QMainWindow):
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
 
-    def evaluate_distribution_change(self):
-        if not hasattr(self, "graph_panel") or not hasattr(self, "gof_tab"):
-            return
-        if self.data_model is None or self.data_model.series.empty:
-            return
-        self.graph_panel.plot_all()
-        selected_dist = self.graph_panel.get_selected_distribution()
-        if selected_dist is None:
-            self.gof_tab.clear_tests()
-        else:
-            self.gof_tab.evaluate_tests()
-
     def _create_nav_layout(self):
+        """
+        Proxy method to create a navigation layout from widget utilities.
+        """
         return self.widgets.create_nav_layout()
 
     def show_error_message(self, title, message):
+        """
+        Display an error popup with the given title and message.
+        """
         QMessageBox.critical(self, title, message)
 
     def show_info_message(self, title, message):
+        """
+        Display an informational popup with the given title and message.
+        """
         QMessageBox.information(self, title, message)

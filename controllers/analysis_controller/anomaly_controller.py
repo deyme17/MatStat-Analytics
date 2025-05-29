@@ -3,21 +3,41 @@ from models.data_model import DataModel
 from services.ui_services.ui_refresh_service import UIRefreshService
 
 class AnomalyController:
+    """
+    Controller for detecting and removing statistical anomalies from the dataset.
+    """
+
     def __init__(self, window):
         self.window = window
 
     def remove_normal_anomalies(self):
+        """
+        Detect and remove anomalies using the standard deviation threshold method.
+        """
         self._remove_anomalies(AnomalyService.detect_normal_anomalies, "Normal Filtered")
 
     def remove_asymmetry_anomalies(self):
+        """
+        Detect and remove anomalies based on skewness and kurtosis adjustments.
+        """
         self._remove_anomalies(AnomalyService.detect_asymmetry_anomalies, "Asymmetry Filtered")
 
     def remove_conf_anomalies(self):
+        """
+        Detect and remove anomalies using confidence interval bounds.
+        Confidence level is selected via the gamma spinbox.
+        """
         gamma = self.window.anomaly_gamma_spinbox.value()
         func = lambda data: AnomalyService.detect_conf_anomalies(data, gamma)
         self._remove_anomalies(func, f"Conf. Filtered γ={gamma}")
 
     def _remove_anomalies(self, detection_func, label):
+        """
+        Generic method to detect and remove anomalies using a given detection function.
+
+        :param detection_func: function that returns a dict with 'anomalies' and bounds
+        :param label: label used to name the new version of the dataset
+        """
         data = self.window.data_model.series
         if data is None:
             return
@@ -33,13 +53,13 @@ class AnomalyController:
             self.window.show_info_message("No Anomalies", "No anomalies detected.")
             return
 
+        # Remove anomalies and create new version of the dataset
         cleaned = data.drop(anomalies)
         new_model = self.window.data_model.add_version(cleaned, label)
         new_model.anomalies_removed = True
 
+        # Update data model and UI
         self.window.data_model = new_model
-
-        # save
         self.window.version_manager.update_current_data(new_model)
         UIRefreshService.refresh_all(self.window, cleaned)
 

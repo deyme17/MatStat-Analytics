@@ -1,8 +1,22 @@
 import numpy as np
 
 class DistributionRenderer:
+    """
+    Renderer for drawing theoretical distribution PDF curves on Matplotlib axes.
+    """
+
     @staticmethod
-    def render(ax, data, dist, color=None, label=None):
+    def render(ax, data, dist, color=None, label=None) -> bool:
+        """
+        Plot a fitted PDF curve of the given distribution on the provided axis.
+
+        :param ax: Matplotlib axis to draw on
+        :param data: pandas Series with input data
+        :param dist: StatisticalDistribution instance to fit and render
+        :param color: optional color override
+        :param label: optional label for legend
+        :return: True if rendering was successful, False otherwise
+        """
         data_clean = data.dropna()
         if data_clean.empty:
             return False
@@ -11,7 +25,7 @@ class DistributionRenderer:
             params = dist.fit(data_clean)
             x, pdf = dist.get_plot_data(data_clean, params)
 
-            # Normalize to histogram scale
+            # Normalize PDF to histogram scale
             hist_values, _ = np.histogram(data_clean, bins='auto', density=True)
             max_hist = np.max(hist_values) if len(hist_values) else 1
             max_pdf = np.max(pdf) if len(pdf) else 1
