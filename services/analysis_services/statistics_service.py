@@ -83,26 +83,25 @@ class StatisticsService:
 
     @staticmethod
     def get_cdf_with_confidence(data: pd.Series, dist, confidence_level=0.95):
-        try:
-            params = dist.fit(data)
-            dist_obj = dist.get_distribution_object(params)
-            if not dist_obj:
-                return None
+        stats = StatisticsService._common_stats(data)
+        n = stats['n']
 
-            stats = StatisticsService._common_stats(data)
-            n = stats['n']
-            x_vals = np.linspace(data.min(), data.max(), 300)
-            cdf_vals = dist_obj.cdf(x_vals)
-            
-            z_1_alpha = norm.ppf(confidence_level)
-            ci_width = z_1_alpha / np.sqrt(n)
-            ci_lower = np.clip(cdf_vals - ci_width, 0, 1)
-            ci_upper = np.clip(cdf_vals + ci_width, 0, 1)
-
-            return x_vals, cdf_vals, ci_lower, ci_upper
-        except Exception as e:
-            print(f"CDF confidence error: {e}")
+        params = dist.fit(data)
+        dist_obj = dist.get_distribution_object(params)
+        if dist_obj is None:
             return None
+
+        x_vals = np.linspace(data.min(), data.max(), 300)
+        cdf_vals = dist_obj.cdf(x_vals)
+
+        z = norm.ppf((1 + confidence_level) / 2)
+        variance = dist.get_cdf_variance(x_vals, params, n)
+        epsilon = z * np.sqrt(variance)
+
+        ci_lower = np.clip(cdf_vals - epsilon, 0, 1)
+        ci_upper = np.clip(cdf_vals + epsilon, 0, 1)
+
+        return x_vals, cdf_vals, ci_lower, ci_upper
 
     @staticmethod
     def update_table(table, hist_model, data, precision, confidence_level):
