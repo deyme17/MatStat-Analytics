@@ -1,6 +1,6 @@
 from services.data_services.data_loader_service import DataLoaderService
 from models.data_model import DataModel
-from funcs.def_bins import get_default_bin_count
+from utils.def_bins import get_default_bin_count
 import os
 
 def load_data_file(window):

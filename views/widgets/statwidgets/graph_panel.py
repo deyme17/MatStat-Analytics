@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSpinBox, QDoubleSpinBox, QCheckBox, QTabWidget
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from funcs.def_bins import get_default_bin_count
+from utils.def_bins import get_default_bin_count
 from PyQt6.QtWidgets import QScrollArea, QWidget
 
 from views.widgets.statwidgets.stat_dist_selector import DistributionSelector

@@ -2,7 +2,7 @@ import os
 from PyQt6.QtWidgets import QFileDialog
 from services.analysis_services.missing_service import MissingService
 from services.ui_services.ui_refresh_service import UIRefreshService
-from funcs.def_bins import get_default_bin_count
+from utils.def_bins import get_default_bin_count
 import pandas as pd
 
 class DataLoaderService:

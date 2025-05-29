@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QLabel
 from views.widgets.hypoteswidgets.gof_test_panel import BaseTestPanel
-from funcs.gof_tests_comput.comput_ks import kolmogorov_smirnov_test
+from services.analysis_services.gof_register import GOFService
 
 class KolmogorovSmirnovPanel(BaseTestPanel):
     def __init__(self, window):
@@ -15,11 +15,12 @@ class KolmogorovSmirnovPanel(BaseTestPanel):
 
     def evaluate(self, data, dist, alpha):
         try:
-            result = kolmogorov_smirnov_test(data, dist, alpha)
+            result = GOFService.run_tests(data, dist, alpha=alpha)["ks"]
+            extra = result.get("extra", {})
 
-            self.dn_label.setText(f"Statistic (Dₙ): {result['dn']:.4f}")
-            self.z_label.setText(f"z = √n * Dₙ: {result['z']:.4f}")
-            self.critical_label.setText(f"Critical z(α={alpha:.2f}): {result['critical']:.4f}")
+            self.dn_label.setText(f"Statistic (Dₙ): {result['statistic']:.4f}")
+            self.z_label.setText(f"z = √n * Dₙ: {extra.get('z_stat', 0):.4f}")
+            self.critical_label.setText(f"Critical z(α={alpha:.2f}): {extra.get('critical_value', 0):.4f}")
             self.p_label.setText(f"P(z): {result['p_value']:.4f}")
             self.update_result(result["passed"])
         except Exception as e:
@@ -31,4 +32,3 @@ class KolmogorovSmirnovPanel(BaseTestPanel):
         self.critical_label.setText("Critical z: ")
         self.p_label.setText("P(z): ")
         super().clear()
-
