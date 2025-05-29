@@ -7,6 +7,8 @@ from controllers.ui_controllers.graph_controller import GraphController
 from views.tabs.data_processing_tab import DataProcessingTab
 from views.tabs.stat_table_tab import StatisticTab
 from views.tabs.gof_test_tab import GOFTestTab
+from views.tabs.simulation_tab import SimulationTab
+
 from views.widgets.statwidgets.graph_panel import GraphPanel
 from views.widgets.window_widget import WindowWidgets
 from utils.ui_styles import appStyle
@@ -49,10 +51,12 @@ class Window(QMainWindow):
         self.data_tab = DataProcessingTab(self)
         self.stat_tab = StatisticTab()
         self.gof_tab = GOFTestTab(self)
+        self.sim_tab = SimulationTab(self)
 
         self.left_tab_widget.addTab(self.data_tab, "Data Processing")
         self.left_tab_widget.addTab(self.stat_tab, "Statistic")
         self.left_tab_widget.addTab(self.gof_tab, "Goodness-of-Fit Tests")
+        self.left_tab_widget.addTab(self.sim_tab, "Simulation")
 
     def _create_layout(self):
         main_panel = QHBoxLayout()
