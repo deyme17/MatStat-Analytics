@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QSpinBox, QComboBox, QTableWidget, QTableWidgetItem, QHBoxLayout, QLineEdit
-from services.simulation.simulation_service import SimulationService
+from services.simulation.simulation_engine import SimulationService
 from models.stat_distributions import registered_distributions
 
 class SimulationTab(QWidget):
@@ -11,20 +11,27 @@ class SimulationTab(QWidget):
     def _init_ui(self):
         layout = QVBoxLayout()
 
-        # Dropdown
+        # dist dropdown
         self.dist_combo = QComboBox()
         self.dist_combo.addItems(registered_distributions.keys())
 
         # params
         param_layout = QHBoxLayout()
-        self.param_input = QLineEdit()
-        self.param_input.setPlaceholderText("Parameters (e.g. 0,1 or 2.0)")
-        self.mean_input = QLineEdit()
-        self.mean_input.setPlaceholderText("True Mean")
-        param_layout.addWidget(self.param_input)
-        param_layout.addWidget(self.mean_input)
 
-        # repeat and run button
+        param_label = QLabel("Distribution Parameters:")
+        self.param_input = QLineEdit()
+        self.param_input.setPlaceholderText("x, ...")
+
+        alpha_label = QLabel("Significance Level α:")
+        self.alpha_input = QLineEdit()
+        self.alpha_input.setText("0.05")
+
+        param_layout.addWidget(param_label)
+        param_layout.addWidget(self.param_input)
+        param_layout.addWidget(alpha_label)
+        param_layout.addWidget(self.alpha_input)
+
+        # Repeat + Run
         control_layout = QHBoxLayout()
         self.repeat_spin = QSpinBox()
         self.repeat_spin.setRange(1, 1000)
@@ -35,10 +42,10 @@ class SimulationTab(QWidget):
         control_layout.addWidget(self.repeat_spin)
         control_layout.addWidget(self.run_button)
 
-        # table
+        # Results table
         self.result_table = QTableWidget()
-        self.result_table.setColumnCount(3)
-        self.result_table.setHorizontalHeaderLabels(["Size", "T Mean", "T Std"])
+        self.result_table.setColumnCount(4)
+        self.result_table.setHorizontalHeaderLabels(["Size", "T Mean", "T Std", "T Critical"])
 
         layout.addWidget(QLabel("Select Distribution:"))
         layout.addWidget(self.dist_combo)
@@ -50,16 +57,19 @@ class SimulationTab(QWidget):
     def run_simulation(self):
         dist_name = self.dist_combo.currentText()
         params_str = self.param_input.text()
-        try:
-            true_mean = float(self.mean_input.text())
-        except ValueError:
-            self.window.show_error_message("Invalid Input", "True mean must be a number.")
-            return
 
         try:
             params = tuple(map(float, params_str.split(',')))
         except:
             self.window.show_error_message("Invalid Parameters", "Parameters must be comma-separated numbers.")
+            return
+
+        try:
+            alpha = float(self.alpha_input.text())
+            if not (0 < alpha < 1):
+                raise ValueError
+        except ValueError:
+            self.window.show_error_message("Invalid α", "Significance level α must be between 0 and 1.")
             return
 
         sizes = [20, 50, 100, 400, 1000, 2000, 5000]
@@ -71,10 +81,16 @@ class SimulationTab(QWidget):
             return
 
         dist = dist_class()
+        dist.params = params
+        true_mean = dist.get_mean()
+        if true_mean is None:
+            self.window.show_error_message("Invalid Parameters", "Could not determine true mean from parameters.")
+            return
 
-        results = SimulationService.run_experiment(dist, sizes, repeats, true_mean, params)
+        results = SimulationService.run_experiment(dist, sizes, repeats, true_mean)
         self.result_table.setRowCount(len(results))
         for i, res in enumerate(results):
             self.result_table.setItem(i, 0, QTableWidgetItem(str(res['size'])))
             self.result_table.setItem(i, 1, QTableWidgetItem(f"{res['t_mean']:.4f}"))
             self.result_table.setItem(i, 2, QTableWidgetItem(f"{res['t_std']:.4f}"))
+            self.result_table.setItem(i, 3, QTableWidgetItem(f"{res['t_crit']:.4f}"))
