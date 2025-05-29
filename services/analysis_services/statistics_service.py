@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from scipy.stats import skew, kurtosis, t, chi2, norm
+from scipy.stats import skew, kurtosis, ttest_1samp, t, chi2, norm
 from PyQt6.QtWidgets import QTableWidgetItem
 
 class StatisticsService:
@@ -102,6 +102,11 @@ class StatisticsService:
         ci_upper = np.clip(cdf_vals + epsilon, 0, 1)
 
         return x_vals, cdf_vals, ci_lower, ci_upper
+    
+    @staticmethod
+    def perform_t_test(sample, true_mean):
+        t_stat, p_value = ttest_1samp(sample, popmean=true_mean)
+        return {'t_statistic': t_stat, 'p_value': p_value}
 
     @staticmethod
     def update_table(table, hist_model, data, precision, confidence_level):
