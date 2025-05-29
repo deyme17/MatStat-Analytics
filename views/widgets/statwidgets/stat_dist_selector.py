@@ -1,23 +1,12 @@
 from PyQt6.QtWidgets import QGroupBox, QGridLayout, QRadioButton, QButtonGroup
 from utils.ui_styles import groupStyle, groupMargin
-from models.stat_distributions import (
-    NormalDistribution, ExponentialDistribution,
-    UniformDistribution, WeibullDistribution, LaplaceDistribution
-)
+from models.stat_distributions import registered_distributions
 
 class DistributionSelector(QGroupBox):
     def __init__(self, on_change=None, parent=None):
         super().__init__("Statistical Distributions", parent)
         self.setMaximumHeight(100)
         self.setStyleSheet(groupStyle + groupMargin)
-
-        self.distribution_map = {
-            "Normal": NormalDistribution,
-            "Exponential": ExponentialDistribution,
-            "Uniform": UniformDistribution,
-            "Weibull": WeibullDistribution,
-            "Laplace": LaplaceDistribution
-        }
 
         self.button_group = QButtonGroup(self)
         layout = QGridLayout()
@@ -30,7 +19,7 @@ class DistributionSelector(QGroupBox):
             self.none_btn.toggled.connect(on_change)
         self.none_btn.setChecked(True)
 
-        for index, (name, dist_cls) in enumerate(self.distribution_map.items()):
+        for index, (name, dist_cls) in enumerate(registered_distributions.items()):
             btn = QRadioButton(name)
             self.button_group.addButton(btn)
             layout.addWidget(btn, (index + 1) // 3, (index + 1) % 3)
@@ -42,7 +31,7 @@ class DistributionSelector(QGroupBox):
     def get_selected_distribution(self):
         btn = self.button_group.checkedButton()
         if btn and btn.text() != "None":
-            return self.distribution_map[btn.text()]()
+            return registered_distributions[btn.text()]()
         return None
 
     def reset_selection(self):
