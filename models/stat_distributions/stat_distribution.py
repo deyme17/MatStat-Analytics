@@ -1,16 +1,19 @@
 from abc import ABC, abstractmethod
-from scipy.stats import chisquare, kstest
 import numpy as np
-from scipy import stats
-import matplotlib.pyplot as plt
 
 class StatisticalDistribution(ABC):
     """Abstract base class for statistical distributions."""
     
     def __init__(self):
+        self.params = None
         self.color = 'red'  # default color
         self.name = self.__class__.__name__
-    
+
+    @property
+    @abstractmethod
+    def distribution_params(self) -> dict[str, np.float32 | None]:
+        pass
+
     @abstractmethod
     def fit(self, data):
         """Fit distribution to data and return parameters."""
@@ -29,7 +32,12 @@ class StatisticalDistribution(ABC):
     @abstractmethod
     def get_inverse_cdf(self, x, params):
         pass
-    
+
+    @abstractmethod
+    def get_mean(self):
+        """Return theoretical mean based on current parameters."""
+        pass
+
     def get_distribution_object(self, params):
         """Get scipy distribution object with fitted parameters."""
         return None
