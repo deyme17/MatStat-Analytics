@@ -41,10 +41,14 @@ class WeibullDistribution(StatisticalDistribution):
     def get_cdf_variance(self, x_vals, params, n):
         alpha, beta = params
 
-        dF_dalpha = - (x_vals ** beta) / (alpha ** 2) * np.exp(- (x_vals ** beta) / alpha)
+        x_safe = x_vals.copy()
+        x_safe[x_safe < 0] = 0
 
-        safe_x = np.where(x_vals == 0, 1e-10, x_vals)
-        dF_dbeta = (x_vals ** beta) * np.log(safe_x) / alpha * np.exp(- (x_vals ** beta) / alpha)
+        # avoid log(0)
+        safe_x = np.where(x_safe == 0, 1e-10, x_safe)
+
+        dF_dalpha = - (x_safe ** beta) / (alpha ** 2) * np.exp(- (x_safe ** beta) / alpha)
+        dF_dbeta = (x_safe ** beta) * np.log(safe_x) / alpha * np.exp(- (x_safe ** beta) / alpha)
 
         var_alpha = alpha ** 2 / n
         var_beta = beta ** 2 / n
