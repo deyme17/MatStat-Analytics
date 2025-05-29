@@ -32,10 +32,7 @@ class ExponentialDistribution(StatisticalDistribution):
         x_max = np.nanmax(data) * 1.2
         return x_min, x_max
     
-    def get_cdf_variance(self, x_vals, data):
-        params = self.fit(data)
+    def get_cdf_variance(self, x_vals, params, n):
         lam = params[0]
-        n = data.dropna().shape[0]
-
         variance = (x_vals ** 2) * np.exp(-2 * lam * x_vals) * (lam ** 2) / n
         return variance

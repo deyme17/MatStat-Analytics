@@ -29,10 +29,8 @@ class UniformDistribution(StatisticalDistribution):
         x_max = params[1] + 0.1 * (params[1] - params[0])
         return x_min, x_max
     
-    def get_cdf_variance(self, x_vals, data):
-        params = self.fit(data)
+    def get_cdf_variance(self, x_vals, params, n):
         a, b = params
-        n = data.dropna().shape[0]
 
         var_a = (b - a)**2 / (12 * n)
         var_b = (b - a)**2 / (12 * n)

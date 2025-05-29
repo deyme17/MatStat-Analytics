@@ -22,7 +22,7 @@ class StatisticalDistribution(ABC):
         pass
 
     @abstractmethod
-    def get_cdf_variance(self, data):
+    def get_cdf_variance(self, x_vals, params, n):
         """Calculate variance of the CDF."""
         pass
     

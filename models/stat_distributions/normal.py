@@ -23,10 +23,8 @@ class NormalDistribution(StatisticalDistribution):
     def get_distribution_object(self, params):
         return stats.norm(loc=params[0], scale=params[1])
     
-    def get_cdf_variance(self, x_vals, data):
-        params = self.fit(data)
+    def get_cdf_variance(self, x_vals, params, n):
         m, sigma = params
-        n = data.dropna().shape[0]
 
         coeff = 1 / (sigma * np.sqrt(2 * np.pi))
         z = (x_vals - m) / sigma

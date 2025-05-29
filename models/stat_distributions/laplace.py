@@ -28,11 +28,9 @@ class LaplaceDistribution(StatisticalDistribution):
     def get_distribution_object(self, params):
         return stats.laplace(loc=params[0], scale=params[1])
     
-    def get_cdf_variance(self, x_vals, data):
-        params = self.fit(data)
+    def get_cdf_variance(self, x_vals, params, n):
         mu, lam = params
 
-        n = data.dropna().shape[0]
         var_mu = (lam**2) / n
         var_lambda = (lam**2) / n
 
