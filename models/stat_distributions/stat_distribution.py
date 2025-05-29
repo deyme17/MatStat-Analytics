@@ -25,58 +25,12 @@ class StatisticalDistribution(ABC):
         """Get scipy distribution object with fitted parameters."""
         return None
     
-    def plot(self, ax, data, color=None, label=None, **kwargs):
-        """
-        Plot the distribution fitted to data.
+    def get_plot_data(self, data, params):
+        x_min, x_max = self._get_plot_range(data)
+        x = np.linspace(x_min, x_max, 1000)
+        pdf = self.get_pdf(x, params)
+        return x, pdf
         
-        Parameters:
-            ax: matplotlib axis to plot on
-            data: data to fit the distribution to
-            color: color for the line (uses default if None)
-            label: label for the legend (uses distribution name if None)
-            **kwargs: Additional plotting parameters
-            
-        Returns:
-            bool: True if successful, False otherwise
-        """
-        data_clean = data.dropna() if hasattr(data, 'dropna') else data[~np.isnan(data)]
-        
-        if len(data_clean) == 0:
-            return False
-
-        try:
-            hist_values, bin_edges = np.histogram(data_clean, bins='auto', density=True)
-            max_hist_value = np.max(hist_values) if len(hist_values) > 0 else 1.0
-            
-            # x range
-            x_min, x_max = self._get_plot_range(data_clean)
-            x = np.linspace(x_min, x_max, 1000)
-            
-            # fit distr
-            params = self.fit(data_clean)
-            pdf_values = self.get_pdf(x, params)
-            
-            # scaling
-            pdf_max = np.max(pdf_values) if len(pdf_values) > 0 else 1.0
-            if pdf_max > 0:
-                pdf_values = pdf_values * (max_hist_value / pdf_max)
-            
-            # color/label
-            plot_color = color if color is not None else self.color
-            plot_label = label if label is not None else f"{self.name} Distribution"
-            
-            # plot
-            ax.plot(x, pdf_values, color=plot_color, label=plot_label, **kwargs)
-                
-            return True
-        except Exception as e:
-            print(f"Error plotting distribution: {str(e)}")
-            return False
-    
-    def _get_plot_range(self, data):
-        """Determine appropriate x-axis range for plotting."""
-        return np.nanmin(data) * 0.8, np.nanmax(data) * 1.2
-    
     def perform_goodness_of_fit_tests(self, data, num_bins=10):
         """
         Perform goodness-of-fit tests.

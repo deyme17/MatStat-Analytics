@@ -1,6 +1,8 @@
-import numpy as np
-from scipy.stats import norm
+from services.ui_services.renderers.hist_renderer import HistRenderer
+from services.ui_services.renderers.edf_renderer import EDFRenderer
+from services.ui_services.renderers.dist_renderer import DistributionRenderer
 from services.analysis_services.statistics_service import StatisticsService
+import numpy as np
 
 class GraphPlotter:
     def __init__(self, panel):
@@ -15,12 +17,10 @@ class GraphPlotter:
         data = data.dropna()
         if data.empty:
             return
-        
-        self.panel.window.data_model.update_bins(self.panel.bins_spinbox.value())
-        self.panel.window.stat_controller.update_statistics_table()
 
         self._cached_stats.clear()
         self._draw_histogram()
+        self._draw_distribution_overlay()
         self._draw_edf()
 
     def _draw_histogram(self):
@@ -29,10 +29,7 @@ class GraphPlotter:
         ax = self.panel.hist_ax
         ax.clear()
 
-        hist_model = model.hist
-        hist_model.plot_hist(ax, show_kde=show_kde)
-
-        self._draw_distribution_overlay()
+        HistRenderer.render(ax, model.series, model.bins, show_kde)
 
         ax.set_facecolor('#f0f8ff')
         ax.grid(color='#b0e0e6', linestyle='--', alpha=0.7)
@@ -50,18 +47,7 @@ class GraphPlotter:
             return
 
         try:
-            dist.plot(self.panel.hist_ax, data)
-            params = dist.fit(data)
-            dist_obj = dist.get_distribution_object(params)
-
-            if dist_obj:
-                stats = self._get_cached_stats(data)
-                hist_counts, bin_edges = np.histogram(data, bins=self.panel.bins_spinbox.value())
-                cdf_vals = [dist_obj.cdf(edge) for edge in bin_edges]
-                expected_probs = np.diff(cdf_vals)
-                expected_counts = np.where(expected_probs * stats['len'] < 1, 1, expected_probs * stats['len'])
-                expected_counts *= hist_counts.sum() / expected_counts.sum()
-
+            DistributionRenderer.render(self.panel.hist_ax, data, dist)
         except Exception as e:
             print(f"Distribution Error: {e}")
 
@@ -101,7 +87,7 @@ class GraphPlotter:
         ax = self.panel.edf_ax
         ax.clear()
 
-        model.edf.plot(ax, bin_edges=model.hist.bin_edges, show_edf_curve=show_kde)
+        EDFRenderer.render(ax, model.series, bin_edges=model.hist.bin_edges, show_edf_curve=show_kde)
         self._draw_distribution_cdf(ax, model.series)
 
         ax.set_facecolor('#f0f8ff')
