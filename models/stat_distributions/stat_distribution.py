@@ -31,46 +31,10 @@ class StatisticalDistribution(ABC):
         pdf = self.get_pdf(x, params)
         return x, pdf
         
-    def perform_goodness_of_fit_tests(self, data, num_bins=10):
-        """
-        Perform goodness-of-fit tests.
-        
-        Parameters:
-            data: Input data
-            num_bins: Number of bins for histogram (Chi-squared test)
-            
-        Returns:
-            Dictionary with test statistics and p-values
-        """
-        data_clean = data.dropna() if hasattr(data, 'dropna') else data[~np.isnan(data)]
-        
-        if len(data_clean) == 0:
-            raise ValueError("No valid data points after removing NaN values")
-            
-        # fit distr
-        params = self.fit(data_clean)
-        dist_obj = self.get_distribution_object(params)
-        
-        if dist_obj is None:
-            raise NotImplementedError("Goodness-of-fit tests not implemented for this distribution")
-        
-        # chi-squared test
-        hist_counts, bin_edges = np.histogram(data_clean, bins=num_bins)
-        cdf_values = [dist_obj.cdf(edge) for edge in bin_edges]
-        expected_probs = np.diff(cdf_values)
-        expected_counts = expected_probs * len(data_clean)
-        expected_counts = np.where(expected_counts < 1, 1, expected_counts)
-        chi2_stat, chi2_p = chisquare(hist_counts, expected_counts)
-        
-        # Kolmogorov-Smirnov test
-        ks_stat, ks_p = kstest(data_clean, dist_obj.cdf)
-        
-        return {
-            'chi2_statistic': chi2_stat,
-            'chi2_p_value': chi2_p,
-            'ks_statistic': ks_stat,
-            'ks_p_value': ks_p
-        }
+    def _get_plot_range(self, data):
+        min_val = np.nanmin(data)
+        max_val = np.nanmax(data)
+        return min_val * 0.8, max_val * 1.2
 
     def __str__(self):
         """Return formatted distribution name."""
