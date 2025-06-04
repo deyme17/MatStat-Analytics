@@ -23,7 +23,7 @@ class KolmogorovSmirnovPanel(BaseTestPanel):
         Args:
             window (QMainWindow): Reference to the main application window.
         """
-        super().__init__("Kolmogorov-Smirnov Test (Refined)", window)
+        super().__init__("Refined Kolmogorov Test", window)
 
         self.dn_label = self.add_stat_label("Statistic (Dₙ): ")
         self.z_label = self.add_stat_label("z = √n * Dₙ: ")
