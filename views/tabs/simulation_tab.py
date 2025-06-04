@@ -17,6 +17,7 @@ class SimulationTab(QWidget):
         self.window = window
         self._init_ui()
         self.simulation_counter = {}
+        self._update_param_placeholder()
 
     def _init_ui(self):
         """
@@ -24,61 +25,67 @@ class SimulationTab(QWidget):
         """
         layout = QVBoxLayout()
 
-        # Dropdown for choosing distribution
+        # dropdown for choosing dist
         self.dist_combo = QComboBox()
         self.dist_combo.addItems(registered_distributions.keys())
+        self.dist_combo.currentTextChanged.connect(self._update_param_placeholder)
 
-        # Input layout for parameters and significance level
+        # dist parameters
         param_layout = QHBoxLayout()
         param_label = QLabel("Distribution Parameters:")
         self.param_input = QLineEdit()
+        self.param_input.setMinimumWidth(200)
         self.param_input.setPlaceholderText("x, ...")
+        param_layout.addWidget(param_label)
+        param_layout.addWidget(self.param_input)
+        param_layout.addStretch() 
+
+        # significance level
+        alpha_layout = QHBoxLayout()
         alpha_label = QLabel("Significance Level α:")
         self.alpha_input = QLineEdit()
         self.alpha_input.setText("0.05")
+        self.alpha_input.setMaximumWidth(100)
+        alpha_layout.addWidget(alpha_label)
+        alpha_layout.addWidget(self.alpha_input)
+        alpha_layout.addStretch()
 
-        param_layout.addWidget(param_label)
-        param_layout.addWidget(self.param_input)
-        param_layout.addWidget(alpha_label)
-        param_layout.addWidget(self.alpha_input)
-
-        # Sample size selection
-        size_layout = QHBoxLayout()
-        size_label = QLabel("Sample Size to save:")
+        # save checkbox and sample size
+        save_size_layout = QHBoxLayout()
+        self.save_data_checkbox = QCheckBox("Save simulated data with size:")
+        self.save_data_checkbox.setChecked(False)
         self.size_spin = QSpinBox()
         self.size_spin.setRange(10, 10000)
         self.size_spin.setValue(1000)
-        
-        size_layout.addWidget(size_label)
-        size_layout.addWidget(self.size_spin)
+        self.size_spin.setMaximumWidth(150)
+        save_size_layout.addWidget(self.save_data_checkbox)
+        save_size_layout.addWidget(self.size_spin)
+        save_size_layout.addStretch()
 
-        # Option to save simulated data
-        self.save_data_checkbox = QCheckBox("Save simulated data as new dataset")
-        self.save_data_checkbox.setChecked(False)
-
-        # Control layout for repeat count and run button
+        # repeat count and run button
         control_layout = QHBoxLayout()
         self.repeat_spin = QSpinBox()
         self.repeat_spin.setRange(1, 1000)
         self.repeat_spin.setValue(200)
+        self.repeat_spin.setMaximumWidth(100)
         self.run_button = QPushButton("Run Simulation")
         self.run_button.clicked.connect(self.run_simulation)
-
         control_layout.addWidget(QLabel("Repeats:"))
         control_layout.addWidget(self.repeat_spin)
         control_layout.addWidget(self.run_button)
+        control_layout.addStretch()
 
-        # Table to display results
+        # results
         self.result_table = QTableWidget()
         self.result_table.setColumnCount(4)
         self.result_table.setHorizontalHeaderLabels(["Size", "T Mean", "T Std", "T Critical"])
 
-        # Assemble all into the layout
+        # layout
         layout.addWidget(QLabel("Select Distribution:"))
         layout.addWidget(self.dist_combo)
         layout.addLayout(param_layout)
-        layout.addLayout(size_layout)
-        layout.addWidget(self.save_data_checkbox)
+        layout.addLayout(alpha_layout)
+        layout.addLayout(save_size_layout)
         layout.addLayout(control_layout)
         layout.addWidget(self.result_table)
         self.setLayout(layout)
@@ -174,3 +181,17 @@ class SimulationTab(QWidget):
             "Data Saved", 
             f"Simulated data saved as '{dataset_label}' with {len(data)} samples."
         )
+
+    def _update_param_placeholder(self):
+            """
+            Update the placeholder text for param_input based on the selected distribution.
+            """
+            dist_name = self.dist_combo.currentText()
+            dist_class = registered_distributions.get(dist_name)
+            if dist_class:
+                dist_instance = dist_class()
+                params = dist_instance.distribution_params
+                param_names = ", ".join([key for key, value in params.items()])
+                self.param_input.setPlaceholderText(param_names)
+            else:
+                self.param_input.setPlaceholderText("x, ...")
