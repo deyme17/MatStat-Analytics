@@ -1,6 +1,10 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QSpinBox, QComboBox, QTableWidget, QTableWidgetItem, QHBoxLayout, QLineEdit
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QCheckBox, QLabel, QPushButton, QSpinBox, QComboBox, QTableWidget, QTableWidgetItem, QHBoxLayout, QLineEdit
 from services.simulation.simulation_engine import SimulationService
 from models.stat_distributions import registered_distributions
+from models.data_model import DataModel
+
+import pandas as pd
+import numpy as np
 
 class SimulationTab(QWidget):
     """
@@ -12,6 +16,7 @@ class SimulationTab(QWidget):
         super().__init__()
         self.window = window
         self._init_ui()
+        self.simulation_counter = {}
 
     def _init_ui(self):
         """
@@ -37,6 +42,20 @@ class SimulationTab(QWidget):
         param_layout.addWidget(alpha_label)
         param_layout.addWidget(self.alpha_input)
 
+        # Sample size selection
+        size_layout = QHBoxLayout()
+        size_label = QLabel("Sample Size to save:")
+        self.size_spin = QSpinBox()
+        self.size_spin.setRange(10, 10000)
+        self.size_spin.setValue(1000)
+        
+        size_layout.addWidget(size_label)
+        size_layout.addWidget(self.size_spin)
+
+        # Option to save simulated data
+        self.save_data_checkbox = QCheckBox("Save simulated data as new dataset")
+        self.save_data_checkbox.setChecked(False)
+
         # Control layout for repeat count and run button
         control_layout = QHBoxLayout()
         self.repeat_spin = QSpinBox()
@@ -58,6 +77,8 @@ class SimulationTab(QWidget):
         layout.addWidget(QLabel("Select Distribution:"))
         layout.addWidget(self.dist_combo)
         layout.addLayout(param_layout)
+        layout.addLayout(size_layout)
+        layout.addWidget(self.save_data_checkbox)
         layout.addLayout(control_layout)
         layout.addWidget(self.result_table)
         self.setLayout(layout)
@@ -88,6 +109,7 @@ class SimulationTab(QWidget):
 
         sizes = [20, 50, 100, 400, 1000, 2000, 5000]
         repeats = self.repeat_spin.value()
+        sample_size = self.size_spin.value()
 
         # Create distribution instance
         dist_class = registered_distributions.get(dist_name)
@@ -101,6 +123,10 @@ class SimulationTab(QWidget):
         if true_mean is None:
             self.window.show_error_message("Invalid Parameters", "Could not determine true mean from parameters.")
             return
+        
+        if self.save_data_checkbox.isChecked():
+            simulated_data = SimulationService.generate_sample(dist, sample_size, params)
+            self._save_simulated_data(dist_name, simulated_data, params)
 
         # Run experiment and populate table
         results = SimulationService.run_experiment(dist, sizes, repeats, true_mean)
@@ -110,3 +136,41 @@ class SimulationTab(QWidget):
             self.result_table.setItem(i, 1, QTableWidgetItem(f"{res['t_mean']:.4f}"))
             self.result_table.setItem(i, 2, QTableWidgetItem(f"{res['t_std']:.4f}"))
             self.result_table.setItem(i, 3, QTableWidgetItem(f"{res['t_crit']:.4f}"))
+
+    def _save_simulated_data(self, dist_name: str, data: np.ndarray, params: tuple):
+        """
+        Save simulated data as a new dataset in the data history manager.
+        
+        :param dist_name: name of the distribution
+        :param data: simulated data array
+        :param params: distribution parameters
+        """
+        if dist_name not in self.simulation_counter:
+            self.simulation_counter[dist_name] = 0
+        
+        self.simulation_counter[dist_name] += 1
+        counter = self.simulation_counter[dist_name]
+        
+        # dataset label
+        dataset_label = f"{dist_name}Simulation{counter}"
+        series = pd.Series(data)
+        
+        # bin count
+        from utils.def_bins import get_default_bin_count
+        optimal_bins = get_default_bin_count(series)
+        
+        # DataModel
+        data_model = DataModel(series, bins=optimal_bins, label=dataset_label)
+
+        self.window.version_manager.add_dataset(dataset_label, data_model)
+        self.window.data_model = data_model
+        
+        # Postprocess loaded data to update UI
+        from services.data_services.data_loader_service import DataLoaderService
+        DataLoaderService.postprocess_loaded_data(self.window, series)
+        
+        # Show success message
+        self.window.show_info_message(
+            "Data Saved", 
+            f"Simulated data saved as '{dataset_label}' with {len(data)} samples."
+        )
