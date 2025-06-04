@@ -1,6 +1,7 @@
 from models.stat_distributions.stat_distribution import StatisticalDistribution
 import numpy as np
 from scipy import stats
+from scipy.special import gamma
 import pandas as pd
 
 class WeibullDistribution(StatisticalDistribution):
@@ -61,7 +62,7 @@ class WeibullDistribution(StatisticalDistribution):
         if not self.params:
             return None
         shape, scale = self.params
-        return scale * stats.gamma(1 + 1 / shape)
+        return scale * gamma(1 + 1 / shape)
 
     def get_pdf(self, x: np.ndarray, params: tuple) -> np.ndarray:
         """
