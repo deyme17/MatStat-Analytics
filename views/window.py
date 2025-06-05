@@ -8,6 +8,7 @@ from views.tabs.data_processing_tab import DataProcessingTab
 from views.tabs.stat_table_tab import StatisticTab
 from views.tabs.gof_test_tab import GOFTestTab
 from views.tabs.simulation_tab import SimulationTab
+from views.tabs.params_estimation_tab import ParamEstimationTab
 
 from views.widgets.statwidgets.graph_panel import GraphPanel
 from views.widgets.window_widget import WindowWidgets
@@ -60,11 +61,13 @@ class Window(QMainWindow):
         self.stat_tab = StatisticTab()
         self.gof_tab = GOFTestTab(self)
         self.sim_tab = SimulationTab(self)
+        self.est_tab = ParamEstimationTab(self)
 
         self.left_tab_widget.addTab(self.data_tab, "Data Processing")
         self.left_tab_widget.addTab(self.stat_tab, "Statistic")
         self.left_tab_widget.addTab(self.gof_tab, "Goodness-of-Fit Tests")
         self.left_tab_widget.addTab(self.sim_tab, "Simulation")
+        self.left_tab_widget.addTab(self.est_tab, "Parameters estimation")
 
     def _create_layout(self):
         """
