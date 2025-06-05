@@ -77,8 +77,11 @@ class SimulationTab(QWidget):
 
         # results
         self.result_table = QTableWidget()
-        self.result_table.setColumnCount(4)
-        self.result_table.setHorizontalHeaderLabels(["Size", "T Mean", "T Std", "T Critical"])
+        self.result_table.setColumnCount(6)
+        self.result_table.setHorizontalHeaderLabels([
+            "Size", "T Mean", "T Std", "T Critical",
+            "Params Mean", "Params Var"
+        ])
 
         # layout
         layout.addWidget(QLabel("Select Distribution:"))
@@ -139,10 +142,12 @@ class SimulationTab(QWidget):
         results = SimulationService.run_experiment(dist, sizes, repeats, true_mean)
         self.result_table.setRowCount(len(results))
         for i, res in enumerate(results):
-            self.result_table.setItem(i, 0, QTableWidgetItem(str(res['size'])))
-            self.result_table.setItem(i, 1, QTableWidgetItem(f"{res['t_mean']:.4f}"))
-            self.result_table.setItem(i, 2, QTableWidgetItem(f"{res['t_std']:.4f}"))
-            self.result_table.setItem(i, 3, QTableWidgetItem(f"{res['t_crit']:.4f}"))
+                self.result_table.setItem(i, 0, QTableWidgetItem(str(res['size'])))
+                self.result_table.setItem(i, 1, QTableWidgetItem(f"{res['t_mean']:.4f}"))
+                self.result_table.setItem(i, 2, QTableWidgetItem(f"{res['t_std']:.4f}"))
+                self.result_table.setItem(i, 3, QTableWidgetItem(f"{res['t_crit']:.4f}"))
+                self.result_table.setItem(i, 4, QTableWidgetItem(f"({', '.join(f'{x:.4f}' for x in res['params_mean'])})"))
+                self.result_table.setItem(i, 5, QTableWidgetItem(f"({', '.join(f'{x:.4f}' for x in res['params_var'])})"))
 
     def _save_simulated_data(self, dist_name: str, data: np.ndarray, params: tuple):
         """
