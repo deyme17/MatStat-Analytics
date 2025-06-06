@@ -1,16 +1,12 @@
 from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QHBoxLayout, QTabWidget, QMessageBox
 from PyQt6.QtGui import QIcon, QPalette, QColor
 
-from controllers.data_controllers.data_loader import load_data_file
-from controllers.ui_controllers.graph_controller import GraphController
-
 from views.tabs.data_processing_tab import DataProcessingTab
 from views.tabs.stat_table_tab import StatisticTab
 from views.tabs.gof_test_tab import GOFTestTab
 from views.tabs.simulation_tab import SimulationTab
 from views.tabs.params_estimation_tab import ParamEstimationTab
 
-from views.widgets.statwidgets.graph_panel import GraphPanel
 from views.widgets.window_widget import WindowWidgets
 from utils.ui_styles import appStyle
 from factory import Factory
@@ -84,7 +80,7 @@ class Window(QMainWindow):
             lambda: self.stat_controller.update_statistics_table()
         )
         self.load_data_button.clicked.connect(
-            lambda: load_data_file(self)
+            lambda: self.data_load_controller.load_data_file()
         )
 
         main_layout.addLayout(controls_bar)

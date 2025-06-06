@@ -10,7 +10,7 @@ class MissingDataController:
             missing_service: Service layer for missing data operations
         """
         self.window = window
-        self.missinf_service = missing_service
+        self.missing_service = missing_service
         self.data = None
 
     def update_data_reference(self, data):

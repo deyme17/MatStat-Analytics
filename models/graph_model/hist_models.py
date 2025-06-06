@@ -1,6 +1,5 @@
 import seaborn as sns
 import numpy as np
-from models.graph_model.edf_model import EmpiricalDistribution
 
 class Hist:
     """
