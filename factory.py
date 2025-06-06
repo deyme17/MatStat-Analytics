@@ -16,6 +16,7 @@ from services.analysis_services.statistics_service import StatisticsService
 from services.analysis_services.anomaly_service import AnomalyService
 from services.data_services.transformation_service import TransformationService
 from services.ui_services.ui_refresh_service import UIRefreshService
+from services.ui_services.graph_plotter import GraphPlotter
 
 from views.widgets.statwidgets.graph_panel import GraphPanel
 
@@ -45,5 +46,5 @@ class Factory:
     @staticmethod
     def _setup_graphics(window):
         window.graph_panel = GraphPanel(window)
-        window.graph_controller = GraphController(window.graph_panel)
+        window.graph_controller = GraphController(panel=window.graph_panel, plotter=GraphPlotter)
         window.graph_panel.on_dist_change = lambda: window.graph_controller.evaluate_distribution_change()
