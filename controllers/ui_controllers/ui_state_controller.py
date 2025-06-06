@@ -1,5 +1,4 @@
 import pandas as pd
-from utils.def_bins import get_default_bin_count
 
 class UIStateController:
     """
@@ -35,7 +34,7 @@ class UIStateController:
         self.window.missing_controller.update_data_reference(data)
 
         # Set bin count
-        bin_count = get_default_bin_count(data)
+        bin_count = self.window.data_model.bins
         self.window.graph_panel.bins_spinbox.setValue(bin_count)
 
         if has_missing:
