@@ -35,7 +35,7 @@ class DataLoadController:
         self.window.version_manager.add_dataset(filename, model)
         self.window.data_model = model
 
-        self.loader_service.postprocess_loaded_data(self.window, data)
+        self.window.state_controller.handle_post_load_state(data)
         self.window.original_button.setEnabled(False)
 
         print(f'File {path} selected successfully')
