@@ -1,17 +1,17 @@
-from services.ui_services.graph_plotter import GraphPlotter
 import pandas as pd
 
 class GraphController:
     """
     Controller for coordinating plotting of graphs on the visualization panel.
     """
-
-    def __init__(self, panel):
+    def __init__(self, panel, plotter):
         """
-        :param panel: Reference to the UI panel that contains matplotlib axes and controls.
+        Args:
+            panel: Reference to the UI panel containing matplotlib axes and controls
+            plotter: Plotter class (not instance) for creating visualization plots
         """
         self.panel = panel
-        self.plotter = GraphPlotter(panel)
+        self.plotter = plotter(panel)
         self.data_model = None
         self.window = panel.window
 

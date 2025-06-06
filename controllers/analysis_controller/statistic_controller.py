@@ -1,12 +1,16 @@
-from services.analysis_services.statistics_service import StatisticsService
-
 class StatisticController:
     """
     Controller for managing the display of statistical characteristics in the UI.
     """
 
-    def __init__(self, window):
+    def __init__(self, window, statistic_service):
+        """
+        Args:
+            window (QWidget): Reference to the main application window
+            statistic_service: Service for statistics handling
+        """
         self.window = window
+        self.statistic_service = statistic_service
 
     def update_statistics_table(self):
         """
@@ -21,7 +25,7 @@ class StatisticController:
 
         confidence = self.window.graph_panel.confidence_spinbox.value()
 
-        StatisticsService.update_table(
+        self.statistic_service.update_table(
             self.window.stat_tab.conf_table,
             model.hist,
             model.series,

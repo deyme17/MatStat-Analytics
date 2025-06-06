@@ -4,6 +4,10 @@ class UIStateController:
     """
 
     def __init__(self, window):
+        """
+        Args:
+            window (QWidget): Reference to the main application window
+        """
         self.window = window
 
     def update_state_for_data(self, data):

@@ -1,30 +1,41 @@
-from services.data_services.data_loader_service import DataLoaderService
-from models.data_model import DataModel
 from utils.def_bins import get_default_bin_count
 import os
 
-def load_data_file(window):
+class DataLoadController:
     """
-    Load a data file selected by the user and initialize the DataModel.
-
-    :param window: main application window
+    Controller for managing data loading operations and UI updates.
     """
-    path = DataLoaderService.select_file(window)
-    if not path:
-        return
+    def __init__(self, window, loader_service, data_model):
+        """
+        Args:
+            window (QWidget): Reference to the main application window
+            loader_service: Service for data loading operations
+            data_model: Application data model instance
+        """
+        self.window = window
+        self.loader_service = loader_service
+        self.data_model = data_model
+        
+    def load_data_file(self):
+        """
+        Load a data file selected by the user and initialize the DataModel.
+        """
+        path = self.loader_service.select_file(self.window)
+        if not path:
+            return
 
-    filename, data = os.path.basename(path), DataLoaderService.load_data(path)
+        filename, data = os.path.basename(path), self.loader_service.load_data(path)
 
-    if data is None or data.empty:
-        print(f"Failed to load file {path} or file is empty")
-        return
+        if data is None or data.empty:
+            print(f"Failed to load file {path} or file is empty")
+            return
 
-    bin_count = get_default_bin_count(data)
-    model = DataModel(data, bins=bin_count, label="Original")
-    window.version_manager.add_dataset(filename, model)
-    window.data_model = model
+        bin_count = get_default_bin_count(data)
+        model = self.data_model(data, bins=bin_count, label="Original")
+        self.window.version_manager.add_dataset(filename, model)
+        self.window.data_model = model
 
-    DataLoaderService.postprocess_loaded_data(window, data)
-    window.original_button.setEnabled(False)
+        self.loader_service.postprocess_loaded_data(self.window, data)
+        self.window.original_button.setEnabled(False)
 
-    print(f'File {path} selected successfully')
+        print(f'File {path} selected successfully')

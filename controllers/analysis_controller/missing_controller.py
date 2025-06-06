@@ -1,14 +1,16 @@
-from services.analysis_services.missing_service import MissingService
-from models.data_model import DataModel
-from services.ui_services.ui_refresh_service import UIRefreshService
-
 class MissingDataController:
     """
     Controller for handling missing data operations.
     """
 
-    def __init__(self, window):
+    def __init__(self, window, missing_service):
+        """
+        Args:
+            window (QWidget): Reference to the main application window
+            missing_service: Service layer for missing data operations
+        """
         self.window = window
+        self.missinf_service = missing_service
         self.data = None
 
     def update_data_reference(self, data):
@@ -26,7 +28,7 @@ class MissingDataController:
         Update labels showing total and percentage of missing values.
         """
         if self.data is not None:
-            info = MissingService.detect_missing(self.data)
+            info = self.missing_service.detect_missing(self.data)
             self.window.missing_count_label.setText(f"Total Missing: {info['total_missing']}")
             self.window.missing_percentage_label.setText(f"Missing Percentage: {info['missing_percentage']:.2f}%")
 
@@ -43,7 +45,7 @@ class MissingDataController:
         self.data = new_model.series
 
         self.window.version_manager.update_current_data(new_model)
-        UIRefreshService.refresh_all(self.window, new_series)
+        self.window.refresher.refresh_all(self.window, new_series)
         self.update_missing_values_info()
         self.window.show_info_message("Success", message)
 
@@ -52,7 +54,7 @@ class MissingDataController:
         Replace missing values with the mean of the series.
         """
         if self.data is not None:
-            new_series = MissingService.replace_missing_with_mean(self.data)
+            new_series = self.missing_service.replace_missing_with_mean(self.data)
             self._update_after_imputation(new_series, "Mean Imputed", "Missing values replaced with mean successfully.")
 
     def impute_with_median(self):
@@ -60,7 +62,7 @@ class MissingDataController:
         Replace missing values with the median of the series.
         """
         if self.data is not None:
-            new_series = MissingService.replace_missing_with_median(self.data)
+            new_series = self.missing_service.replace_missing_with_median(self.data)
             self._update_after_imputation(new_series, "Median Imputed", "Missing values replaced with median successfully.")
 
     def interpolate_missing(self, method: str):
@@ -70,7 +72,7 @@ class MissingDataController:
         :param method: interpolation method ('linear', 'quadratic', 'cubic')
         """
         if self.data is not None:
-            new_series = MissingService.interpolate_missing(self.data, method)
+            new_series = self.missing_service.interpolate_missing(self.data, method)
             self._update_after_imputation(new_series, f"Interpolated ({method})", f"Missing values interpolated ({method}) successfully.")
 
     def drop_missing_values(self):
@@ -79,6 +81,6 @@ class MissingDataController:
         """
         if self.data is not None:
             original_len = len(self.data)
-            new_series = MissingService.drop_missing(self.data)
+            new_series = self.missing_service.drop_missing(self.data)
             dropped = original_len - len(new_series)
             self._update_after_imputation(new_series, "Dropped NA", f"Dropped {dropped} rows with missing values.")

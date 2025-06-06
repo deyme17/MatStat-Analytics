@@ -1,26 +1,28 @@
-from services.analysis_services.anomaly_service import AnomalyService
-from models.data_model import DataModel
-from services.ui_services.ui_refresh_service import UIRefreshService
-
 class AnomalyController:
     """
     Controller for detecting and removing statistical anomalies from the dataset.
     """
 
-    def __init__(self, window):
+    def __init__(self, window, anomaly_service):
+        """    
+        Args:
+            window (QWidget): Reference to the main application window
+            anomaly_service: Service for anomaly detection operations
+        """
         self.window = window
+        self.anomaly_service = anomaly_service
 
     def remove_normal_anomalies(self):
         """
         Detect and remove anomalies using the standard deviation threshold method.
         """
-        self._remove_anomalies(AnomalyService.detect_normal_anomalies, "Normal Filtered")
+        self._remove_anomalies(self.anomaly_service.detect_normal_anomalies, "Normal Filtered")
 
     def remove_asymmetry_anomalies(self):
         """
         Detect and remove anomalies based on skewness and kurtosis adjustments.
         """
-        self._remove_anomalies(AnomalyService.detect_asymmetry_anomalies, "Asymmetry Filtered")
+        self._remove_anomalies(self.anomaly_service.detect_asymmetry_anomalies, "Asymmetry Filtered")
 
     def remove_conf_anomalies(self):
         """
@@ -28,7 +30,7 @@ class AnomalyController:
         Confidence level is selected via the gamma spinbox.
         """
         gamma = self.window.anomaly_gamma_spinbox.value()
-        func = lambda data: AnomalyService.detect_conf_anomalies(data, gamma)
+        func = lambda data: self.anomaly_service.detect_conf_anomalies(data, gamma)
         self._remove_anomalies(func, f"Conf. Filtered γ={gamma}")
 
     def _remove_anomalies(self, detection_func, label):
@@ -61,7 +63,7 @@ class AnomalyController:
         # Update data model and UI
         self.window.data_model = new_model
         self.window.version_manager.update_current_data(new_model)
-        UIRefreshService.refresh_all(self.window, cleaned)
+        self.window.refresher.refresh_all(self.window, cleaned)
 
         self.window.show_info_message(
             "Anomalies Removed",
