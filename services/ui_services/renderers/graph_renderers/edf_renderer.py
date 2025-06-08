@@ -1,6 +1,6 @@
 import numpy as np
 from scipy import interpolate
-from services.ui_services.renderers.graph_renderer import Renderer
+from services.ui_services.renderers.graph_renderers.graph_renderer import Renderer
 
 class EDFRenderer(Renderer):
     """

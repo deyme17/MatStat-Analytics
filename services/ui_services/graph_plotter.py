@@ -1,4 +1,4 @@
-from services.ui_services.renderers import RENDERERS
+from services.ui_services.renderers.graph_renderers import RENDERERS
 
 class GraphPlotter:
     """

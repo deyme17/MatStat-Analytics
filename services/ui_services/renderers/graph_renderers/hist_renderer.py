@@ -1,5 +1,5 @@
 import seaborn as sns
-from services.ui_services.renderers.graph_renderer import Renderer
+from services.ui_services.renderers.graph_renderers.graph_renderer import Renderer
 
 class HistRenderer(Renderer):
     """
