@@ -1,17 +1,16 @@
 import numpy as np
 import pandas as pd
 from models.graph_model.hist_model import Hist
-from models.graph_model.edf_model import EmpiricalDistribution
 
 class DataModel:
     """
-    Model that holds the current data series along with histogram, EDF, and statistics cache.
+    Model that holds the current data series along with histogram, and statistics cache.
     Supports versioning and transformations.
     """
 
     def __init__(self, series: pd.Series, bins: int = 10, label: str = "Original", history=None):
         """
-        Initialize DataModel with original data and histogram/EDF/statistics cache.
+        Initialize DataModel with original data and histogram/statistics cache.
 
         :param series: input pandas Series
         :param bins: number of histogram bins
@@ -34,9 +33,8 @@ class DataModel:
         self.history = history or []                       # list of previous versions
 
     def _recompute_cache(self):
-        """Recompute and store histogram, EDF, and descriptive stats in cache."""
+        """Recompute and store histogram, and descriptive stats in cache."""
         self._cache['hist'] = Hist(self.series, self.bins)
-        self._cache['edf'] = EmpiricalDistribution(self.series)
         self._cache['stats'] = {
             "n": len(self.series),
             "mean": self.series.mean(),
@@ -55,11 +53,6 @@ class DataModel:
     def hist(self) -> Hist:
         """Return histogram object."""
         return self._cache.get('hist')
-
-    @property
-    def edf(self) -> EmpiricalDistribution:
-        """Return empirical distribution function object."""
-        return self._cache.get('edf')
 
     def describe(self) -> dict:
         """Return dictionary with descriptive statistics."""

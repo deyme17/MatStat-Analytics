@@ -1,5 +1,4 @@
-from models.gofs.chi2_test import ChiSquaredGOFTest
-from models.gofs.ks_test import KolmogorovSmirnovGOFTest
+from models.gofs import gof_tests
 import numpy as np
 
 class GOFService:
@@ -38,5 +37,5 @@ class GOFService:
 
 
 # Register default tests
-GOFService.register(ChiSquaredGOFTest())
-GOFService.register(KolmogorovSmirnovGOFTest())
+for gof_test in gof_tests:
+    GOFService.register(gof_test())
