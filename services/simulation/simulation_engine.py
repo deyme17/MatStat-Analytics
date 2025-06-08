@@ -7,12 +7,12 @@ class SimulationService:
     """
     Service for simulating samples from distributions and evaluating T-tests.
     """
-    def __init__(self, statistics_service):
+    def __init__(self, test_performer):
             """
             Initialize SimulationService with a StatisticsService instance.
-            :param statistics_service: Instance of StatisticsService or compatible interface
+            :param test_performer: Service for performing statistical tests
             """
-            self.statistics_service = statistics_service
+            self.test_performer = test_performer
 
     def generate_sample(self, distribution: StatisticalDistribution, size: int, params: dict) -> np.ndarray:
         """
@@ -47,7 +47,7 @@ class SimulationService:
 
             for _ in range(n_repeat):
                 sample = self.generate_sample(distribution, size, original_params)
-                t_result = self.statistics_service.perform_t_test(sample, true_mean=true_mean)
+                t_result = self.test_performer.perform_t_test(sample, true_mean=true_mean)
                 t_stats.append(t_result['t_statistic'])
                 dist_copy = type(distribution)()
                 param_estimates.append(dist_copy.fit(pd.Series(sample)))

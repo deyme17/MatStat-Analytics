@@ -1,10 +1,10 @@
 import pandas as pd
 import numpy as np
-from scipy.stats import skew, kurtosis, ttest_1samp, t, chi2, norm
+from scipy.stats import skew, kurtosis, t, chi2
 
 class StatisticsService:
     """
-    Service for computing descriptive statistics, confidence intervals, and statistical tests.
+    Service for computing descriptive statistics and its confidence intervals.
     """
 
     @staticmethod
@@ -103,45 +103,3 @@ class StatisticsService:
                 round(excess + t_crit * se_kurtosis, precision)
             )
         })
-
-    @staticmethod
-    def get_cdf_with_confidence(data: pd.Series, dist, confidence_level: float = 0.95):
-        """
-        Return empirical CDF with confidence intervals based on the given distribution.
-
-        :param data: input data series
-        :param dist: fitted StatisticalDistribution
-        :param confidence_level: confidence level for intervals
-        :return: tuple of (x values, CDF values, lower CI, upper CI) or None
-        """
-        stats = StatisticsService._common_stats(data)
-        n = stats['n']
-
-        params = dist.fit(data)
-        dist_obj = dist.get_distribution_object(params)
-        if dist_obj is None:
-            return None
-
-        x_vals = np.linspace(data.min(), data.max(), 300)
-        cdf_vals = dist_obj.cdf(x_vals)
-
-        z = norm.ppf((1 + confidence_level) / 2)
-        variance = dist.get_cdf_variance(x_vals, params, n)
-        epsilon = z * np.sqrt(variance)
-
-        ci_lower = np.clip(cdf_vals - epsilon, 0, 1)
-        ci_upper = np.clip(cdf_vals + epsilon, 0, 1)
-
-        return x_vals, cdf_vals, ci_lower, ci_upper
-
-    @staticmethod
-    def perform_t_test(sample: pd.Series, true_mean: float) -> dict:
-        """
-        Perform one-sample t-test comparing sample mean to true mean.
-
-        :param sample: input data
-        :param true_mean: value to test against
-        :return: dictionary with t-statistic and p-value
-        """
-        t_stat, p_value = ttest_1samp(sample, popmean=true_mean)
-        return {'t_statistic': t_stat, 'p_value': p_value}
