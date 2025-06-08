@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from scipy.stats import skew, kurtosis, ttest_1samp, t, chi2, norm
-from PyQt6.QtWidgets import QTableWidgetItem
 
 class StatisticsService:
     """
@@ -92,8 +91,8 @@ class StatisticsService:
                 round((n - 1) * variance / chi2_lower, precision)
             ),
             'MED CI': (
-                round(median - t_crit * (std_dev / np.sqrt(n)), precision),
-                round(median + t_crit * (std_dev / np.sqrt(n)), precision)
+                round(median - t_crit * (se_mean), precision),
+                round(median + t_crit * (se_mean), precision)
             ),
             'Assymetry coeff. CI': (
                 round(skewness - t_crit * se_skewness, precision),
@@ -146,41 +145,3 @@ class StatisticsService:
         """
         t_stat, p_value = ttest_1samp(sample, popmean=true_mean)
         return {'t_statistic': t_stat, 'p_value': p_value}
-
-    @staticmethod
-    def update_table(table, hist_model, data: pd.Series, precision: int, confidence_level: float):
-        """
-        Update QTableWidget with descriptive statistics and confidence intervals.
-
-        :param table: QTableWidget to update
-        :param hist_model: histogram model
-        :param data: input data series
-        :param precision: decimal precision for values
-        :param confidence_level: confidence level for intervals
-        """
-        char = StatisticsService.get_characteristics(hist_model)
-        ci = StatisticsService.compute_intervals(data, confidence_level, precision)
-
-        mapping = {
-            'Mean': 'Mean CI',
-            'RMS deviation': 'Std Deviation CI',
-            'Variance': 'Variance CI',
-            'MED': 'MED CI',
-            'Assymetry coeff.': 'Assymetry coeff. CI',
-            'Excess': 'Excess CI'
-        }
-
-        table.setColumnCount(3)
-        table.setHorizontalHeaderLabels(['Lower CI', 'Value', 'Upper CI'])
-        table.setRowCount(len(char))
-
-        for i, (name, value) in enumerate(char.items()):
-            value = round(float(value), precision)
-            ci_name = mapping.get(name)
-            lower, upper = ('N/A', 'N/A')
-            if ci_name in ci:
-                lower, upper = ci[ci_name]
-            table.setVerticalHeaderItem(i, QTableWidgetItem(name))
-            table.setItem(i, 0, QTableWidgetItem(str(lower)))
-            table.setItem(i, 1, QTableWidgetItem(str(value)))
-            table.setItem(i, 2, QTableWidgetItem(str(upper)))
