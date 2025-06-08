@@ -7,9 +7,14 @@ class SimulationService:
     """
     Service for simulating samples from distributions and evaluating T-tests.
     """
+    def __init__(self, statistics_service):
+            """
+            Initialize SimulationService with a StatisticsService instance.
+            :param statistics_service: Instance of StatisticsService or compatible interface
+            """
+            self.statistics_service = statistics_service
 
-    @staticmethod
-    def generate_sample(distribution: StatisticalDistribution, size: int, params: dict) -> np.ndarray:
+    def generate_sample(self, distribution: StatisticalDistribution, size: int, params: dict) -> np.ndarray:
         """
         Generate a random sample from a distribution using the inverse CDF method.
 
@@ -21,8 +26,7 @@ class SimulationService:
         u = np.random.uniform(0, 1, size)
         return distribution.get_inverse_cdf(u, params)
 
-    @staticmethod
-    def run_experiment(distribution: StatisticalDistribution, sizes: list[int], n_repeat: int,
+    def run_experiment(self, distribution: StatisticalDistribution, sizes: list[int], n_repeat: int,
                        true_mean: float, alpha: float = 0.05) -> list[dict]:
         """
         Run repeated T-tests on simulated samples of varying sizes.
@@ -34,7 +38,6 @@ class SimulationService:
         :param alpha: significance level for critical t-value
         :return: list of dictionaries with t-statistics summary and parameter estimates per sample size
         """
-        from services.analysis_services.statistics_service import StatisticsService
         results = []
 
         for size in sizes:
@@ -43,8 +46,8 @@ class SimulationService:
             original_params = distribution.params
 
             for _ in range(n_repeat):
-                sample = SimulationService.generate_sample(distribution, size, original_params)
-                t_result = StatisticsService.perform_t_test(sample, true_mean=true_mean)
+                sample = self.generate_sample(distribution, size, original_params)
+                t_result = self.statistics_service.perform_t_test(sample, true_mean=true_mean)
                 t_stats.append(t_result['t_statistic'])
                 dist_copy = type(distribution)()
                 param_estimates.append(dist_copy.fit(pd.Series(sample)))
