@@ -1,21 +1,18 @@
-from services.ui_services.renderers.hist_renderer import HistRenderer
-from services.ui_services.renderers.edf_renderer import EDFRenderer
-from services.ui_services.renderers.dist_renderer import DistributionRenderer
-from services.analysis_services.statistics_service import StatisticsService
-import numpy as np
+from services.ui_services.renderers import RENDERERS
 
 class GraphPlotter:
     """
     Handles drawing of histogram, EDF, and distribution overlays on the graph panel.
     """
-
-    def __init__(self, panel):
+    def __init__(self, panel, conf_service):
         """
         Initialize the plotter with the target graph panel.
 
         :param panel: custom graph panel containing axes and user controls
+        :conf_service: 
         """
         self.panel = panel
+        self.conf_service = conf_service
         self._cached_stats = {}  # internal cache for data stats
 
     def plot_all(self):
@@ -39,12 +36,13 @@ class GraphPlotter:
         """
         Draw histogram with optional KDE curve.
         """
+        renderer = RENDERERS['histogram']
         model = self.panel.window.data_model
         show_kde = self.panel.show_additional_kde.isChecked()
         ax = self.panel.hist_ax
         ax.clear()
 
-        HistRenderer.render(ax, model.series, model.bins, show_kde)
+        renderer.render(ax, model.series, model.bins, show_kde)
 
         ax.set_facecolor('#f0f8ff')
         ax.grid(color='#b0e0e6', linestyle='--', alpha=0.7)
@@ -63,9 +61,10 @@ class GraphPlotter:
         dist = self.panel.get_selected_distribution()
         if dist is None:
             return
-
+        
+        renderer = RENDERERS['distribution']
         try:
-            DistributionRenderer.render(self.panel.hist_ax, data, dist, bins=self.panel.window.data_model.hist.bins)
+            renderer.render(self.panel.hist_ax, data, dist, bins=self.panel.window.data_model.hist.bins)
         except Exception as e:
             print(f"Distribution Error: {e}")
 
@@ -88,7 +87,7 @@ class GraphPlotter:
 
         try:
             confidence = self.panel.confidence_spinbox.value()
-            result = StatisticsService.get_cdf_with_confidence(data, dist, confidence)
+            result = self.conf_service.cdf_variance_ci(data, dist, confidence)
 
             if result:
                 x_vals, cdf_vals, lower_ci, upper_ci = result
@@ -109,12 +108,13 @@ class GraphPlotter:
         """
         Draw Empirical Distribution Function (EDF) and overlay theoretical CDF.
         """
+        renderer = RENDERERS['edf']
         model = self.panel.window.data_model
         show_kde = self.panel.show_additional_kde.isChecked()
         ax = self.panel.edf_ax
         ax.clear()
 
-        EDFRenderer.render(ax, model.series, bin_edges=model.hist.bin_edges, show_edf_curve=show_kde)
+        renderer.render(ax, model.series, bin_edges=model.hist.bin_edges, show_edf_curve=show_kde)
         self._draw_distribution_cdf(ax, model.series)
 
         ax.set_facecolor('#f0f8ff')
