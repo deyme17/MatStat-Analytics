@@ -8,10 +8,10 @@ class GraphController:
         """
         Args:
             panel: Reference to the UI panel containing matplotlib axes and controls
-            plotter: Plotter class (not instance) for creating visualization plots
+            plotter: Plotter class (instance) for creating visualization plots
         """
         self.panel = panel
-        self.plotter = plotter(panel)
+        self.plotter = plotter
         self.data_model = None
         self.window = panel.window
 
