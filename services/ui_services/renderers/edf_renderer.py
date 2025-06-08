@@ -1,7 +1,8 @@
 import numpy as np
 from scipy import interpolate
+from services.ui_services.renderers.graph_renderer import Renderer
 
-class EDFRenderer:
+class EDFRenderer(Renderer):
     """
     Renderer for drawing the Empirical Distribution Function (EDF)
     as a step function and optional interpolated curve.

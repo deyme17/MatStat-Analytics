@@ -1,6 +1,7 @@
 import seaborn as sns
+from services.ui_services.renderers.graph_renderer import Renderer
 
-class HistRenderer:
+class HistRenderer(Renderer):
     """
     Renderer for drawing histograms with optional KDE curve using seaborn.
     """

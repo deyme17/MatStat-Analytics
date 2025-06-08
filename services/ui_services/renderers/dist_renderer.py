@@ -1,6 +1,7 @@
 import numpy as np
+from services.ui_services.renderers.graph_renderer import Renderer
 
-class DistributionRenderer:
+class DistributionRenderer(Renderer):
     """
     Renderer for drawing theoretical distribution PDF curves on Matplotlib axes.
     """
