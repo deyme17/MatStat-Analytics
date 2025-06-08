@@ -88,18 +88,21 @@ class LaplaceDistribution(StatisticalDistribution):
         var_mu = (lam ** 2) / n
         var_lambda = (lam ** 2) / n
 
+        # handle overflow
+        exp_pos = np.exp(np.clip(lam * (x_vals - mu), a_min=None, a_max=700))
+        exp_neg = np.exp(np.clip(-lam * (x_vals - mu), a_min=None, a_max=700))
+
         dF_dlambda = np.where(
             x_vals <= mu,
-            0.5 * (x_vals - mu) * np.exp(lam * (x_vals - mu)),
-            0.5 * (x_vals - mu) * np.exp(-lam * (x_vals - mu))
+            0.5 * (x_vals - mu) * exp_pos,
+            0.5 * (x_vals - mu) * exp_neg
         )
 
         dF_dmu = np.where(
             x_vals <= mu,
-            -0.5 * lam * np.exp(lam * (x_vals - mu)),
-            -0.5 * lam * np.exp(-lam * (x_vals - mu))
-        )
-
+            -0.5 * lam * exp_pos,
+            -0.5 * lam * exp_neg
+)
         variance = (dF_dlambda ** 2) * var_lambda + (dF_dmu ** 2) * var_mu
         return variance
 

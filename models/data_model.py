@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from models.graph_model.hist_models import Hist
+from models.graph_model.hist_model import Hist
 from models.graph_model.edf_model import EmpiricalDistribution
 
 class DataModel:

@@ -176,10 +176,7 @@ class SimulationTab(QWidget):
 
         self.window.version_manager.add_dataset(dataset_label, data_model)
         self.window.data_model = data_model
-        
-        # Postprocess loaded data to update UI
-        from services.data_services.data_loader_service import DataLoaderService
-        DataLoaderService.postprocess_loaded_data(self.window, series)
+        self.window.state_controller.handle_post_load_state(series)
         
         # Show success message
         self.window.show_info_message(

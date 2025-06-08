@@ -65,7 +65,7 @@ class GraphPlotter:
             return
 
         try:
-            DistributionRenderer.render(self.panel.hist_ax, data, dist)
+            DistributionRenderer.render(self.panel.hist_ax, data, dist, bins=self.panel.window.data_model.hist.bins)
         except Exception as e:
             print(f"Distribution Error: {e}")
 

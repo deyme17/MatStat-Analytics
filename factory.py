@@ -38,7 +38,7 @@ class Factory:
         window.data_load_controller = DataLoadController(window=window, data_model=DataModel, loader_service=DataLoaderService())
         window.transform_controller = DataTransformController(window=window, transform_service=TransformationService())
         window.data_version_controller = DataVersionController(window)
-        window.state_controller = UIStateController(window)
+        window.state_controller = UIStateController(window=window, missing_service=MissingService())
         window.anomaly_controller = AnomalyController(window=window, anomaly_service=AnomalyService())
         window.missing_controller = MissingDataController(window=window, missing_service=MissingService())
         window.stat_controller = StatisticController(window=window, statistic_service=StatisticsService())

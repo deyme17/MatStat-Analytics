@@ -98,7 +98,7 @@ class WeibullDistribution(StatisticalDistribution):
         x_safe = np.clip(x_vals, 1e-10, 1e10)
 
         # the limitation for safety
-        safe_power = np.clip(x_safe ** beta, 0, 1e300)
+        safe_power = np.clip(x_safe ** beta, 0, 1e75)
         expo = np.clip(safe_power / alpha, 0, 700)
 
         dF_dalpha = -safe_power / (alpha ** 2) * np.exp(-expo)
