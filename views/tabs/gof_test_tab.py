@@ -1,21 +1,17 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QDoubleSpinBox, QHBoxLayout
-from views.widgets.hypoteswidgets.pearson_panel import PearsonChi2Panel
-from views.widgets.hypoteswidgets.ks_panel import KolmogorovSmirnovPanel
 
 class GOFTestTab(QWidget):
     """
     A tab widget for evaluating Goodness-of-Fit (GOF) tests.
     """
 
-    def __init__(self, window):
+    def __init__(self, window, tests):
+        """:tests: List of widget objects of GOF tests"""
         super().__init__()
         self.window = window
 
         # Initialize GOF test panels
-        self.tests = [
-            PearsonChi2Panel(window),
-            KolmogorovSmirnovPanel(window)
-        ]
+        self.tests = tests
 
         # Significance level selector
         self.alpha_spinbox = QDoubleSpinBox()
