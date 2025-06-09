@@ -1,8 +1,5 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox
 from utils.ui_styles import groupStyle
-from views.widgets.dpwidgets.processdatawidget import ProcessDataWidget
-from views.widgets.dpwidgets.anomalywidget import AnomalyWidget
-from views.widgets.dpwidgets.missingwidget import MissingWidget
 
 
 class DataProcessingTab(QWidget):
@@ -10,7 +7,13 @@ class DataProcessingTab(QWidget):
     A UI tab for managing data preprocessing steps including:
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent, processor_widget, anomaly_widget, missing_widget):
+        """
+        :param parent: The parent widget that contains this controller
+        :param processor_widget: Widget class for data processing/transformation operations
+        :param anomaly_widget: Widget class for anomaly detection functionality
+        :param missing_widget: Widget class for handling missing data operations
+        """
         super().__init__(parent)
 
         self.data_version_label = QLabel("Select loaded dataset:")
@@ -23,9 +26,9 @@ class DataProcessingTab(QWidget):
         self.transformation_label = QLabel("Current state: Original")
 
         # Preprocessing widgets
-        self.process_controls = ProcessDataWidget(parent)
-        self.anomaly_detection = AnomalyWidget(parent)
-        self.missing_data = MissingWidget(parent)
+        self.process_controls = processor_widget(parent)
+        self.anomaly_detection = anomaly_widget(parent)
+        self.missing_data = missing_widget(parent)
 
         # Main layout
         layout = QVBoxLayout()
