@@ -1,29 +1,19 @@
-from PyQt6.QtWidgets import QLabel
 from views.widgets.hypoteswidgets.gof_test_panel import BaseTestPanel
-from services.analysis_services.gof_register import GOFService
 
 class PearsonChi2Panel(BaseTestPanel):
     """
     A panel widget for displaying the results of Pearson's chi-squared goodness-of-fit test.
-    
-    Inherits from:
-        BaseTestPanel: Base class providing layout and result formatting logic.
-
-    Attributes:
-        statistic_label (QLabel): Displays the chi-squared test statistic.
-        df_label (QLabel): Displays the degrees of freedom used in the test.
-        critical_value_label (QLabel): Displays the critical chi-squared value at a given α level.
-        p_value_label (QLabel): Displays the p-value associated with the test statistic.
     """
 
-    def __init__(self, window):
+    def __init__(self, window, gof_service):
         """
         Initialize the PearsonChi2Panel with labeled result fields.
 
         Args:
             window (QMainWindow): The main application window (used for accessing UI components).
+            gof_service: Service for executing GOF tests.
         """
-        super().__init__("Pearson's χ² Test", window)
+        super().__init__("Pearson's χ² Test", window, gof_service)
 
         self.statistic_label = self.add_stat_label("χ²: ")
         self.df_label = self.add_stat_label("Degrees of freedom: ")
@@ -48,7 +38,7 @@ class PearsonChi2Panel(BaseTestPanel):
         """
         try:
             bins = self.window.graph_panel.bins_spinbox.value()
-            result = GOFService.run_tests(data, dist, bins=bins, alpha=alpha)["chi2"]
+            result = self.gof_service.run_tests(data, dist, bins=bins, alpha=alpha)["chi2"]
             extra = result.get("extra", {})
 
             self.statistic_label.setText(f"χ²: {result['statistic']:.4f}")

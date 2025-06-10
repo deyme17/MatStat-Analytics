@@ -5,25 +5,22 @@ class BaseTestPanel(QGroupBox):
     """
     Abstract base class for statistical test panels used in the application.
     Provides common layout and logic for displaying hypothesis test results.
-
-    Attributes:
-        window (QMainWindow): Reference to the main application window.
-        hypothesis_result (QLabel): Displays the status of the null hypothesis.
-        _layout (QVBoxLayout): Vertical layout container for the panel's widgets.
     """
 
-    def __init__(self, title, window):
+    def __init__(self, title, window, gof_service):
         """
         Initializes the test panel group box with a title and base layout.
 
         Args:
             title (str): Title of the group box representing the test.
             window (QMainWindow): Main application window reference.
+            gof_service: Service for executing GOF tests.
         """
         super().__init__(title)
         self.window = window
         self.setCheckable(False)
         self.setStyleSheet(groupStyle + groupMargin)
+        self.gof_service = gof_service
 
         self.hypothesis_result = QLabel("[ ] Hypothesis H₀ not tested")
         self._layout = QVBoxLayout()

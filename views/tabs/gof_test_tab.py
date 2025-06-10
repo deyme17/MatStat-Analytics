@@ -5,13 +5,13 @@ class GOFTestTab(QWidget):
     A tab widget for evaluating Goodness-of-Fit (GOF) tests.
     """
 
-    def __init__(self, window, tests):
-        """:param tests: List of widget objects of GOF tests"""
+    def __init__(self, window, gof_service, test_panels):
+        """:param test_panels: List of widget classes (not instances) of GOF tests"""
         super().__init__()
         self.window = window
 
         # Initialize GOF test panels
-        self.tests = tests
+        self.test_panels = [panel(window, gof_service) for panel in test_panels]
 
         # Significance level selector
         self.alpha_spinbox = QDoubleSpinBox()
@@ -30,7 +30,7 @@ class GOFTestTab(QWidget):
         # Main layout
         layout = QVBoxLayout()
         layout.addLayout(alpha_layout)
-        for panel in self.tests:
+        for panel in self.test_panels:
             layout.addWidget(panel)
         layout.addStretch()
         self.setLayout(layout)
@@ -52,12 +52,12 @@ class GOFTestTab(QWidget):
             return
 
         alpha = self.alpha_spinbox.value()
-        for test in self.tests:
+        for test in self.test_panels:
             test.evaluate(data, dist, alpha)
 
-    def clear_tests(self):
+    def clear_panels(self):
         """
         Clears the results of all GOF test panels.
         """
-        for test in self.tests:
+        for test in self.test_panels:
             test.clear()
