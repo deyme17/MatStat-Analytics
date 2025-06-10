@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout, QPushButton, QLabel, QSpinBox, QDoubleSpinBox, QCheckBox
+from PyQt6.QtWidgets import QHBoxLayout, QPushButton, QLabel, QSpinBox
 
 class WindowWidgets:
     def __init__(self, window):
