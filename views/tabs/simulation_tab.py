@@ -1,10 +1,6 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QCheckBox, QLabel, QPushButton, QSpinBox, QComboBox, QTableWidget, QTableWidgetItem, QHBoxLayout, QLineEdit
-from services.simulation.simulation_engine import SimulationService
 from models.stat_distributions import registered_distributions
-from models.data_model import DataModel
-
-import pandas as pd
-import numpy as np
+from utils.constants import DEFAULT_SAMPLE_SIZES
 
 class SimulationTab(QWidget):
     """
@@ -12,11 +8,17 @@ class SimulationTab(QWidget):
     parametric distributions.
     """
 
-    def __init__(self, window):
+    def __init__(self, window, simulation_controller):
+        """
+        Initialize the simulation tab with required services.
+        
+        :param window: The parent widget that contains this tab
+        :param simulation_controller: Controller for performing statistical simulations
+        """
         super().__init__()
         self.window = window
+        self.simulation_controller = simulation_controller
         self._init_ui()
-        self.simulation_counter = {}
         self._update_param_placeholder()
 
     def _init_ui(self):
@@ -101,23 +103,10 @@ class SimulationTab(QWidget):
         dist_name = self.dist_combo.currentText()
         params_str = self.param_input.text()
 
-        # Parse and validate parameters
-        try:
-            params = tuple(map(float, params_str.split(',')))
-        except:
-            self.window.show_error_message("Invalid Parameters", "Parameters must be comma-separated numbers.")
-            return
+        # parse parameters
+        params = self._parse_params(params_str)
+        alpha = self._parse_alpha()
 
-        # Parse and validate significance level
-        try:
-            alpha = float(self.alpha_input.text())
-            if not (0 < alpha < 1):
-                raise ValueError
-        except ValueError:
-            self.window.show_error_message("Invalid α", "Significance level α must be between 0 and 1.")
-            return
-
-        sizes = [20, 50, 100, 400, 1000, 2000, 5000]
         repeats = self.repeat_spin.value()
         sample_size = self.size_spin.value()
 
@@ -134,12 +123,36 @@ class SimulationTab(QWidget):
             self.window.show_error_message("Invalid Parameters", "Could not determine true mean from parameters.")
             return
         
-        if self.save_data_checkbox.isChecked():
-            simulated_data = SimulationService.generate_sample(dist, sample_size, params)
-            self._save_simulated_data(dist_name, simulated_data, params)
+        save_data = self.save_data_checkbox.isChecked()
+        results = self.simulation_controller.run_simulation(
+            dist, DEFAULT_SAMPLE_SIZES, repeats, true_mean, alpha, 
+            save_data=save_data, sample_size=sample_size
+        )
+        self._populate_data(results)
 
-        # Run experiment and populate table
-        results = SimulationService.run_experiment(dist, sizes, repeats, true_mean)
+    def _parse_params(self, params_str):
+        try:
+            params = tuple(map(float, params_str.split(',')))
+            return params
+        except:
+            self.window.show_error_message("Invalid Parameters", "Parameters must be comma-separated numbers.")
+            return
+        
+    def _parse_alpha(self):
+        try:
+            alpha = float(self.alpha_input.text())
+            if not (0 < alpha < 1):
+                raise ValueError
+            return alpha
+        except ValueError:
+            self.window.show_error_message("Invalid α", "Significance level α must be between 0 and 1.")
+            return
+
+    def _populate_data(self, results):
+        """
+        Populate the result table with simulation results.
+        :param results: List of dictionaries containing simulation results
+        """
         self.result_table.setRowCount(len(results))
         for i, res in enumerate(results):
                 self.result_table.setItem(i, 0, QTableWidgetItem(str(res['size'])))
@@ -148,42 +161,7 @@ class SimulationTab(QWidget):
                 self.result_table.setItem(i, 3, QTableWidgetItem(f"{res['t_crit']:.4f}"))
                 self.result_table.setItem(i, 4, QTableWidgetItem(f"({', '.join(f'{x:.4f}' for x in res['params_mean'])})"))
                 self.result_table.setItem(i, 5, QTableWidgetItem(f"({', '.join(f'{x:.4f}' for x in res['params_var'])})"))
-
-    def _save_simulated_data(self, dist_name: str, data: np.ndarray, params: tuple):
-        """
-        Save simulated data as a new dataset in the data history manager.
-        
-        :param dist_name: name of the distribution
-        :param data: simulated data array
-        :param params: distribution parameters
-        """
-        if dist_name not in self.simulation_counter:
-            self.simulation_counter[dist_name] = 0
-        
-        self.simulation_counter[dist_name] += 1
-        counter = self.simulation_counter[dist_name]
-        
-        # dataset label
-        dataset_label = f"{dist_name}Simulation{counter}"
-        series = pd.Series(data)
-        
-        # bin count
-        from utils.def_bins import get_default_bin_count
-        optimal_bins = get_default_bin_count(series)
-        
-        # DataModel
-        data_model = DataModel(series, bins=optimal_bins, label=dataset_label)
-
-        self.window.version_manager.add_dataset(dataset_label, data_model)
-        self.window.data_model = data_model
-        self.window.state_controller.handle_post_load_state(series)
-        
-        # Show success message
-        self.window.show_info_message(
-            "Data Saved", 
-            f"Simulated data saved as '{dataset_label}' with {len(data)} samples."
-        )
-
+         
     def _update_param_placeholder(self):
             """
             Update the placeholder text for param_input based on the selected distribution.
