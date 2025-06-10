@@ -22,17 +22,28 @@ class SimulationTab(QWidget):
         self._update_param_placeholder()
 
     def _init_ui(self):
-        """
-        Initializes and lays out all widgets in the tab.
-        """
+        """Initializes and lays out all widgets in the tab."""
         layout = QVBoxLayout()
+        
+        self._init_distribution_controls(layout)
+        self._init_parameter_controls(layout)
+        self._init_alpha_controls(layout)
+        self._init_save_controls(layout)
+        self._init_simulation_controls(layout)
+        self._init_results_t_table(layout)
+        
+        self.setLayout(layout)
 
-        # dropdown for choosing dist
+    def _init_distribution_controls(self, layout):
+        """Initialize distribution selection controls."""
+        layout.addWidget(QLabel("Select Distribution:"))
         self.dist_combo = QComboBox()
         self.dist_combo.addItems(registered_distributions.keys())
         self.dist_combo.currentTextChanged.connect(self._update_param_placeholder)
+        layout.addWidget(self.dist_combo)
 
-        # dist parameters
+    def _init_parameter_controls(self, layout):
+        """Initialize distribution parameter controls."""
         param_layout = QHBoxLayout()
         param_label = QLabel("Distribution Parameters:")
         self.param_input = QLineEdit()
@@ -40,9 +51,11 @@ class SimulationTab(QWidget):
         self.param_input.setPlaceholderText("x, ...")
         param_layout.addWidget(param_label)
         param_layout.addWidget(self.param_input)
-        param_layout.addStretch() 
+        param_layout.addStretch()
+        layout.addLayout(param_layout)
 
-        # significance level
+    def _init_alpha_controls(self, layout):
+        """Initialize significance level controls."""
         alpha_layout = QHBoxLayout()
         alpha_label = QLabel("Significance Level α:")
         self.alpha_input = QLineEdit()
@@ -51,8 +64,10 @@ class SimulationTab(QWidget):
         alpha_layout.addWidget(alpha_label)
         alpha_layout.addWidget(self.alpha_input)
         alpha_layout.addStretch()
+        layout.addLayout(alpha_layout)
 
-        # save checkbox and sample size
+    def _init_save_controls(self, layout):
+        """Initialize data saving controls."""
         save_size_layout = QHBoxLayout()
         self.save_data_checkbox = QCheckBox("Save simulated data with size:")
         self.save_data_checkbox.setChecked(False)
@@ -63,8 +78,10 @@ class SimulationTab(QWidget):
         save_size_layout.addWidget(self.save_data_checkbox)
         save_size_layout.addWidget(self.size_spin)
         save_size_layout.addStretch()
+        layout.addLayout(save_size_layout)
 
-        # repeat count and run button
+    def _init_simulation_controls(self, layout):
+        """Initialize simulation execution controls."""
         control_layout = QHBoxLayout()
         self.repeat_spin = QSpinBox()
         self.repeat_spin.setRange(1, 1000)
@@ -76,24 +93,17 @@ class SimulationTab(QWidget):
         control_layout.addWidget(self.repeat_spin)
         control_layout.addWidget(self.run_button)
         control_layout.addStretch()
+        layout.addLayout(control_layout)
 
-        # results
+    def _init_results_t_table(self, layout):
+        """Initialize results table."""
         self.result_table = QTableWidget()
         self.result_table.setColumnCount(6)
         self.result_table.setHorizontalHeaderLabels([
             "Size", "T Mean", "T Std", "T Critical",
             "Params Mean", "Params Var"
         ])
-
-        # layout
-        layout.addWidget(QLabel("Select Distribution:"))
-        layout.addWidget(self.dist_combo)
-        layout.addLayout(param_layout)
-        layout.addLayout(alpha_layout)
-        layout.addLayout(save_size_layout)
-        layout.addLayout(control_layout)
         layout.addWidget(self.result_table)
-        self.setLayout(layout)
 
     def run_simulation(self):
         """
@@ -103,7 +113,7 @@ class SimulationTab(QWidget):
         dist_name = self.dist_combo.currentText()
         params_str = self.param_input.text()
 
-        # parse parameters
+        # parse inputs
         params = self._parse_params(params_str)
         alpha = self._parse_alpha()
 
@@ -128,7 +138,7 @@ class SimulationTab(QWidget):
             dist, DEFAULT_SAMPLE_SIZES, repeats, true_mean, alpha, 
             save_data=save_data, sample_size=sample_size
         )
-        self._populate_data(results)
+        self._populate_table(results)
 
     def _parse_params(self, params_str):
         try:
@@ -148,7 +158,7 @@ class SimulationTab(QWidget):
             self.window.show_error_message("Invalid α", "Significance level α must be between 0 and 1.")
             return
 
-    def _populate_data(self, results):
+    def _populate_table(self, results):
         """
         Populate the result table with simulation results.
         :param results: List of dictionaries containing simulation results
