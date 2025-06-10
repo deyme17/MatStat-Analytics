@@ -6,7 +6,7 @@ class GOFTestTab(QWidget):
     """
 
     def __init__(self, window, tests):
-        """:tests: List of widget objects of GOF tests"""
+        """:param tests: List of widget objects of GOF tests"""
         super().__init__()
         self.window = window
 

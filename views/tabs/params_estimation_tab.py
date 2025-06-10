@@ -11,6 +11,10 @@ class ParamEstimationTab(QWidget):
     """
 
     def __init__(self, window, estimator):
+        """
+        :param window: The parent widget that contains this controller
+        :param estimator: The class that implements an parameters estimation method
+        """
         super().__init__()
         self.window = window
         self.estimator = estimator
