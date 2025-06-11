@@ -1,20 +1,20 @@
 from utils.def_bins import get_default_bin_count
+from models.data_model import DataModel
 import os
 
 class DataLoadController:
     """
     Controller for managing data loading operations and UI updates.
     """
-    def __init__(self, window, loader_service, data_model):
+    def __init__(self, window, loader_service):
         """
         Args:
             window (QWidget): Reference to the main application window
             loader_service: Service for data loading operations
-            data_model: Application data model instance
         """
         self.window = window
         self.loader_service = loader_service
-        self.data_model = data_model
+        self.data_model = DataModel()
         
     def load_data_file(self):
         """

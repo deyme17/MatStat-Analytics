@@ -10,9 +10,6 @@ from controllers.data_controllers.data_version_controller import DataVersionCont
 from controllers.ui_controllers.graph_controller import GraphController
 from controllers.ui_controllers.ui_state_controller import UIStateController
 
-# Models
-from models.data_model import DataModel
-
 # Services
 from services.analysis_services.confidence_assesment import ConfidenceService
 from services.analysis_services.gof_register import GOFService
@@ -63,7 +60,6 @@ class Factory:
     def _setup_controllers(window):
         window.data_load_controller = DataLoadController(
                                         window=window, 
-                                        data_model=DataModel, 
                                         loader_service=DataLoaderService()
                                         )
         window.transform_controller = DataTransformController(
