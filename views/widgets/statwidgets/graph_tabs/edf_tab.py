@@ -39,8 +39,7 @@ class EDFTab(BaseGraphTab):
             return
 
         try:
-            conf_service = self.panel.confidence_service
-            result = conf_service.cdf_variance_ci(
+            result = self.panel.window.graph_controller.compute_cdf_with_ci( # TODO
                 data, 
                 dist, 
                 params["confidence"]

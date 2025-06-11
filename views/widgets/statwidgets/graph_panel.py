@@ -1,32 +1,51 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSpinBox, QDoubleSpinBox, QCheckBox, QTabWidget
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-from utils.def_bins import get_default_bin_count
-from PyQt6.QtWidgets import QScrollArea, QWidget
-
-from services.ui_services.ui_refresh_service import UIRefreshService
-from models.stat_distributions.stat_distribution import StatisticalDistribution
+from PyQt6.QtWidgets import (
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+    QSpinBox, QDoubleSpinBox, QCheckBox, QTabWidget
+)
+from views.widgets.statwidgets.graph_tabs import registered_graphs
 import pandas as pd
-
-from views.widgets.statwidgets.stat_dist_selector import DistributionSelector
-from services.ui_services.graph_plotter import GraphPlotter
 
 
 class GraphPanel(QWidget):
     """
-    A visual panel for displaying statistical plots.
+    Main UI panel that hosts graph tabs and user controls for visualization.
+    Delegates all logic to the GraphController.
     """
 
-    def __init__(self, window, on_dist_change=None):
+    def __init__(self, window, dist_selector, graph_controller=None):
+        """
+        Initialize the graph panel and controls.
+
+        :param window: main application window
+        :param graph_controller: GraphController instance to handle logic
+        :param dist_selector: class (not instance) for distribution selector
+        """
         super().__init__(window)
         self.window = window
+        self.graph_controller = graph_controller                                                    # TODO
         self.data = None
+        self.graph_tabs = {}
 
-        # Initialize canvases
-        self.hist_canvas, self.hist_ax = self._create_canvas("Histogram")
-        self.edf_canvas, self.edf_ax = self._create_canvas("Empirical Distribution Function")
+        self._init_controls(dist_selector)
+        self._connect_controls()
 
-        # UI elements
+        self.tabs = QTabWidget()
+        for name, tab_cls in registered_graphs.items():
+            tab = tab_cls()
+            tab.set_context(self)
+            self.tabs.addTab(tab, name)
+            self.graph_tabs[name] = tab
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.tabs)
+        layout.addLayout(self.controls_layout)
+        layout.addWidget(self.dist_selector)
+        self.setLayout(layout)
+
+    def _init_controls(self, dist_selector_cls):
+        """Initialize spinboxes, checkboxes, and selector UI."""
+        self.controls_layout = QHBoxLayout()
+
         self.bins_spinbox = QSpinBox()
         self.bins_spinbox.setRange(1, 999)
         self.bins_spinbox.setValue(10)
@@ -38,89 +57,69 @@ class GraphPanel(QWidget):
         self.confidence_spinbox.setValue(0.95)
         self.confidence_spinbox.setDecimals(2)
 
-        self.show_additional_kde = QCheckBox("Show additional KDE")
-        self.show_additional_kde.setChecked(False)
+        self.show_kde_checkbox = QCheckBox("Show KDE")
+        self.show_kde_checkbox.setChecked(False)
 
-        self.dist_selector = DistributionSelector(on_change=self.refresh_all)
-        self.graph_plotter = GraphPlotter(self)
+        self.controls_layout.addWidget(QLabel("Bins:"))
+        self.controls_layout.addWidget(self.bins_spinbox)
+        self.controls_layout.addSpacing(20)
+        self.controls_layout.addWidget(QLabel("Confidence:"))
+        self.controls_layout.addWidget(self.confidence_spinbox)
+        self.controls_layout.addStretch()
+        self.controls_layout.addWidget(self.show_kde_checkbox)
 
-        self._init_layout()
+        self.dist_selector = dist_selector_cls()
 
-        # Connect controls
-        self.bins_spinbox.valueChanged.connect(self.refresh_all)
-        self.confidence_spinbox.valueChanged.connect(self.refresh_all)
-        self.show_additional_kde.stateChanged.connect(self.refresh_all)
-
-    def _create_canvas(self, title: str) -> tuple:
-        """
-        Create a matplotlib canvas and axis.
-        """
-        fig = Figure(figsize=(6, 3))
-        ax = fig.add_subplot(111)
-        canvas = FigureCanvas(fig)
-        return canvas, ax
-
-    def _init_layout(self):
-        """
-        Build the panel layout with tabs and control widgets.
-        """
-        layout = QVBoxLayout()
-        self.tabs = QTabWidget()
-
-        # Histogram tab
-        hist_layout = QVBoxLayout()
-        hist_layout.addWidget(self.hist_canvas)
-        hist_widget = QWidget()
-        hist_widget.setLayout(hist_layout)
-        self.tabs.addTab(hist_widget, "Histogram")
-
-        # EDF tab
-        edf_layout = QVBoxLayout()
-        edf_layout.addWidget(self.edf_canvas)
-        edf_widget = QWidget()
-        edf_widget.setLayout(edf_layout)
-        self.tabs.addTab(edf_widget, "Empirical distribution function")
-
-        layout.addWidget(self.tabs)
-
-        # Parameter controls
-        params_layout = QHBoxLayout()
-        params_layout.addWidget(QLabel("Bins:"))
-        params_layout.addWidget(self.bins_spinbox)
-        params_layout.addSpacing(20)
-        params_layout.addWidget(QLabel("Confidence Level (CI):"))
-        params_layout.addWidget(self.confidence_spinbox)
-        params_layout.addStretch()
-        params_layout.addWidget(self.show_additional_kde)
-
-        layout.addLayout(params_layout)
-        layout.addWidget(self.dist_selector)
-
-        self.setLayout(layout)
-
-    def refresh_all(self):
-        if self.data is not None:
-            self.window.data_model.update_bins(self.bins_spinbox.value())
-            UIRefreshService.refresh_all(self.window, self.data)
+    def _connect_controls(self):
+        """Connect user controls to controller callbacks."""
+        self.bins_spinbox.valueChanged.connect(self.window.graph_controller.on_bins_changed)         # TODO  
+        self.confidence_spinbox.valueChanged.connect(self.window.graph_controller.on_alpha_changed)  # TODO
+        self.show_kde_checkbox.stateChanged.connect(self.window.graph_controller.on_kde_toggled)     # TODO
+        self.dist_selector.set_on_change(self.window.graph_controller.on_distribution_changed)       # TODO
 
     def set_data(self, data: pd.Series):
-        self.data = data
-        self.bins_spinbox.setMaximum(len(data))
-        default_bins = get_default_bin_count(data)
-        self.bins_spinbox.setValue(default_bins)
-        self.refresh_all()
+        """
+        Set new data to be visualized.
 
-    def get_selected_distribution(self) -> StatisticalDistribution:
+        :param data: input data series
         """
-        Return the currently selected distribution class.
+        self.data = data
+        if data is not None:
+            self.bins_spinbox.setMaximum(len(data))
+        self.graph_controller.plot_all()
+
+    def refresh_all(self):
         """
-        return self.dist_selector.get_selected_distribution()
+        Redraw all graph tabs using current clean data.
+        """
+        if self.data is None or self.data.empty:
+            return
+
+        clean_data = self.data.dropna()
+        if clean_data.empty:
+            return
+
+        for tab in self.graph_tabs.values():
+            tab.draw(clean_data)
 
     def clear(self):
+        """Clear all graph tabs."""
+        for tab in self.graph_tabs.values():
+            tab.clear()
+
+    def get_selected_distribution(self):
+        """Return selected distribution object or None."""
+        return self.dist_selector.get_selected_distribution()
+
+    def get_render_params(self):
         """
-        Clear both plots from the canvas.
+        Get current rendering parameters from the UI.
+
+        :return: dictionary with 'bins', 'kde', 'confidence', and 'distribution'
         """
-        self.hist_ax.clear()
-        self.edf_ax.clear()
-        self.hist_canvas.draw()
-        self.edf_canvas.draw()
+        return {
+            "bins": self.bins_spinbox.value(),
+            "kde": self.show_kde_checkbox.isChecked(),
+            "confidence": self.confidence_spinbox.value(),
+            "distribution": self.get_selected_distribution()
+        }
