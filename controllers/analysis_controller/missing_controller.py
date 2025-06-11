@@ -44,7 +44,7 @@ class MissingDataController:
         self.data = new_model.series
 
         self.window.version_manager.update_current_data(new_model)
-        self.refresh_service.refresh(new_series)
+        self.window.refresher.refresh(new_series)
         self.update_missing_values_info()
         self.window.show_info_message("Success", message)
 

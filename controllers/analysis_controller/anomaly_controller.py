@@ -62,7 +62,7 @@ class AnomalyController:
         # Update data model and UI
         self.window.data_model = new_model
         self.window.version_manager.update_current_data(new_model)
-        self.refresh_service.refresh(cleaned)
+        self.window.refresher.refresh(cleaned)
 
         self.window.show_info_message(
             "Anomalies Removed",
