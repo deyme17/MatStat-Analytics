@@ -2,7 +2,6 @@ class StatisticController:
     """
     Controller for managing the display of statistical characteristics in the UI.
     """
-
     def __init__(self, window, statistic_service, stats_renderer):
         """
         Args:

@@ -2,7 +2,6 @@ class MissingDataController:
     """
     Controller for handling missing data operations.
     """
-
     def __init__(self, window, missing_service):
         """
         Args:
@@ -45,7 +44,7 @@ class MissingDataController:
         self.data = new_model.series
 
         self.window.version_manager.update_current_data(new_model)
-        self.window.refresher.refresh_all(self.window, new_series)
+        self.refresh_service.refresh(new_series)
         self.update_missing_values_info()
         self.window.show_info_message("Success", message)
 

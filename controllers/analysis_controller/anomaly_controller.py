@@ -2,7 +2,6 @@ class AnomalyController:
     """
     Controller for detecting and removing statistical anomalies from the dataset.
     """
-
     def __init__(self, window, anomaly_service):
         """    
         Args:
@@ -63,7 +62,7 @@ class AnomalyController:
         # Update data model and UI
         self.window.data_model = new_model
         self.window.version_manager.update_current_data(new_model)
-        self.window.refresher.refresh_all(self.window, cleaned)
+        self.refresh_service.refresh(cleaned)
 
         self.window.show_info_message(
             "Anomalies Removed",

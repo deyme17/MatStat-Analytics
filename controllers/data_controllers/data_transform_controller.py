@@ -46,7 +46,7 @@ class DataTransformController:
         new_model = self.window.data_model.add_version(new_series, label)
         self.window.data_model = new_model
         self.window.version_manager.update_current_data(new_model)
-        self.window.refresher.refresh_all(self.window, self.window.data_model.series)
+        self.refresh_service.refresh(self.window.data_model.series)
         self.window.original_button.setEnabled(True)
 
     def is_transformed(self):

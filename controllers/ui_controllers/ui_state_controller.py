@@ -49,7 +49,7 @@ class UIStateController:
             self.window.gof_tab.clear_tests()
             self.window.stat_controller.clear()
         else:
-            self.window.refresher.refresh_all(self.window, self.window.data_model.series)
+            self.window.refresher.refresh(self.window.data_model.series)
 
     def update_state_for_data(self, data):
         """

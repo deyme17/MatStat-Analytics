@@ -2,7 +2,6 @@ class DataVersionController:
     """
     Controller for managing dataset versions (original and transformed).
     """
-
     def __init__(self, window):
         """        
         Args:
@@ -33,7 +32,7 @@ class DataVersionController:
             self.window.version_manager.update_current_data(original)
             self.window.original_button.setEnabled(False)
             self.window.missing_controller.update_data_reference(original.series)
-            self.window.refresher.refresh_all(self.window, original.series)
+            self.window.refresher.refresh(original.series)
 
     def update_data_versions(self):
         """
@@ -72,4 +71,4 @@ class DataVersionController:
         """
         series = self.window.data_model.series
         self.window.graph_panel.bins_spinbox.setValue(self.window.data_model.bins)
-        self.window.refresher.refresh_all(self.window, series)
+        self.window.refresher.refresh(series)

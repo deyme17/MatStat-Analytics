@@ -7,7 +7,6 @@ class ParameterEstimation:
     Provides a unified interface for estimating distribution parameters
     using different estimation methods.
     """
-    
     def __init__(self):
         """Initialize the parameter estimation service.
         Loads available estimation methods from registered_estimation_methods.
