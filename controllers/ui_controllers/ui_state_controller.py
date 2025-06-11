@@ -44,10 +44,7 @@ class UIStateController:
                 f"({missing_info['missing_percentage']:.2f}%).\n"
                 "Please handle missing values before performing data operations."
             )
-            self.window.graph_panel.clear()
-            self.window.graph_panel.data = None
-            self.window.gof_tab.clear_tests()
-            self.window.stat_controller.clear()
+            self.window.refresher.clear_ui()
         else:
             self.window.refresher.refresh(self.window.data_model.series)
 
