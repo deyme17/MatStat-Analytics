@@ -14,7 +14,7 @@ class DataLoadController:
         """
         self.window = window
         self.loader_service = loader_service
-        self.data_model = DataModel()
+        self.data_model = DataModel
         
     def load_data_file(self):
         """
