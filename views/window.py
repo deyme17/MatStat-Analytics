@@ -1,7 +1,6 @@
 from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QHBoxLayout, QMessageBox
 from PyQt6.QtGui import QIcon, QPalette, QColor
 
-from views.widgets.window_widget import WindowWidgets
 from utils.ui_styles import appStyle
 from factory import Factory
 
@@ -19,7 +18,6 @@ class Window(QMainWindow):
         self.setStyleSheet(appStyle)
 
         self.data_model = None
-        self.widgets = WindowWidgets(self)
         Factory.create(self)
 
         self._create_layout()
@@ -51,9 +49,6 @@ class Window(QMainWindow):
         central_widget = QWidget()
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
-
-    def _create_nav_layout(self):
-        return self.widgets.create_nav_layout()
 
     def show_error_message(self, title, message):
         QMessageBox.critical(self, title, message)
