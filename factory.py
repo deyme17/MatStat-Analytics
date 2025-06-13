@@ -34,6 +34,7 @@ from views.tabs.simulation_tab import SimulationTab
 from views.tabs.stat_table_tab import StatisticTab
 
 # Views - Widgets
+from views.widgets.window_widget import WindowWidgets
 from views.widgets.dpwidgets.anomalywidget import AnomalyWidget
 from views.widgets.dpwidgets.missingwidget import MissingWidget
 from views.widgets.dpwidgets.processdatawidget import ProcessDataWidget
@@ -100,6 +101,8 @@ class Factory:
 
     @staticmethod
     def _setup_tabs(window):
+        window.widgets = WindowWidgets(window)
+
         window.data_tab = DataProcessingTab(
             window,
             processor_widget=ProcessDataWidget,

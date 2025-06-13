@@ -1,10 +1,13 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox
-from utils.ui_styles import groupStyle
-
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QHBoxLayout
 
 class DataProcessingTab(QWidget):
     """
     A UI tab for managing data preprocessing steps including:
+    - Data version selection
+    - Transformations
+    - Anomaly detection
+    - Missing data handling
+    - Original data restoration
     """
 
     def __init__(self, parent, processor_widget, anomaly_widget, missing_widget):
@@ -16,6 +19,7 @@ class DataProcessingTab(QWidget):
         """
         super().__init__(parent)
 
+        # Data version controls
         self.data_version_label = QLabel("Select loaded dataset:")
         self.data_version_combo = QComboBox()
         self.data_version_combo.setEnabled(False)
@@ -23,7 +27,19 @@ class DataProcessingTab(QWidget):
             parent.data_version_controller.on_data_version_changed
         )
 
+        # Transformation state label
         self.transformation_label = QLabel("Current state: Original")
+
+        # Original data button
+        self.original_button = QPushButton("Original")
+        self.original_button.setEnabled(False)
+        self.original_button.setFixedSize(333, 30)
+        self.original_button.clicked.connect(parent.data_version_controller.original_data)
+
+        # Navigation layout for the button
+        nav_layout = QHBoxLayout()
+        nav_layout.addWidget(self.original_button)
+        nav_layout.addStretch()
 
         # Preprocessing widgets
         self.process_controls = processor_widget(parent)
@@ -38,7 +54,7 @@ class DataProcessingTab(QWidget):
         layout.addWidget(self.process_controls)
         layout.addWidget(self.anomaly_detection)
         layout.addWidget(self.missing_data)
-        layout.addLayout(parent._create_nav_layout())
+        layout.addLayout(nav_layout)
         layout.addStretch()
 
         self.setLayout(layout)
@@ -47,3 +63,4 @@ class DataProcessingTab(QWidget):
         parent.data_version_label = self.data_version_label
         parent.data_version_combo = self.data_version_combo
         parent.transformation_label = self.transformation_label
+        parent.original_button = self.original_button

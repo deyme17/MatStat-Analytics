@@ -24,16 +24,3 @@ class WindowWidgets:
         layout.addWidget(self.window.precision_label)
         layout.addWidget(self.window.precision_spinbox)
         return layout
-
-    def create_nav_layout(self):
-        """
-        Creates navigation layout with:
-        - Original button to revert to original data
-        """
-        layout = QHBoxLayout()
-        self.window.original_button = QPushButton("Original")
-        self.window.original_button.setEnabled(False)
-        self.window.original_button.setMinimumHeight(30)
-        self.window.original_button.clicked.connect(self.window.data_version_controller.original_data)
-        layout.addWidget(self.window.original_button)
-        return layout
