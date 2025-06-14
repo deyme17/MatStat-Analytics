@@ -1,83 +1,68 @@
+from typing import Callable
+import pandas as pd
+
 class MissingDataController:
     """
     Controller for handling missing data operations.
     """
-    def __init__(self, window, missing_service):
+
+    def __init__(
+        self,
+        context,
+        missing_service,
+        display_service,
+        update_state_callback: Callable[[pd.Series], None]
+    ):
         """
         Args:
-            window (QWidget): Reference to the main application window
-            missing_service: Service layer for missing data operations
+            context: AppContext with shared dependencies
+            missing_service: Service for missing data handling
+            display_service:
+            update_state_callback: Function to call when data state changes
         """
-        self.window = window
+        self.context = context
         self.missing_service = missing_service
+        self.display_service = display_service
+        self.update_state_callback = update_state_callback
         self.data = None
 
     def update_data_reference(self, data):
-        """
-        Set new working data and refresh UI information.
-
-        :param data: pandas Series
-        """
         self.data = data
         self.update_missing_values_info()
-        self.window.state_controller.update_state_for_data(data)
+        if self.update_state_callback:
+            self.update_state_callback(data)
 
     def update_missing_values_info(self):
-        """
-        Update labels showing total and percentage of missing values.
-        """
         if self.data is not None:
             info = self.missing_service.detect_missing(self.data)
-            self.window.missing_count_label.setText(f"Total Missing: {info['total_missing']}")
-            self.window.missing_percentage_label.setText(f"Missing Percentage: {info['missing_percentage']:.2f}%")
+            self.display_service.update(info)
 
     def _update_after_imputation(self, new_series, label: str, message: str):
-        """
-        Create new version of the data after missing value handling and refresh UI.
-
-        :param new_series: modified series after imputation
-        :param label: version label
-        :param message: message to display to the user
-        """
-        new_model = self.window.data_model.add_version(new_series, label)
-        self.window.data_model = new_model
+        new_model = self.context.data_model.add_version(new_series, label)
+        self.context.data_model = new_model
         self.data = new_model.series
 
-        self.window.version_manager.update_current_data(new_model)
-        self.window.refresher.refresh(new_series)
+        self.context.version_manager.update_current_data(new_model)
+        self.context.refresher.refresh(new_series)
         self.update_missing_values_info()
-        self.window.show_info_message("Success", message)
+        self.context.messanger.show_info("Success", message)
 
     def impute_with_mean(self):
-        """
-        Replace missing values with the mean of the series.
-        """
         if self.data is not None:
             new_series = self.missing_service.replace_missing_with_mean(self.data)
             self._update_after_imputation(new_series, "Mean Imputed", "Missing values replaced with mean successfully.")
 
     def impute_with_median(self):
-        """
-        Replace missing values with the median of the series.
-        """
         if self.data is not None:
             new_series = self.missing_service.replace_missing_with_median(self.data)
             self._update_after_imputation(new_series, "Median Imputed", "Missing values replaced with median successfully.")
 
     def interpolate_missing(self, method: str):
-        """
-        Interpolate missing values using the specified method.
-
-        :param method: interpolation method ('linear', 'quadratic', 'cubic')
-        """
         if self.data is not None:
             new_series = self.missing_service.interpolate_missing(self.data, method)
             self._update_after_imputation(new_series, f"Interpolated ({method})", f"Missing values interpolated ({method}) successfully.")
 
     def drop_missing_values(self):
-        """
-        Drop all rows containing missing values from the series.
-        """
         if self.data is not None:
             original_len = len(self.data)
             new_series = self.missing_service.drop_missing(self.data)

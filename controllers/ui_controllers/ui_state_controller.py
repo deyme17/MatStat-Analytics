@@ -1,97 +1,100 @@
+from typing import Callable
 import pandas as pd
+
 
 class UIStateController:
     """
     Controller responsible for enabling/disabling UI elements based on data state.
     """
-
-    def __init__(self, window, missing_service):
+    def __init__(
+        self,
+        context,
+        missing_service,
+        data_version_combo,
+        set_transform_enabled: Callable[[bool], None],
+        set_anomaly_enabled: Callable[[bool], None],
+        set_missing_enabled: Callable[[bool], None],
+        set_transformation_label: Callable[[str], None],
+        set_original_button_enabled: Callable[[bool], None]
+    ):
         """
-        Args:
-            window (QWidget): Reference to the main application window
-            missing_service: Service to handle anomilies
+        :param context: Shared AppContext with data and services
+        :param missing_service: Service for detecting missing values
+        :param data_version_combo: Dataset version dropdown
+        :param set_transform_enabled: Enable/disable transform controls
+        :param set_anomaly_enabled: Enable/disable anomaly controls
+        :param set_missing_enabled: Enable/disable missing controls
+        :param set_transformation_label: Set current transformation label
+        :param set_original_button_enabled: Enable/disable original revert button
         """
-        self.window = window
+        self.context = context
         self.missing_service = missing_service
+        self.data_version_combo = data_version_combo
 
-    def handle_post_load_state(self, data: pd.Series):
+        self.set_transform_enabled = set_transform_enabled
+        self.set_anomaly_enabled = set_anomaly_enabled
+        self.set_missing_enabled = set_missing_enabled
+        self.set_transformation_label = set_transformation_label
+        self.set_original_button_enabled = set_original_button_enabled
+
+    def handle_post_load_state(self, data: pd.Series) -> None:
         """
-        Centralized method to be called after loading data.
-        Updates UI state and handles missing values and control logic.
+        Updates UI state and handles missing values and control logic after data load.
         """
         missing_info = self.missing_service.detect_missing(data)
         has_missing = missing_info['total_missing'] > 0
 
-        # Enable fixed elements
-        self.window.graph_panel.bins_spinbox.setEnabled(True)
-        self.window.data_version_combo.setEnabled(True)
+        # Enable basic controls
+        self.context.bins_spinbox.setEnabled(True)
+        self.data_version_combo.setEnabled(True)
 
         # Update controls
         self.update_state_for_data(data)
 
-        # Update other controllers
-        self.window.data_version_controller.update_data_versions()
-        self.window.missing_controller.update_data_reference(data)
+        # Update additional state (like versions, missing stats)
+        self.context.data_version_controller.update_data_versions()
+        self.context.missing_controller.update_data_reference(data)
 
-        # Set bin count
-        bin_count = self.window.data_model.bins
-        self.window.graph_panel.bins_spinbox.setValue(bin_count)
+        # Set current bin count
+        bin_count = self.context.data_model.bins
+        self.context.bins_spinbox.setValue(bin_count)
 
         if has_missing:
-            self.window.show_info_message(
+            self.context.messanger.show_info(
                 "Missing Values Detected",
                 f"Found {missing_info['total_missing']} missing values "
                 f"({missing_info['missing_percentage']:.2f}%).\n"
                 "Please handle missing values before performing data operations."
             )
-            self.window.refresher.clear_ui()
+            self.context.refresher.clear_ui()
         else:
-            self.window.refresher.refresh(self.window.data_model.series)
+            self.context.refresher.refresh(self.context.data_model.series)
 
-    def update_state_for_data(self, data):
+    def update_state_for_data(self, data: pd.Series) -> None:
         """
-        Updates the enabled state of all major UI controls based on the data.
-        If missing values are present, disables transformations and anomaly controls.
-
-        :param data: The current pandas Series to check for missing values.
+        Updates UI state depending on whether the data has missing values.
         """
         has_missing = data.isna().sum() > 0 if hasattr(data, 'isna') else False
 
-        self.window.data_tab.process_controls.setEnabled(not has_missing)
-        self.window.data_tab.anomaly_detection.setEnabled(not has_missing)
-        self.window.data_tab.missing_data.setEnabled(True)
-
-        self._update_transform_buttons(not has_missing)
-        self._update_anomaly_buttons(not has_missing)
-        self._update_missing_buttons(has_missing)
+        self.set_transform_enabled(not has_missing)
+        self.set_anomaly_enabled(not has_missing)
+        self.set_missing_enabled(has_missing)
 
         self.update_transformation_label()
         self.update_navigation_buttons()
 
-    def _update_transform_buttons(self, enabled: bool):
-        self.window.standardize_button.setEnabled(enabled)
-        self.window.log_button.setEnabled(enabled)
-        self.window.shift_spinbox.setEnabled(enabled)
-        self.window.shift_button.setEnabled(enabled)
+    def update_transformation_label(self) -> None:
+        """
+        Update label showing the current data transformation.
+        """
+        text = self.context.data_model.current_transformation if self.context.data_model else "Original"
+        self.set_transformation_label(f"Current state: {text}")
 
-    def _update_anomaly_buttons(self, enabled: bool):
-        self.window.normal_anomaly_button.setEnabled(enabled)
-        self.window.asymmetry_anomaly_button.setEnabled(enabled)
-        self.window.confidence_anomaly_button.setEnabled(enabled)
-        self.window.anomaly_gamma_spinbox.setEnabled(enabled)
-
-    def _update_missing_buttons(self, enabled: bool):
-        self.window.impute_mean_button.setEnabled(enabled)
-        self.window.impute_median_button.setEnabled(enabled)
-        self.window.interpolate_linear_button.setEnabled(enabled)
-        self.window.drop_missing_button.setEnabled(enabled)
-
-    def update_transformation_label(self):
-        text = self.window.data_model.current_transformation if self.window.data_model else "Original"
-        self.window.transformation_label.setText(f"Current state: {text}")
-
-    def update_navigation_buttons(self):
-        model = self.window.data_model
+    def update_navigation_buttons(self) -> None:
+        """
+        Enable or disable navigation buttons depending on version history.
+        """
+        model = self.context.data_model
         has_history = model and len(model.history) > 0
         was_anomaly_removed = getattr(model, 'anomalies_removed', False)
-        self.window.original_button.setEnabled(has_history or was_anomaly_removed)
+        self.set_original_button_enabled(has_history or was_anomaly_removed)

@@ -2,14 +2,16 @@ class AnomalyController:
     """
     Controller for detecting and removing statistical anomalies from the dataset.
     """
-    def __init__(self, window, anomaly_service):
+    def __init__(self, context, anomaly_service, gamma_spinbox):
         """    
         Args:
-            window (QWidget): Reference to the main application window
+            context (AppContext): Application context container
             anomaly_service: Service for anomaly detection operations
+            gamma_spinbox: SpinBox control to configure the probability of an anomalous value appearing
         """
-        self.window = window
+        self.context = context
         self.anomaly_service = anomaly_service
+        self.gamma_spinbox = gamma_spinbox
 
     def remove_normal_anomalies(self):
         """
@@ -28,7 +30,7 @@ class AnomalyController:
         Detect and remove anomalies using confidence interval bounds.
         Confidence level is selected via the gamma spinbox.
         """
-        gamma = self.window.anomaly_gamma_spinbox.value()
+        gamma = self.gamma_spinbox.value()
         func = lambda data: self.anomaly_service.detect_conf_anomalies(data, gamma)
         self._remove_anomalies(func, f"Conf. Filtered γ={gamma}")
 
@@ -39,32 +41,32 @@ class AnomalyController:
         :param detection_func: function that returns a dict with 'anomalies' and bounds
         :param label: label used to name the new version of the dataset
         """
-        data = self.window.data_model.series
+        data = self.context.data_model.series
         if data is None:
             return
 
         data = data.reset_index(drop=True)
         if data.isna().sum() > 0:
-            self.window.show_error_message("Missing Values Error", "Please handle missing values first.")
+            self.context.messanger.show_error("Missing Values Error", "Please handle missing values first.")
             return
 
         result = detection_func(data)
         anomalies = result["anomalies"]
         if len(anomalies) == 0:
-            self.window.show_info_message("No Anomalies", "No anomalies detected.")
+            self.context.messanger.show_info("No Anomalies", "No anomalies detected.")
             return
 
         # Remove anomalies and create new version of the dataset
         cleaned = data.drop(anomalies)
-        new_model = self.window.data_model.add_version(cleaned, label)
+        new_model = self.context.data_model.add_version(cleaned, label)
         new_model.anomalies_removed = True
 
         # Update data model and UI
-        self.window.data_model = new_model
-        self.window.version_manager.update_current_data(new_model)
-        self.window.refresher.refresh(cleaned)
+        self.context.data_model = new_model
+        self.context.version_manager.update_current_data(new_model)
+        self.context.refresher.refresh(cleaned)
 
-        self.window.show_info_message(
+        self.context.messanger.show_info(
             "Anomalies Removed",
             f"Removed {len(anomalies)} anomalies.\n"
             f"Lower: {result['lower_limit']:.4f}, Upper: {result['upper_limit']:.4f}"

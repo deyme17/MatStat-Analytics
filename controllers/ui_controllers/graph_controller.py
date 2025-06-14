@@ -1,96 +1,89 @@
+from typing import Callable
 import pandas as pd
 
 class GraphController:
     """
     Controller for coordinating plotting, statistics, and confidence intervals in the graph panel.
     """
-    def __init__(self, window, confidence_service):
+
+    def __init__(
+        self,
+        context,
+        confidence_service,
+        update_statistics_callback: Callable[[], None],
+        update_gof_callback: Callable[[], None]
+    ):
         """
-        Initialize the controller with references to UI panel and confidence service.
-        :param window (QWidget): Reference to the main application window
-        :param confidence_service: Service for computing confidence intervals
+        Args:
+            context: AppContext with shared data
+            confidence_service: Service for confidence interval computations
+            update_statistics_callback: function to trigger statistics table update
+            update_gof_callback: function to trigger goodness-of-fit tests
         """
-        self.window = window
-        self.panel = None
+        self.context = context
+        self.panel = None  # will be set externally
         self.confidence_service = confidence_service
+        self.update_statistics_callback = update_statistics_callback
+        self.update_gof_callback = update_gof_callback
 
-    def set_data(self, series: pd.Series):
+    def set_data(self, series: pd.Series) -> None:
         """
-        Sets the data to be plotted and triggers full update if data is valid.
-
-        :param series: input pandas Series with numeric data
+        Set data and refresh everything.
         """
         self.panel.data = series
         if series is not None and not series.empty:
             self.plot_all()
 
-    def plot_all(self):
+    def plot_all(self) -> None:
         """
-        Triggers full redraw of all graph tabs, updates statistics and GOF tests.
+        Redraw graphs and update both stats and GOF tests.
         """
         self.panel.refresh_all()
-        self.window.stat_controller.update_statistics_table()
-        self.window.gof_tab.evaluate_tests()
+        self.update_statistics_callback()
+        self.update_gof_callback()
 
-    def on_distribution_changed(self):
+    def on_distribution_changed(self) -> None:
         """
-        Called when the selected distribution changes.
-        Redraws graphs and re-runs Goodness-of-Fit tests.
+        Called when distribution is changed. Redraws and reruns GOF.
         """
         if not self._valid():
             return
-
         self.panel.refresh_all()
-        self.window.gof_tab.evaluate_tests()
+        self.update_gof_callback()
 
-    def on_bins_changed(self):
+    def on_bins_changed(self) -> None:
         """
-        Called when the number of histogram bins is changed.
-        Redraws graphs, updates statistics and GOF tests.
+        Called when number of bins is changed. Full redraw and recompute.
         """
-        if not self._valid():
-            return
+        if self._valid():
+            self.plot_all()
 
-        self.plot_all()
-
-    def on_alpha_changed(self):
+    def on_alpha_changed(self) -> None:
         """
-        Called when the confidence level (alpha) is changed.
-        Redraws graphs and updates GOF tests using the new confidence level.
+        Called when confidence level is changed.
         """
-        if not self._valid():
-            return
+        if self._valid():
+            self.panel.refresh_all()
 
-        self.panel.refresh_all()
-
-    def on_kde_toggled(self):
+    def on_kde_toggled(self) -> None:
         """
-        Called when the KDE checkbox is toggled.
-        Only redraws graphs without updating statistics or tests.
+        Called when KDE checkbox toggled. Redraw only.
         """
-        if not self._valid():
-            return
-
-        self.panel.refresh_all()
+        if self._valid():
+            self.panel.refresh_all()
 
     def compute_cdf_with_ci(self, data: pd.Series, dist, confidence_level: float) -> tuple:
         """
-        Compute the CDF and confidence interval bounds using the configured confidence service.
-        :param data: Input pandas Series (cleaned numeric data)
-        :param dist: Fitted statistical distribution instance
-        :param confidence_level: Confidence level (e.g. 0.95)
-        :return: Tuple of (x values, cdf, lower CI, upper CI), or None if computation failed
+        Compute confidence intervals for CDF using provided service.
         """
         return self.confidence_service.cdf_variance_ci(data, dist, confidence_level)
 
     def _valid(self) -> bool:
         """
-        Checks if the data model is valid and non-empty.
-
-        :return: True if valid, False otherwise
+        Check if current data is usable.
         """
         return (
-            self.window.data_model is not None and
-            isinstance(self.window.data_model.series, pd.Series) and
-            not self.window.data_model.series.empty
+            self.context.data_model is not None and
+            isinstance(self.context.data_model.series, pd.Series) and
+            not self.context.data_model.series.empty
         )
