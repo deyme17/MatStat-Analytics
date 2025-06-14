@@ -16,6 +16,7 @@ class DataTransformController:
             context (AppContext): Application context container
             transform_service: Service to perform data transformation
             shift_spinbox (QSpinBox): SpinBox control for data shifting
+            on_transformation_applied: Callback after applying any transformation
         """
         self.context = context
         self.transform_service = transform_service
@@ -58,7 +59,7 @@ class DataTransformController:
         self.context.data_model = new_model
         self.context.version_manager.update_current_data(new_model)
         self.context.refresher.refresh(self.context.data_model.series)
-        
+
         if self.on_transformation_applied:
             self.on_transformation_applied()
 
