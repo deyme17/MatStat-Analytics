@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QHBoxLayout, QMes
 from PyQt6.QtGui import QIcon, QPalette, QColor
 
 from utils.ui_styles import appStyle
+from app_context import AppContext
 from factory import Factory
 
 class Window(QMainWindow):
@@ -18,7 +19,8 @@ class Window(QMainWindow):
         self.setStyleSheet(appStyle)
 
         self.data_model = None
-        Factory.create(self)
+        self.context = AppContext()
+        Factory.create(self, self.context)
 
         self._create_layout()
 
