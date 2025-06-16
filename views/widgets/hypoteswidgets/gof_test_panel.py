@@ -7,7 +7,10 @@ from services.analysis_services.gof_register import GOFService
 from models.stat_distributions.stat_distribution import StatisticalDistribution
 
 
-class BaseTestPanel(QGroupBox, ABC):
+class Meta(type(QGroupBox), type(ABC)):
+    pass
+
+class BaseTestPanel(QGroupBox, ABC, metaclass=Meta):
     """
     Abstract base class for statistical test panels used in the application.
     Provides a common layout and logic for displaying hypothesis test results.
