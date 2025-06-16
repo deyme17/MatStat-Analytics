@@ -3,9 +3,10 @@ from PyQt6.QtWidgets import (
     QSpinBox, QDoubleSpinBox, QCheckBox, QTabWidget
 )
 from views.widgets.statwidgets.graph_tabs import registered_graphs
+from typing import Callable, Dict, Optional, Any
 import pandas as pd
 
-MIN_NINS, MAX_BINS = 1, 999
+MIN_BINS, MAX_BINS = 1, 999
 DEFAULT_BINS = 10
 MAX_BINS_SPINBOX_WIDTH = 100
 
@@ -17,25 +18,37 @@ CONF_PRECISION = 2
 
 class GraphPanel(QWidget):
     """
-    Main UI panel that hosts graph tabs and user controls for visualization.
-    Delegates all logic to the GraphController.
+    Visualization panel hosting graph tabs and controls.
+    Completely decoupled from main window.
     """
 
-    def __init__(self, window, dist_selector, graph_controller=None):
+    def __init__(
+        self,
+        dist_selector_cls: type,
+        on_bins_changed: Callable[[int], None],
+        on_alpha_changed: Callable[[float], None],
+        on_kde_toggled: Callable[[bool], None],
+        on_dist_changed: Callable[[object], None],
+    ):
         """
-        Initialize the graph panel and controls.
-
-        :param window: main application window
-        :param graph_controller: GraphController instance to handle logic
-        :param dist_selector: class (not instance) for distribution selector
+        Args:
+            dist_selector_cls: Distribution selector widget class
+            on_bins_changed: Callback for bin count changes
+            on_alpha_changed: Callback for confidence level changes
+            on_kde_toggled: Callback for KDE toggle
+            on_dist_changed: Callback for distribution selection
         """
-        super().__init__(window)
-        self.window = window
-        self.graph_controller = graph_controller                                                    # TODO
+        super().__init__()
         self.data = None
         self.graph_tabs = {}
+        self._callbacks = {
+            'bins': on_bins_changed,
+            'alpha': on_alpha_changed,
+            'kde': on_kde_toggled,
+            'dist': on_dist_changed
+        }
 
-        self._init_controls(dist_selector)
+        self._init_controls(dist_selector_cls)
         self._connect_controls()
 
         self.tabs = QTabWidget()
@@ -51,24 +64,28 @@ class GraphPanel(QWidget):
         layout.addWidget(self.dist_selector)
         self.setLayout(layout)
 
-    def _init_controls(self, dist_selector_cls):
-        """Initialize spinboxes, checkboxes, and selector UI."""
+    def _init_controls(self, dist_selector_cls: type) -> None:
+        """Initialize UI controls."""
         self.controls_layout = QHBoxLayout()
 
+        # Bins control
         self.bins_spinbox = QSpinBox()
-        self.bins_spinbox.setRange(MIN_NINS, MAX_BINS)
+        self.bins_spinbox.setRange(MIN_BINS, MAX_BINS)
         self.bins_spinbox.setValue(DEFAULT_BINS)
         self.bins_spinbox.setMaximumWidth(MAX_BINS_SPINBOX_WIDTH)
 
+        # Confidence level
         self.confidence_spinbox = QDoubleSpinBox()
         self.confidence_spinbox.setRange(MIN_CONF, MAX_CONF)
         self.confidence_spinbox.setSingleStep(CONF_STEP)
         self.confidence_spinbox.setValue(DEFAULT_CONF)
         self.confidence_spinbox.setDecimals(CONF_PRECISION)
 
+        # KDE toggle
         self.show_kde_checkbox = QCheckBox("Show KDE")
         self.show_kde_checkbox.setChecked(False)
 
+        # Assemble controls
         self.controls_layout.addWidget(QLabel("Bins:"))
         self.controls_layout.addWidget(self.bins_spinbox)
         self.controls_layout.addSpacing(20)
@@ -77,30 +94,31 @@ class GraphPanel(QWidget):
         self.controls_layout.addStretch()
         self.controls_layout.addWidget(self.show_kde_checkbox)
 
+        # Distribution selector
         self.dist_selector = dist_selector_cls()
 
-    def _connect_controls(self):
-        """Connect user controls to controller callbacks."""
-        self.bins_spinbox.valueChanged.connect(self.window.graph_controller.on_bins_changed)         # TODO  
-        self.confidence_spinbox.valueChanged.connect(self.window.graph_controller.on_alpha_changed)  # TODO
-        self.show_kde_checkbox.stateChanged.connect(self.window.graph_controller.on_kde_toggled)     # TODO
-        self.dist_selector.set_on_change(self.window.graph_controller.on_distribution_changed)       # TODO
+    def _connect_controls(self) -> None:
+        """Connect control signals to callbacks."""
+        self.bins_spinbox.valueChanged.connect(self._callbacks['bins'])
+        self.confidence_spinbox.valueChanged.connect(self._callbacks['alpha'])
+        self.show_kde_checkbox.stateChanged.connect(
+            lambda state: self._callbacks['kde'](state == 2)  # Qt.Checked
+        )
+        self.dist_selector.set_on_change(self._callbacks['dist'])
 
-    def set_data(self, data: pd.Series):
+    def set_data(self, data: pd.Series) -> None:
         """
-        Set new data to be visualized.
-
-        :param data: input data series
+        Set data for visualization.
+        
+        Args:
+            data: Input data series
         """
         self.data = data
         if data is not None:
             self.bins_spinbox.setMaximum(len(data))
-        self.graph_controller.plot_all()
 
-    def refresh_all(self):
-        """
-        Redraw all graph tabs using current clean data.
-        """
+    def refresh_all(self) -> None:
+        """Redraw all graphs with current data."""
         if self.data is None or self.data.empty:
             return
 
@@ -111,20 +129,25 @@ class GraphPanel(QWidget):
         for tab in self.graph_tabs.values():
             tab.draw(clean_data)
 
-    def clear(self):
+    def clear(self) -> None:
         """Clear all graph tabs."""
         for tab in self.graph_tabs.values():
             tab.clear()
 
-    def get_selected_distribution(self):
-        """Return selected distribution object or None."""
+    def get_selected_distribution(self) -> Optional[object]:
+        """Get currently selected distribution."""
         return self.dist_selector.get_selected_distribution()
 
-    def get_render_params(self):
+    def get_render_params(self) -> Dict[str, Any]:
         """
-        Get current rendering parameters from the UI.
-
-        :return: dictionary with 'bins', 'kde', 'confidence', and 'distribution'
+        Get current visualization parameters.
+        
+        Returns:
+            Dictionary with:
+            - bins: int
+            - kde: bool
+            - confidence: float
+            - distribution: object
         """
         return {
             "bins": self.bins_spinbox.value(),
