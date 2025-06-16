@@ -11,9 +11,10 @@ class StatisticsService:
     def _common_stats(data: pd.Series) -> dict:
         """
         Compute common descriptive statistics.
-
-        :param data: input pandas Series
-        :return: dictionary with n, mean, std, var, median, skewness, excess
+        Args:
+            data: input pandas Series
+        Return:
+            dictionary with n, mean, std, var, median, skewness, excess
         """
         return {
             'n': len(data),
@@ -29,9 +30,10 @@ class StatisticsService:
     def get_characteristics(hist) -> pd.Series:
         """
         Compute rounded descriptive stats and shape characteristics from histogram.
-
-        :param hist: histogram model
-        :return: pandas Series with labeled values
+        Args:
+            hist: histogram model
+        Return:
+            pandas Series with labeled values
         """
         stats = StatisticsService._common_stats(hist.data)
 
@@ -61,11 +63,12 @@ class StatisticsService:
     def compute_intervals(data: pd.Series, confidence_level: float = 0.95, precision: int = 2) -> pd.Series:
         """
         Compute confidence intervals for various characteristics.
-
-        :param data: input pandas Series
-        :param confidence_level: confidence level for intervals
-        :param precision: number of decimals in output
-        :return: pandas Series with confidence intervals as tuples
+        Args:
+            data: input pandas Series
+            confidence_level: confidence level for intervals
+            precision: number of decimals in output
+        Return:
+            pandas Series with confidence intervals as tuples
         """
         stats = StatisticsService._common_stats(data)
         n, mean, std_dev, variance = stats['n'], stats['mean'], stats['std_dev'], stats['variance']

@@ -11,9 +11,10 @@ class MissingService:
     def detect_missing(data: pd.Series) -> dict:
         """
         Detect missing values in the series.
-
-        :param data: input pandas Series
-        :return: dictionary with total count, percentage, and indices of missing values
+        Args:
+            data: input pandas Series
+        Return:
+            dictionary with total count, percentage, and indices of missing values
         """
         missing_mask = data.isna()
         return {
@@ -26,9 +27,10 @@ class MissingService:
     def replace_missing_with_mean(data: pd.Series) -> pd.Series:
         """
         Replace missing values with the mean of the series.
-
-        :param data: input pandas Series
-        :return: series with NaNs replaced by mean
+        Args:
+            data: input pandas Series
+        Return:
+            series with NaNs replaced by mean
         """
         return data.fillna(data.mean())
 
@@ -37,8 +39,9 @@ class MissingService:
         """
         Replace missing values with the median of the series.
 
-        :param data: input pandas Series
-        :return: series with NaNs replaced by median
+            data: input pandas Series
+        Return:
+            series with NaNs replaced by median
         """
         return data.fillna(data.median())
 
@@ -46,11 +49,11 @@ class MissingService:
     def interpolate_missing(data: pd.Series, method: str = 'linear') -> pd.Series:
         """
         Interpolate missing values using the specified method.
-
-        :param data: input pandas Series
-        :param method: interpolation method ('linear', 'quadratic', 'cubic')
-        :raises ValueError: if method is not supported
-        :return: series with interpolated values
+        Args:
+            data: input pandas Series
+            method: interpolation method ('linear', 'quadratic', 'cubic')
+        Return:
+            series with interpolated values
         """
         if method not in ['linear', 'quadratic', 'cubic']:
             raise ValueError(f"Unsupported method: {method}")
@@ -70,8 +73,9 @@ class MissingService:
     def drop_missing(data: pd.Series) -> pd.Series:
         """
         Drop all missing values from the series.
-
-        :param data: input pandas Series
-        :return: series without NaNs
+        Args:
+            data: input pandas Series
+        Return:
+             series without NaNs
         """
         return data.dropna()

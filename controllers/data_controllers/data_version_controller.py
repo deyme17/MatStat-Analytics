@@ -32,8 +32,6 @@ class DataVersionController:
     def on_data_version_changed(self, index: int) -> None:
         """
         Called when the user selects a different version from the dropdown.
-
-        :param index: Index of the selected version in the dropdown.
         """
         labels = self.context.version_manager.get_all_descriptions()
         if 0 <= index < len(labels):

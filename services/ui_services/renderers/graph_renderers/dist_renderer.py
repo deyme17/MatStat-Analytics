@@ -10,14 +10,15 @@ class DistributionRenderer(Renderer):
     def render(ax, data, dist, bins, color=None, label=None) -> bool:
         """
         Plot a fitted PDF curve of the given distribution on the provided axis.
-
-        :param ax: Matplotlib axis to draw on
-        :param data: pandas Series with input data
-        :param dist: StatisticalDistribution instance to fit and render
-        :param bins: number of classes for PDF scaling
-        :param color: optional color override
-        :param label: optional label for legend
-        :return: True if rendering was successful, False otherwise
+        Args:
+            ax: Matplotlib axis to draw on
+            data: pandas Series with input data
+            dist: StatisticalDistribution instance to fit and render
+            bins: number of classes for PDF scaling
+            color: optional color override
+            label: optional label for legend
+        Return:
+            True if rendering was successful, False otherwise
         """
         data_clean = data.dropna()
         if data_clean.empty:

@@ -10,11 +10,11 @@ class HistRenderer(Renderer):
     def render(ax, data, bins: int, show_kde: bool):
         """
         Render histogram on the given Matplotlib axis.
-
-        :param ax: Matplotlib axis to draw on
-        :param data: input data series or array
-        :param bins: number of histogram bins
-        :param show_kde: whether to display KDE curve
+        Args:
+            ax: Matplotlib axis to draw on
+            data: input data series or array
+            bins: number of histogram bins
+            show_kde: whether to display KDE curve
         """
         ax.clear()
         sns.histplot(

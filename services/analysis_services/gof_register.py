@@ -11,8 +11,8 @@ class GOFService:
     def register(cls, test):
         """
         Register a new GOF test instance.
-
-        :param test: instance of a class implementing BaseGOFTest
+        Args:
+            test: instance of a class implementing BaseGOFTest
         """
         cls._tests[test.name()] = test
 
@@ -20,11 +20,12 @@ class GOFService:
     def run_tests(cls, data, dist, **kwargs) -> dict:
         """
         Run all registered GOF tests on given data and distribution.
-
-        :param data: input data (pandas Series or numpy array)
-        :param dist: fitted StatisticalDistribution object
-        :param kwargs: optional parameters passed to each test
-        :return: dictionary with test results by test name
+        Args:
+            data: input data (pandas Series or numpy array)
+            dist: fitted StatisticalDistribution object
+            kwargs: optional parameters passed to each test
+        Return:
+            dictionary with test results by test name
         """
         data_clean = data.dropna() if hasattr(data, 'dropna') else data[~np.isnan(data)]
         results = {}

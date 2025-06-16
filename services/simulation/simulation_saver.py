@@ -19,9 +19,9 @@ class DataSaver:
     def save_data(self, dist_name: str, data: np.ndarray):
         """
         Save simulated data as a new dataset in the data history manager.
-        
-        :param dist_name: name of the distribution
-        :param data: simulated data array
+        Args:
+            dist_name: name of the distribution
+            data: simulated data array
         """
         dataset_label = self._create_data_label(dist_name)
         series = pd.Series(data)

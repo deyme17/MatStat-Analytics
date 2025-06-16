@@ -12,11 +12,12 @@ class ConfidenceService:
     def cdf_variance_ci(data: pd.Series, dist, confidence_level: float = 0.95):
         """
         Compute CDF with variance-based confidence intervals.
-
-        :param data: input data series
-        :param dist: StatisticalDistribution instance
-        :param confidence_level: confidence level (default: 0.95)
-        :return: tuple (x, CDF, lower CI, upper CI) or None if failed
+        Args:
+            data: input data series
+            dist: StatisticalDistribution instance
+            confidence_level: confidence level (default: 0.95)
+        Return:
+            tuple (x, CDF, lower CI, upper CI) or None if failed
         """
         n = len(data)
 

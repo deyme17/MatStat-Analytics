@@ -15,11 +15,13 @@ class ParameterEstimation:
 
     def estimate(self, dist_name: str, method_name: str, data):
         """Estimate parameters for a specified distribution using a chosen method.
-        
-        :param dist_name: Name of the distribution to estimate (must be registered)
-        :param method_name: Name of the estimation method to use
-        :param data: Input data for parameter estimation
-        :return: Estimated parameters if successful, None otherwise
+        Args:
+            dist_name: Name of the distribution to estimate (must be registered)
+            method_name: Name of the estimation method to use
+            data: Input data for parameter estimation
+
+        Rerurn: 
+            Estimated parameters if successful, None otherwise
         """
         dist_class = registered_distributions.get(dist_name)
         if not dist_class:

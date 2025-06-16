@@ -8,20 +8,22 @@ class SimulationService:
     Service for simulating samples from distributions and evaluating T-tests.
     """
     def __init__(self, test_performer):
-            """
-            Initialize SimulationService with a StatisticsService instance.
-            :param test_performer: Service for performing statistical tests
-            """
-            self.test_performer = test_performer
+        """
+        Initialize SimulationService with a StatisticsService instance.
+        Args:
+            test_performer: Service for performing statistical tests
+        """
+        self.test_performer = test_performer
 
     def generate_sample(self, distribution: StatisticalDistribution, size: int, params: dict) -> np.ndarray:
         """
         Generate a random sample from a distribution using the inverse CDF method.
-
-        :param distribution: instance of StatisticalDistribution
-        :param size: number of values to generate
-        :param params: distribution parameters
-        :return: numpy array of sampled values
+        Args:
+            distribution: instance of StatisticalDistribution
+            size: number of values to generate
+            params: distribution parameters
+        Return:
+            numpy array of sampled values
         """
         u = np.random.uniform(0, 1, size)
         return distribution.get_inverse_cdf(u, params)
@@ -30,13 +32,14 @@ class SimulationService:
                        true_mean: float, alpha: float = 0.05) -> list[dict]:
         """
         Run repeated T-tests on simulated samples of varying sizes.
-
-        :param distribution: instance of StatisticalDistribution
-        :param sizes: list of sample sizes to test
-        :param n_repeat: number of repetitions per sample size
-        :param true_mean: theoretical mean to test against
-        :param alpha: significance level for critical t-value
-        :return: list of dictionaries with t-statistics summary and parameter estimates per sample size
+        Args:
+            distribution: instance of StatisticalDistribution
+            sizes: list of sample sizes to test
+            n_repeat: number of repetitions per sample size
+            true_mean: theoretical mean to test against
+            alpha: significance level for critical t-value
+        Return:
+            list of dictionaries with t-statistics summary and parameter estimates per sample size
         """
         results = []
 

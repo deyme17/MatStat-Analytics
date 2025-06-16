@@ -11,10 +11,11 @@ class AnomalyService:
     def detect_normal_anomalies(data: pd.Series, threshold: float = 3) -> dict:
         """
         Detect anomalies based on the normal distribution (±threshold * std).
-
-        :param data: input data series
-        :param threshold: number of standard deviations for the bounds
-        :return: dictionary with anomaly indices and bounds
+        Args:
+            data: input data series
+            threshold: number of standard deviations for the bounds
+        Return:
+            dictionary with anomaly indices and bounds
         """
         mean = np.mean(data)
         std = np.std(data, ddof=1)
@@ -31,10 +32,11 @@ class AnomalyService:
     def detect_conf_anomalies(data: pd.Series, confidence_level: float = 0.95) -> dict:
         """
         Detect anomalies using confidence interval based on order statistics.
-
-        :param data: input data series
-        :param confidence_level: confidence level for the interval
-        :return: dictionary with anomaly indices and bounds
+        Args:
+            data: input data series
+            confidence_level: confidence level for the interval
+        Return:
+            dictionary with anomaly indices and bounds
         """
         sorted_data = np.sort(data)
         n = len(data)
@@ -54,9 +56,10 @@ class AnomalyService:
     def detect_asymmetry_anomalies(data: pd.Series) -> dict:
         """
         Detect anomalies using asymmetry and kurtosis-adjusted limits.
-
-        :param data: input data series
-        :return: dictionary with anomaly indices and bounds
+        Args:
+            data: input data series
+        Return:
+            dictionary with anomaly indices and bounds
         """
         N = len(data)
         mean = np.mean(data)

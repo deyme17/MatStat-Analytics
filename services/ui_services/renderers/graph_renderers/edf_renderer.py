@@ -12,11 +12,11 @@ class EDFRenderer(Renderer):
     def render(ax, data, bin_edges=None, show_edf_curve=False):
         """
         Render the EDF on a given Matplotlib axis.
-
-        :param ax: Matplotlib axis to draw on
-        :param data: pandas Series or NumPy array of values
-        :param bin_edges: optional array of bin edges for step approximation
-        :param show_edf_curve: whether to show a smoothed EDF curve
+        Args:
+            ax: Matplotlib axis to draw on
+            data: pandas Series or NumPy array of values
+            bin_edges: optional array of bin edges for step approximation
+            show_edf_curve: whether to show a smoothed EDF curve
         """
         data = np.sort(data.dropna().values)
         n = len(data)

@@ -15,9 +15,9 @@ class DataLoaderService:
     def register_loader(self, extension: str, loader) -> None:
         """
         Register a new file loader for specific extension.
-        
-        :param extension: File extension (e.g., '.json')
-        :param loader: FileLoader instance
+        Args:
+            extension: File extension (e.g., '.json')
+            loader: FileLoader instance
         """
         self._loaders[extension.lower()] = loader
     
@@ -28,9 +28,10 @@ class DataLoaderService:
     def load_data(self, path: str) -> Optional[pd.Series]:
         """
         Load numerical data from file.
-
-        :param path: path to the selected file
-        :return: pandas Series with valid numeric data, or None on error
+        Args:
+            path: path to the selected file
+        Return:
+            pandas Series with valid numeric data, or None on error
         """
         try:
             file_extension = os.path.splitext(path)[1].lower()
@@ -64,9 +65,10 @@ class DataLoaderService:
     def process_dataframe(df: pd.DataFrame) -> pd.Series:
         """
         Convert DataFrame to Series with numeric data.
-        
-        :param df: Input DataFrame
-        :return: pandas Series with numeric data
+        Args:
+            df: Input DataFrame
+        Return:
+            pandas Series with numeric data
         """
         # Take the last column if multiple columns exist
         if len(df.columns) > 1:
@@ -87,8 +89,9 @@ class DataLoaderService:
         """
         Open file dialog and let user select a data file.
 
-        :param parent: parent Qt widget (optional)
-        :return: path to selected file or None if cancelled
+            parent: parent Qt widget (optional)
+        Return:
+            path to selected file or None if cancelled
         """
         from PyQt6.QtWidgets import QFileDialog
         

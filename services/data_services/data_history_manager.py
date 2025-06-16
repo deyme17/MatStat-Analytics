@@ -13,9 +13,9 @@ class DataHistoryManager:
     def add_dataset(self, label: str, model):
         """
         Add a new dataset and set it as current.
-
-        :param label: name/description of the dataset
-        :param model: DataModel instance
+        Args:
+            label: name/description of the dataset
+            model: DataModel instance
         """
         self.datasets[label] = model
         self.current_key = label
@@ -23,8 +23,8 @@ class DataHistoryManager:
     def switch_to(self, label: str):
         """
         Switch to a previously added dataset by its label.
-
-        :param label: label of dataset to switch to
+        Args:
+            label: label of dataset to switch to
         """
         if label in self.datasets:
             self.current_key = label
@@ -32,8 +32,6 @@ class DataHistoryManager:
     def get_current_data(self):
         """
         Return the currently active DataModel.
-
-        :return: DataModel or None if not found
         """
         if self.current_key and self.current_key in self.datasets:
             return self.datasets[self.current_key]
@@ -42,8 +40,6 @@ class DataHistoryManager:
     def get_original_data(self):
         """
         Return the original (first) version of the current dataset.
-
-        :return: original DataModel or None
         """
         current = self.get_current_data()
         return current.revert_to_original() if current else None
@@ -51,8 +47,8 @@ class DataHistoryManager:
     def update_current_data(self, new_model):
         """
         Replace the current dataset with a new version.
-
-        :param new_model: new DataModel instance to assign
+        Args:
+            new_model: new DataModel instance to assign
         """
         if self.current_key:
             self.datasets[self.current_key] = new_model
@@ -60,15 +56,11 @@ class DataHistoryManager:
     def get_all_descriptions(self) -> list[str]:
         """
         Return all labels of stored datasets.
-
-        :return: list of strings (dataset labels)
         """
         return list(self.datasets.keys())
 
     def get_data_description(self) -> str:
         """
         Return the label of the current dataset.
-
-        :return: label string or "Unnamed"
         """
         return self.current_key or "Unnamed"

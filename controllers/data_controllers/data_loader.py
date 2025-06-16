@@ -42,7 +42,7 @@ class DataLoadController:
         data = self.loader_service.load_data(path)
 
         if data is None or data.empty:
-            print(f"❌ Failed to load file {path} or file is empty")
+            print(f"Failed to load file {path} or file is empty")
             return
 
         # Create new data model and update context
@@ -53,4 +53,4 @@ class DataLoadController:
 
         self.on_data_loaded(data)
 
-        print(f"✅ File {path} loaded successfully")
+        print(f"File {path} loaded successfully")
