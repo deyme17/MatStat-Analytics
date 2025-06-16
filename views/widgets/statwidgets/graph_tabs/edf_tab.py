@@ -1,6 +1,10 @@
 from .graph_tab import BaseGraphTab
 from services.ui_services.renderers.graph_renderers import RENDERERS
 
+LINEWIDTH = 2
+CI_ALPHA = 0.2
+CI_COLOR = 'pink'
+
 class EDFTab(BaseGraphTab):
     """Tab for Empirical Distribution Function (EDF) visualization"""
     
@@ -39,7 +43,7 @@ class EDFTab(BaseGraphTab):
             return
 
         try:
-            result = self.panel.window.graph_controller.compute_cdf_with_ci( # TODO
+            result = self.panel.window.graph_controller.compute_cdf_with_ci(    # TODO !!!
                 data, 
                 dist, 
                 params["confidence"]
@@ -50,9 +54,9 @@ class EDFTab(BaseGraphTab):
                 self.ax.plot(x_vals, cdf_vals, '-', 
                             color=dist.color, 
                             label=f'{dist.name} CDF', 
-                            linewidth=2)
+                            linewidth=LINEWIDTH)
                 self.ax.fill_between(x_vals, lower_ci, upper_ci, 
-                                   color='pink', alpha=0.2,
+                                   color=CI_COLOR, alpha=CI_ALPHA,
                                    label=f"Confidence level: {params['confidence'] * 100:.0f}%")
                 self.ax.legend()
                 self.ax.set_title("EDF and Statistical CDF with Confidence Interval")

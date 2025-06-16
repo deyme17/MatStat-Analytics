@@ -1,10 +1,13 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QDoubleSpinBox, QHBoxLayout
 import pandas as pd
 from typing import List, Type
-from models.stat_distributions.stat_distribution import StatisticalDistribution
 from services.analysis_services.gof_register import GOFService
 from views.widgets.hypoteswidgets.gof_test_panel import BaseTestPanel
 
+ALPHA_MIN, ALPHA_MAX = 0.01, 0.99
+ALPHA_STEP = 0.1
+ALPHA_PRECISION = 2
+DEFAULT_ALPHA = 0.05
 
 class GOFTestTab(QWidget):
     """
@@ -28,10 +31,10 @@ class GOFTestTab(QWidget):
         self.test_panels: List[BaseTestPanel] = [panel(gof_service) for panel in test_panels]
 
         self.alpha_spinbox = QDoubleSpinBox()
-        self.alpha_spinbox.setRange(0.01, 0.99)
-        self.alpha_spinbox.setSingleStep(0.01)
-        self.alpha_spinbox.setDecimals(2)
-        self.alpha_spinbox.setValue(0.05)
+        self.alpha_spinbox.setRange(ALPHA_MIN, ALPHA_MAX)
+        self.alpha_spinbox.setSingleStep(ALPHA_STEP)
+        self.alpha_spinbox.setDecimals(ALPHA_PRECISION)
+        self.alpha_spinbox.setValue(DEFAULT_ALPHA)
         self.alpha_spinbox.valueChanged.connect(self.evaluate_tests)
 
         # Alpha layout
@@ -52,7 +55,7 @@ class GOFTestTab(QWidget):
         """
         Evaluates all GOF tests based on current data and selected distribution.
         """
-        dist: StatisticalDistribution = self.graph_panel.get_selected_distribution()
+        dist = self.graph_panel.get_selected_distribution()
         model = self.data_model
 
         if dist is None or model is None or model.series.empty:

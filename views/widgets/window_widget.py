@@ -1,6 +1,9 @@
 from PyQt6.QtWidgets import QHBoxLayout, QPushButton, QLabel, QSpinBox, QWidget
 from typing import NamedTuple
 
+DEFAULT_PRECISION_VAL = 2
+MIN_PRECISION, MAX_PRECISION = 1, 6
+LOAD_BUTTON_WIDTH, LOAD_BUTTON_HEIGHT = 80, 25
 
 class ControlsBar(NamedTuple):
     layout: QHBoxLayout
@@ -23,12 +26,12 @@ class WindowWidgets:
             ControlsBar: named tuple containing layout and individual widgets
         """
         load_data_button = QPushButton('Load Data')
-        load_data_button.setFixedSize(80, 25)
+        load_data_button.setFixedSize(LOAD_BUTTON_WIDTH, LOAD_BUTTON_HEIGHT)
 
         precision_label = QLabel('Precision:')
         precision_spinbox = QSpinBox()
-        precision_spinbox.setRange(1, 6)
-        precision_spinbox.setValue(2)
+        precision_spinbox.setRange(MIN_PRECISION, MAX_PRECISION)
+        precision_spinbox.setValue(DEFAULT_PRECISION_VAL)
 
         layout = QHBoxLayout()
         layout.addWidget(load_data_button)

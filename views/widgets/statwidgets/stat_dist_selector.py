@@ -4,6 +4,8 @@ from utils.ui_styles import groupStyle, groupMargin
 from models.stat_distributions import registered_distributions
 from models.stat_distributions.stat_distribution import StatisticalDistribution
 
+DIST_IN_ROW = 3
+MAX_DIST_PANEL_HEIGHT = 100
 
 class DistributionSelector(QGroupBox):
     """
@@ -25,7 +27,7 @@ class DistributionSelector(QGroupBox):
 
     def _setup_ui(self) -> None:
         """Initialize UI components."""
-        self.setMaximumHeight(100)
+        self.setMaximumHeight(MAX_DIST_PANEL_HEIGHT)
         self.setStyleSheet(groupStyle + groupMargin)
 
         self.button_group = QButtonGroup(self)
@@ -49,7 +51,7 @@ class DistributionSelector(QGroupBox):
         for index, (name, _) in enumerate(registered_distributions.items()):
             btn = QRadioButton(name)
             self.button_group.addButton(btn)
-            layout.addWidget(btn, (index + 1) // 3, (index + 1) % 3)
+            layout.addWidget(btn, (index + 1) // DIST_IN_ROW, (index + 1) % DIST_IN_ROW)
             btn.toggled.connect(self._handle_change)
 
     def get_selected_distribution(self) -> Optional[StatisticalDistribution]:

@@ -1,6 +1,8 @@
 from .graph_tab import BaseGraphTab
 from services.ui_services.renderers.graph_renderers import RENDERERS
 
+LEGEND_FRAMEALPHA = 0.5
+
 class HistogramTab(BaseGraphTab):
     """Tab for histogram visualization"""
     def __init__(self):
@@ -42,6 +44,6 @@ class HistogramTab(BaseGraphTab):
                 dist,
                 bins=params['bins']
             )
-            self.ax.legend(framealpha=0.5)
+            self.ax.legend(framealpha=LEGEND_FRAMEALPHA)
         except Exception as e:
             print(f"Distribution Error: {e}")
