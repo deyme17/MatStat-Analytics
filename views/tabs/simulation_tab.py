@@ -18,15 +18,15 @@ class SimulationTab(QWidget):
     parametric distributions.
     """
 
-    def __init__(self, window, simulation_controller):
+    def __init__(self, context, simulation_controller):
         """
         Initialize the simulation tab with required services.
         Args:
-            window: The parent widget that contains this tab
+            context: AppContext with messanger service
             simulation_controller: Controller for performing statistical simulations
         """
         super().__init__()
-        self.window = window
+        self.context = context
         self.simulation_controller = simulation_controller
         self._init_ui()
         self._update_param_placeholder()
@@ -133,14 +133,14 @@ class SimulationTab(QWidget):
         # Create distribution instance
         dist_class = registered_distributions.get(dist_name)
         if not dist_class:
-            self.window.show_error_message("Unsupported", f"Distribution {dist_name} is not supported.")
+            self.context.messanger.show_error("Unsupported", f"Distribution {dist_name} is not supported.")
             return
 
         dist = dist_class()
         dist.params = params
         true_mean = dist.get_mean()
         if true_mean is None:
-            self.window.show_error_message("Invalid Parameters", "Could not determine true mean from parameters.")
+            self.context.messanger.show_error("Invalid Parameters", "Could not determine true mean from parameters.")
             return
         
         save_data = self.save_data_checkbox.isChecked()
@@ -155,7 +155,7 @@ class SimulationTab(QWidget):
             params = tuple(map(float, params_str.split(',')))
             return params
         except:
-            self.window.show_error_message("Invalid Parameters", "Parameters must be comma-separated numbers.")
+            self.context.messanger.show_error("Invalid Parameters", "Parameters must be comma-separated numbers.")
             return
         
     def _parse_alpha(self):
@@ -165,7 +165,7 @@ class SimulationTab(QWidget):
                 raise ValueError
             return alpha
         except ValueError:
-            self.window.show_error_message("Invalid α", "Significance level α must be between 0 and 1.")
+            self.context.messanger.show_error("Invalid α", "Significance level α must be between 0 and 1.")
             return
 
     def _populate_table(self, results):
