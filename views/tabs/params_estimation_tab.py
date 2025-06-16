@@ -5,45 +5,46 @@ from PyQt6.QtWidgets import (
 from models.stat_distributions import registered_distributions
 from models.params_estimators import registered_estimation_methods
 
+
 class ParamEstimationTab(QWidget):
     """
-    A QWidget tab that allows users to estimate distribution parameters using different methods.
+    Tab widget for estimating distribution parameters using different methods.
+    Uses AppContext for dependencies.
     """
 
-    def __init__(self, window, estimator):
+    def __init__(self, context, estimator):
         """
-        :param window: The parent widget that contains this controller
-        :param estimator: The class that implements an parameters estimation method
+        Args:
+            context: AppContext with data_model and messanger
+            estimator: Parameters estimation implementation
         """
         super().__init__()
-        self.window = window
+        self.context = context
         self.estimator = estimator
         self._init_ui()
 
-    def _init_ui(self):
-        """
-        Initializes and lays out all widgets in the tab.
-        """
+    def _init_ui(self) -> None:
+        """Initialize and layout all UI components."""
         layout = QVBoxLayout()
 
-        # Choosing distribution
+        # Distribution selection
         self.dist_combo = QComboBox()
         self.dist_combo.addItems(registered_distributions.keys())
 
-        # Choosing estimation method
+        # Method selection
         self.method_combo = QComboBox()
-        self.method_keys = list(registered_estimation_methods.keys())  # save internal keys
-        self.method_combo.addItems(self.method_keys)
+        self.method_combo.addItems(registered_estimation_methods.keys())
 
+        # Estimation button
         self.estimate_button = QPushButton("Estimate Parameters")
-        self.estimate_button.clicked.connect(self.estimate_parameters)
+        self.estimate_button.clicked.connect(self._handle_estimation)
 
         # Results table
         self.result_table = QTableWidget()
         self.result_table.setColumnCount(2)
         self.result_table.setHorizontalHeaderLabels(["Parameter", "Estimated Value"])
 
-        # Layout
+        # Assemble layout
         layout.addWidget(QLabel("Select Distribution:"))
         layout.addWidget(self.dist_combo)
         layout.addWidget(QLabel("Select Estimation Method:"))
@@ -52,44 +53,54 @@ class ParamEstimationTab(QWidget):
         layout.addWidget(self.result_table)
         self.setLayout(layout)
 
-    def estimate_parameters(self):
-        """
-        Estimates parameters of the selected distribution using the chosen method.
-        Displays results in the table.
-        """
-        if not hasattr(self.window, 'data_model') or self.window.data_model is None:
-            self.window.show_error_message("No Data", "No data loaded. Please load a dataset first.")
+    def _handle_estimation(self) -> None:
+        """Handle parameter estimation request."""
+        if not self.context.data_model or not self.context.messanger:
             return
 
-        data = self.window.data_model.series
+        data = self.context.data_model.series
+        if data is None:
+            self.context.messanger.show_error("No Data", "No data available for estimation")
+            return
+
         if data.empty or data.isna().all():
-            self.window.show_error_message("Invalid Data", "Loaded data is empty or contains only NaN values.")
+            self.context.messanger.show_error("Invalid Data", "Data contains no valid values")
             return
 
         dist_name = self.dist_combo.currentText()
-        method_key = self.method_combo.currentText()
-
-        if method_key not in registered_estimation_methods:
-            self.window.show_error_message("Invalid Method", f"Unknown estimation method: {method_key}")
-            return
+        method_name = self.method_combo.currentText()
 
         try:
-            params = self.estimator.estimate(dist_name, method_key, data)
-            if params is None:
-                self.window.show_error_message("Estimation Failed", f"Could not estimate parameters for {dist_name}.")
-                return
-
+            # Get distribution class
             dist_class = registered_distributions.get(dist_name)
             if not dist_class:
-                self.window.show_error_message("Unsupported", f"Distribution {dist_name} is not supported.")
+                self.context.messanger.show_error("Invalid Distribution", 
+                    f"Unknown distribution: {dist_name}")
                 return
-            dist_instance = dist_class()
-            param_names = list(dist_instance.distribution_params.keys())
 
-            self.result_table.setRowCount(len(params))
-            for i, (name, value) in enumerate(zip(param_names, params)):
-                self.result_table.setItem(i, 0, QTableWidgetItem(name))
-                self.result_table.setItem(i, 1, QTableWidgetItem(f"{value:.4f}"))
+            # Estimate parameters
+            params = self.estimator.estimate(dist_name, method_name, data)
+            if params is None:
+                self.context.messanger.show_error("Estimation Failed", 
+                    f"Failed to estimate parameters for {dist_name}")
+                return
+
+            # Display results
+            self._display_results(dist_class(), params)
 
         except Exception as e:
-            self.window.show_error_message("Error", f"Failed to estimate parameters: {str(e)}")
+            self.context.messanger.show_error("Estimation Error", 
+                f"Error during estimation: {str(e)}")
+
+    def _display_results(self, distribution, params: list) -> None:
+        """Display estimated parameters in the results table."""
+        param_names = list(distribution.distribution_params.keys())
+        self.result_table.setRowCount(len(params))
+        
+        for i, (name, value) in enumerate(zip(param_names, params)):
+            self.result_table.setItem(i, 0, QTableWidgetItem(name))
+            self.result_table.setItem(i, 1, QTableWidgetItem(f"{value:.4f}"))
+
+    def clear_results(self) -> None:
+        """Clear the results table."""
+        self.result_table.setRowCount(0)
