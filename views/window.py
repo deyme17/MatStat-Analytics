@@ -36,24 +36,9 @@ class Window(QMainWindow):
         main_panel.addWidget(self.graph_panel, stretch=3)
 
         main_layout = QVBoxLayout()
-        controls_bar = self.widgets.create_controls_bar()
-
-        self.precision_spinbox.valueChanged.connect(
-            lambda: self.stat_controller.update_statistics_table()
-        )
-        self.load_data_button.clicked.connect(
-            lambda: self.data_load_controller.load_data_file()
-        )
-
-        main_layout.addLayout(controls_bar)
-        main_layout.addLayout(main_panel, stretch=1)
+        main_layout.addLayout(self.controls_layout)
+        main_layout.addLayout(main_panel)
 
         central_widget = QWidget()
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
-
-    def show_error_message(self, title, message):
-        QMessageBox.critical(self, title, message)
-
-    def show_info_message(self, title, message):
-        QMessageBox.information(self, title, message)

@@ -1,84 +1,82 @@
-from PyQt6.QtWidgets import QGroupBox, QLabel, QVBoxLayout
-from utils.ui_styles import groupStyle, groupMargin
+from PyQt6.QtWidgets import QGroupBox, QLabel, QVBoxLayout, QWidget
+from abc import ABC, abstractmethod
+import pandas as pd
 
-class BaseTestPanel(QGroupBox):
+from utils.ui_styles import groupStyle, groupMargin
+from services.analysis_services.gof_register import GOFService
+from models.stat_distributions.stat_distribution import StatisticalDistribution
+
+
+class BaseTestPanel(QGroupBox, ABC):
     """
     Abstract base class for statistical test panels used in the application.
-    Provides common layout and logic for displaying hypothesis test results.
+    Provides a common layout and logic for displaying hypothesis test results.
     """
 
-    def __init__(self, title, window, gof_service):
+    def __init__(self, title: str, gof_service: GOFService) -> None:
         """
-        Initializes the test panel group box with a title and base layout.
+        Initialize the test panel group box with a title and base layout.
 
         Args:
             title (str): Title of the group box representing the test.
-            window (QMainWindow): Main application window reference.
-            gof_service: Service for executing GOF tests.
+            gof_service (GOFService): Service for executing Goodness-of-Fit tests.
         """
         super().__init__(title)
-        self.window = window
+        self.gof_service: GOFService = gof_service
         self.setCheckable(False)
         self.setStyleSheet(groupStyle + groupMargin)
-        self.gof_service = gof_service
 
-        self.hypothesis_result = QLabel("[ ] Hypothesis H₀ not tested")
-        self._layout = QVBoxLayout()
+        self.hypothesis_result: QLabel = QLabel("[ ] Hypothesis H₀ not tested")
+        self._layout: QVBoxLayout = QVBoxLayout()
         self.setLayout(self._layout)
 
-    def add_stat_label(self, prefix: str = " "):
+    def add_stat_label(self, prefix: str = " ") -> QLabel:
         """
-        Adds a label to the layout for displaying a test statistic or value.
+        Adds a QLabel to the layout for displaying test statistics.
 
         Args:
             prefix (str): Text prefix for the label.
-
-        Returns:
-            QLabel: The newly created label.
         """
         label = QLabel(prefix)
         self._layout.addWidget(label)
         return label
 
-    def finalize_layout(self, *extra_widgets):
+    def finalize_layout(self, *extra_widgets: QWidget) -> None:
         """
-        Finalizes the layout by appending extra widgets (if any) and
-        the hypothesis result label.
+        Finalize layout by appending any extra widgets and the result label.
 
         Args:
-            *extra_widgets: Any additional widgets to include before the result label.
+            *extra_widgets (QWidget): Optional widgets to add before the result.
         """
-        for w in extra_widgets:
-            self._layout.addWidget(w)
+        for widget in extra_widgets:
+            self._layout.addWidget(widget)
         self._layout.addWidget(self.hypothesis_result)
 
-    def update_result(self, passed: bool):
+    def update_result(self, passed: bool) -> None:
         """
-        Updates the hypothesis result label based on test outcome.
+        Update the hypothesis result label based on the test outcome.
 
         Args:
-            passed (bool): True if H₀ is not rejected, False otherwise.
+            passed (bool): True if H₀ is not rejected, False if rejected.
         """
         self.hypothesis_result.setText(
             f"[{'✓' if passed else '✗'}] Hypothesis H₀ {'not rejected' if passed else 'rejected'}"
         )
 
-    def evaluate(self, data, dist, alpha):
+    @abstractmethod
+    def evaluate(self, data: pd.Series, dist: StatisticalDistribution, alpha: float) -> None:
         """
-        Abstract method to perform the test evaluation.
+        Abstract method to evaluate the test with the given data and distribution.
 
         Args:
             data (pd.Series): Sample data to evaluate.
-            dist (StatisticalDistribution): Theoretical distribution to test against.
+            dist (StatisticalDistribution): Fitted distribution to compare against.
             alpha (float): Significance level.
-
-        Raises:
-            NotImplementedError: If not overridden in the subclass.
         """
-        raise NotImplementedError("Subclasses must implement evaluate()")
+        pass
 
-    def clear(self):
+    def clear(self) -> None:
         """
-        Resets the hypothesis result label to the default untested state.
+        Reset the panel to the default untested state.
         """
         self.hypothesis_result.setText("[ ] Hypothesis H₀ not tested")

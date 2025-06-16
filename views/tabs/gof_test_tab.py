@@ -1,19 +1,32 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QDoubleSpinBox, QHBoxLayout
+import pandas as pd
+from typing import List, Type
+from models.stat_distributions.stat_distribution import StatisticalDistribution
+from services.analysis_services.gof_register import GOFService
+from views.widgets.hypoteswidgets.gof_test_panel import BaseTestPanel
+
 
 class GOFTestTab(QWidget):
     """
     A tab widget for evaluating Goodness-of-Fit (GOF) tests.
     """
 
-    def __init__(self, window, gof_service, test_panels):
-        """:param test_panels: List of widget classes (not instances) of GOF tests"""
+    def __init__(self, context, graph_panel, gof_service: GOFService, test_panels: List[Type[BaseTestPanel]]) -> None:
+        """
+        Initialize the GOF test tab.
+
+        Args:
+            context (AppContext): Application context container
+            graph_panel: Object with get_selected_distribution().
+            gof_service (GOFService): Service to perform GOF tests.
+            test_panels (list): List of GOF test panel classes (not instances).
+        """
         super().__init__()
-        self.window = window
+        self.data_model = context.data_model
+        self.graph_panel = graph_panel
 
-        # Initialize GOF test panels
-        self.test_panels = [panel(window, gof_service) for panel in test_panels]
+        self.test_panels: List[BaseTestPanel] = [panel(gof_service) for panel in test_panels]
 
-        # Significance level selector
         self.alpha_spinbox = QDoubleSpinBox()
         self.alpha_spinbox.setRange(0.01, 0.99)
         self.alpha_spinbox.setSingleStep(0.01)
@@ -21,7 +34,7 @@ class GOFTestTab(QWidget):
         self.alpha_spinbox.setValue(0.05)
         self.alpha_spinbox.valueChanged.connect(self.evaluate_tests)
 
-        # Layout for alpha selector
+        # Alpha layout
         alpha_layout = QHBoxLayout()
         alpha_layout.addWidget(QLabel("Significance level α:"))
         alpha_layout.addWidget(self.alpha_spinbox)
@@ -35,14 +48,12 @@ class GOFTestTab(QWidget):
         layout.addStretch()
         self.setLayout(layout)
 
-    def evaluate_tests(self):
+    def evaluate_tests(self) -> None:
         """
-        Evaluates all registered GOF test panels based on the current data and 
-        selected distribution. Triggered when the significance level is changed 
-        or when the distribution is updated.
+        Evaluates all GOF tests based on current data and selected distribution.
         """
-        dist = self.window.graph_panel.get_selected_distribution()
-        model = self.window.data_model
+        dist: StatisticalDistribution = self.graph_panel.get_selected_distribution()
+        model = self.data_model
 
         if dist is None or model is None or model.series.empty:
             return
@@ -55,9 +66,9 @@ class GOFTestTab(QWidget):
         for test in self.test_panels:
             test.evaluate(data, dist, alpha)
 
-    def clear_panels(self):
+    def clear_panels(self) -> None:
         """
-        Clears the results of all GOF test panels.
+        Clears all hypothesis test panels.
         """
         for test in self.test_panels:
             test.clear()
