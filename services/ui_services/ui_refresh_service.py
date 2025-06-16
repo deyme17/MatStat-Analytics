@@ -2,7 +2,7 @@ from typing import Callable, Optional
 import pandas as pd
 
 
-class UIRefreshService:
+class UIRefreshService: # !
     """
     Service for refreshing all UI components after data changes.
     

@@ -2,7 +2,7 @@ from typing import Callable
 import pandas as pd
 
 
-class UIStateController:
+class UIStateController: # !
     """
     Controller responsible for enabling/disabling UI elements based on data state.
     """

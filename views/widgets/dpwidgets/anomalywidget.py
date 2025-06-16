@@ -1,6 +1,11 @@
 from PyQt6.QtWidgets import QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QDoubleSpinBox
 from utils.ui_styles import groupStyle
 
+MIN_GAMMA, MAX_GAMMA = 0.80, 0.99
+GAMMA_STEP = 0.01
+DEFAULT_GAMMA = 0.95
+GAMMA_PRECISION = 2
+
 class AnomalyWidget(QGroupBox):
     """
     Widget for anomaly detection operations. 
@@ -32,10 +37,10 @@ class AnomalyWidget(QGroupBox):
         gamma_layout = QHBoxLayout()
         window.anomaly_gamma_label = QLabel("Significance level (1-γ):")
         window.anomaly_gamma_spinbox = QDoubleSpinBox()
-        window.anomaly_gamma_spinbox.setRange(0.80, 0.99)
-        window.anomaly_gamma_spinbox.setSingleStep(0.01)
-        window.anomaly_gamma_spinbox.setValue(0.95)
-        window.anomaly_gamma_spinbox.setDecimals(2)
+        window.anomaly_gamma_spinbox.setRange(MIN_GAMMA, MAX_GAMMA )
+        window.anomaly_gamma_spinbox.setSingleStep(GAMMA_STEP)
+        window.anomaly_gamma_spinbox.setValue(DEFAULT_GAMMA)
+        window.anomaly_gamma_spinbox.setDecimals(GAMMA_PRECISION)
         window.anomaly_gamma_spinbox.setEnabled(False)
 
         gamma_layout.addWidget(window.anomaly_gamma_label)

@@ -1,5 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QHBoxLayout
 
+ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT = 333, 30
+
 class DataProcessingTab(QWidget):
     """
     A UI tab for managing data preprocessing steps including:
@@ -12,10 +14,11 @@ class DataProcessingTab(QWidget):
 
     def __init__(self, parent, processor_widget, anomaly_widget, missing_widget):
         """
-        :param parent: The parent widget that contains this controller
-        :param processor_widget: Widget class for data processing/transformation operations
-        :param anomaly_widget: Widget class for anomaly detection functionality
-        :param missing_widget: Widget class for handling missing data operations
+        Args:
+            parent: The parent widget that contains this controller
+            processor_widget: Widget class for data processing/transformation operations
+            anomaly_widget: Widget class for anomaly detection functionality
+            missing_widget: Widget class for handling missing data operations
         """
         super().__init__(parent)
 
@@ -33,7 +36,7 @@ class DataProcessingTab(QWidget):
         # Original data button
         self.original_button = QPushButton("Original")
         self.original_button.setEnabled(False)
-        self.original_button.setFixedSize(333, 30)
+        self.original_button.setFixedSize(ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT)
         self.original_button.clicked.connect(parent.data_version_controller.original_data)
 
         # Navigation layout for the button

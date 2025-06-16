@@ -5,6 +5,9 @@ from utils.ui_styles import appStyle
 from app_context import AppContext
 from factory import Factory
 
+WINDOW_PALETTE_RED, WINDOW_PALETTE_BLUE, WINDOW_PALETTE_GREEN = 240, 248, 255
+BASE_PALETTE_RED, BASE_PALETTE_BLUE, BASE_PALETTE_GREEN = 245, 250, 255
+
 class Window(QMainWindow):
     """
     Main application window for the MatStat Analytics tool.
@@ -26,8 +29,8 @@ class Window(QMainWindow):
 
     def _init_palette(self):
         palette = self.palette()
-        palette.setColor(QPalette.ColorRole.Window, QColor(240, 248, 255))
-        palette.setColor(QPalette.ColorRole.Base, QColor(245, 250, 255))
+        palette.setColor(QPalette.ColorRole.Window, QColor(WINDOW_PALETTE_RED, WINDOW_PALETTE_BLUE, WINDOW_PALETTE_GREEN))
+        palette.setColor(QPalette.ColorRole.Base, QColor(BASE_PALETTE_RED, BASE_PALETTE_BLUE, BASE_PALETTE_GREEN))
         self.setPalette(palette)
 
     def _create_layout(self):

@@ -5,6 +5,15 @@ from PyQt6.QtWidgets import (
 from views.widgets.statwidgets.graph_tabs import registered_graphs
 import pandas as pd
 
+MIN_NINS, MAX_BINS = 1, 999
+DEFAULT_BINS = 10
+MAX_BINS_SPINBOX_WIDTH = 100
+
+MIN_CONF, MAX_CONF = 0.80, 0.99
+CONF_STEP = 0.01
+DEFAULT_CONF = 0.95
+CONF_PRECISION = 2
+
 
 class GraphPanel(QWidget):
     """
@@ -47,15 +56,15 @@ class GraphPanel(QWidget):
         self.controls_layout = QHBoxLayout()
 
         self.bins_spinbox = QSpinBox()
-        self.bins_spinbox.setRange(1, 999)
-        self.bins_spinbox.setValue(10)
-        self.bins_spinbox.setMaximumWidth(100)
+        self.bins_spinbox.setRange(MIN_NINS, MAX_BINS)
+        self.bins_spinbox.setValue(DEFAULT_BINS)
+        self.bins_spinbox.setMaximumWidth(MAX_BINS_SPINBOX_WIDTH)
 
         self.confidence_spinbox = QDoubleSpinBox()
-        self.confidence_spinbox.setRange(0.80, 0.99)
-        self.confidence_spinbox.setSingleStep(0.01)
-        self.confidence_spinbox.setValue(0.95)
-        self.confidence_spinbox.setDecimals(2)
+        self.confidence_spinbox.setRange(MIN_CONF, MAX_CONF)
+        self.confidence_spinbox.setSingleStep(CONF_STEP)
+        self.confidence_spinbox.setValue(DEFAULT_CONF)
+        self.confidence_spinbox.setDecimals(CONF_PRECISION)
 
         self.show_kde_checkbox = QCheckBox("Show KDE")
         self.show_kde_checkbox.setChecked(False)

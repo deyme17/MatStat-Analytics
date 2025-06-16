@@ -1,6 +1,16 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QCheckBox, QLabel, QPushButton, QSpinBox, QComboBox, QTableWidget, QTableWidgetItem, QHBoxLayout, QLineEdit
 from models.stat_distributions import registered_distributions
-from utils.constants import DEFAULT_SAMPLE_SIZES
+
+DEFAULT_SAMPLE_SIZES = [20, 50, 100, 400, 1000, 2000, 5000]
+MIN_PARAM_INPUT_WIDTH = 200
+DEFAULT_ALPHA_VAL_LABEL = "0.05"
+MAX_ALPHA_INPUT_WIDTH = 100
+MIN_DS_SIZE, MAX_DS_SIZE = 10, 10000
+DEFAULT_DS_SIZE = 1000
+SIZE_DS_SPIN_WIDTH = 150
+MIN_REPEATS, MAX_REPEATS = 1, 1000
+DEFAULT_REPEATS = 200
+REPEAT_SPIN_WIDTH = 100
 
 class SimulationTab(QWidget):
     """
@@ -11,9 +21,9 @@ class SimulationTab(QWidget):
     def __init__(self, window, simulation_controller):
         """
         Initialize the simulation tab with required services.
-        
-        :param window: The parent widget that contains this tab
-        :param simulation_controller: Controller for performing statistical simulations
+        Args:
+            window: The parent widget that contains this tab
+            simulation_controller: Controller for performing statistical simulations
         """
         super().__init__()
         self.window = window
@@ -47,7 +57,7 @@ class SimulationTab(QWidget):
         param_layout = QHBoxLayout()
         param_label = QLabel("Distribution Parameters:")
         self.param_input = QLineEdit()
-        self.param_input.setMinimumWidth(200)
+        self.param_input.setMinimumWidth(MIN_PARAM_INPUT_WIDTH)
         self.param_input.setPlaceholderText("x, ...")
         param_layout.addWidget(param_label)
         param_layout.addWidget(self.param_input)
@@ -59,8 +69,8 @@ class SimulationTab(QWidget):
         alpha_layout = QHBoxLayout()
         alpha_label = QLabel("Significance Level α:")
         self.alpha_input = QLineEdit()
-        self.alpha_input.setText("0.05")
-        self.alpha_input.setMaximumWidth(100)
+        self.alpha_input.setText(DEFAULT_ALPHA_VAL_LABEL)
+        self.alpha_input.setMaximumWidth(MAX_ALPHA_INPUT_WIDTH)
         alpha_layout.addWidget(alpha_label)
         alpha_layout.addWidget(self.alpha_input)
         alpha_layout.addStretch()
@@ -72,9 +82,9 @@ class SimulationTab(QWidget):
         self.save_data_checkbox = QCheckBox("Save simulated data with size:")
         self.save_data_checkbox.setChecked(False)
         self.size_spin = QSpinBox()
-        self.size_spin.setRange(10, 10000)
-        self.size_spin.setValue(1000)
-        self.size_spin.setMaximumWidth(150)
+        self.size_spin.setRange(MIN_DS_SIZE, MAX_DS_SIZE)
+        self.size_spin.setValue(DEFAULT_DS_SIZE)
+        self.size_spin.setMaximumWidth(SIZE_DS_SPIN_WIDTH)
         save_size_layout.addWidget(self.save_data_checkbox)
         save_size_layout.addWidget(self.size_spin)
         save_size_layout.addStretch()
@@ -84,9 +94,9 @@ class SimulationTab(QWidget):
         """Initialize simulation execution controls."""
         control_layout = QHBoxLayout()
         self.repeat_spin = QSpinBox()
-        self.repeat_spin.setRange(1, 1000)
-        self.repeat_spin.setValue(200)
-        self.repeat_spin.setMaximumWidth(100)
+        self.repeat_spin.setRange(MIN_REPEATS, MAX_REPEATS)
+        self.repeat_spin.setValue(DEFAULT_REPEATS)
+        self.repeat_spin.setMaximumWidth(REPEAT_SPIN_WIDTH)
         self.run_button = QPushButton("Run Simulation")
         self.run_button.clicked.connect(self.run_simulation)
         control_layout.addWidget(QLabel("Repeats:"))
@@ -161,7 +171,8 @@ class SimulationTab(QWidget):
     def _populate_table(self, results):
         """
         Populate the result table with simulation results.
-        :param results: List of dictionaries containing simulation results
+        Args:
+            results: List of dictionaries containing simulation results
         """
         self.result_table.setRowCount(len(results))
         for i, res in enumerate(results):

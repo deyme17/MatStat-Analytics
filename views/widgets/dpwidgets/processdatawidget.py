@@ -1,6 +1,10 @@
 from PyQt6.QtWidgets import QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QDoubleSpinBox
 from utils.ui_styles import groupStyle
 
+MIN_SHIFT, MAX_SHIFT = -1000, 1000
+SHIFT_STEP = 1
+DEFAULT_SHIFT = 0
+
 class ProcessDataWidget(QGroupBox):
     """
     Widget for performing basic data transformations such as standardization,
@@ -26,9 +30,9 @@ class ProcessDataWidget(QGroupBox):
         shift_layout = QHBoxLayout()
         window.shift_label = QLabel("Shift by:")
         window.shift_spinbox = QDoubleSpinBox()
-        window.shift_spinbox.setRange(-1000, 1000)
-        window.shift_spinbox.setSingleStep(1)
-        window.shift_spinbox.setValue(0)
+        window.shift_spinbox.setRange(MIN_SHIFT, MAX_SHIFT)
+        window.shift_spinbox.setSingleStep(SHIFT_STEP)
+        window.shift_spinbox.setValue(DEFAULT_SHIFT)
         window.shift_spinbox.setEnabled(False)
 
         window.shift_button = QPushButton("Apply")
