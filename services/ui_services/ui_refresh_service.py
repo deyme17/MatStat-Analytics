@@ -1,31 +1,5 @@
-from typing import Callable, Optional
+from callbacks import UIClearCallbacks, UIUpdateCallbacks, UIModelCallbacks, UIStateCallbacks
 import pandas as pd
-from dataclasses import dataclass
-
-
-@dataclass
-class UIClearCallbacks:
-    clear_graph: Callable[[], None]
-    clear_stats: Callable[[], None]
-    clear_gof: Callable[[], None]
-
-@dataclass
-class UIUpdateCallbacks:
-    set_graph_data: Callable[[Optional[pd.Series]], None]
-    update_stats: Callable[[], None]
-    evaluate_gof: Callable[[], None]
-
-@dataclass
-class UIStateCallbacks:
-    update_state: Callable[[pd.Series], None]
-    update_transformation_label: Callable[[], None]
-    update_navigation_buttons: Callable[[], None]
-    enable_original_button: Callable[[bool], None]
-
-@dataclass
-class UIModelCallbacks:
-    get_bins_count: Callable[[], int]
-    update_model_bins: Optional[Callable[[int], None]] = None
 
 
 class UIRefreshService:
