@@ -28,7 +28,7 @@ class GraphPanel(QWidget):
         on_bins_changed: Callable[[int], None],
         on_alpha_changed: Callable[[float], None],
         on_kde_toggled: Callable[[bool], None],
-        on_dist_changed: Callable[[object], None],
+        on_dist_changed: Callable[[], None],
     ):
         """
         Args:
