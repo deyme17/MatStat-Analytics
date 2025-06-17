@@ -1,74 +1,60 @@
 from typing import Callable, Optional
 import pandas as pd
+from dataclasses import dataclass
 
 
-class UIRefreshService: # !
+@dataclass
+class UIClearCallbacks:
+    clear_graph: Callable[[], None]
+    clear_stats: Callable[[], None]
+    clear_gof: Callable[[], None]
+
+@dataclass
+class UIUpdateCallbacks:
+    set_graph_data: Callable[[Optional[pd.Series]], None]
+    update_stats: Callable[[], None]
+    evaluate_gof: Callable[[], None]
+
+@dataclass
+class UIStateCallbacks:
+    update_state: Callable[[pd.Series], None]
+    update_transformation_label: Callable[[], None]
+    update_navigation_buttons: Callable[[], None]
+    enable_original_button: Callable[[bool], None]
+
+@dataclass
+class UIModelCallbacks:
+    get_bins_count: Callable[[], int]
+    update_model_bins: Optional[Callable[[int], None]] = None
+
+
+class UIRefreshService:
     """
     Service for refreshing all UI components after data changes.
     
-    Uses callbacks to decouple from specific UI components.
+    Uses grouped callbacks to decouple from specific UI components.
     """
+
     def __init__(
         self,
-        # Clear operations
-        clear_graph_callback: Callable[[], None],
-        clear_stats_callback: Callable[[], None],
-        clear_gof_callback: Callable[[], None],
-        
-        # Update operations
-        set_graph_data_callback: Callable[[Optional[pd.Series]], None],
-        update_stats_callback: Callable[[], None],
-        evaluate_gof_callback: Callable[[], None],
-        
-        # State operations
-        update_state_callback: Callable[[pd.Series], None],
-        update_transformation_label_callback: Callable[[], None],
-        update_navigation_buttons_callback: Callable[[], None],
-        enable_original_button_callback: Callable[[bool], None],
-        
-        # Model operations
-        get_bins_count_callback: Callable[[], int],
-        update_model_bins_callback: Optional[Callable[[int], None]] = None
+        clear: UIClearCallbacks,
+        update: UIUpdateCallbacks,
+        state: UIStateCallbacks,
+        model: UIModelCallbacks
     ):
         """
         Args:
-            clear_graph_callback: Clears graph visualization
-            clear_stats_callback: Resets statistics display
-            clear_gof_callback: Clears goodness-of-fit tests
-            
-            set_graph_data_callback: Updates graph with new data series
-            update_stats_callback: Refreshes statistics calculations
-            evaluate_gof_callback: Re-runs goodness-of-fit tests
-            
-            update_state_callback: Updates application state for new data
-            update_transformation_label_callback: Refreshes transform status
-            update_navigation_buttons_callback: Updates button states
-            enable_original_button_callback: Toggles 'Original' button
-            
-            get_bins_count_callback: Retrieves current bin count
-            update_model_bins_callback: Updates model's bin count (optional)
+            clear: Group of callbacks for clearing graph/stat/GOF UI
+            update: Group of callbacks for updating UI elements
+            state: Group of callbacks for updating app state/labels/buttons
+            model: Group of callbacks for accessing/updating the data model
         """
-        # Clear callbacks
-        self.clear_graph = clear_graph_callback
-        self.clear_stats = clear_stats_callback
-        self.clear_gof = clear_gof_callback
-        
-        # Update callbacks
-        self.set_graph_data = set_graph_data_callback
-        self.update_stats = update_stats_callback
-        self.evaluate_gof = evaluate_gof_callback
-        
-        # State callbacks
-        self.update_state = update_state_callback
-        self.update_transformation_label = update_transformation_label_callback
-        self.update_navigation_buttons = update_navigation_buttons_callback
-        self.enable_original_button = enable_original_button_callback
-        
-        # Model callbacks
-        self.get_bins_count = get_bins_count_callback
-        self.update_model_bins = update_model_bins_callback
+        self.clear = clear
+        self.update = update
+        self.state = state
+        self.model = model
 
-    def refresh(self, series: pd.Series):
+    def refresh(self, series: pd.Series) -> None:
         """
         Main refresh method that updates all UI components based on data state.
         
@@ -82,28 +68,28 @@ class UIRefreshService: # !
 
         self._update_state(series)
 
-    def clear_ui(self):
+    def clear_ui(self) -> None:
         """Clear all UI elements when data is missing or invalid."""
-        self.clear_graph()
-        self.set_graph_data(None)
-        self.clear_stats()
-        self.clear_gof()
+        self.clear.clear_graph()
+        self.update.set_graph_data(None)
+        self.clear.clear_stats()
+        self.clear.clear_gof()
 
-    def _update_model_bins(self):
+    def _update_model_bins(self) -> None:
         """Update the data model with current bin count if model exists."""
-        if self.update_model_bins:
-            bins_count = self.get_bins_count()
-            self.update_model_bins(bins_count)
+        if self.model.update_model_bins:
+            bins_count = self.model.get_bins_count()
+            self.model.update_model_bins(bins_count)
 
-    def _update_visuals(self, series: pd.Series):
+    def _update_visuals(self, series: pd.Series) -> None:
         """Update all visual elements with new data."""
-        self.set_graph_data(series)
-        self.update_stats()
-        self.evaluate_gof()
+        self.update.set_graph_data(series)
+        self.update.update_stats()
+        self.update.evaluate_gof()
 
-    def _update_state(self, series: pd.Series):
+    def _update_state(self, series: pd.Series) -> None:
         """Update application state and navigation controls."""
-        self.update_state(series)
-        self.update_transformation_label()
-        self.update_navigation_buttons()
-        self.enable_original_button(True)
+        self.state.update_state(series)
+        self.state.update_transformation_label()
+        self.state.update_navigation_buttons()
+        self.state.enable_original_button(True)
