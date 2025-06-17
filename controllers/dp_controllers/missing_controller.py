@@ -17,7 +17,7 @@ class MissingDataController:
         Args:
             context: AppContext with shared dependencies
             missing_service: Service for missing data handling
-            display_service: Service for displaying missing data info
+            display_service:
             update_state_callback: Function to call when data state changes
         """
         self.context = context
@@ -25,10 +25,6 @@ class MissingDataController:
         self.display_service = display_service
         self.update_state_callback = update_state_callback
         self.data = None
-
-    def get_missing_info(self, data):
-        info = self.missing_service.detect_missing(data)
-        return info
 
     def update_data_reference(self, data):
         self.data = data
@@ -38,7 +34,7 @@ class MissingDataController:
 
     def update_missing_values_info(self):
         if self.data is not None:
-            info = self.get_missing_info(self.data)
+            info = self.missing_service.detect_missing(self.data)
             self.display_service.update(info)
 
     def _update_after_imputation(self, new_series, label: str, message: str):
