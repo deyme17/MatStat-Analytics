@@ -3,20 +3,22 @@ class StatisticController:
     Controller for managing the display of statistical characteristics in the UI.
     """
     def __init__(self, context, statistic_service, stats_renderer, stat_tab, 
-                 precision_spinbox, confidence_spinbox):
+                 bins_spinbox, precision_spinbox, confidence_spinbox):
         """
         Args:
             context (AppContext): Application context container
             statistic_service: Service for statistics handling
             stats_renderer: UI service for statistics visualization
             stat_tab (StatisticTab): Reference to the statistics display tab widget
+            bins_spinbox: SpinBox control for bin count configuration
             precision_spinbox: SpinBox control for precision configuration
             confidence_spinbox: SpinBox control for confidence level selection
         """
         self.context = context
         self.statistic_service = statistic_service
         self.stats_renderer = stats_renderer
-        self.stat_tab = stat_tab                      
+        self.stat_tab = stat_tab         
+        self.bins_spinbox = bins_spinbox             
         self.precision_spinbox = precision_spinbox        
         self.confidence_spinbox = confidence_spinbox        
 
@@ -28,7 +30,7 @@ class StatisticController:
         if model is None or model.series.empty:
             return
         
-        bins = self.context.bins_spinbox.value()
+        bins = self.bins_spinbox.value()
         model.update_bins(bins)
 
         confidence = self.confidence_spinbox.value()
