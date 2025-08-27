@@ -36,7 +36,7 @@ class Factory:
     @staticmethod
     def create(window, context):
         Factory._setup_controls(window)
-        Factory._setup_graphics(window, context)
+        Factory._setup_graph(window, context)
         Factory._setup_services(window, context)
         Factory._setup_controllers(window, context)
         Factory._setup_tabs(window, context)
@@ -96,29 +96,30 @@ class Factory:
         context.data_model = None
 
     @staticmethod
-    def _setup_graphics(window, context):
-        graph_controller = GraphController(
-            context=context,
-            panel=graph_panel,
-            confidence_service=ConfidenceService(),
-            update_statistics_callback=window.stat_controller.update_statistics_table,
-            update_gof_callback=window.gof_tab.evaluate_tests
-        )
+    def _setup_graph(window, context):
         graph_panel = GraphPanel(
-            dist_selector_cls=DistributionSelector,
-            on_bins_changed=graph_controller.on_bins_changed,
-            on_alpha_changed=graph_controller.on_alpha_changed,
-            on_kde_toggled=graph_controller.on_kde_toggled,
-            on_dist_changed=graph_controller.on_distribution_changed
+            dist_selector_cls=DistributionSelector
         )
-
-        graph_panel.graph_controller = graph_controller
-
         window.graph_panel = graph_panel
-        window.graph_controller = graph_controller
+        context.graph_panel = graph_panel
 
     @staticmethod
     def _setup_controllers(window, context):
+        window.graph_controller = GraphController(
+            context=context,
+            panel=window.graph_panel,
+            confidence_service=ConfidenceService(),
+            update_statistics_callback=lambda: window.stat_controller.update_statistics_table() if hasattr(window, 'stat_controller') else None,
+            update_gof_callback=lambda: window.gof_tab.evaluate_tests() if hasattr(window, 'gof_tab') else None
+        )
+        # set graph_panel callbacks
+        window.graph_panel.set_callbacks(
+            on_bins_changed=window.graph_controller.on_bins_changed,
+            on_alpha_changed=window.graph_controller.on_alpha_changed,
+            on_kde_toggled=window.graph_controller.on_kde_toggled,
+            on_dist_changed=window.graph_controller.on_distribution_changed
+        )
+
         window.transform_controller = DataTransformController(
             context=context,
             transform_service=TransformationService(),

@@ -21,14 +21,13 @@ class GraphPanel(QWidget):
     Visualization panel hosting graph tabs and controls.
     Completely decoupled from main window.
     """
-
     def __init__(
         self,
         dist_selector_cls: type,
-        on_bins_changed: Callable[[int], None],
-        on_alpha_changed: Callable[[float], None],
-        on_kde_toggled: Callable[[bool], None],
-        on_dist_changed: Callable[[], None],
+        on_bins_changed: Optional[Callable[[int], None]] = None,
+        on_alpha_changed: Optional[Callable[[float], None]] = None,
+        on_kde_toggled: Optional[Callable[[bool], None]] = None,
+        on_dist_changed: Optional[Callable[[], None]] = None,
     ):
         """
         Args:
@@ -42,10 +41,10 @@ class GraphPanel(QWidget):
         self.data = None
         self.graph_tabs = {}
         self._callbacks = {
-            'bins': on_bins_changed,
-            'alpha': on_alpha_changed,
-            'kde': on_kde_toggled,
-            'dist': on_dist_changed
+            'bins': on_bins_changed or (lambda x: None),
+            'alpha': on_alpha_changed or (lambda x: None),
+            'kde': on_kde_toggled or (lambda x: None),
+            'dist': on_dist_changed or (lambda: None)
         }
 
         self._init_controls(dist_selector_cls)
@@ -106,6 +105,25 @@ class GraphPanel(QWidget):
         )
         self.dist_selector.set_on_change(self._callbacks['dist'])
 
+    def set_callbacks(
+        self,
+        on_bins_changed: Callable[[int], None],
+        on_alpha_changed: Callable[[float], None],
+        on_kde_toggled: Callable[[bool], None],
+        on_dist_changed: Callable[[], None]) -> None:
+        """
+        Update callbacks after initialization.
+        Args:
+            on_bins_changed: Callback for bin count changes
+            on_alpha_changed: Callback for confidence level changes
+            on_kde_toggled: Callback for KDE toggle
+            on_dist_changed: Callback for distribution selection
+        """
+        self._callbacks['bins'] = on_bins_changed
+        self._callbacks['alpha'] = on_alpha_changed
+        self._callbacks['kde'] = on_kde_toggled
+        self._callbacks['dist'] = on_dist_changed
+
     def set_data(self, data: pd.Series) -> None:
         """
         Set data for visualization.
@@ -141,7 +159,6 @@ class GraphPanel(QWidget):
     def get_render_params(self) -> Dict[str, Any]:
         """
         Get current visualization parameters.
-        
         Returns:
             Dictionary with:
             - bins: int
