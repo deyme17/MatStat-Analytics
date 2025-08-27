@@ -1,133 +1,213 @@
 # Controllers
-from controllers.analysis_controller.anomaly_controller import AnomalyController
-from controllers.analysis_controller.estimation_controller import ParameterEstimation
-from controllers.analysis_controller.missing_controller import MissingDataController
-from controllers.analysis_controller.simulation_controller import SimulationController
-from controllers.analysis_controller.statistic_controller import StatisticController
-from controllers.data_controllers.data_loader import DataLoadController
-from controllers.data_controllers.data_transform_controller import DataTransformController
-from controllers.data_controllers.data_version_controller import DataVersionController
-from controllers.ui_controllers.graph_controller import GraphController
-from controllers.ui_controllers.ui_state_controller import UIStateController
+from controllers import (
+    AnomalyController, MissingDataController, DataTransformController,
+    ParameterEstimation, SimulationController, StatisticController,
+    DataLoadController, DataVersionController,
+    GraphController, UIStateController
+)
 
 # Services
-from services.analysis_services.confidence_assesment import ConfidenceService
-from services.analysis_services.gof_register import GOFService
-from services.analysis_services.stat_tests import TestPerformer
-from services.analysis_services.statistics_service import StatisticsService
-from services.data_services.data_history_manager import DataHistoryManager
-from services.data_services.data_loader_service import DataLoaderService
-from services.data_services.transformation_service import TransformationService
-from services.preprocessing_services.anomaly_service import AnomalyService
-from services.preprocessing_services.missing_service import MissingService
-from services.simulation.simulation_engine import SimulationService
-from services.simulation.simulation_saver import DataSaver
-from services.ui_services.renderers.stats_renderer import TableRenderer
-from services.ui_services.ui_refresh_service import UIRefreshService
+from services import (
+    TransformationService, AnomalyService, MissingService,
+    ConfidenceService, GOFService, TestPerformer, StatisticsService,
+    UIRefreshService, UIMessager, MissingInfoDisplayService, TableRenderer,
+    DataHistoryManager, DataLoaderService,
+    SimulationService, DataSaver
+)
 
-# Views - Tabs
+# Views
 from PyQt6.QtWidgets import QTabWidget
-from views.tabs.data_processing_tab import DataProcessingTab
-from views.tabs.gof_test_tab import GOFTestTab
-from views.tabs.params_estimation_tab import ParamEstimationTab
-from views.tabs.simulation_tab import SimulationTab
-from views.tabs.stat_table_tab import StatisticTab
+from views import (
+    # tabs
+    DataProcessingTab, GOFTestTab, ParamEstimationTab, SimulationTab, StatisticTab,
+    # widgets
+    WindowWidgets,
+    AnomalyWidget, MissingWidget, ProcessDataWidget,
+    KolmogorovSmirnovPanel, PearsonChi2Panel,
+    GraphPanel, DistributionSelector
+)
 
-# Views - Widgets
-from views.widgets.window_widget import WindowWidgets
-from views.widgets.dpwidgets.anomalywidget import AnomalyWidget
-from views.widgets.dpwidgets.missingwidget import MissingWidget
-from views.widgets.dpwidgets.processdatawidget import ProcessDataWidget
-from views.widgets.hypoteswidgets.ks_panel import KolmogorovSmirnovPanel
-from views.widgets.hypoteswidgets.pearson_panel import PearsonChi2Panel
-from views.widgets.statwidgets.graph_panel import GraphPanel
-from views.widgets.statwidgets.stat_dist_selector import DistributionSelector
+# Callbacks
+from callbacks import UIClearCallbacks, UIUpdateCallbacks, UIModelCallbacks, UIStateCallbacks
+from callbacks.ui_state_callbacks import build_ui_control_callbacks
 
 
 class Factory:
     @staticmethod
-    def create(window):
-        Factory._setup_services(window)
-        Factory._setup_controllers(window)
-        Factory._setup_graphics(window)
-        Factory._setup_tabs(window)
+    def create(window, context):
+        Factory._setup_controls(window)
+        Factory._setup_graphics(window, context)
+        Factory._setup_services(window, context)
+        Factory._setup_controllers(window, context)
+        Factory._setup_tabs(window, context)
 
     @staticmethod
-    def _setup_services(window):
-        window.version_manager = DataHistoryManager()
-        window.refresher = UIRefreshService(window)
+    def _setup_controls(window):
+        widgets = WindowWidgets()
+        controls = widgets.create_controls_bar()
+
+        window.load_data_button = controls.load_button
+        window.precision_spinbox = controls.precision_spinbox
+        window.controls_layout = controls.layout
 
     @staticmethod
-    def _setup_controllers(window):
-        window.data_load_controller = DataLoadController(
-                                        window=window, 
-                                        loader_service=DataLoaderService()
-                                        )
-        window.transform_controller = DataTransformController(
-                                        window=window, 
-                                        transform_service=TransformationService()
-                                        )
-        window.data_version_controller = DataVersionController(window)
+    def _setup_services(window, context):
+        context.version_manager = DataHistoryManager()
+        context.message_service = UIMessager(parent=window)
 
-        window.missing_controller = MissingDataController(
-                                        window=window, 
-                                        missing_service=MissingService()
-                                        )
-        window.anomaly_controller = AnomalyController(
-                                        window=window, 
-                                        anomaly_service=AnomalyService()
-                                        )
-        window.stat_controller = StatisticController(
-                                        window=window, 
-                                        statistic_service=StatisticsService(),
-                                        stats_renderer=TableRenderer()
-                                        )
-        window.state_controller = UIStateController(
-                                        window=window, 
-                                        missing_service=MissingService()
-                                        )
+        # Instantiate callback groups
+        clear_callbacks = UIClearCallbacks(
+            clear_graph=window.graph_panel.clear,
+            clear_stats=window.stat_controller.clear,
+            clear_gof=window.gof_tab.clear_panels
+        )
+
+        update_callbacks = UIUpdateCallbacks(
+            set_graph_data=lambda data: (
+                setattr(window.graph_panel, 'data', data) if data is None
+                else window.graph_controller.set_data(data)
+            ),
+            update_stats=window.stat_controller.update_statistics_table,
+            evaluate_gof=window.gof_tab.evaluate_tests
+        )
+
+        state_callbacks = UIStateCallbacks(
+            update_state=window.state_controller.update_state_for_data,
+            update_transformation_label=window.state_controller.update_transformation_label,
+            update_navigation_buttons=window.state_controller.update_navigation_buttons,
+            enable_original_button=window.original_button.setEnabled
+        )
+
+        model_callbacks = UIModelCallbacks(
+            get_bins_count=lambda: window.graph_panel.bins_spinbox.value(),
+            update_model_bins=lambda bins: (
+                window.data_model.update_bins(bins) if window.data_model else None
+            )
+        )
+
+        # Instantiate UIRefreshService with callback groups
+        context.refresher = UIRefreshService(
+            clear=clear_callbacks,
+            update=update_callbacks,
+            state=state_callbacks,
+            model=model_callbacks
+        )
+
+        context.data_model = None
 
     @staticmethod
-    def _setup_graphics(window):
-        window.graph_controller = GraphController(
-                                        window=window, 
-                                        confidence_service=ConfidenceService()
-                                        ) 
-        
-        graph_panel = GraphPanel(window, dist_selector=DistributionSelector)
+    def _setup_graphics(window, context):
+        graph_controller = GraphController(
+            context=context,
+            panel=graph_panel,
+            confidence_service=ConfidenceService(),
+            update_statistics_callback=window.stat_controller.update_statistics_table,
+            update_gof_callback=window.gof_tab.evaluate_tests
+        )
+        graph_panel = GraphPanel(
+            dist_selector_cls=DistributionSelector,
+            on_bins_changed=graph_controller.on_bins_changed,
+            on_alpha_changed=graph_controller.on_alpha_changed,
+            on_kde_toggled=graph_controller.on_kde_toggled,
+            on_dist_changed=graph_controller.on_distribution_changed
+        )
+
+        graph_panel.graph_controller = graph_controller
 
         window.graph_panel = graph_panel
-        window.graph_controller.panel = graph_panel
+        window.graph_controller = graph_controller
 
     @staticmethod
-    def _setup_tabs(window):
-        window.widgets = WindowWidgets(window)
+    def _setup_controllers(window, context):
+        window.transform_controller = DataTransformController(
+            context=context,
+            transform_service=TransformationService(),
+            shift_spinbox=window.shift_spinbox,
+            on_transformation_applied=lambda: window.original_button.setEnabled(True)
+        )
 
+        window.data_version_controller = DataVersionController(
+            context=context,
+            data_version_combo=window.data_version_combo,
+            bins_spinbox=window.graph_panel.bins_spinbox,
+            on_reverted_to_original=lambda: window.original_button.setEnabled(False),
+            on_version_changed=lambda series: window.missing_controller.update_data_reference(series)
+        )
+
+        window.missing_controller = MissingDataController(
+            context=context,
+            missing_service=MissingService(),
+            display_service=MissingInfoDisplayService(
+                    count_label=window.missing_count_label,
+                    percent_label=window.missing_percentage_label
+            ),
+            update_state_callback=window.state_controller.update_state_for_data
+        )
+
+        window.anomaly_controller = AnomalyController(
+            context=context,
+            anomaly_service=AnomalyService(),
+            gamma_spinbox=window.anomaly_gamma_spinbox.value()
+        )
+
+        window.stat_controller = StatisticController(
+            data_model=context.data_model,
+            graph_panel=context.graph_panel,
+            precision_spinbox=window.precision_spinbox,
+            bins_spinbox=window.graph_panel.bins_spinbox,
+            stat_table_widget=window.stat_tab.conf_table if hasattr(window, "stat_tab") else None,
+            statistic_service=StatisticsService(),
+            stats_renderer=TableRenderer()
+        )
+
+        window.state_controller = UIStateController(
+            context=context,
+            missing_service=MissingService(),
+            data_version_combo=window.data_version_combo,
+            ui_controls=build_ui_control_callbacks(window),
+            update_data_callback=lambda data: window.missing_controller.update_data_reference(data)
+        )
+
+        window.data_load_controller = DataLoadController(
+            context=context,
+            loader_service=DataLoaderService(),
+            select_file_callback=lambda: DataLoaderService.select_file(window),
+            on_data_loaded_callback=lambda data: (
+                window.state_controller.handle_post_load_state(data),
+                window.original_button.setEnabled(False)
+            )
+        )
+
+    @staticmethod
+    def _setup_tabs(window, context):
         window.data_tab = DataProcessingTab(
             window,
-            processor_widget=ProcessDataWidget,
-            anomaly_widget=AnomalyWidget,
-            missing_widget=MissingWidget
+            dp_widgets=[
+                ProcessDataWidget,
+                AnomalyWidget,
+                MissingWidget
+            ]
         )
 
         window.stat_tab = StatisticTab()
 
         window.gof_tab = GOFTestTab(
-            window,
+            context=context,
+            graph_panel=context.graph_panel,
             gof_service=GOFService(),
             test_panels=[PearsonChi2Panel, KolmogorovSmirnovPanel]
         )
 
         window.sim_tab = SimulationTab(
-            window,
+            context=context,
             simulation_controller=SimulationController(
                 simulation_service=SimulationService(test_performer=TestPerformer()),
-                data_saver=DataSaver(window)
+                data_saver=DataSaver(context, on_save=lambda data: window.state_controller.handle_post_load_state(data))
             )
         )
 
         window.est_tab = ParamEstimationTab(
-            window,
+            context=context,
             estimator=ParameterEstimation()
         )
 
