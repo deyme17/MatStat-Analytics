@@ -1,4 +1,6 @@
 from typing import Callable
+import pandas as pd
+
 
 class DataTransformController:
     """
@@ -23,7 +25,7 @@ class DataTransformController:
         self.shift_spinbox = shift_spinbox
         self.on_transformation_applied = on_transformation_applied
 
-    def standardize_data(self):
+    def standardize_data(self) -> None:
         """
         Apply Z-score standardization to the current dataset.
         """
@@ -31,7 +33,7 @@ class DataTransformController:
             transformed = self.transform_service.standardize(self.context.data_model.series)
             self._apply_transformation(transformed, "Standardized")
 
-    def log_transform_data(self):
+    def log_transform_data(self) -> None:
         """
         Apply log transformation to the current dataset, shifting if needed.
         """
@@ -39,7 +41,7 @@ class DataTransformController:
             transformed = self.transform_service.log_transform(self.context.data_model.series)
             self._apply_transformation(transformed, "Log Transform")
 
-    def shift_data(self):
+    def shift_data(self) -> None:
         """
         Apply constant shift to the current dataset based on UI input.
         """
@@ -48,12 +50,12 @@ class DataTransformController:
             transformed = self.transform_service.shift(self.context.data_model.series, shift_val)
             self._apply_transformation(transformed, f"Shifted by {shift_val}")
 
-    def _apply_transformation(self, new_series, label):
+    def _apply_transformation(self, new_series: pd.Series, label: str) -> None:
         """
         Internal helper to create a new DataModel version, update state and UI.
-
-        :param new_series: transformed pandas Series
-        :param label: label for the transformation version
+        Args:
+            new_series: transformed pandas Series
+            label: label for the transformation version
         """
         new_model = self.context.data_model.add_version(new_series, label)
         self.context.data_model = new_model
@@ -63,10 +65,10 @@ class DataTransformController:
         if self.on_transformation_applied:
             self.on_transformation_applied()
 
-    def is_transformed(self):
+    def is_transformed(self) -> bool:
         """
         Check whether the current dataset has transformation history.
-
-        :return: True if transformations applied, False otherwise
+        Return:
+            True if transformations applied, False otherwise
         """
         return len(self.context.data_model.history) > 0

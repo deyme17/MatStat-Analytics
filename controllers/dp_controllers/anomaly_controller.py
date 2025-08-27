@@ -1,3 +1,7 @@
+from typing import Callable
+import pandas as pd
+
+
 class AnomalyController:
     """
     Controller for detecting and removing statistical anomalies from the dataset.
@@ -13,13 +17,13 @@ class AnomalyController:
         self.anomaly_service = anomaly_service
         self.gamma_spinbox = gamma_spinbox
 
-    def remove_sigma_anomalies(self):
+    def remove_sigma_anomalies(self) -> None:
         """
         Detect and remove anomalies using the standard deviation threshold method (3 sigma).
         """
-        self._remove_anomalies(self.anomaly_service.detect_sigma_anomalies, "Normal Filtered")
+        self._remove_anomalies(self.anomaly_service.detect_sigma_anomalies, "Sigma Filtered")
 
-    def remove_asymmetry_anomalies(self):
+    def remove_asymmetry_anomalies(self) -> None:
         """
         Detect and remove anomalies based on skewness and kurtosis adjustments.
         """
@@ -34,12 +38,12 @@ class AnomalyController:
         func = lambda data: self.anomaly_service.detect_conf_anomalies(data, gamma)
         self._remove_anomalies(func, f"Conf. Filtered γ={gamma}")
 
-    def _remove_anomalies(self, detection_func, label):
+    def _remove_anomalies(self, detection_func: Callable[[pd.Series], pd.Series], label: str) -> None:
         """
         Generic method to detect and remove anomalies using a given detection function.
-
-        :param detection_func: function that returns a dict with 'anomalies' and bounds
-        :param label: label used to name the new version of the dataset
+        Args:
+            detection_func: function that returns a dict with 'anomalies' and bounds
+            label: label used to name the new version of the dataset
         """
         data = self.context.data_model.series
         if data is None:
