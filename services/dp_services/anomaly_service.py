@@ -8,19 +8,19 @@ class AnomalyService:
     """
 
     @staticmethod
-    def detect_normal_anomalies(data: pd.Series, threshold: float = 3) -> dict:
+    def detect_sigma_anomalies(data: pd.Series, sigma: float = 3) -> dict:
         """
-        Detect anomalies based on the normal distribution (±threshold * std).
+        Detect anomalies based on the normal distribution (±sigma * std).
         Args:
             data: input data series
-            threshold: number of standard deviations for the bounds
+            sigma: number of standard deviations for the bounds
         Return:
             dictionary with anomaly indices and bounds
         """
         mean = np.mean(data)
         std = np.std(data, ddof=1)
-        lower = mean - threshold * std
-        upper = mean + threshold * std
+        lower = mean - sigma * std
+        upper = mean + sigma * std
         anomalies = np.where((data < lower) | (data > upper))[0]
         return {
             'anomalies': anomalies,

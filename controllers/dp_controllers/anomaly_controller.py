@@ -17,7 +17,7 @@ class AnomalyController:
         """
         Detect and remove anomalies using the standard deviation threshold method.
         """
-        self._remove_anomalies(self.anomaly_service.detect_normal_anomalies, "Normal Filtered")
+        self._remove_anomalies(self.anomaly_service.detect_sigma_anomalies, "Normal Filtered")
 
     def remove_asymmetry_anomalies(self):
         """
