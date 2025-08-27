@@ -13,9 +13,9 @@ class AnomalyController:
         self.anomaly_service = anomaly_service
         self.gamma_spinbox = gamma_spinbox
 
-    def remove_normal_anomalies(self):
+    def remove_sigma_anomalies(self):
         """
-        Detect and remove anomalies using the standard deviation threshold method.
+        Detect and remove anomalies using the standard deviation threshold method (3 sigma).
         """
         self._remove_anomalies(self.anomaly_service.detect_sigma_anomalies, "Normal Filtered")
 
