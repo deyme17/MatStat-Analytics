@@ -11,23 +11,32 @@ class DataProcessingTab(QWidget):
     - Missing data handling
     - Original data restoration
     """
-
-    def __init__(self, parent, processor_widget, anomaly_widget, missing_widget):
+    def __init__(self, parent, dp_widgets: list):
         """
         Args:
             parent: The parent widget that contains this controller
-            processor_widget: Widget class for data processing/transformation operations
-            anomaly_widget: Widget class for anomaly detection functionality
-            missing_widget: Widget class for handling missing data operations
+            dp_widgets (list): Widget classes for data processing operations including:
+                - Data transformation operations
+                - Anomaly detection functionality  
+                - Missing data handling operations
         """
         super().__init__(parent)
+        
+        self._parent = parent
+        self.dp_widgets = dp_widgets
+        
+        self._init_ui()
+        self._setup_layout()
+        self._expose_widgets_to_parent()
 
+    def _init_ui(self):
+        """Initialize UI components."""
         # Data version controls
         self.data_version_label = QLabel("Select loaded dataset:")
         self.data_version_combo = QComboBox()
         self.data_version_combo.setEnabled(False)
         self.data_version_combo.currentIndexChanged.connect(
-            parent.data_version_controller.on_data_version_changed
+            self._parent.data_version_controller.on_data_version_changed
         )
 
         # Transformation state label
@@ -37,33 +46,41 @@ class DataProcessingTab(QWidget):
         self.original_button = QPushButton("Original")
         self.original_button.setEnabled(False)
         self.original_button.setFixedSize(ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT)
-        self.original_button.clicked.connect(parent.data_version_controller.original_data)
+        self.original_button.clicked.connect(self._parent.data_version_controller.original_data)
 
+    def _setup_layout(self):
+        """Setup the main layout structure."""
         # Navigation layout for the button
         nav_layout = QHBoxLayout()
         nav_layout.addWidget(self.original_button)
         nav_layout.addStretch()
-
-        # Preprocessing widgets
-        self.process_controls = processor_widget(parent)
-        self.anomaly_detection = anomaly_widget(parent)
-        self.missing_data = missing_widget(parent)
 
         # Main layout
         layout = QVBoxLayout()
         layout.addWidget(self.data_version_label)
         layout.addWidget(self.data_version_combo)
         layout.addWidget(self.transformation_label)
-        layout.addWidget(self.process_controls)
-        layout.addWidget(self.anomaly_detection)
-        layout.addWidget(self.missing_data)
+
+        # Add preprocessing widgets
+        self._add_preprocessing_widgets(layout)
+        
         layout.addLayout(nav_layout)
         layout.addStretch()
 
         self.setLayout(layout)
 
-        # Expose widgets to parent for controller access
-        parent.data_version_label = self.data_version_label
-        parent.data_version_combo = self.data_version_combo
-        parent.transformation_label = self.transformation_label
-        parent.original_button = self.original_button
+    def _add_preprocessing_widgets(self, layout: QVBoxLayout):
+        """Add all preprocessing widgets to the layout.
+        Args:
+            layout (QVBoxLayout): The main layout to add widgets to
+        """
+        for widget_cls in self.dp_widgets:
+            widget = widget_cls(self._parent)
+            layout.addWidget(widget)
+
+    def _expose_widgets_to_parent(self):
+        """Expose widgets to parent for controller access."""
+        self._parent.data_version_label = self.data_version_label
+        self._parent.data_version_combo = self.data_version_combo
+        self._parent.transformation_label = self.transformation_label
+        self._parent.original_button = self.original_button
