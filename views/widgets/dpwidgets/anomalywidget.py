@@ -19,7 +19,7 @@ class AnomalyWidget(QGroupBox):
         # Button for removing normal (3σ) anomalies
         window.normal_anomaly_button = QPushButton("Remove 3σ anomalies")
         window.normal_anomaly_button.setEnabled(False)
-        window.normal_anomaly_button.clicked.connect(window.anomaly_controller.remove_normal_anomalies)
+        window.normal_anomaly_button.clicked.connect(window.anomaly_controller.remove_sigma_anomalies)
 
         # Button for removing asymmetry-based anomalies
         window.asymmetry_anomaly_button = QPushButton("Remove assymetry anomalies")
