@@ -8,7 +8,6 @@ class DataLoaderService:
     Service for loading and processing data files.
     Uses strategy pattern for different file types.
     """
-    
     def __init__(self):
         self._loaders = loaders 
 
