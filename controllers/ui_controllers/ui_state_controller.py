@@ -6,7 +6,6 @@ class UIStateController:
     """
     Controller responsible for enabling/disabling UI elements based on data state.
     """
-
     def __init__(
         self,
         context,
@@ -17,7 +16,6 @@ class UIStateController:
     ):
         """
         Initializes the UI state controller.
-        
         Args:
             context: Main application context with services and models
             missing_service: Handles missing data operations
@@ -35,7 +33,7 @@ class UIStateController:
         """
         Updates UI state and handles missing values and control logic after data load.
         """
-        missing_info = self.missing_service.get_missing_info(data)
+        missing_info = self.missing_service.detect_missing(data)
         has_missing = missing_info['total_missing'] > 0
 
         self.ui.bins_controls.set_enabled(True)
