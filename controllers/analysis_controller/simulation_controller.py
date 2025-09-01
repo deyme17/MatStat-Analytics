@@ -26,7 +26,7 @@ class SimulationController:
         Return:
             List of dictionaries containing simulation results
         """
-        if save_data and sample_size:
+        if save_data and sample_size and sample_size > 0:
             simulated_data = self.simulation_service.generate_sample(
                 dist, sample_size, dist.params
             )

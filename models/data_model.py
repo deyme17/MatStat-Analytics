@@ -11,12 +11,13 @@ class DataModel:
     def __init__(self, series: pd.Series, bins: int = 10, label: str = "Original", history=None):
         """
         Initialize DataModel with original data and histogram/statistics cache.
-
-        :param series: input pandas Series
-        :param bins: number of histogram bins
-        :param label: description label for current version
-        :param history: list of previous DataModel versions
-        :raises ValueError: if input series is empty
+        Args:
+            series: input pandas Series
+            bins: number of histogram bins
+            label: description label for current version
+            history: list of previous DataModel versions
+        Raises:
+             ValueError: if input series is empty
         """
         self.label = label                                 # version label
         self.original = series.copy()                      # full original series
@@ -24,7 +25,7 @@ class DataModel:
         self.bins = bins                                   
         self.anomalies_removed = False                     
 
-        if self.series.empty:
+        if self.series.empty or len(self.series) == 0:
             raise ValueError("No valid data points in series")
 
         self._cache = {}
@@ -61,8 +62,8 @@ class DataModel:
     def update_bins(self, bins: int):
         """
         Update histogram bin count and recompute histogram cache.
-
-        :param bins: new number of bins
+        Args:            
+            bins: new number of bins
         """
         self.bins = bins
         self._cache['hist'] = Hist(self.series, bins)
@@ -70,10 +71,11 @@ class DataModel:
     def apply_transformation(self, func, label: str = None) -> 'DataModel':
         """
         Apply transformation function to current series and return a new version.
-
-        :param func: function to apply to series
-        :param label: optional label for new version
-        :return: new DataModel with updated series and history
+        Args:
+            func: function to apply to series
+            label: optional label for new version
+        Return:
+            new DataModel with updated series and history
         """
         transformed = func(self.series)
         return self.add_version(transformed, label or "Transformed")
@@ -81,10 +83,11 @@ class DataModel:
     def add_version(self, new_series: pd.Series, label: str) -> 'DataModel':
         """
         Create a new version of the model with updated series and current history.
-
-        :param new_series: transformed series
-        :param label: description for the new version
-        :return: new DataModel instance
+        Args:
+            new_series: transformed series
+            label: description for the new version
+        Return:
+            new DataModel instance
         """
         return DataModel(
             new_series,
@@ -96,8 +99,8 @@ class DataModel:
     def revert_to_original(self) -> 'DataModel':
         """
         Revert to the original version in the transformation history.
-
-        :return: first DataModel in the history or self if history is empty
+        Return:
+            first DataModel in the history or self if history is empty
         """
         return self.history[0] if self.history else self
 
@@ -105,8 +108,8 @@ class DataModel:
     def current_transformation(self) -> str:
         """
         Return a human-readable description of the transformation path.
-
-        :return: transformation chain as string
+        Return:
+            transformation chain as string
         """
         if not self.history:
             return "Original"
