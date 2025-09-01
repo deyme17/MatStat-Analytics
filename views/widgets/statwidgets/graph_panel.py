@@ -26,7 +26,7 @@ class GraphPanel(QWidget):
         dist_selector_cls: type,
         on_bins_changed: Optional[Callable[[int], None]] = None,
         on_alpha_changed: Optional[Callable[[float], None]] = None,
-        on_kde_toggled: Optional[Callable[[bool], None]] = None,
+        on_kde_toggled: Optional[Callable[[], None]] = None,
         on_dist_changed: Optional[Callable[[], None]] = None,
     ):
         """
@@ -43,7 +43,7 @@ class GraphPanel(QWidget):
         self._callbacks = {
             'bins': on_bins_changed or (lambda x: None),
             'alpha': on_alpha_changed or (lambda x: None),
-            'kde': on_kde_toggled or (lambda x: None),
+            'kde': on_kde_toggled or (lambda: None),
             'dist': on_dist_changed or (lambda: None)
         }
 
@@ -109,7 +109,7 @@ class GraphPanel(QWidget):
         self,
         on_bins_changed: Callable[[int], None],
         on_alpha_changed: Callable[[float], None],
-        on_kde_toggled: Callable[[bool], None],
+        on_kde_toggled: Callable[[], None],
         on_dist_changed: Callable[[], None]) -> None:
         """
         Update callbacks after initialization.
