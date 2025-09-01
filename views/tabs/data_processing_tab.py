@@ -57,14 +57,28 @@ class DataProcessingTab(QWidget):
             on_data_version_changed (Callable[[int], None], optional)
             on_original_clicked (Callable[[], None], optional)
         """
+    def set_callbacks(self, on_data_version_changed=None, on_original_clicked=None):
+        """
+        Assign or update callbacks after initialization.
+        
+        Args:
+            on_data_version_changed (Callable[[int], None], optional)
+            on_original_clicked (Callable[[], None], optional)
+        """
         if on_data_version_changed:
             self.on_data_version_changed = on_data_version_changed
-            self.data_version_combo.currentIndexChanged.disconnect()
+            try:
+                self.data_version_combo.currentIndexChanged.disconnect()
+            except TypeError:
+                pass
             self.data_version_combo.currentIndexChanged.connect(on_data_version_changed)
 
         if on_original_clicked:
             self.on_original_clicked = on_original_clicked
-            self.original_button.clicked.disconnect()
+            try:
+                self.original_button.clicked.disconnect()
+            except TypeError:
+                pass
             self.original_button.clicked.connect(on_original_clicked)
 
     def _setup_layout(self):
