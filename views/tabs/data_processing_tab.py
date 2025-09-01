@@ -11,7 +11,8 @@ class DataProcessingTab(QWidget):
     - Missing data handling
     - Original data restoration
     """
-    def __init__(self, parent, dp_widgets: list, on_data_version_changed, on_original_clicked):
+
+    def __init__(self, parent, dp_widgets: list, on_data_version_changed=None, on_original_clicked=None):
         """
         Args:
             parent: The parent widget that contains this controller
@@ -19,10 +20,8 @@ class DataProcessingTab(QWidget):
                 - Data transformation operations
                 - Anomaly detection functionality  
                 - Missing data handling operations
-            on_data_version_changed (Callable[[int], None]): Callback triggered when
-                the user selects another data version in the combo box
-            on_original_clicked (Callable[[], None]): Callback triggered when
-                the user clicks the "Original" button to revert dataset
+            on_data_version_changed (Callable[[int], None], optional): Callback for dataset version change
+            on_original_clicked (Callable[[], None], optional): Callback for "Original" button click
         """
         super().__init__(parent)
 
@@ -30,28 +29,43 @@ class DataProcessingTab(QWidget):
         self.dp_widgets = dp_widgets
         self.on_data_version_changed = on_data_version_changed
         self.on_original_clicked = on_original_clicked
-        
+
         self._init_ui()
         self._setup_layout()
 
     def _init_ui(self):
         """Initialize UI components."""
-        # Data version controls
         self.data_version_label = QLabel("Select loaded dataset:")
         self.data_version_combo = QComboBox()
         self.data_version_combo.setEnabled(False)
-        self.data_version_combo.currentIndexChanged.connect(
-            self.on_data_version_changed
-        )
+        if self.on_data_version_changed:
+            self.data_version_combo.currentIndexChanged.connect(self.on_data_version_changed)
 
-        # Transformation state label
         self.transformation_label = QLabel("Current state: Original")
 
-        # Original data button
         self.original_button = QPushButton("Original")
         self.original_button.setEnabled(False)
         self.original_button.setFixedSize(ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT)
-        self.original_button.clicked.connect(self.on_original_clicked)
+        if self.on_original_clicked:
+            self.original_button.clicked.connect(self.on_original_clicked)
+
+    def set_callbacks(self, on_data_version_changed=None, on_original_clicked=None):
+        """
+        Assign or update callbacks after initialization.
+        
+        Args:
+            on_data_version_changed (Callable[[int], None], optional)
+            on_original_clicked (Callable[[], None], optional)
+        """
+        if on_data_version_changed:
+            self.on_data_version_changed = on_data_version_changed
+            self.data_version_combo.currentIndexChanged.disconnect()
+            self.data_version_combo.currentIndexChanged.connect(on_data_version_changed)
+
+        if on_original_clicked:
+            self.on_original_clicked = on_original_clicked
+            self.original_button.clicked.disconnect()
+            self.original_button.clicked.connect(on_original_clicked)
 
     def _setup_layout(self):
         """Setup the main layout structure."""
