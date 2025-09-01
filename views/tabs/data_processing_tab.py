@@ -11,7 +11,7 @@ class DataProcessingTab(QWidget):
     - Missing data handling
     - Original data restoration
     """
-    def __init__(self, parent, dp_widgets: list):
+    def __init__(self, parent, dp_widgets: list, on_data_version_changed, on_original_clicked):
         """
         Args:
             parent: The parent widget that contains this controller
@@ -19,15 +19,20 @@ class DataProcessingTab(QWidget):
                 - Data transformation operations
                 - Anomaly detection functionality  
                 - Missing data handling operations
+            on_data_version_changed (Callable[[int], None]): Callback triggered when
+                the user selects another data version in the combo box
+            on_original_clicked (Callable[[], None]): Callback triggered when
+                the user clicks the "Original" button to revert dataset
         """
         super().__init__(parent)
-        
+
         self._parent = parent
         self.dp_widgets = dp_widgets
+        self.on_data_version_changed = on_data_version_changed
+        self.on_original_clicked = on_original_clicked
         
         self._init_ui()
         self._setup_layout()
-        self._expose_widgets_to_parent()
 
     def _init_ui(self):
         """Initialize UI components."""
@@ -36,7 +41,7 @@ class DataProcessingTab(QWidget):
         self.data_version_combo = QComboBox()
         self.data_version_combo.setEnabled(False)
         self.data_version_combo.currentIndexChanged.connect(
-            self._parent.data_version_controller.on_data_version_changed
+            self.on_data_version_changed
         )
 
         # Transformation state label
@@ -46,7 +51,7 @@ class DataProcessingTab(QWidget):
         self.original_button = QPushButton("Original")
         self.original_button.setEnabled(False)
         self.original_button.setFixedSize(ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT)
-        self.original_button.clicked.connect(self._parent.data_version_controller.original_data)
+        self.original_button.clicked.connect(self.on_original_clicked)
 
     def _setup_layout(self):
         """Setup the main layout structure."""
@@ -77,10 +82,3 @@ class DataProcessingTab(QWidget):
         for widget_cls in self.dp_widgets:
             widget = widget_cls(self._parent)
             layout.addWidget(widget)
-
-    def _expose_widgets_to_parent(self):
-        """Expose widgets to parent for controller access."""
-        self._parent.data_version_label = self.data_version_label
-        self._parent.data_version_combo = self.data_version_combo
-        self._parent.transformation_label = self.transformation_label
-        self._parent.original_button = self.original_button
