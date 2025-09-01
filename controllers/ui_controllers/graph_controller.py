@@ -5,11 +5,11 @@ class GraphController:
     """
     Controller for coordinating plotting, statistics, and confidence intervals in the graph panel.
     """
-
     def __init__(
         self,
         context,
         confidence_service,
+        graph_panel,
         update_statistics_callback: Callable[[], None],
         update_gof_callback: Callable[[], None]
     ):
@@ -17,11 +17,12 @@ class GraphController:
         Args:
             context: AppContext with shared data
             confidence_service: Service for confidence interval computations
+            graph_panel: Visualization panel hosting graph tabs and controls.
             update_statistics_callback: function to trigger statistics table update
             update_gof_callback: function to trigger goodness-of-fit tests
         """
         self.context = context
-        self.panel = None  # will be set externally
+        self.panel = graph_panel
         self.confidence_service = confidence_service
         self.update_statistics_callback = update_statistics_callback
         self.update_gof_callback = update_gof_callback
