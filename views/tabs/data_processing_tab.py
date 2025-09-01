@@ -11,7 +11,6 @@ class DataProcessingTab(QWidget):
     - Missing data handling
     - Original data restoration
     """
-
     def __init__(self, parent, dp_widgets: list, on_data_version_changed=None, on_original_clicked=None):
         """
         Args:
@@ -52,15 +51,6 @@ class DataProcessingTab(QWidget):
     def set_callbacks(self, on_data_version_changed=None, on_original_clicked=None):
         """
         Assign or update callbacks after initialization.
-        
-        Args:
-            on_data_version_changed (Callable[[int], None], optional)
-            on_original_clicked (Callable[[], None], optional)
-        """
-    def set_callbacks(self, on_data_version_changed=None, on_original_clicked=None):
-        """
-        Assign or update callbacks after initialization.
-        
         Args:
             on_data_version_changed (Callable[[int], None], optional)
             on_original_clicked (Callable[[], None], optional)
