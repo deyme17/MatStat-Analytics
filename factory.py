@@ -80,6 +80,7 @@ class Factory:
             missing_service=MissingService(),
             ui_controls=build_ui_control_callbacks(window),
             update_data_callback=lambda data: getattr(window, 'missing_controller', None) and window.missing_controller.update_data_reference(data),
+            update_data_versions_callback=window.data_version_controller.update_data_versions,
             data_version_combo=None  # will be set in _setup_tabs
         )
 

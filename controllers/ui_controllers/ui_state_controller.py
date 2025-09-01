@@ -12,7 +12,8 @@ class UIStateController:
         missing_service,
         data_version_combo,
         ui_controls,
-        update_data_callback: Callable[[pd.Series], None]
+        update_data_callback: Callable[[pd.Series], None],
+        update_data_versions_callback: Callable[[], None]
     ):
         """
         Initializes the UI state controller.
@@ -22,12 +23,14 @@ class UIStateController:
             data_version_combo: Dropdown widget for dataset versions
             ui_controls: Container of UI control callbacks
             update_data_callback: Callback to update data reference in other controllers
+            update_data_versions_callback: Callback to update dropdown menu with all available data versions.
         """
         self.context = context
         self.missing_service = missing_service
         self.data_version_combo = data_version_combo
         self.ui = ui_controls
         self.update_data_callback = update_data_callback
+        self.update_data_versions_callback = update_data_versions_callback
 
     def handle_post_load_state(self, data: pd.Series) -> None:
         """
@@ -40,7 +43,7 @@ class UIStateController:
         self.data_version_combo.setEnabled(True)
 
         self.update_state_for_data(data)
-        self.context.data_version_controller.update_data_versions()
+        self.update_data_versions_callback()
         self.update_data_callback(data)  
 
         self.ui.bins_controls.set_value(self.context.data_model.bins)
