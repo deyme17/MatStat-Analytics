@@ -51,6 +51,14 @@ class Factory:
         window.controls_layout = controls.layout
 
     @staticmethod
+    def _setup_graph(window, context):
+        graph_panel = GraphPanel(
+            dist_selector_cls=DistributionSelector
+        )
+        window.graph_panel = graph_panel
+        context.graph_panel = graph_panel
+
+    @staticmethod 
     def _setup_services(window, context):
         context.version_manager = DataHistoryManager()
         context.message_service = UIMessager(parent=window)
@@ -94,14 +102,6 @@ class Factory:
         )
 
         context.data_model = None
-
-    @staticmethod
-    def _setup_graph(window, context):
-        graph_panel = GraphPanel(
-            dist_selector_cls=DistributionSelector
-        )
-        window.graph_panel = graph_panel
-        context.graph_panel = graph_panel
 
     @staticmethod
     def _setup_controllers(window, context):
