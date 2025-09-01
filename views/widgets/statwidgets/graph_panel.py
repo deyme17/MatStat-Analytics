@@ -100,9 +100,7 @@ class GraphPanel(QWidget):
         """Connect control signals to callbacks."""
         self.bins_spinbox.valueChanged.connect(self._callbacks['bins'])
         self.confidence_spinbox.valueChanged.connect(self._callbacks['alpha'])
-        self.show_kde_checkbox.stateChanged.connect(
-            lambda state: self._callbacks['kde'](state == 2)  # Qt.Checked
-        )
+        self.show_kde_checkbox.stateChanged.connect(lambda state: self._callbacks['kde']())
         self.dist_selector.set_on_change(self._callbacks['dist'])
 
     def set_callbacks(
