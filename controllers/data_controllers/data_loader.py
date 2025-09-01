@@ -9,7 +9,6 @@ class DataLoadController:
     """
     Controller for managing data loading operations and notifying the app of updates.
     """
-
     def __init__(
         self,
         context,

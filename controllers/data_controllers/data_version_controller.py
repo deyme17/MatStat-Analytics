@@ -6,7 +6,6 @@ class DataVersionController:
     """
     Controller for managing dataset versions (original and transformed).
     """
-
     def __init__(
         self,
         context,
