@@ -69,18 +69,18 @@ class Factory:
     def _setup_controllers(window, context):
         window.data_version_controller = DataVersionController(
             context=context,
-            data_version_combo=None,  # will be set in _setup_tabs
             bins_spinbox=window.graph_panel.bins_spinbox,
             on_reverted_to_original=lambda: getattr(window, 'original_button', None) and window.data_tab.original_button.setEnabled(False),
-            on_version_changed=lambda series: getattr(window, 'missing_controller', None) and window.missing_controller.update_data_reference(series)
+            on_version_changed=lambda series: getattr(window, 'missing_controller', None) and window.missing_controller.update_data_reference(series),
+            data_version_combo=None  # will be set in _setup_tabs
         )
 
         window.state_controller = UIStateController(
             context=context,
             missing_service=MissingService(),
-            data_version_combo=None,  # will be set in _setup_tabs
             ui_controls=build_ui_control_callbacks(window),
-            update_data_callback=lambda data: getattr(window, 'missing_controller', None) and window.missing_controller.update_data_reference(data)
+            update_data_callback=lambda data: getattr(window, 'missing_controller', None) and window.missing_controller.update_data_reference(data),
+            data_version_combo=None  # will be set in _setup_tabs
         )
 
         window.graph_controller = GraphController(
@@ -94,8 +94,8 @@ class Factory:
         window.transform_controller = DataTransformController(
             context=context,
             transform_service=TransformationService(),
-            shift_spinbox=None,  # will be set in _setup_tabs
-            on_transformation_applied=lambda: getattr(window, 'original_button', None) and window.data_tab.original_button.setEnabled(True)
+            on_transformation_applied=lambda: getattr(window, 'original_button', None) and window.data_tab.original_button.setEnabled(True),
+            shift_spinbox=None  # will be set in _setup_tabs
         )
 
         window.missing_controller = MissingDataController(
@@ -118,10 +118,10 @@ class Factory:
             context=context,
             statistic_service=StatisticsService(),
             stats_renderer=TableRenderer(),
-            stat_tab=None,  # will be set in _setup_tabs
             bins_spinbox=window.graph_panel.bins_spinbox,
             precision_spinbox=window.precision_spinbox,
-            confidence_spinbox=None  # will be set in _setup_tabs
+            confidence_spinbox=None,  # will be set in _setup_tabs
+            stat_tab=None  # will be set in _setup_tabs
         )
 
         window.data_load_controller = DataLoadController(
@@ -175,10 +175,10 @@ class Factory:
         window.left_tab_widget.addTab(window.est_tab, "Parameters estimation")
 
         # update controller references
-        Factory._update_controller_references(window, context)
+        Factory._update_controller_references(window)
 
     @staticmethod
-    def _update_controller_references(window, context):
+    def _update_controller_references(window):
         """Update controller references after UI components are created."""
         # data_version_controller references
         window.data_version_controller.data_version_combo = window.data_tab.data_version_combo
