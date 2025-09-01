@@ -1,5 +1,5 @@
 import pandas as pd
-from typing import Callable
+from typing import Callable, Any
 
 
 class UIStateController:
@@ -9,9 +9,9 @@ class UIStateController:
     def __init__(
         self,
         context,
-        missing_service,
         data_version_combo,
         ui_controls,
+        detect_missing_func: Callable[[pd.Series], dict[str, Any]],
         update_data_callback: Callable[[pd.Series], None],
         update_data_versions_callback: Callable[[], None]
     ):
@@ -19,14 +19,14 @@ class UIStateController:
         Initializes the UI state controller.
         Args:
             context: Main application context with services and models
-            missing_service: Handles missing data operations
+            detect_missing_func: Function for detect missing data and get info
             data_version_combo: Dropdown widget for dataset versions
             ui_controls: Container of UI control callbacks
             update_data_callback: Callback to update data reference in other controllers
             update_data_versions_callback: Callback to update dropdown menu with all available data versions.
         """
         self.context = context
-        self.missing_service = missing_service
+        self.detect_missing_func = detect_missing_func
         self.data_version_combo = data_version_combo
         self.ui = ui_controls
         self.update_data_callback = update_data_callback
@@ -36,7 +36,7 @@ class UIStateController:
         """
         Updates UI state and handles missing values and control logic after data load.
         """
-        missing_info = self.missing_service.detect_missing(data)
+        missing_info = self.detect_missing_func(data)
         has_missing = missing_info['total_missing'] > 0
 
         self.ui.bins_controls.set_enabled(True)
