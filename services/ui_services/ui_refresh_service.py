@@ -5,10 +5,8 @@ import pandas as pd
 class UIRefreshService:
     """
     Service for refreshing all UI components after data changes.
-    
     Uses grouped callbacks to decouple from specific UI components.
     """
-
     def __init__(
         self,
         clear: UIClearCallbacks,
@@ -31,8 +29,8 @@ class UIRefreshService:
     def refresh(self, series: pd.Series) -> None:
         """
         Main refresh method that updates all UI components based on data state.
-        
-        :param series: current data series to visualize (pandas Series)
+        Args:
+            series: current data series to visualize (pandas Series)
         """
         if series is None or series.isna().sum() > 0:
             self.clear_ui()
