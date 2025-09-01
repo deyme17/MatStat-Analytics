@@ -30,7 +30,10 @@ class SimulationController:
             simulated_data = self.simulation_service.generate_sample(
                 dist, sample_size, dist.params
             )
-            self.data_saver.save_data(dist.name, simulated_data)
+            if simulated_data is not None and len(simulated_data) > 0:
+                self.data_saver.save_data(dist.name, simulated_data)
+            else:
+                print(f"Warning: No data generated for {dist.name} with params {dist.params}")
         
         return self.simulation_service.run_experiment(
             dist, sizes, repeats, true_mean, alpha
