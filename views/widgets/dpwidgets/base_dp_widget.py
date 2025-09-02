@@ -1,11 +1,13 @@
 from PyQt6.QtWidgets import QGroupBox, QVBoxLayout
+from types import SimpleNamespace
 from utils.ui_styles import groupStyle
 
 class BaseDataWidget(QGroupBox):
     """Base class for all data processing widgets."""
-    def __init__(self, title, window):
+    def __init__(self, title, controller):
         super().__init__(title)
-        self.window = window
+        self.controller = controller
+        self.attr = SimpleNamespace()
         self.setStyleSheet(groupStyle)
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)

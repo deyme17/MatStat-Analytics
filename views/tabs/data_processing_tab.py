@@ -1,4 +1,5 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QHBoxLayout
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QHBoxLayout, QGroupBox
+from typing import Any
 
 ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT = 333, 30
 
@@ -11,21 +12,21 @@ class DataProcessingTab(QWidget):
     - Missing data handling
     - Original data restoration
     """
-    def __init__(self, parent, dp_widgets: list, on_data_version_changed=None, on_original_clicked=None):
+    def __init__(self, parent, widgets_with_controllers: list[tuple[QGroupBox, Any]], 
+                 on_data_version_changed=None, 
+                 on_original_clicked=None
+                 ):
         """
         Args:
             parent: The parent widget that contains this controller
-            dp_widgets (list): Widget classes for data processing operations including:
-                - Data transformation operations
-                - Anomaly detection functionality  
-                - Missing data handling operations
+            widgets_with_controllers (list[tuple[QGroupBox, Any]]): Widget classes for data processing operations with it's controllers
             on_data_version_changed (Callable[[int], None], optional): Callback for dataset version change
             on_original_clicked (Callable[[], None], optional): Callback for "Original" button click
         """
         super().__init__(parent)
 
         self._parent = parent
-        self.dp_widgets = dp_widgets
+        self.widgets_with_controllers = widgets_with_controllers
         self.on_data_version_changed = on_data_version_changed
         self.on_original_clicked = on_original_clicked
 
@@ -97,6 +98,6 @@ class DataProcessingTab(QWidget):
         Args:
             layout (QVBoxLayout): The main layout to add widgets to
         """
-        for widget_cls in self.dp_widgets:
-            widget = widget_cls(self._parent)
+        for widget_cls, controller in self.widgets_with_controllers:
+            widget = widget_cls(self._parent, controller)
             layout.addWidget(widget)

@@ -9,8 +9,8 @@ DEFAULT_SHIFT = 0
 class ProcessDataWidget(BaseDataWidget):
     """Widget for performing basic data transformations."""
     
-    def __init__(self, window):
-        super().__init__("Process Data", window)
+    def __init__(self, controller):
+        super().__init__("Process Data", controller)
         self._init_ui()
         
     def _init_ui(self):
@@ -18,16 +18,16 @@ class ProcessDataWidget(BaseDataWidget):
         # Transformation buttons
         buttons_config = [
             ("standardize_button", "Standardize", 
-             self.window.transform_controller.standardize_data),
+             self.controller.standardize_data),
             ("log_button", "Log Transform", 
-             self.window.transform_controller.log_transform_data)
+             self.controller.log_transform_data)
         ]
         
         for attr_name, text, callback in buttons_config:
             button = QPushButton(text)
             button.setEnabled(False)
             button.clicked.connect(callback)
-            setattr(self.window, attr_name, button)
+            setattr(self.attr, attr_name, button)
             self.add_widget(button)
 
         # Shift controls
@@ -37,19 +37,19 @@ class ProcessDataWidget(BaseDataWidget):
         """Setup shift controls."""
         shift_layout = QHBoxLayout()
         
-        self.window.shift_label = QLabel("Shift by:")
-        self.window.shift_spinbox = QDoubleSpinBox()
-        self.window.shift_spinbox.setRange(MIN_SHIFT, MAX_SHIFT)
-        self.window.shift_spinbox.setSingleStep(SHIFT_STEP)
-        self.window.shift_spinbox.setValue(DEFAULT_SHIFT)
-        self.window.shift_spinbox.setEnabled(False)
+        self.shift_label = QLabel("Shift by:")
+        self.shift_spinbox = QDoubleSpinBox()
+        self.shift_spinbox.setRange(MIN_SHIFT, MAX_SHIFT)
+        self.shift_spinbox.setSingleStep(SHIFT_STEP)
+        self.shift_spinbox.setValue(DEFAULT_SHIFT)
+        self.shift_spinbox.setEnabled(False)
         
-        self.window.shift_button = QPushButton("Apply")
-        self.window.shift_button.setEnabled(False)
-        self.window.shift_button.clicked.connect(self.window.transform_controller.shift_data)
+        self.shift_button = QPushButton("Apply")
+        self.shift_button.setEnabled(False)
+        self.shift_button.clicked.connect(self.controller.shift_data)
         
-        shift_layout.addWidget(self.window.shift_label)
-        shift_layout.addWidget(self.window.shift_spinbox)
-        shift_layout.addWidget(self.window.shift_button)
+        shift_layout.addWidget(self.shift_label)
+        shift_layout.addWidget(self.shift_spinbox)
+        shift_layout.addWidget(self.shift_button)
         
         self.add_layout(shift_layout)
