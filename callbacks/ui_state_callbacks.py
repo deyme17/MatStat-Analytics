@@ -7,7 +7,7 @@ class UIBinsControlCallbacks:
     set_value: Callable[[int], None]
 
 @dataclass
-class UIControlCallbacks:
+class DPControlCallbacks:
     set_transform_enabled: Callable[[bool], None]
     set_anomaly_enabled: Callable[[bool], None]
     set_missing_enabled: Callable[[bool], None]
@@ -15,8 +15,8 @@ class UIControlCallbacks:
     set_original_button_enabled: Callable[[bool], None]
     bins_controls: UIBinsControlCallbacks
 
-def build_ui_control_callbacks(window) -> UIControlCallbacks:
-    return UIControlCallbacks(
+def build_dp_control_callbacks(window) -> DPControlCallbacks:
+    return DPControlCallbacks(
         set_transform_enabled=lambda val: (
             window.standardize_button.setEnabled(val),
             window.log_button.setEnabled(val),
