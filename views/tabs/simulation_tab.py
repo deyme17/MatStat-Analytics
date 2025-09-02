@@ -17,7 +17,6 @@ class SimulationTab(QWidget):
     A QWidget tab that allows users to run statistical simulations using various 
     parametric distributions.
     """
-
     def __init__(self, context, simulation_controller):
         """
         Initialize the simulation tab with required services.

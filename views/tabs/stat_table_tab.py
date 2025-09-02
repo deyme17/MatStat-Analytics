@@ -4,7 +4,6 @@ class StatisticTab(QWidget):
     """
     A QWidget tab displaying a table of confidence intervals for statistical summaries.
     """
-
     def __init__(self, parent=None):
         super().__init__(parent)
         self.layout = QVBoxLayout()

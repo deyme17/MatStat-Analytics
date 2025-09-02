@@ -11,7 +11,6 @@ class ParamEstimationTab(QWidget):
     Tab widget for estimating distribution parameters using different methods.
     Uses AppContext for dependencies.
     """
-
     def __init__(self, context, estimator):
         """
         Args:

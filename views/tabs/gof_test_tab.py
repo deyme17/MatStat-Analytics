@@ -13,21 +13,17 @@ class GOFTestTab(QWidget):
     """
     A tab widget for evaluating Goodness-of-Fit (GOF) tests.
     """
-
-    def __init__(self, context, graph_panel, gof_service: GOFService, test_panels: List[Type[BaseTestPanel]]) -> None:
+    def __init__(self, context, get_dist_func, gof_service: GOFService, test_panels: List[Type[BaseTestPanel]]) -> None:
         """
-        Initialize the GOF test tab.
-
         Args:
             context (AppContext): Application context container
-            graph_panel: Object with get_selected_distribution().
+            get_dist_func: Function for getting current selected distribution.
             gof_service (GOFService): Service to perform GOF tests.
             test_panels (list): List of GOF test panel classes (not instances).
         """
         super().__init__()
         self.data_model = context.data_model
-        self.graph_panel = graph_panel
-
+        self.get_dist_func = get_dist_func
         self.test_panels: List[BaseTestPanel] = [panel(gof_service) for panel in test_panels]
 
         self.alpha_spinbox = QDoubleSpinBox()
@@ -55,7 +51,7 @@ class GOFTestTab(QWidget):
         """
         Evaluates all GOF tests based on current data and selected distribution.
         """
-        dist = self.graph_panel.get_selected_distribution()
+        dist = self.get_dist_func()
         model = self.data_model
 
         if dist is None or model is None or model.series.empty:
