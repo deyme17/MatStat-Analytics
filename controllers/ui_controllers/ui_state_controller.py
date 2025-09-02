@@ -9,9 +9,9 @@ class UIStateController:
     def __init__(
         self,
         context,
-        data_version_combo,
         ui_controls,
         detect_missing_func: Callable[[pd.Series], dict[str, Any]],
+        enable_data_combo_callback: Callable[[bool], None],
         update_data_callback: Callable[[pd.Series], None],
         update_data_versions_callback: Callable[[], None]
     ):
@@ -20,15 +20,15 @@ class UIStateController:
         Args:
             context: Main application context with services and models
             detect_missing_func: Function for detect missing data and get info
-            data_version_combo: Dropdown widget for dataset versions
             ui_controls: Container of UI control callbacks
+            enable_data_combo_callback: Callback to unable data version combo
             update_data_callback: Callback to update data reference in other controllers
             update_data_versions_callback: Callback to update dropdown menu with all available data versions.
         """
         self.context = context
-        self.detect_missing_func = detect_missing_func
-        self.data_version_combo = data_version_combo
         self.ui = ui_controls
+        self.detect_missing_func = detect_missing_func
+        self.enable_data_combo_callback = enable_data_combo_callback
         self.update_data_callback = update_data_callback
         self.update_data_versions_callback = update_data_versions_callback
 
@@ -40,7 +40,7 @@ class UIStateController:
         has_missing = missing_info['total_missing'] > 0
 
         self.ui.bins_controls.set_enabled(True)
-        self.data_version_combo.setEnabled(True)
+        self.enable_data_combo_callback(True)
 
         self.update_state_for_data(data)
         self.update_data_versions_callback()
