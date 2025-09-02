@@ -16,7 +16,7 @@ class DataSaver:
         self.simulation_counter = {}
         self.on_save = on_save
         
-    def save_data(self, dist_name: str, data: np.ndarray):
+    def save_data(self, dist_name: str, data: np.ndarray) -> None:
         """
         Save simulated data as a new dataset in the data history manager.
         Args:
@@ -45,7 +45,7 @@ class DataSaver:
             f"Simulated data saved as '{dataset_label}' with {len(data)} samples."
         )
 
-    def _create_data_label(self, dist_name):
+    def _create_data_label(self, dist_name) -> None:
         """Creates a label for newly-generated data"""
         if dist_name not in self.simulation_counter:
             self.simulation_counter[dist_name] = 0
@@ -55,5 +55,5 @@ class DataSaver:
         
         return f"{dist_name}Simulation{counter}"
     
-    def set_on_save_callback(self, on_save: Callable[[pd.Series], None]):
+    def set_on_save_callback(self, on_save: Callable[[pd.Series], None]) -> None:
         self.on_save = on_save

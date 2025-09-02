@@ -1,9 +1,17 @@
+from typing import Callable, Optional
+from services.ui_services.renderers.stats_renderer import TableRenderer
+
+
 class StatisticController:
     """
     Controller for managing the display of statistical characteristics in the UI.
     """
-    def __init__(self, context, statistic_service, stats_renderer,
-                 get_bins_value, get_precision_value, get_confidence_value):
+    def __init__(self, context, statistic_service,
+                 stats_renderer: Optional[TableRenderer],
+                 get_bins_value: Optional[Callable[[], int]], 
+                 get_precision_value: Optional[Callable[[], int]],
+                 get_confidence_value: Optional[Callable[[], float]]
+                 ):
         """
         Args:
             context (AppContext): Application context container
@@ -20,10 +28,13 @@ class StatisticController:
         self.get_precision_value = get_precision_value        
         self.get_confidence_value = get_confidence_value        
 
-    def update_statistics_table(self):
+    def update_statistics_table(self) -> None:
         """
         Recalculate statistics and update the UI statistics table.
         """
+        if not self.stats_renderer or not self.get_bins_value or not self.get_precision_value or not self.get_confidence_value:
+            raise RuntimeError("StatisticController not initialized completely with all functions yet")
+
         model = self.context.data_model
         if model is None or model.series.empty:
             return
@@ -44,8 +55,17 @@ class StatisticController:
             precision=self.get_precision()
         )
 
-    def clear(self):
+    def clear(self) -> None:
         """
         Clear the contents of the statistics table via renderer.
         """
+        if not self.stats_renderer:
+            raise RuntimeError("No stats_renderer provided in StatisticController")
         self.stats_renderer._setup_headers()
+
+    def connect_ui(self, stats_renderer: TableRenderer, get_bins_value: Callable[[], int], 
+                get_precision_value: Callable[[], int], get_confidence_value: Callable[[], float]) -> None:
+        self.stats_renderer = stats_renderer
+        self.get_bins_value = get_bins_value             
+        self.get_precision_value = get_precision_value        
+        self.get_confidence_value = get_confidence_value
