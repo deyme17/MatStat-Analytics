@@ -6,7 +6,6 @@ class StatisticsService:
     """
     Service for computing descriptive statistics and its confidence intervals.
     """
-
     @staticmethod
     def _common_stats(data: pd.Series) -> dict:
         """

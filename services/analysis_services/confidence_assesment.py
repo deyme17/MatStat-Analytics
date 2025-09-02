@@ -7,7 +7,6 @@ class ConfidenceService:
     """
     Service for computing confidence intervals for cumulative distribution function.
     """
-
     @staticmethod
     def cdf_variance_ci(data: pd.Series, dist, confidence_level: float = 0.95):
         """

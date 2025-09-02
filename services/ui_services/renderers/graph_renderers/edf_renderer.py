@@ -7,7 +7,6 @@ class EDFRenderer(Renderer):
     Renderer for drawing the Empirical Distribution Function (EDF)
     as a step function and optional interpolated curve.
     """
-
     @staticmethod
     def render(ax, data, bin_edges=None, show_edf_curve=False):
         """

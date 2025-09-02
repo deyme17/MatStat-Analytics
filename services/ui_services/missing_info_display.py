@@ -1,6 +1,5 @@
 class MissingInfoDisplayService:
     """Displays missing data info in UI labels."""
-    
     def __init__(self, count_label, percent_label):
         """
         Args:

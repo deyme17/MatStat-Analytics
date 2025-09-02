@@ -6,7 +6,6 @@ class MissingService:
     """
     Service for detecting and handling missing values in pandas Series.
     """
-
     @staticmethod
     def detect_missing(data: pd.Series) -> dict:
         """

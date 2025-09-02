@@ -2,7 +2,6 @@ class DataHistoryManager:
     """
     Manager for handling versions of datasets (DataModel instances).
     """
-
     def __init__(self):
         """
         Initialize an empty dataset manager.

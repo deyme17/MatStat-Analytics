@@ -5,7 +5,6 @@ class TransformationService:
     """
     Service for applying mathematical transformations to pandas Series.
     """
-
     @staticmethod
     def standardize(data: pd.Series) -> pd.Series:
         """

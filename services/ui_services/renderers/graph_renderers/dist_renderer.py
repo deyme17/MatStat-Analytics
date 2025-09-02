@@ -5,7 +5,6 @@ class DistributionRenderer(Renderer):
     """
     Renderer for drawing theoretical distribution PDF curves on Matplotlib axes.
     """
-
     @staticmethod
     def render(ax, data, dist, bins, color=None, label=None) -> bool:
         """

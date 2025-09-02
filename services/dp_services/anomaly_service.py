@@ -6,7 +6,6 @@ class AnomalyService:
     """
     Service for detecting anomalies in numeric data using different statistical methods.
     """
-
     @staticmethod
     def detect_sigma_anomalies(data: pd.Series, sigma: float = 3) -> dict:
         """

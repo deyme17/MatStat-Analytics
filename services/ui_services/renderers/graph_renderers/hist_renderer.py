@@ -5,7 +5,6 @@ class HistRenderer(Renderer):
     """
     Renderer for drawing histograms with optional KDE curve using seaborn.
     """
-
     @staticmethod
     def render(ax, data, bins: int, show_kde: bool):
         """
