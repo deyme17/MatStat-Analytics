@@ -1,4 +1,4 @@
-class DataHistoryManager:
+class DataVersionManager:
     """
     Manager for handling versions of datasets (DataModel instances).
     """
