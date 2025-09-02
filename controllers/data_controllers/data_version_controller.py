@@ -1,4 +1,5 @@
-from typing import Callable
+from typing import Callable, Optional
+from callbacks.ui_versions_callbacks import DataVersionUICallbacks
 import pandas as pd
 
 
@@ -9,11 +10,11 @@ class DataVersionController:
     def __init__(
         self,
         context,
-        version_combo_controls,
-        set_bins_value: Callable[[int], None],
-        update_navigation_buttons: Callable[[], None],
-        on_reverted_to_original: Callable[[], None],
-        on_version_changed: Callable[[pd.Series], None]
+        version_combo_controls: Optional[DataVersionUICallbacks],
+        set_bins_value: Optional[Callable[[int], None]],
+        update_navigation_buttons: Optional[Callable[[], None]],
+        on_reverted_to_original: Optional[Callable[[], None]],
+        on_version_changed: Optional[Callable[[pd.Series], None]]
     ):
         """
         Args:
@@ -35,6 +36,7 @@ class DataVersionController:
         """
         Called when the user selects a different version from the dropdown.
         """
+        self.check_ui_connected()
         labels = self.context.version_manager.get_all_descriptions()
         if 0 <= index < len(labels):
             label = labels[index]
@@ -46,6 +48,7 @@ class DataVersionController:
         """
         Revert to the original dataset version and update UI accordingly.
         """
+        self.check_ui_connected()
         original = self.context.version_manager.get_original_data()
         if original:
             self.context.data_model = original
@@ -60,6 +63,7 @@ class DataVersionController:
         """
         Update dropdown menu with all available data versions.
         """
+        self.check_ui_connected()
         labels = self.context.version_manager.get_all_descriptions()
         
         self.version_combo_controls.block_signals(True)
@@ -76,6 +80,7 @@ class DataVersionController:
         """
         Sync the dropdown selection with the currently active dataset.
         """
+        self.check_ui_connected()
         labels = self.context.version_manager.get_all_descriptions()
         current = self.context.version_manager.get_data_description()
 
@@ -90,9 +95,26 @@ class DataVersionController:
         """
         Internal helper to refresh UI after switching dataset.
         """
+        self.check_ui_connected()
         series = self.context.data_model.series
         self.set_bins_value(self.context.data_model.bins)
         self.context.refresher.refresh(series)
 
         if self.on_version_changed:
             self.on_version_changed(series)
+
+    def connect_ui(self, version_combo_controls: Optional[DataVersionUICallbacks],
+                                set_bins_value: Optional[Callable[[int], None]],
+                                update_navigation_buttons: Optional[Callable[[], None]],
+                                on_reverted_to_original: Optional[Callable[[], None]],
+                                on_version_changed: Optional[Callable[[pd.Series], None]]) -> None:
+        self.version_combo_controls = version_combo_controls
+        self.set_bins_value = set_bins_value
+        self.update_navigation_buttons = update_navigation_buttons
+        self.on_reverted_to_original = on_reverted_to_original
+        self.on_version_changed = on_version_changed
+        
+    def check_ui_connected(self) -> None:
+        if not (self.version_combo_controls and self.set_bins_value and self.update_navigation_buttons 
+                and self.on_reverted_to_original and self.on_version_changed):
+            raise RuntimeError("Not all ui functions&callbacks connected to DataVersionController")

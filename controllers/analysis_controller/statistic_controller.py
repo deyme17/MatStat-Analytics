@@ -32,9 +32,7 @@ class StatisticController:
         """
         Recalculate statistics and update the UI statistics table.
         """
-        if not self.stats_renderer or not self.get_bins_value or not self.get_precision_value or not self.get_confidence_value:
-            raise RuntimeError("StatisticController not initialized completely with all functions yet")
-
+        self.check_ui_connected()
         model = self.context.data_model
         if model is None or model.series.empty:
             return
@@ -59,8 +57,7 @@ class StatisticController:
         """
         Clear the contents of the statistics table via renderer.
         """
-        if not self.stats_renderer:
-            raise RuntimeError("No stats_renderer provided in StatisticController")
+        self.check_ui_connected()
         self.stats_renderer._setup_headers()
 
     def connect_ui(self, stats_renderer: TableRenderer, get_bins_value: Callable[[], int], 
@@ -69,3 +66,8 @@ class StatisticController:
         self.get_bins_value = get_bins_value             
         self.get_precision_value = get_precision_value        
         self.get_confidence_value = get_confidence_value
+
+    def check_ui_connected(self) -> None:
+        if not (self.stats_renderer and self.get_bins_value 
+                and self.get_precision_value and self.get_confidence_value):
+            raise RuntimeError("Not all ui functions&callbacks connected to StatisticController")
