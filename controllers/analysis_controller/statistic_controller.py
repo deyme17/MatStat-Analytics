@@ -2,25 +2,23 @@ class StatisticController:
     """
     Controller for managing the display of statistical characteristics in the UI.
     """
-    def __init__(self, context, statistic_service, stats_renderer, stat_table, 
-                 bins_spinbox, precision_spinbox, confidence_spinbox):
+    def __init__(self, context, statistic_service, stats_renderer,
+                 get_bins_value, get_precision_value, get_confidence_value):
         """
         Args:
             context (AppContext): Application context container
             statistic_service: Service for statistics handling
-            stats_renderer: UI service for statistics visualization
-            stat_table: Reference to the statistics table
-            bins_spinbox: SpinBox control for bin count configuration
-            precision_spinbox: SpinBox control for precision configuration
-            confidence_spinbox: SpinBox control for confidence level selection
+            stats_renderer (TableRenderer): Responsible for drawing statistics in table
+            get_bins_value: Function for getting bin count configuration
+            get_precision_value: Function for getting precision configuration
+            get_confidence_value: Function for getting confidence level selection
         """
         self.context = context
         self.statistic_service = statistic_service
         self.stats_renderer = stats_renderer
-        self.stat_table = stat_table         
-        self.bins_spinbox = bins_spinbox             
-        self.precision_spinbox = precision_spinbox        
-        self.confidence_spinbox = confidence_spinbox        
+        self.get_bins_value = get_bins_value             
+        self.get_precision_value = get_precision_value        
+        self.get_confidence_value = get_confidence_value        
 
     def update_statistics_table(self):
         """
@@ -29,28 +27,25 @@ class StatisticController:
         model = self.context.data_model
         if model is None or model.series.empty:
             return
-        
-        bins = self.bins_spinbox.value()
+
+        bins = self.get_bins()
         model.update_bins(bins)
 
-        confidence = self.confidence_spinbox.value()
-        precision = self.precision_spinbox.value()
-
-        # calc stats
         stats_data = self.statistic_service.get_characteristics(model.hist)
-        ci_data = self.statistic_service.compute_intervals(model.series, confidence_level=confidence, precision=precision)
+        ci_data = self.statistic_service.compute_intervals(
+            model.series,
+            confidence_level=self.get_confidence(),
+            precision=self.get_precision()
+        )
 
-        # visualize table
-        self.stats_renderer.render_stats_table(
-            self.stat_table,
+        self.stats_renderer.render(
             stats_data.to_dict(),
             ci_data.to_dict(),
-            precision=precision
+            precision=self.get_precision()
         )
 
     def clear(self):
         """
-        Clear the contents of the statistics table.
+        Clear the contents of the statistics table via renderer.
         """
-        self.stat_table.clearContents()
-        self.stat_table.setRowCount(0)
+        self.stats_renderer._setup_headers()

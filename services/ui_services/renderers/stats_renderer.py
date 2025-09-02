@@ -1,8 +1,8 @@
-from typing import Dict, Tuple
 from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem
 
+
 class TableRenderer:
-    """Handles rendering of statistical data into Qt tables with consistent formatting."""
+    """Handles rendering of statistical data into a QTableWidget with consistent formatting."""
 
     CI_MAPPING = {
         'Mean': 'Mean CI',
@@ -13,58 +13,38 @@ class TableRenderer:
         'Excess': 'Excess CI'
     }
 
-    @classmethod
-    def render_stats_table(
-        cls,
-        table: QTableWidget,
-        stats_data: Dict[str, float],
-        ci_data: Dict[str, Tuple[float, float]],
-        precision: int = 2
-    ) -> None:
-        """
-        Renders statistics with confidence intervals into a table.
-        
-        Args:
-            table: Target QTableWidget
-            stats_data: Basic statistics {metric: value}
-            ci_data: Confidence intervals {metric: (lower, upper)}
-            precision: Rounding precision
-        """
-        cls._setup_table_headers(table)
-        cls._populate_table_data(table, stats_data, ci_data, precision)
+    def __init__(self, table: QTableWidget):
+        self._table = table
 
-    @staticmethod
-    def _setup_table_headers(table: QTableWidget) -> None:
-        """Configures table structure and headers."""
-        table.clearContents()
-        table.setColumnCount(3)
-        table.setHorizontalHeaderLabels(['Lower CI', 'Value', 'Upper CI'])
-        table.setRowCount(0)
+    def render(self, stats_data: dict[str, float], ci_data: dict[str, tuple], precision: int = 2) -> None:
+        """Renders statistics with confidence intervals into the attached table."""
+        self._setup_headers()
+        self._populate(stats_data, ci_data, precision)
 
-    @classmethod
-    def _populate_table_data(
-        cls,
-        table: QTableWidget,
-        stats_data: Dict[str, float],
-        ci_data: Dict[str, Tuple[float, float]],
-        precision: int
-    ) -> None:
-        """Fills table with statistical data."""
-        table.setRowCount(len(stats_data))
-        
+    def _setup_headers(self) -> None:
+        self._table.clearContents()
+        self._table.setColumnCount(3)
+        self._table.setHorizontalHeaderLabels(['Lower CI', 'Value', 'Upper CI'])
+        self._table.setRowCount(0)
+
+    def _populate(self, stats_data: dict[str, float], ci_data: dict[str, tuple], precision: int) -> None:
+        self._table.setRowCount(len(stats_data))
+
         for row, (metric, value) in enumerate(stats_data.items()):
-            table.setVerticalHeaderItem(row, QTableWidgetItem(metric))
-            
-            # Format main value
-            table.setItem(row, 1, QTableWidgetItem(f"{value:.{precision}f}"))
-            
-            # Format CI values
-            ci_metric = cls.CI_MAPPING.get(metric)
+            self._table.setVerticalHeaderItem(row, QTableWidgetItem(metric))
+
+            # main value
+            self._table.setItem(row, 1, QTableWidgetItem(f"{value:.{precision}f}"))
+
+            # confidence interval
+            ci_metric = self.CI_MAPPING.get(metric)
             lower, upper = ci_data.get(ci_metric, ("N/A", "N/A"))
-            
-            table.setItem(row, 0, QTableWidgetItem(
-                f"{lower:.{precision}f}" if isinstance(lower, (int, float)) else str(lower)
-            ))
-            table.setItem(row, 2, QTableWidgetItem(
-                f"{upper:.{precision}f}" if isinstance(upper, (int, float)) else str(upper)
-            ))
+
+            self._table.setItem(
+                row, 0,
+                QTableWidgetItem(f"{lower:.{precision}f}" if isinstance(lower, (int, float)) else str(lower))
+            )
+            self._table.setItem(
+                row, 2,
+                QTableWidgetItem(f"{upper:.{precision}f}" if isinstance(upper, (int, float)) else str(upper))
+            )
