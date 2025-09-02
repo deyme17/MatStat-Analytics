@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Optional
 import pandas as pd
 
 
@@ -6,7 +6,7 @@ class AnomalyController:
     """
     Controller for detecting and removing statistical anomalies from the dataset.
     """
-    def __init__(self, context, anomaly_service, get_gamma_value):
+    def __init__(self, context, anomaly_service, get_gamma_value: Optional[Callable[[], float]]):
         """    
         Args:
             context (AppContext): Application context container
@@ -34,6 +34,7 @@ class AnomalyController:
         Detect and remove anomalies using confidence interval bounds.
         Confidence level is selected via the gamma spinbox.
         """
+        if not self.get_gamma_value: raise RuntimeError("No get_gamma_value function provided in AnomalyController")
         gamma = self.get_gamma_value()
         func = lambda data: self.anomaly_service.detect_conf_anomalies(data, gamma)
         self._remove_anomalies(func, f"Conf. Filtered γ={gamma}")
@@ -75,3 +76,6 @@ class AnomalyController:
             f"Removed {len(anomalies)} anomalies.\n"
             f"Lower: {result['lower_limit']:.4f}, Upper: {result['upper_limit']:.4f}"
         )
+
+    def set_get_gamma_value_func(self, get_gamma_value: Callable[[], float]) -> None:
+        self.get_gamma_value = get_gamma_value

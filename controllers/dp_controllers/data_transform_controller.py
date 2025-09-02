@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Optional
 import pandas as pd
 
 
@@ -10,8 +10,8 @@ class DataTransformController:
         self,
         context,
         transform_service,
-        get_shift_value,
-        on_transformation_applied: Callable[[], None]
+        get_shift_value: Optional[Callable[[], int]],
+        on_transformation_applied: Optional[Callable[[], None]]
     ):
         """
         Args:
@@ -45,6 +45,7 @@ class DataTransformController:
         """
         Apply constant shift to the current dataset based on UI input.
         """
+        if not self.get_shift_value: raise RuntimeError("No get_shift_value function provided in DataTransformController")
         if self.context.data_model:
             shift_val = self.get_shift_value()
             transformed = self.transform_service.shift(self.context.data_model.series, shift_val)
@@ -57,13 +58,12 @@ class DataTransformController:
             new_series: transformed pandas Series
             label: label for the transformation version
         """
+        if not self.on_transformation_applied: raise RuntimeError("No on_transformation_applied callback provided in DataTransformController")
         new_model = self.context.data_model.add_version(new_series, label)
         self.context.data_model = new_model
         self.context.version_manager.update_current_data(new_model)
         self.context.refresher.refresh(self.context.data_model.series)
-
-        if self.on_transformation_applied:
-            self.on_transformation_applied()
+        self.on_transformation_applied()
 
     def is_transformed(self) -> bool:
         """
@@ -72,3 +72,8 @@ class DataTransformController:
             True if transformations applied, False otherwise
         """
         return len(self.context.data_model.history) > 0
+    
+    def set_get_shift_value_func(self, get_shift_value: Callable[[], int]) -> None:
+        self.get_shift_value = get_shift_value
+    def set_on_transformation_applied_callback(self, on_transformation_applied: Callable[[], None]) -> None:
+        self.on_transformation_applied = on_transformation_applied

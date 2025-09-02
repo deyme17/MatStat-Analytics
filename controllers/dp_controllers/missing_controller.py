@@ -1,4 +1,5 @@
-from typing import Callable
+from typing import Callable, Optional
+from services import MissingInfoDisplayService
 import pandas as pd
 
 
@@ -10,8 +11,8 @@ class MissingDataController:
         self,
         context,
         missing_service,
-        display_service,
-        update_state_callback: Callable[[pd.Series], None]
+        display_service: Optional[MissingInfoDisplayService],
+        update_state_callback: Optional[Callable[[pd.Series], None]]
     ):
         """
         Args:
@@ -32,15 +33,16 @@ class MissingDataController:
         Args:
             data (pd.Series): New data series to reference
         """
+        if not self.update_state_callback: raise RuntimeError("No update_state_callback provided in MissingDataController")
         self.data = data
         self.update_missing_values_info()
-        if self.update_state_callback:
-            self.update_state_callback(data)
+        self.update_state_callback(data)
 
     def update_missing_values_info(self) -> None:
         """
         Update the display with current missing values information.
         """
+        if not self.display_service: raise RuntimeError("No display_service provided in MissingDataController")
         if self.data is not None:
             info = self.missing_service.detect_missing(self.data)
             self.display_service.update(info)
@@ -97,3 +99,8 @@ class MissingDataController:
             new_series = self.missing_service.drop_missing(self.data)
             dropped = original_len - len(new_series)
             self._update_after_imputation(new_series, "Dropped NA", f"Dropped {dropped} rows with missing values.")
+
+    def set_display_service(self, display_service: MissingInfoDisplayService) -> None:
+        self.display_service = display_service
+    def set_update_state_callback(self, update_state_callback: Callable[[pd.Series], None]) -> None:
+        self.update_state_callback = update_state_callback
