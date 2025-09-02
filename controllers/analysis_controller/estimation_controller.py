@@ -2,15 +2,12 @@ from models.params_estimators import registered_estimation_methods
 from models.stat_distributions import registered_distributions
 
 class ParameterEstimation:
-    """Main controller class for parameter estimation operations.
-    
+    """
+    Main controller class for parameter estimation operations.
     Provides a unified interface for estimating distribution parameters
     using different estimation methods.
     """
     def __init__(self):
-        """Initialize the parameter estimation service.
-        Loads available estimation methods from registered_estimation_methods.
-        """
         self.methods = registered_estimation_methods
 
     def estimate(self, dist_name: str, method_name: str, data):

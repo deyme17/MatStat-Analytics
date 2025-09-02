@@ -4,7 +4,6 @@ class SimulationController:
     """
     def __init__(self, simulation_service, data_saver):
         """
-        Initialize the simulation controller with required services.
         Args:
             simulation_service: Service for performing statistical simulations
             data_saver: Service for saving simulated data to storage
@@ -14,7 +13,8 @@ class SimulationController:
     
     def run_simulation(self, dist, sizes, repeats, true_mean, alpha,
                       save_data=False, sample_size=None):
-        """Run statistical simulation with optional data saving.
+        """
+        Run statistical simulation with optional data saving.
         Args:
             dist: Distribution instance to simulate from
             sizes: List of sample sizes for the simulation experiment

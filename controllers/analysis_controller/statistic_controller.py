@@ -2,14 +2,14 @@ class StatisticController:
     """
     Controller for managing the display of statistical characteristics in the UI.
     """
-    def __init__(self, context, statistic_service, stats_renderer, stat_tab, 
+    def __init__(self, context, statistic_service, stats_renderer, stat_table, 
                  bins_spinbox, precision_spinbox, confidence_spinbox):
         """
         Args:
             context (AppContext): Application context container
             statistic_service: Service for statistics handling
             stats_renderer: UI service for statistics visualization
-            stat_tab (StatisticTab): Reference to the statistics display tab widget
+            stat_table: Reference to the statistics table
             bins_spinbox: SpinBox control for bin count configuration
             precision_spinbox: SpinBox control for precision configuration
             confidence_spinbox: SpinBox control for confidence level selection
@@ -17,7 +17,7 @@ class StatisticController:
         self.context = context
         self.statistic_service = statistic_service
         self.stats_renderer = stats_renderer
-        self.stat_tab = stat_tab         
+        self.stat_table = stat_table         
         self.bins_spinbox = bins_spinbox             
         self.precision_spinbox = precision_spinbox        
         self.confidence_spinbox = confidence_spinbox        
@@ -42,7 +42,7 @@ class StatisticController:
 
         # visualize table
         self.stats_renderer.render_stats_table(
-            self.stat_tab.conf_table,
+            self.stat_table,
             stats_data.to_dict(),
             ci_data.to_dict(),
             precision=precision
@@ -52,5 +52,5 @@ class StatisticController:
         """
         Clear the contents of the statistics table.
         """
-        self.stat_tab.conf_table.clearContents()
-        self.stat_tab.conf_table.setRowCount(0)
+        self.stat_table.clearContents()
+        self.stat_table.setRowCount(0)
