@@ -9,7 +9,7 @@ class GraphController:
         self,
         context,
         confidence_service,
-        graph_panel,
+        graph_control,
         update_statistics_callback: Callable[[], None],
         update_gof_callback: Callable[[], None]
     ):
@@ -17,12 +17,12 @@ class GraphController:
         Args:
             context: AppContext with shared data
             confidence_service: Service for confidence interval computations
-            graph_panel: Visualization panel hosting graph tabs and controls.
+            graph_control: Container of graph_panel control callbacks
             update_statistics_callback: function to trigger statistics table update
             update_gof_callback: function to trigger goodness-of-fit tests
         """
         self.context = context
-        self.panel = graph_panel
+        self.panel = graph_control
         self.confidence_service = confidence_service
         self.update_statistics_callback = update_statistics_callback
         self.update_gof_callback = update_gof_callback
@@ -31,7 +31,7 @@ class GraphController:
         """
         Set data and refresh everything.
         """
-        self.panel.data = series
+        self.panel.set_data(series)
         if series is not None and not series.empty:
             self.plot_all()
 
@@ -47,10 +47,9 @@ class GraphController:
         """
         Called when distribution is changed. Redraws and reruns GOF.
         """
-        if not self._valid():
-            return
-        self.panel.refresh_all()
-        self.update_gof_callback()
+        if self._valid():
+            self.panel.refresh_all()
+            self.update_gof_callback()
 
     def on_bins_changed(self) -> None:
         """
