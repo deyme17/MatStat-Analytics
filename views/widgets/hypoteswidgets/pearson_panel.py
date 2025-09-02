@@ -9,7 +9,6 @@ class PearsonChi2Panel(BaseTestPanel):
     """
     Panel for Pearson's Chi-Squared GOF test with detailed stats.
     """
-
     def __init__(self, gof_service: GOFService) -> None:
         """
         Initialize the Pearson χ² test panel.
