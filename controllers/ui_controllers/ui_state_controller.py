@@ -1,5 +1,6 @@
 import pandas as pd
-from typing import Callable, Any
+from typing import Callable, Any, Optional
+from callbacks.ui_state_callbacks import DPControlCallbacks
 
 
 class UIStateController:
@@ -9,11 +10,11 @@ class UIStateController:
     def __init__(
         self,
         context,
-        ui_controls,
+        ui_controls: Optional[DPControlCallbacks],
         detect_missing_func: Callable[[pd.Series], dict[str, Any]],
-        enable_data_combo_callback: Callable[[bool], None],
-        update_data_callback: Callable[[pd.Series], None],
-        update_data_versions_callback: Callable[[], None]
+        enable_data_combo_callback: Optional[Callable[[bool], None]],
+        update_data_callback: Optional[Callable[[pd.Series], None]],
+        update_data_versions_callback: Optional[Callable[[], None]]
     ):
         """
         Initializes the UI state controller.
@@ -36,6 +37,7 @@ class UIStateController:
         """
         Updates UI state and handles missing values and control logic after data load.
         """
+        self.check_all_callbacks()
         missing_info = self.detect_missing_func(data)
         has_missing = missing_info['total_missing'] > 0
 
@@ -63,6 +65,7 @@ class UIStateController:
         """
         Enables/disables UI controls based on the presence of missing values.
         """
+        self.check_all_callbacks()
         has_missing = data.isna().sum() > 0 if hasattr(data, 'isna') else False
 
         self.ui.set_transform_enabled(not has_missing)
@@ -76,6 +79,7 @@ class UIStateController:
         """
         Updates the UI label showing the current transformation state.
         """
+        self.check_all_callbacks()
         text = self.context.data_model.current_transformation if self.context.data_model else "Original"
         self.ui.set_transformation_label(f"Current state: {text}")
 
@@ -83,8 +87,23 @@ class UIStateController:
         """
         Enables/disables navigation buttons based on transformation history.
         """
+        self.check_all_callbacks()
         model = self.context.data_model
         has_history = model and len(model.history) > 0
         was_anomaly_removed = getattr(model, 'anomalies_removed', False)
 
         self.ui.set_original_button_enabled(has_history or was_anomaly_removed)
+
+    def connect_callbacks(self, ui_controls: DPControlCallbacks,
+                                enable_data_combo_callback: Callable[[bool], None],
+                                update_data_callback: Callable[[pd.Series], None],
+                                update_data_versions_callback: Callable[[], None]) -> None:
+        self.ui = ui_controls
+        self.enable_data_combo_callback = enable_data_combo_callback
+        self.update_data_callback = update_data_callback
+        self.update_data_versions_callback = update_data_versions_callback
+
+    def check_all_callbacks(self) -> None:
+        if not (self.ui and self.enable_data_combo_callback and 
+                self.update_data_callback and self.update_data_versions_callback):
+            raise RuntimeError("Not all callbacks provided for UIStateController")
