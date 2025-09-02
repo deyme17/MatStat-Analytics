@@ -6,7 +6,6 @@ GAMMA_STEP = 0.01
 DEFAULT_GAMMA = 0.95
 GAMMA_PRECISION = 2
 
-
 class AnomalyWidget(BaseDataWidget):
     """Widget for anomaly detection operations."""
     def __init__(self, controller):

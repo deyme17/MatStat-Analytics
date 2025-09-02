@@ -5,7 +5,6 @@ MIN_SHIFT, MAX_SHIFT = -1000, 1000
 SHIFT_STEP = 1
 DEFAULT_SHIFT = 0
 
-
 class ProcessDataWidget(BaseDataWidget):
     """Widget for performing basic data transformations."""
     def __init__(self, controller):
