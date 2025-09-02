@@ -1,4 +1,5 @@
-from typing import Callable
+from typing import Callable, Optional
+from callbacks.ui_graph_callbacks import GraphPanelCallbacks
 import pandas as pd
 
 class GraphController:
@@ -9,9 +10,9 @@ class GraphController:
         self,
         context,
         confidence_service,
-        graph_control,
-        update_statistics_callback: Callable[[], None],
-        update_gof_callback: Callable[[], None]
+        graph_control: Optional[GraphPanelCallbacks],
+        update_statistics_callback: Optional[Callable[[], None]],
+        update_gof_callback: Optional[Callable[[], None]]
     ):
         """
         Args:
@@ -31,6 +32,7 @@ class GraphController:
         """
         Set data and refresh everything.
         """
+        if not self.panel: raise RuntimeError("No panel callbacks provided for GraphController")
         self.panel.set_data(series)
         if series is not None and not series.empty:
             self.plot_all()
@@ -39,6 +41,8 @@ class GraphController:
         """
         Redraw graphs and update both stats and GOF tests.
         """
+        if not self.panel or not self.update_statistics_callback or not self.update_gof_callback: 
+            raise RuntimeError("Not all callbacks provided for GraphController")
         self.panel.refresh_all()
         self.update_statistics_callback()
         self.update_gof_callback()
@@ -47,6 +51,8 @@ class GraphController:
         """
         Called when distribution is changed. Redraws and reruns GOF.
         """
+        if not self.panel or not self.update_gof_callback: 
+            raise RuntimeError("Not all callbacks provided for GraphController")
         if self._valid():
             self.panel.refresh_all()
             self.update_gof_callback()
@@ -62,6 +68,7 @@ class GraphController:
         """
         Called when confidence level is changed.
         """
+        if not self.panel: raise RuntimeError("No panel callbacks provided for GraphController")
         if self._valid():
             self.panel.refresh_all()
 
@@ -69,6 +76,7 @@ class GraphController:
         """
         Called when KDE checkbox toggled. Redraw only.
         """
+        if not self.panel: raise RuntimeError("No panel callbacks provided for GraphController")
         if self._valid():
             self.panel.refresh_all()
 
@@ -87,3 +95,10 @@ class GraphController:
             isinstance(self.context.data_model.series, pd.Series) and
             not self.context.data_model.series.empty
         )
+    
+    def connect_callbacks(self, graph_control: GraphPanelCallbacks,
+                                update_statistics_callback: Callable[[], None],
+                                update_gof_callback: Callable[[], None]) -> None:
+        self.panel = graph_control
+        self.update_statistics_callback = update_statistics_callback
+        self.update_gof_callback = update_gof_callback
