@@ -9,22 +9,25 @@ class DataVersionController:
     def __init__(
         self,
         context,
-        data_version_combo,
-        bins_spinbox,
+        version_combo_controls,
+        set_bins_value: Callable[[int], None],
+        update_navigation_buttons: Callable[[], None],
         on_reverted_to_original: Callable[[], None],
         on_version_changed: Callable[[pd.Series], None]
     ):
         """
         Args:
             context: Shared application context (data, history, refresher, etc.)
-            data_version_combo: ComboBox used to select dataset versions
-            bins_spinbox: SpinBox for setting histogram bin count
+            version_combo_controls: Container of version_combo_controls control callbacks
+            set_bins_value: Function for setting bin count configuration
+            update_navigation_buttons: Callback triggered after version selected
             on_reverted_to_original: Callback triggered after reverting to original data
             on_version_changed: Callback triggered after version is changed
         """
         self.context = context
-        self.data_version_combo = data_version_combo
-        self.bins_spinbox = bins_spinbox
+        self.version_combo_controls = version_combo_controls
+        self.set_bins_value = set_bins_value
+        self.update_navigation_buttons = update_navigation_buttons
         self.on_reverted_to_original = on_reverted_to_original
         self.on_version_changed = on_version_changed
 
@@ -57,17 +60,16 @@ class DataVersionController:
         """
         Update dropdown menu with all available data versions.
         """
-        self.data_version_combo.blockSignals(True)
-        self.data_version_combo.clear()
-
         labels = self.context.version_manager.get_all_descriptions()
-        self.data_version_combo.addItems(labels)
+        
+        self.version_combo_controls.block_signals(True)
+        self.version_combo_controls.set_version_list(labels)
 
         current = self.context.version_manager.get_data_description()
         if current in labels:
-            self.data_version_combo.setCurrentIndex(labels.index(current))
+            self.version_combo_controls.set_current_index(labels.index(current))
 
-        self.data_version_combo.blockSignals(False)
+        self.version_combo_controls.block_signals(False)
         self._update_all()
 
     def update_data_version_selection(self) -> None:
@@ -77,19 +79,19 @@ class DataVersionController:
         labels = self.context.version_manager.get_all_descriptions()
         current = self.context.version_manager.get_data_description()
 
-        self.data_version_combo.blockSignals(True)
+        self.version_combo_controls.block_signals(True)
         if current in labels:
-            self.data_version_combo.setCurrentIndex(labels.index(current))
-        self.data_version_combo.blockSignals(False)
+            self.version_combo_controls.set_current_index(labels.index(current))
+        self.version_combo_controls.block_signals(False)
 
-        self.context.state_controller.update_navigation_buttons()
+        self.update_navigation_buttons()
 
     def _update_all(self) -> None:
         """
         Internal helper to refresh UI after switching dataset.
         """
         series = self.context.data_model.series
-        self.bins_spinbox.setValue(self.context.data_model.bins)
+        self.set_bins_value(self.context.data_model.bins)
         self.context.refresher.refresh(series)
 
         if self.on_version_changed:
