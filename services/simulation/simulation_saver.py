@@ -1,12 +1,12 @@
 import numpy as np
 import pandas as pd
-from typing import Callable
+from typing import Callable, Optional
 from models.data_model import DataModel
 from utils.def_bins import get_default_bin_count
 
 
 class DataSaver:
-    def __init__(self, context, on_save: Callable[[pd.Series], None]):
+    def __init__(self, context, on_save: Optional[Callable[[pd.Series], None]]):
         """
         Args:
             context (AppContext): Application context container
@@ -23,6 +23,8 @@ class DataSaver:
             dist_name: name of the distribution
             data: simulated data array
         """
+        if not self.on_save: raise RuntimeError("No on_save callback provided for DataSaver")
+
         dataset_label = self._create_data_label(dist_name)
         series = pd.Series(data)
         
@@ -52,3 +54,6 @@ class DataSaver:
         counter = self.simulation_counter[dist_name]
         
         return f"{dist_name}Simulation{counter}"
+    
+    def set_on_save_callback(self, on_save: Callable[[pd.Series], None]):
+        self.on_save = on_save
