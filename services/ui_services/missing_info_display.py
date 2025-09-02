@@ -1,18 +1,18 @@
 class MissingInfoDisplayService:
     """Displays missing data info in UI labels."""
-    def __init__(self, count_label, percent_label):
+    def __init__(self, set_count_label, set_percent_label):
         """
         Args:
-            count_label: Shows total missing values count
-            percent_label: Shows missing values percentage
+            set_count_label: Function that set total missing values count text 
+            set_percent_label: Function that set missing values percentage text
         """
-        self.count_label = count_label
-        self.percent_label = percent_label
+        self.set_count_label = set_count_label
+        self.set_percent_label = set_percent_label
 
     def update(self, info: dict):
         """Updates labels with current missing data stats.
         Args:
             info: {'total_missing': int, 'missing_percentage': float}
         """
-        self.count_label.setText(f"Total Missing: {info['total_missing']}")
-        self.percent_label.setText(f"Missing Percentage: {info['missing_percentage']:.2f}%")
+        self.set_count_label(f"Total Missing: {info['total_missing']}")
+        self.set_percent_label(f"Missing Percentage: {info['missing_percentage']:.2f}%")

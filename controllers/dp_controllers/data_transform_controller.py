@@ -10,19 +10,19 @@ class DataTransformController:
         self,
         context,
         transform_service,
-        shift_spinbox,
+        get_shift_value,
         on_transformation_applied: Callable[[], None]
     ):
         """
         Args:
             context (AppContext): Application context container
             transform_service: Service to perform data transformation
-            shift_spinbox (QSpinBox): SpinBox control for data shifting
+            get_shift_value: Function for getting shift configuration
             on_transformation_applied: Callback after applying any transformation
         """
         self.context = context
         self.transform_service = transform_service
-        self.shift_spinbox = shift_spinbox
+        self.get_shift_value = get_shift_value
         self.on_transformation_applied = on_transformation_applied
 
     def standardize_data(self) -> None:
@@ -46,7 +46,7 @@ class DataTransformController:
         Apply constant shift to the current dataset based on UI input.
         """
         if self.context.data_model:
-            shift_val = self.shift_spinbox.value()
+            shift_val = self.get_shift_value()
             transformed = self.transform_service.shift(self.context.data_model.series, shift_val)
             self._apply_transformation(transformed, f"Shifted by {shift_val}")
 

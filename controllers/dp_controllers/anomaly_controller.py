@@ -6,16 +6,16 @@ class AnomalyController:
     """
     Controller for detecting and removing statistical anomalies from the dataset.
     """
-    def __init__(self, context, anomaly_service, gamma_spinbox):
+    def __init__(self, context, anomaly_service, get_gamma_value):
         """    
         Args:
             context (AppContext): Application context container
             anomaly_service: Service for anomaly detection operations
-            gamma_spinbox: SpinBox control to configure the probability of an anomalous value appearing
+            get_gamma_value: Function for getting gamma configuration
         """
         self.context = context
         self.anomaly_service = anomaly_service
-        self.gamma_spinbox = gamma_spinbox
+        self.get_gamma_value = get_gamma_value
 
     def remove_sigma_anomalies(self) -> None:
         """
@@ -34,7 +34,7 @@ class AnomalyController:
         Detect and remove anomalies using confidence interval bounds.
         Confidence level is selected via the gamma spinbox.
         """
-        gamma = self.gamma_spinbox.value()
+        gamma = self.get_gamma_value()
         func = lambda data: self.anomaly_service.detect_conf_anomalies(data, gamma)
         self._remove_anomalies(func, f"Conf. Filtered γ={gamma}")
 
