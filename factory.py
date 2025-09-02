@@ -28,8 +28,10 @@ from views import (
 )
 
 # Callbacks
-from callbacks import UIClearCallbacks, UIUpdateCallbacks, UIModelCallbacks, UIStateCallbacks
-from callbacks.ui_state_callbacks import build_dp_control_callbacks
+from callbacks import (
+    UIClearCallbacks, UIModelCallbacks, UIStateCallbacks, UIUpdateCallbacks,
+    build_dp_control_callbacks, build_data_version_callbacks, build_graph_panel_callbacks
+)
 
 
 ...
