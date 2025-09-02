@@ -7,7 +7,6 @@ CI_COLOR = 'pink'
 
 class EDFTab(BaseGraphTab):
     """Tab for Empirical Distribution Function (EDF) visualization"""
-    
     def __init__(self):
         super().__init__("Empirical Distribution Function")
 

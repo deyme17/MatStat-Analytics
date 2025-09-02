@@ -8,7 +8,6 @@ DEFAULT_SHIFT = 0
 
 class ProcessDataWidget(BaseDataWidget):
     """Widget for performing basic data transformations."""
-    
     def __init__(self, controller):
         super().__init__("Process Data", controller)
         self._init_ui()

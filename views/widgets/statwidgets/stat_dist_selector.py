@@ -12,11 +12,9 @@ class DistributionSelector(QGroupBox):
     Widget for selecting statistical distributions.
     Provides radio buttons for all registered distributions.
     """
-
     def __init__(self, on_change: Optional[Callable[[], None]] = None, parent=None):
         """
         Initialize the distribution selector.
-
         Args:
             on_change (Callable): Optional callback to call when selection changes.
             parent: Optional QWidget parent.
@@ -57,7 +55,6 @@ class DistributionSelector(QGroupBox):
     def get_selected_distribution(self) -> Optional[StatisticalDistribution]:
         """
         Get an instance of the currently selected distribution.
-
         Returns:
             StatisticalDistribution or None
         """
@@ -78,7 +75,6 @@ class DistributionSelector(QGroupBox):
     def set_on_change(self, callback: Callable[[], None]) -> None:
         """
         Set callback for distribution selection changes.
-
         Args:
             callback (Callable): A function to call on change.
         """

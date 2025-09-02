@@ -4,7 +4,6 @@ from PyQt6.QtWidgets import QPushButton, QLabel
 
 class MissingWidget(BaseDataWidget):
     """Widget for handling missing data in the dataset."""
-    
     def __init__(self, controller):
         super().__init__("Missing Data", controller)
         self._init_ui()

@@ -9,11 +9,9 @@ class KolmogorovSmirnovPanel(BaseTestPanel):
     """
     Panel for Kolmogorov–Smirnov GOF test with detailed stats.
     """
-
     def __init__(self, gof_service: GOFService) -> None:
         """
         Initialize the Kolmogorov–Smirnov test panel.
-
         Args:
             gof_service (GOFService): Service to perform the test.
         """
@@ -29,7 +27,6 @@ class KolmogorovSmirnovPanel(BaseTestPanel):
     def evaluate(self, data: pd.Series, dist: StatisticalDistribution, alpha: float) -> None:
         """
         Perform Kolmogorov–Smirnov test and update panel.
-
         Args:
             data (pd.Series): Sample data to test.
             dist (StatisticalDistribution): Fitted distribution.

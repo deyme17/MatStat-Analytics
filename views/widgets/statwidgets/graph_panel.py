@@ -23,7 +23,7 @@ class GraphPanel(QWidget):
     """
     def __init__(
         self,
-        dist_selector_cls: type,
+        dist_selector_cls,
         on_bins_changed: Optional[Callable[[int], None]] = None,
         on_alpha_changed: Optional[Callable[[float], None]] = None,
         on_kde_toggled: Optional[Callable[[], None]] = None,
@@ -125,7 +125,6 @@ class GraphPanel(QWidget):
     def set_data(self, data: pd.Series) -> None:
         """
         Set data for visualization.
-        
         Args:
             data: Input data series
         """

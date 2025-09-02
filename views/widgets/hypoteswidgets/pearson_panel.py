@@ -13,7 +13,6 @@ class PearsonChi2Panel(BaseTestPanel):
     def __init__(self, gof_service: GOFService) -> None:
         """
         Initialize the Pearson χ² test panel.
-
         Args:
             gof_service (GOFService): GOF service for computing test values.
         """
@@ -29,7 +28,6 @@ class PearsonChi2Panel(BaseTestPanel):
     def evaluate(self, data: pd.Series, dist: StatisticalDistribution, alpha: float) -> None:
         """
         Evaluate the Pearson chi-squared test.
-
         Args:
             data (pd.Series): Observed data sample.
             dist (StatisticalDistribution): Theoretical distribution to test against.

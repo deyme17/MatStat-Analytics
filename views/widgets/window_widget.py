@@ -21,7 +21,6 @@ class WindowWidgets:
         Creates the top control bar with:
         - Load Data button
         - Precision label and spinbox
-
         Returns:
             ControlsBar: named tuple containing layout and individual widgets
         """

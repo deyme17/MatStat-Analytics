@@ -15,11 +15,9 @@ class BaseTestPanel(QGroupBox, ABC, metaclass=Meta):
     Abstract base class for statistical test panels used in the application.
     Provides a common layout and logic for displaying hypothesis test results.
     """
-
     def __init__(self, title: str, gof_service: GOFService) -> None:
         """
         Initialize the test panel group box with a title and base layout.
-
         Args:
             title (str): Title of the group box representing the test.
             gof_service (GOFService): Service for executing Goodness-of-Fit tests.
@@ -36,7 +34,6 @@ class BaseTestPanel(QGroupBox, ABC, metaclass=Meta):
     def add_stat_label(self, prefix: str = " ") -> QLabel:
         """
         Adds a QLabel to the layout for displaying test statistics.
-
         Args:
             prefix (str): Text prefix for the label.
         """
@@ -47,7 +44,6 @@ class BaseTestPanel(QGroupBox, ABC, metaclass=Meta):
     def finalize_layout(self, *extra_widgets: QWidget) -> None:
         """
         Finalize layout by appending any extra widgets and the result label.
-
         Args:
             *extra_widgets (QWidget): Optional widgets to add before the result.
         """
@@ -58,7 +54,6 @@ class BaseTestPanel(QGroupBox, ABC, metaclass=Meta):
     def update_result(self, passed: bool) -> None:
         """
         Update the hypothesis result label based on the test outcome.
-
         Args:
             passed (bool): True if H₀ is not rejected, False if rejected.
         """
@@ -70,7 +65,6 @@ class BaseTestPanel(QGroupBox, ABC, metaclass=Meta):
     def evaluate(self, data: pd.Series, dist: StatisticalDistribution, alpha: float) -> None:
         """
         Abstract method to evaluate the test with the given data and distribution.
-
         Args:
             data (pd.Series): Sample data to evaluate.
             dist (StatisticalDistribution): Fitted distribution to compare against.
