@@ -7,7 +7,6 @@ class DataModel:
     Model that holds the current data series along with histogram, and statistics cache.
     Supports versioning and transformations.
     """
-
     def __init__(self, series: pd.Series, bins: int = 10, label: str = "Original", history=None):
         """
         Initialize DataModel with original data and histogram/statistics cache.

@@ -4,7 +4,6 @@ class Hist:
     """
     Histogram model that computes bin counts and edges for numeric data.
     """
-
     def __init__(self, data, bins: int = 10):
         if hasattr(data, 'dropna'):
             self.data = data.dropna().values

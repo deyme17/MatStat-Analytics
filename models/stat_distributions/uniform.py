@@ -5,11 +5,11 @@ import pandas as pd
 
 class UniformDistribution(StatisticalDistribution):
     """Uniform distribution."""
-
     def __init__(self, a=None, b=None):
         """
-        :param a: lower bound
-        :param b: upper bound
+        Args:
+            a: lower bound
+            b: upper bound
         """
         super().__init__()
         self.color = 'purple'
@@ -19,7 +19,8 @@ class UniformDistribution(StatisticalDistribution):
     @property
     def distribution_params(self) -> dict[str, float | None]:
         """
-        :return: {"a": lower bound, "b": upper bound}
+        Returns: 
+            {"a": lower bound, "b": upper bound}
         """
         return {
             "a": self.params[0] if self.params else None,
@@ -29,9 +30,10 @@ class UniformDistribution(StatisticalDistribution):
     def fit(self, data: pd.Series) -> tuple:
         """
         Fit uniform distribution to the given data.
-
-        :param data: input data series
-        :return: (a, b)
+        Args:
+            data: input data series
+        Returns: 
+            (a, b)
         """
         min_val = np.nanmin(data)
         max_val = np.nanmax(data)
@@ -43,8 +45,8 @@ class UniformDistribution(StatisticalDistribution):
     def get_mean(self) -> float | None:
         """
         Return the theoretical mean of the fitted distribution.
-
-        :return: mean value or None
+        Returns: 
+            mean value or None
         """
         if not self.params:
             return None
@@ -54,28 +56,31 @@ class UniformDistribution(StatisticalDistribution):
     def get_pdf(self, x: np.ndarray, params: tuple) -> np.ndarray:
         """
         Compute the PDF of the uniform distribution.
-
-        :param x: array of evaluation points
-        :param params: (a, b)
-        :return: array of PDF values
+        Args:
+            x: array of evaluation points
+            params: (a, b)
+        Returns: 
+            array of PDF values
         """
         return stats.uniform.pdf(x, loc=params[0], scale=params[1] - params[0])
 
     def get_distribution_object(self, params: tuple):
         """
         Return a frozen scipy.stats.uniform object with given parameters.
-
-        :param params: (a, b)
-        :return: scipy.stats.rv_frozen object
+        Args:
+            params: (a, b)
+        Returns: 
+            scipy.stats.rv_frozen object
         """
         return stats.uniform(loc=params[0], scale=params[1] - params[0])
 
     def _get_plot_range(self, data: pd.Series) -> tuple[float, float]:
         """
         Define the plotting range for uniform distribution.
-
-        :param data: input data series
-        :return: (min x, max x)
+        Args:
+            data: input data series
+        Returns: 
+            (min x, max x)
         """
         params = self.fit(data)
         x_min = params[0] - 0.1 * (params[1] - params[0])
@@ -85,11 +90,12 @@ class UniformDistribution(StatisticalDistribution):
     def get_cdf_variance(self, x_vals: np.ndarray, params: tuple, n: int) -> np.ndarray:
         """
         Compute the variance of the CDF estimate at given points.
-
-        :param x_vals: array of evaluation points
-        :param params: (a, b)
-        :param n: sample size
-        :return: array of variances
+        Args:
+            x_vals: array of evaluation points
+            params: (a, b)
+            n: sample size
+        Returns: 
+            array of variances
         """
         a, b = params
 
@@ -108,10 +114,11 @@ class UniformDistribution(StatisticalDistribution):
     def get_inverse_cdf(self, x: np.ndarray, params: tuple) -> np.ndarray:
         """
         Compute the inverse CDF (quantile function) of the uniform distribution.
-
-        :param x: array of probabilities in [0, 1]
-        :param params: (a, b)
-        :return: array of quantiles
+        Args:
+            x: array of probabilities in [0, 1]
+            params: (a, b)
+        Returns: 
+            array of quantiles
         """
         a = params[0]
         b = params[1] - params[0]

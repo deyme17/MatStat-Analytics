@@ -4,7 +4,6 @@ import pandas as pd
 
 class StatisticalDistribution(ABC):
     """Abstract base class for statistical distributions."""
-
     def __init__(self):
         self.params = None                     # parameters of the distribution
         self.color = 'red'                     # default color

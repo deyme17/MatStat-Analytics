@@ -6,11 +6,11 @@ import pandas as pd
 
 class WeibullDistribution(StatisticalDistribution):
     """Weibull distribution."""
-
     def __init__(self, shape=None, scale=None):
         """
-        :param shape: shape parameter (β)
-        :param scale: scale parameter (α)
+        Args:
+            shape: shape parameter (β)
+            scale: scale parameter (α)
         """
         super().__init__()
         self.color = 'orange'
@@ -20,7 +20,8 @@ class WeibullDistribution(StatisticalDistribution):
     @property
     def distribution_params(self) -> dict[str, float | None]:
         """
-        :return: {"shape": β, "scale": α}
+        Returns: 
+            {"shape": β, "scale": α}
         """
         return {
             "shape": self.params[0] if self.params else None,
@@ -30,9 +31,10 @@ class WeibullDistribution(StatisticalDistribution):
     def fit(self, data: pd.Series) -> tuple:
         """
         Fit Weibull distribution to the given data.
-
-        :param data: input data series
-        :return: (shape, scale)
+        Args:
+            data: input data series
+        Returns: 
+            (shape, scale)
         """
         min_val = np.nanmin(data)
         if min_val <= 0:
@@ -56,8 +58,8 @@ class WeibullDistribution(StatisticalDistribution):
     def get_mean(self) -> float | None:
         """
         Return the theoretical mean of the fitted distribution.
-
-        :return: mean value or None
+        Returns: 
+            mean value or None
         """
         if not self.params:
             return None
@@ -67,10 +69,11 @@ class WeibullDistribution(StatisticalDistribution):
     def get_pdf(self, x: np.ndarray, params: tuple) -> np.ndarray:
         """
         Compute the PDF of the Weibull distribution.
-
-        :param x: array of evaluation points
-        :param params: (shape, scale)
-        :return: array of PDF values
+        Args:
+            x: array of evaluation points
+            params: (shape, scale)
+        Returns: 
+            array of PDF values
         """
         shape = max(0.1, params[0])
         scale = max(0.1, params[1])
@@ -79,20 +82,22 @@ class WeibullDistribution(StatisticalDistribution):
     def get_distribution_object(self, params: tuple):
         """
         Return a frozen scipy.stats.weibull_min object with given parameters.
-
-        :param params: (shape, scale)
-        :return: scipy.stats.rv_frozen object
+        Args:
+            params: (shape, scale)
+        Returns: 
+            scipy.stats.rv_frozen object
         """
         return stats.weibull_min(c=params[0], scale=params[1])
 
     def get_cdf_variance(self, x_vals: np.ndarray, params: tuple, n: int) -> np.ndarray:
         """
         Compute the variance of the CDF estimate at given points.
-
-        :param x_vals: array of evaluation points
-        :param params: (α, β)
-        :param n: sample size
-        :return: array of variances
+        Args:
+            x_vals: array of evaluation points
+            params: (α, β)
+            n: sample size
+        Returns: 
+            array of variances
         """
         alpha, beta = params
         x_safe = np.clip(x_vals, 1e-10, 1e10)
@@ -113,10 +118,11 @@ class WeibullDistribution(StatisticalDistribution):
     def get_inverse_cdf(self, x: np.ndarray, params: tuple) -> np.ndarray:
         """
         Compute the inverse CDF (quantile function) of the Weibull distribution.
-
-        :param x: array of probabilities in [0, 1]
-        :param params: (shape, scale)
-        :return: array of quantiles
+        Args:
+            x: array of probabilities in [0, 1]
+            params: (shape, scale)
+        Returns: 
+            array of quantiles
         """
         shape = max(0.1, params[0])
         scale = max(0.1, params[1])

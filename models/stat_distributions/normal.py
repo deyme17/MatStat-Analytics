@@ -5,11 +5,11 @@ import pandas as pd
 
 class NormalDistribution(StatisticalDistribution):
     """Normal (Gaussian) distribution."""
-
     def __init__(self, mu=None, sigma=None):
         """
-        :param mu: mean of the distribution
-        :param sigma: standard deviation of the distribution
+        Args:
+            mu: mean of the distribution
+            sigma: standard deviation of the distribution
         """
         super().__init__()
         self.color = 'red'
@@ -19,7 +19,8 @@ class NormalDistribution(StatisticalDistribution):
     @property
     def distribution_params(self) -> dict[str, float | None]:
         """
-        :return: {"mu": mean, "sigma": standard deviation}
+        Returns: 
+            {"mu": mean, "sigma": standard deviation}
         """
         return {
             "mu": self.params[0] if self.params else None,
@@ -29,9 +30,10 @@ class NormalDistribution(StatisticalDistribution):
     def fit(self, data: pd.Series) -> tuple:
         """
         Fit normal distribution to the given data.
-
-        :param data: input data series
-        :return: (mean, standard deviation)
+        Args:
+            data: input data series
+        Returns: 
+            (mean, standard deviation)
         """
         mean = np.nanmean(data)
         std = np.nanstd(data)
@@ -43,8 +45,8 @@ class NormalDistribution(StatisticalDistribution):
     def get_mean(self) -> float | None:
         """
         Return the theoretical mean of the fitted distribution.
-
-        :return: mean value or None if not fitted
+        Returns: 
+            mean value or None if not fitted
         """
         if not self.params:
             return None
@@ -53,30 +55,33 @@ class NormalDistribution(StatisticalDistribution):
     def get_pdf(self, x: np.ndarray, params: tuple) -> np.ndarray:
         """
         Compute the PDF of the normal distribution.
-
-        :param x: array of evaluation points
-        :param params: (mu, sigma)
-        :return: array of PDF values
+        Args:
+            x: array of evaluation points
+            params: (mu, sigma)
+        Returns: 
+            array of PDF values
         """
         return stats.norm.pdf(x, loc=params[0], scale=params[1])
 
     def get_distribution_object(self, params: tuple):
         """
         Return a frozen scipy.stats.norm object with given parameters.
-
-        :param params: (mu, sigma)
-        :return: scipy.stats.rv_frozen object
+        Args:
+            params: (mu, sigma)
+        Returns: 
+            scipy.stats.rv_frozen object
         """
         return stats.norm(loc=params[0], scale=params[1])
 
     def get_cdf_variance(self, x_vals: np.ndarray, params: tuple, n: int) -> np.ndarray:
         """
         Compute the variance of the CDF estimate at given points.
-
-        :param x_vals: array of evaluation points
-        :param params: (mu, sigma)
-        :param n: sample size
-        :return: array of variances
+        Args:
+            x_vals: array of evaluation points
+            params: (mu, sigma)
+            n: sample size
+        Returns: 
+            array of variances
         """
         m, sigma = params
 
@@ -96,10 +101,11 @@ class NormalDistribution(StatisticalDistribution):
     def get_inverse_cdf(self, x: np.ndarray, params: tuple) -> np.ndarray:
         """
         Compute the inverse CDF (quantile function) of the normal distribution.
-
-        :param x: array of probabilities in [0, 1]
-        :param params: (mu, sigma)
-        :return: array of quantiles
+        Args:
+            x: array of probabilities in [0, 1]
+            params: (mu, sigma)
+        Returns: 
+            array of quantiles
         """
         x = np.clip(x, 1e-10, 1 - 1e-10)
         loc = params[0]

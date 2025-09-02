@@ -3,33 +3,36 @@ from scipy.optimize import minimize
 import numpy as np
 
 class MaximumLikelihoodMethod(EstimationMethod):
-    """Implements maximum likelihood estimation for statistical distributions.
-    
+    """
+    Implements maximum likelihood estimation for statistical distributions.
     This estimator finds parameters that maximize the likelihood function
     for the given data and distribution by minimizing the negative log-likelihood.
     """
-    
     @property
     def name(self) -> str:
-        """Returns the name identifier for this estimation method.
-        :return: Method name ('Maximum Likelihood')
+        """
+        Returns: "Maximum Likelihood"
         """
         return "Maximum Likelihood"
 
     def estimate(self, dist_instance, data):
-        """Estimate distribution parameters using maximum likelihood.
-        
-        :param dist_instance: Distribution instance to estimate parameters for
-        :param data: Input data series for parameter estimation
-        :return: Tuple of estimated parameters if successful, None otherwise
+        """
+        Estimate distribution parameters using maximum likelihood.
+        Args:
+            dist_instance: Distribution instance to estimate parameters for
+            data: Input data series for parameter estimation
+        Returns: 
+            Tuple of estimated parameters if successful, None otherwise
         """
         def neg_log_likelihood(params, x, dist):
-            """Negative log-likelihood function for optimization.
-            
-            :param params: Current parameter values
-            :param x: Input data values
-            :param dist: Distribution instance
-            :return: Negative log-likelihood value
+            """
+            Negative log-likelihood function for optimization.
+            Args:
+                params: Current parameter values
+                x: Input data values
+                dist: Distribution instance
+            Returns: 
+                Negative log-likelihood value
             """
             try:
                 pdf = dist.get_distribution_object(params).pdf(x)

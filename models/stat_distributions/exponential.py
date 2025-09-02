@@ -5,10 +5,10 @@ import pandas as pd
 
 class ExponentialDistribution(StatisticalDistribution):
     """Exponential distribution."""
-
     def __init__(self, lam=None):
         """
-        :param lam: rate parameter (λ)
+        Args: 
+            lam: rate parameter (λ)
         """
         super().__init__()
         self.params = (lam,)
@@ -18,16 +18,18 @@ class ExponentialDistribution(StatisticalDistribution):
     @property
     def distribution_params(self) -> dict[str, float | None]:
         """
-        :return: {"lambda": λ}
+        Returns: 
+            {"lambda": λ}
         """
         return {"lambda": self.params[0] if self.params else None}
 
     def fit(self, data: pd.Series) -> tuple:
         """
         Fit exponential distribution to the given data.
-
-        :param data: input data series
-        :return: (lambda,)
+        Args:
+            data: input data series
+        Returns: 
+            (lambda,)
         """
         min_val = np.nanmin(data)
         if min_val <= 0:
@@ -42,8 +44,8 @@ class ExponentialDistribution(StatisticalDistribution):
     def get_mean(self) -> float | None:
         """
         Return the theoretical mean of the fitted distribution.
-
-        :return: mean value or None
+        Returns: 
+            mean value or None
         """
         if not self.params or self.params[0] == 0:
             return None
@@ -53,28 +55,31 @@ class ExponentialDistribution(StatisticalDistribution):
     def get_pdf(self, x: np.ndarray, params: tuple) -> np.ndarray:
         """
         Compute the PDF of the exponential distribution.
-
-        :param x: array of evaluation points
-        :param params: (lambda,)
-        :return: array of PDF values
+        Args:
+            x: array of evaluation points
+            params: (lambda,)
+        Returns: 
+            array of PDF values
         """
         return stats.expon.pdf(x, loc=0, scale=1 / params[0] if params[0] > 0 else 1)
 
     def get_distribution_object(self, params: tuple):
         """
         Return a frozen scipy.stats.expon object with given parameters.
-
-        :param params: (lambda,)
-        :return: scipy.stats.rv_frozen object
+        Args:
+            params: (lambda,)
+        Returns: 
+            scipy.stats.rv_frozen object
         """
         return stats.expon(scale=1 / params[0]) if params[0] > 0 else stats.expon()
 
     def _get_plot_range(self, data: pd.Series) -> tuple[float, float]:
         """
         Define the plotting range for exponential distribution.
-
-        :param data: input data series
-        :return: (min x, max x)
+        Args:
+            data: input data series
+        Returns: 
+            (min x, max x)
         """
         min_val = np.nanmin(data)
         x_min = max(0, min_val * 0.8) if min_val > 0 else 0
@@ -84,11 +89,12 @@ class ExponentialDistribution(StatisticalDistribution):
     def get_cdf_variance(self, x_vals: np.ndarray, params: tuple, n: int) -> np.ndarray:
         """
         Compute the variance of the CDF estimate at given points.
-
-        :param x_vals: array of evaluation points
-        :param params: (lambda,)
-        :param n: sample size
-        :return: array of variances
+        Args:
+            x_vals: array of evaluation points
+            params: (lambda,)
+            n: sample size
+        Returns: 
+            array of variances
         """
         lam = max(1e-10, params[0])
         # the limitation for safety
@@ -99,10 +105,11 @@ class ExponentialDistribution(StatisticalDistribution):
     def get_inverse_cdf(self, x: np.ndarray, params: tuple) -> np.ndarray:
         """
         Compute the inverse CDF (quantile function) of the exponential distribution.
-
-        :param x: array of probabilities in [0, 1]
-        :param params: (lambda,)
-        :return: array of quantiles
+        Args:
+            x: array of probabilities in [0, 1]
+            params: (lambda,)
+        Returns: 
+            array of quantiles
         """
         lam = params[0]
         return -np.log(1 - x) / lam

@@ -8,20 +8,19 @@ class KolmogorovSmirnovGOFTest(BaseGOFTest):
 
     def name(self) -> str:
         """
-        Return the name of the test.
-
-        :return: "ks"
+        Returns: "ks"
         """
         return "ks"
 
     def run(self, data: np.ndarray, dist: StatisticalDistribution, alpha: float = 0.05) -> dict:
         """
         Perform the Kolmogorov-Smirnov goodness-of-fit test.
-
-        :param data: input data array
-        :param dist: fitted StatisticalDistribution object
-        :param alpha: significance level
-        :return: dictionary with test results (statistic, p-value, decision, extra info)
+        Args:
+            data: input data array
+            dist: fitted StatisticalDistribution object
+            alpha: significance level
+        Returns:
+            dictionary with test results (statistic, p-value, decision, extra info)
         """
         n = len(data)
         sorted_data = np.sort(data)
@@ -53,11 +52,12 @@ class KolmogorovSmirnovGOFTest(BaseGOFTest):
     def _kolmogorov_cdf(self, z: float, N: int, terms: int = 100) -> float:
         """
         Approximate the CDF of the Kolmogorov distribution using a series expansion.
-
-        :param z: normalized KS statistic
-        :param N: sample size
-        :param terms: number of expansion terms
-        :return: approximated CDF value in [0, 1]
+        Args:
+            z: normalized KS statistic
+            N: sample size
+            terms: number of expansion terms
+        Returns:
+            approximated CDF value in [0, 1]
         """
         if z <= 0 or N <= 0:
             return 0.0
