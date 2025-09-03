@@ -69,7 +69,7 @@ class ControllersFactory:
             on_data_loaded_callback=lambda data: (controllers['ui_state'].handle_post_load_state(data))
         )
         controllers['data_version'] = DataVersionController(context=self.context)
-        controllers['anomaly'] = AnomalyController(
+        controllers['anomaly_data'] = AnomalyController(
             context=self.context,
             anomaly_service=AnomalyService(),
         )
@@ -89,8 +89,44 @@ class UIFactory:
         self.window = window
         self.context = context
     
-    def setup_ui(self) -> None:
-        ...
+    def setup_ui(self, controllers: dict[str, Any]) -> None:
+        # GRAPH PANEL
+        self.window.graph_panel = GraphPanel(
+            dist_selector_cls=DistributionSelector
+        )
+
+        # LEFT TABS
+        data_tab = DataProcessingTab(
+            widgets_with_controllers=[
+                (ProcessDataWidget, controllers['data_transform']),
+                (AnomalyWidget, controllers['anomaly_data']),
+                (MissingWidget, controllers['missing_data'])
+            ],
+            on_data_version_changed=controllers['data_version'].on_data_version_changed,
+            on_original_clicked=controllers['data_version'].original_data
+        )
+        stat_tab = StatisticTab(renderer_cls=TableRenderer)
+        gof_tab = GOFTestTab(
+            context=self.context,
+            get_dist_func=self.window.graph_panel.get_selected_distribution,
+            gof_service=GOFService(),
+            test_panels=[PearsonChi2Panel, KolmogorovSmirnovPanel]
+        )
+        sim_tab = SimulationTab(
+            context=self.context,
+            simulation_controller=controllers['simulation']
+        )
+        est_tab = ParamEstimationTab(
+            context=self.context,
+            estimator=controllers['estimation']
+        )
+
+        self.window.left_tab_widget = QTabWidget()
+        self.window.left_tab_widget.addTab(data_tab, "Data Processing")
+        self.window.left_tab_widget.addTab(stat_tab, "Statistic")
+        self.window.left_tab_widget.addTab(gof_tab, "Goodness-of-Fit Tests")
+        self.window.left_tab_widget.addTab(sim_tab, "Simulation")
+        self.window.left_tab_widget.addTab(est_tab, "Parameters estimation")
 
 class ConnectFactory:
     def __init__(self, window):
@@ -136,7 +172,7 @@ class Factory:
 
     def _setup_ui(self):
         ui_factory = UIFactory(self.window, self.context)
-        ui_factory.setup_ui()
+        ui_factory.setup_ui(self.controllers)
     
     def _connect_controllers(self):
         connect_factory = ConnectFactory(self.window)
