@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import (
     QSpinBox, QDoubleSpinBox, QCheckBox, QTabWidget
 )
 from views.widgets.statwidgets.graph_tabs import registered_graphs
-from typing import Callable, Dict, Optional, Any
+from typing import Callable, Optional, Any
 import pandas as pd
 
 MIN_BINS, MAX_BINS = 1, 999
@@ -149,11 +149,11 @@ class GraphPanel(QWidget):
         for tab in self.graph_tabs.values():
             tab.clear()
 
-    def get_selected_distribution(self) -> Optional[object]:
+    def get_selected_distribution(self) -> Optional[Any]:
         """Get currently selected distribution."""
         return self.dist_selector.get_selected_distribution()
 
-    def get_render_params(self) -> Dict[str, Any]:
+    def get_render_params(self) -> dict[str, Any]:
         """
         Get current visualization parameters.
         Returns:
@@ -161,7 +161,7 @@ class GraphPanel(QWidget):
             - bins: int
             - kde: bool
             - confidence: float
-            - distribution: object
+            - distribution: StatisticalDistribution
         """
         return {
             "bins": self.bins_spinbox.value(),
