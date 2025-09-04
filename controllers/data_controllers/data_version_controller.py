@@ -112,7 +112,7 @@ class DataVersionController:
         self.on_reverted_to_original = on_reverted_to_original
         self.on_version_changed = on_version_changed
 
-    def connect_ui(self, set_bins_value: Callable[[int], None]):
+    def set_set_bins_value_func(self, set_bins_value: Callable[[int], None]):
         self.set_bins_value = set_bins_value
         
     def check_all_connected(self) -> None:
