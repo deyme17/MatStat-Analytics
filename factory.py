@@ -135,7 +135,7 @@ class ConnectFactory:
     def __init__(self, window):
         self.window = window
 
-    def connect_controllers(self, controllers):
+    def connect_ui(self, controllers):
         controllers['statistic'].connect_ui(
             stats_renderer=self.window.left_tab_widget.stat_tab.renderer,
             get_bins_value=..., 
@@ -195,7 +195,7 @@ class Factory:
         factory._setup_context()
         factory._init_controllers()
         factory._setup_ui()
-        factory._connect_controllers()
+        factory._connect_ui()
         factory._connect_callbacks()
         return factory
 
@@ -213,9 +213,9 @@ class Factory:
         ui_factory = UIFactory(self.window, self.context)
         ui_factory.setup_ui(self.controllers)
     
-    def _connect_controllers(self):
+    def _connect_ui(self):
         connect_factory = ConnectFactory(self.window)
-        connect_factory.connect_controllers(self.controllers)
+        connect_factory.connect_ui(self.controllers)
 
     def _connect_callbacks(self):
         cb_factory = CallBackFactory(self.window, self.context)
