@@ -136,16 +136,22 @@ class ConnectFactory:
         self.window = window
 
     def connect_ui(self, controllers):
+        controllers['data_version'].set_set_bins_value_func(lambda bins: self.window.graph_panel.bins_spinbox.setValue(bins))
         controllers['statistic'].connect_ui(
             stats_renderer=self.window.left_tab_widget.stat_tab.renderer,
-            get_bins_value=..., 
-            get_precision_value=..., 
-            get_confidence_value=...           
+            get_bins_value=self.window.graph_panel.bins_spinbox.value(), 
+            get_confidence_value=self.window.graph_panel.confidence_spinbox.value(),         
+            get_precision_value=self.window.precision_spinbox.value() 
         )
-        controllers['data_version'].set_set_bins_value_func(set_bins_value=...)
-        controllers['anomaly_data'].set_get_gamma_value_func(...)
-        controllers['data_transform'].set_get_shift_value_func(...)
-        controllers['missing_data'].set_display_service(...)
+        data_tab = self.window.left_tab_widget.data_tab
+        controllers['anomaly_data'].set_get_gamma_value_func(data_tab.anomaly_widget.anomaly_gamma_spinbox.value())
+        controllers['data_transform'].set_get_shift_value_func(data_tab.transform_widget.shift_spinbox.value())
+        controllers['missing_data'].set_display_service(
+            MissingInfoDisplayService(
+                set_count_label=lambda text: data_tab.missing_widget.missing_count_label.setText(text),
+                set_percent_label=lambda text: data_tab.missing_widget.missing_percentage_label.setText(text)
+            )
+        )
 
 class CallBackFactory:
     def __init__(self, window, context):
