@@ -24,7 +24,7 @@ from views import (
     DataProcessingTab, GOFTestTab, ParamEstimationTab, SimulationTab, StatisticTab,
     # widgets
     WindowWidgets,
-    AnomalyWidget, MissingWidget, ProcessDataWidget,
+    AnomalyWidget, MissingWidget, TransformDataWidget,
     KolmogorovSmirnovPanel, PearsonChi2Panel,
     GraphPanel, DistributionSelector
 )
@@ -100,10 +100,10 @@ class UIFactory:
 
         # LEFT TABS
         data_tab = DataProcessingTab(
-            widgets_with_controllers=[
-                (ProcessDataWidget, controllers['data_transform']),
-                (AnomalyWidget, controllers['anomaly_data']),
-                (MissingWidget, controllers['missing_data'])
+            widget_data=[
+                ("transform_widget", TransformDataWidget, controllers['data_transform']),
+                ("anomaly_widget", AnomalyWidget, controllers['anomaly_data']),
+                ("missing_widget", MissingWidget, controllers['missing_data'])
             ],
             on_data_version_changed=controllers['data_version'].on_data_version_changed,
             on_original_clicked=controllers['data_version'].original_data

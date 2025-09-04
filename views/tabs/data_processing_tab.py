@@ -12,17 +12,17 @@ class DataProcessingTab(QWidget):
     - Missing data handling
     - Original data restoration
     """
-    def __init__(self, widgets_with_controllers: list[tuple[QGroupBox, Any]], 
+    def __init__(self, widget_data: list[tuple[str, QGroupBox, Any]], 
                  on_data_version_changed=None, 
                  on_original_clicked=None
                  ):
         """
         Args:
-            widgets_with_controllers (list[tuple[QGroupBox, Any]]): Widget classes for data processing operations with it's controllers
+            widget_data (list[tuple[str, QGroupBox, Any]]): Widget classes for data processing operations with it's controllers
             on_data_version_changed (Callable[[int], None], optional): Callback for dataset version change
             on_original_clicked (Callable[[], None], optional): Callback for "Original" button click
         """
-        self.widgets_with_controllers = widgets_with_controllers
+        self.widget_data = widget_data
         self.on_data_version_changed = on_data_version_changed
         self.on_original_clicked = on_original_clicked
 
@@ -94,6 +94,7 @@ class DataProcessingTab(QWidget):
         Args:
             layout (QVBoxLayout): The main layout to add widgets to
         """
-        for widget_cls, controller in self.widgets_with_controllers:
+        for name, widget_cls, controller in self.widget_data:
             widget = widget_cls(controller)
+            setattr(self, name, widget)
             layout.addWidget(widget)
