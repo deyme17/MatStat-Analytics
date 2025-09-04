@@ -148,8 +148,9 @@ class ConnectFactory:
         controllers['missing_data'].set_display_service(...)
 
 class CallBackFactory:
-    def __init__(self, window):
+    def __init__(self, window, context):
         self.window = window
+        self.context = context
     
     def connect_callbacks(self, controllers: dict[str, Any]) -> None:
         controllers['simulation'].data_saver.set_on_save_callback(...)
@@ -172,6 +173,14 @@ class CallBackFactory:
             update_navigation_buttons=...,
             on_reverted_to_original=...,
             on_version_changed=...
+        )
+
+        # set refresher
+        self.context.refresher = UIRefreshService(
+            clear=...,
+            update=...,
+            state=...,
+            model=...            
         )
 
 class Factory:
@@ -209,5 +218,5 @@ class Factory:
         connect_factory.connect_controllers(self.controllers)
 
     def _connect_callbacks(self):
-        cb_factory = CallBackFactory(self.window)
+        cb_factory = CallBackFactory(self.window, self.context)
         cb_factory.connect_callbacks(self.controllers)
