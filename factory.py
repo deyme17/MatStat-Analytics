@@ -90,6 +90,9 @@ class UIFactory:
         self.context = context
     
     def setup_ui(self, controllers: dict[str, Any]) -> None:
+        # WINDOW WIDGETS
+        self.window.widgets = WindowWidgets(self.window)
+
         # GRAPH PANEL
         self.window.graph_panel = GraphPanel(
             dist_selector_cls=DistributionSelector
@@ -133,16 +136,43 @@ class ConnectFactory:
         self.window = window
 
     def connect_controllers(self, controllers):
-        ...
+        controllers['statistic'].connect_ui(
+            stats_renderer=self.window.left_tab_widget.stat_tab.renderer,
+            get_bins_value=..., 
+            get_precision_value=..., 
+            get_confidence_value=...           
+        )
+        controllers['data_version'].set_set_bins_value_func(set_bins_value=...)
+        controllers['anomaly_data'].set_get_gamma_value_func(...)
+        controllers['data_transform'].set_get_shift_value_func(...)
+        controllers['missing_data'].set_display_service(...)
 
 class CallBackFactory:
-    def __init__(self, window, context):
+    def __init__(self, window):
         self.window = window
-        self.context = context
     
-    def setup_callbacks(self) -> None:
-        ...
+    def connect_callbacks(self, controllers: dict[str, Any]) -> None:
+        controllers['simulation'].data_saver.set_on_save_callback(...)
+        controllers['missing_data'].set_update_state_callback(...)
+        controllers['data_transform'].set_on_transformation_applied_callback(...)
 
+        controllers['graph'].connect_callbacks(
+            graph_control=...,
+            update_statistics_callback=...,
+            update_gof_callback=...
+        )
+        controllers['ui_state'].connect_callbacks(
+            ui_controls=...,
+            enable_data_combo_callback=...,
+            update_data_callback=...,
+            update_data_versions_callback=...
+        )
+        controllers['data_version'].connect_callbacks(
+            version_combo_controls=...,
+            update_navigation_buttons=...,
+            on_reverted_to_original=...,
+            on_version_changed=...
+        )
 
 class Factory:
     def __init__(self, window, context):
@@ -157,7 +187,7 @@ class Factory:
         factory._init_controllers()
         factory._setup_ui()
         factory._connect_controllers()
-        factory._setup_callbacks()
+        factory._connect_callbacks()
         return factory
 
     def _setup_context(self):
@@ -178,6 +208,6 @@ class Factory:
         connect_factory = ConnectFactory(self.window)
         connect_factory.connect_controllers(self.controllers)
 
-    def _setup_callbacks(self):
-        cb_factory = CallBackFactory(self.window, self.context)
-        cb_factory.setup_callbacks()
+    def _connect_callbacks(self):
+        cb_factory = CallBackFactory(self.window)
+        cb_factory.connect_callbacks(self.controllers)
