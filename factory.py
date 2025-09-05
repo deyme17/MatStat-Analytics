@@ -45,11 +45,6 @@ class ControllersFactory:
         """Initialize all controllers with no UI dependencies"""
         controllers = {}
         
-        controllers['estimation'] = ParameterEstimation()
-        controllers['simulation'] = SimulationController(
-            simulation_service=SimulationService(TestPerformer()),
-            data_saver=DataSaver(self.context)
-        )
         controllers['statistic'] = StatisticController(
             context=self.context,
             statistic_service=StatisticsService()
@@ -68,6 +63,11 @@ class ControllersFactory:
             select_file_callback=lambda: DataLoaderService.select_file(self.window),
             on_data_loaded_callback=lambda data: (controllers['ui_state'].handle_post_load_state(data))
         )
+        controllers['simulation'] = SimulationController(
+            simulation_service=SimulationService(TestPerformer()),
+            data_saver=DataSaver(self.context, on_save=lambda data: controllers['ui_state'].handle_post_load_state(data))
+        )
+        controllers['estimation'] = ParameterEstimation()
         controllers['data_version'] = DataVersionController(context=self.context)
         controllers['anomaly_data'] = AnomalyController(
             context=self.context,
@@ -159,34 +159,49 @@ class CallBackFactory:
         self.context = context
     
     def connect_callbacks(self, controllers: dict[str, Any]) -> None:
-        controllers['simulation'].data_saver.set_on_save_callback(...)
-        controllers['missing_data'].set_update_state_callback(...)
-        controllers['data_transform'].set_on_transformation_applied_callback(...)
+        controllers['missing_data'].set_update_state_callback(controllers['ui_state'].update_state_for_data)
+        controllers['data_transform'].set_on_transformation_applied_callback(self.window.data_tab.original_button.setEnabled(True))
 
         controllers['graph'].connect_callbacks(
-            graph_control=...,
-            update_statistics_callback=...,
-            update_gof_callback=...
+            graph_control=build_graph_panel_callbacks(self.window.graph_panel),
+            update_statistics_callback=controllers['statistic'].update_statistics_table,
+            update_gof_callback=self.window.left_tab_widget.gof_tab.evaluate_tests
         )
         controllers['ui_state'].connect_callbacks(
-            ui_controls=...,
-            enable_data_combo_callback=...,
-            update_data_callback=...,
-            update_data_versions_callback=...
+            ui_controls=build_dp_control_callbacks(self.window),
+            enable_data_combo_callback=self.window.left_tab_widget.data_tab.data_version_combo.setEnabled,
+            update_data_callback=lambda data: controllers['missing_data'].update_data_reference(data),
+            update_data_versions_callback=controllers['ui_state'].update_state_for_data,
         )
         controllers['data_version'].connect_callbacks(
-            version_combo_controls=...,
-            update_navigation_buttons=...,
-            on_reverted_to_original=...,
-            on_version_changed=...
+            version_combo_controls=build_data_version_callbacks(self.window.left_tab_widget.data_tab.data_version_combo),
+            update_navigation_buttons=controllers['ui_state'].update_navigation_buttons,
+            on_reverted_to_original=lambda: self.window.left_tab_widget.data_tab.original_button.setEnabled(False),
+            on_version_changed=lambda series: controllers['missing_data'].update_data_reference(series),
         )
 
         # set refresher
         self.context.refresher = UIRefreshService(
-            clear=...,
-            update=...,
-            state=...,
-            model=...            
+            clear=UIClearCallbacks(
+                clear_graph=self.window.graph_panel.clear,
+                clear_stats=controllers['statistic'].clear,
+                clear_gof=self.window.left_tab_widget.gof_tab.clear_panels
+            ),
+            update=UIUpdateCallbacks(
+            set_graph_data=lambda data: (controllers['graph'].set_data(data)),
+            update_stats=controllers['statistic'].update_statistics_table,
+            evaluate_gof=self.window.left_tab_widget.gof_tab.evaluate_tests
+            ),
+            state=UIStateCallbacks(
+                update_state=controllers['ui_state'].update_state_for_data,
+                update_transformation_label=controllers['ui_state'].update_transformation_label,
+                update_navigation_buttons=controllers['ui_state'].update_navigation_buttons,
+                enable_original_button=self.window.left_tab_widget.data_tab.original_button.setEnabled
+            ),
+            model=UIModelCallbacks(
+                get_bins_count=lambda: self.window.graph_panel.bins_spinbox.value(),
+                update_model_bins=lambda bins: (self.context.data_model.update_bins(bins))
+            )            
         )
 
 class Factory:
