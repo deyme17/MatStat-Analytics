@@ -45,7 +45,7 @@ class UIStateController:
         self.enable_data_combo_callback(True)
 
         self.update_state_for_data(data)
-        self.update_data_versions_callback()
+        self.update_data_versions_callback(data)
         self.update_data_callback(data)  
 
         self.ui.bins_controls.set_value(self.context.data_model.bins)
