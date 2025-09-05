@@ -170,6 +170,7 @@ class CallBackFactory:
     def connect_callbacks(self, controllers: dict[str, Any]) -> None:
         controllers['anomaly_data'].set_get_gamma_value_func(lambda: self.window.data_tab.anomaly_widget.anomaly_gamma_spinbox.value())
         controllers['data_transform'].set_get_shift_value_func(lambda: self.window.data_tab.transform_widget.shift_spinbox.value())
+        controllers['missing_data'].set_update_state_callback(lambda data: controllers['missing_data'].update_data_reference(data))
 
         controllers['graph'].connect_callbacks(
             graph_control=build_graph_panel_callbacks(self.window.graph_panel),
