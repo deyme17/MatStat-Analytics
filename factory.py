@@ -91,7 +91,7 @@ class UIFactory:
     
     def setup_ui(self, controllers: dict[str, Any]) -> None:
         # WINDOW WIDGETS
-        self.window.widgets = WindowWidgets(self.window)
+        self.window.widgets = WindowWidgets()
 
         # GRAPH PANEL
         self.window.graph_panel = GraphPanel(
