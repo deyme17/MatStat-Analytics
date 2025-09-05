@@ -22,6 +22,7 @@ class DataProcessingTab(QWidget):
             on_data_version_changed (Callable[[int], None], optional): Callback for dataset version change
             on_original_clicked (Callable[[], None], optional): Callback for "Original" button click
         """
+        super().__init__()
         self.widget_data = widget_data
         self.on_data_version_changed = on_data_version_changed
         self.on_original_clicked = on_original_clicked
