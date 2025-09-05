@@ -28,7 +28,7 @@ class AnomalyWidget(BaseDataWidget):
             button = QPushButton(text)
             button.setEnabled(False)
             button.clicked.connect(callback)
-            setattr(self.attr, attr_name, button)
+            setattr(self, attr_name, button)
             self.add_widget(button)
         
         # Gamma controls

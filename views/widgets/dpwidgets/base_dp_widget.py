@@ -1,5 +1,4 @@
 from PyQt6.QtWidgets import QGroupBox, QVBoxLayout
-from types import SimpleNamespace
 from utils.ui_styles import groupStyle
 
 class BaseDataWidget(QGroupBox):
@@ -7,7 +6,6 @@ class BaseDataWidget(QGroupBox):
     def __init__(self, title, controller):
         super().__init__(title)
         self.controller = controller
-        self.attr = SimpleNamespace()
         self.setStyleSheet(groupStyle)
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
