@@ -130,6 +130,12 @@ class UIFactory:
         self.window.left_tab_widget.addTab(gof_tab, "Goodness-of-Fit Tests")
         self.window.left_tab_widget.addTab(sim_tab, "Simulation")
         self.window.left_tab_widget.addTab(est_tab, "Parameters estimation")
+        # add to window attr
+        self.window.data_tab = data_tab
+        self.window.stat_tab = stat_tab
+        self.window.gof_tab = gof_tab
+        self.window.sim_tab = sim_tab
+        self.window.est_tab = est_tab
 
 class ConnectFactory:
     def __init__(self, window):
@@ -138,12 +144,12 @@ class ConnectFactory:
     def connect_ui(self, controllers):
         controllers['data_version'].set_set_bins_value_func(lambda bins: self.window.graph_panel.bins_spinbox.setValue(bins))
         controllers['statistic'].connect_ui(
-            stats_renderer=self.window.left_tab_widget.stat_tab.renderer,
+            stats_renderer=self.window.stat_tab.renderer,
             get_bins_value=self.window.graph_panel.bins_spinbox.value(), 
             get_confidence_value=self.window.graph_panel.confidence_spinbox.value(),         
             get_precision_value=self.window.precision_spinbox.value() 
         )
-        data_tab = self.window.left_tab_widget.data_tab
+        data_tab = self.window.data_tab
         controllers['anomaly_data'].set_get_gamma_value_func(data_tab.anomaly_widget.anomaly_gamma_spinbox.value())
         controllers['data_transform'].set_get_shift_value_func(data_tab.transform_widget.shift_spinbox.value())
         controllers['missing_data'].set_display_service(
@@ -165,18 +171,18 @@ class CallBackFactory:
         controllers['graph'].connect_callbacks(
             graph_control=build_graph_panel_callbacks(self.window.graph_panel),
             update_statistics_callback=controllers['statistic'].update_statistics_table,
-            update_gof_callback=self.window.left_tab_widget.gof_tab.evaluate_tests
+            update_gof_callback=self.window.gof_tab.evaluate_tests
         )
         controllers['ui_state'].connect_callbacks(
             ui_controls=build_dp_control_callbacks(self.window),
-            enable_data_combo_callback=self.window.left_tab_widget.data_tab.data_version_combo.setEnabled,
+            enable_data_combo_callback=self.window.data_tab.data_version_combo.setEnabled,
             update_data_callback=lambda data: controllers['missing_data'].update_data_reference(data),
             update_data_versions_callback=controllers['ui_state'].update_state_for_data,
         )
         controllers['data_version'].connect_callbacks(
-            version_combo_controls=build_data_version_callbacks(self.window.left_tab_widget.data_tab.data_version_combo),
+            version_combo_controls=build_data_version_callbacks(self.window.data_tab.data_version_combo),
             update_navigation_buttons=controllers['ui_state'].update_navigation_buttons,
-            on_reverted_to_original=lambda: self.window.left_tab_widget.data_tab.original_button.setEnabled(False),
+            on_reverted_to_original=lambda: self.window.data_tab.original_button.setEnabled(False),
             on_version_changed=lambda series: controllers['missing_data'].update_data_reference(series),
         )
 
@@ -185,18 +191,18 @@ class CallBackFactory:
             clear=UIClearCallbacks(
                 clear_graph=self.window.graph_panel.clear,
                 clear_stats=controllers['statistic'].clear,
-                clear_gof=self.window.left_tab_widget.gof_tab.clear_panels
+                clear_gof=self.window.gof_tab.clear_panels
             ),
             update=UIUpdateCallbacks(
             set_graph_data=lambda data: (controllers['graph'].set_data(data)),
             update_stats=controllers['statistic'].update_statistics_table,
-            evaluate_gof=self.window.left_tab_widget.gof_tab.evaluate_tests
+            evaluate_gof=self.window.gof_tab.evaluate_tests
             ),
             state=UIStateCallbacks(
                 update_state=controllers['ui_state'].update_state_for_data,
                 update_transformation_label=controllers['ui_state'].update_transformation_label,
                 update_navigation_buttons=controllers['ui_state'].update_navigation_buttons,
-                enable_original_button=self.window.left_tab_widget.data_tab.original_button.setEnabled
+                enable_original_button=self.window.data_tab.original_button.setEnabled
             ),
             model=UIModelCallbacks(
                 get_bins_count=lambda: self.window.graph_panel.bins_spinbox.value(),

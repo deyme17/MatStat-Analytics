@@ -16,7 +16,7 @@ class DPControlCallbacks:
     bins_controls: UIBinsControlCallbacks
 
 def build_dp_control_callbacks(window) -> DPControlCallbacks:
-    data_tab = window.left_tab_widget.data_tab
+    data_tab = window.data_tab
     return DPControlCallbacks(
         set_transform_enabled=lambda val: (
             data_tab.transform_widget.standardize_button.setEnabled(val),
