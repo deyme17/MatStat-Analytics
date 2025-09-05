@@ -53,10 +53,7 @@ class DataVersionController:
         if original:
             self.context.data_model = original
             self.context.version_manager.update_current_data(original)
-
-            if self.on_reverted_to_original:
-                self.on_reverted_to_original()
-
+            self.on_reverted_to_original()
             self.context.refresher.refresh(original.series)
 
     def update_data_versions(self) -> None:
@@ -99,9 +96,7 @@ class DataVersionController:
         series = self.context.data_model.series
         self.set_bins_value(self.context.data_model.bins)
         self.context.refresher.refresh(series)
-
-        if self.on_version_changed:
-            self.on_version_changed(series)
+        self.on_version_changed(series)
 
     def connect_callbacks(self, version_combo_controls: DataVersionUICallbacks,
                                 update_navigation_buttons: Callable[[], None],
