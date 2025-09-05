@@ -10,11 +10,11 @@ class UIStateController:
     def __init__(
         self,
         context,
-        ui_controls: Optional[DPControlCallbacks],
-        detect_missing_func: Callable[[pd.Series], dict[str, Any]],
-        enable_data_combo_callback: Optional[Callable[[bool], None]],
-        update_data_callback: Optional[Callable[[pd.Series], None]],
-        update_data_versions_callback: Optional[Callable[[], None]]
+        ui_controls: Optional[DPControlCallbacks] = None,
+        detect_missing_func: Callable[[pd.Series], dict[str, Any]] = None,
+        enable_data_combo_callback: Optional[Callable[[bool], None]] = None,
+        update_data_callback: Optional[Callable[[pd.Series], None]] = None,
+        update_data_versions_callback: Optional[Callable[[], None]] = None
     ):
         """
         Initializes the UI state controller.

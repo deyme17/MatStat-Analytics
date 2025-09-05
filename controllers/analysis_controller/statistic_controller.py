@@ -7,10 +7,10 @@ class StatisticController:
     Controller for managing the display of statistical characteristics in the UI.
     """
     def __init__(self, context, statistic_service,
-                 stats_renderer: Optional[TableRenderer],
-                 get_bins_value: Optional[Callable[[], int]], 
-                 get_precision_value: Optional[Callable[[], int]],
-                 get_confidence_value: Optional[Callable[[], float]]
+                 stats_renderer: Optional[TableRenderer] = None,
+                 get_bins_value: Optional[Callable[[], int]] = None, 
+                 get_precision_value: Optional[Callable[[], int]] = None,
+                 get_confidence_value: Optional[Callable[[], float]] = None
                  ):
         """
         Args:

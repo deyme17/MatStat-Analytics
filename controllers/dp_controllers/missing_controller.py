@@ -11,8 +11,8 @@ class MissingDataController:
         self,
         context,
         missing_service,
-        display_service: Optional[MissingInfoDisplayService],
-        update_state_callback: Optional[Callable[[pd.Series], None]]
+        display_service: Optional[MissingInfoDisplayService] = None,
+        update_state_callback: Optional[Callable[[pd.Series], None]] = None
     ):
         """
         Args:

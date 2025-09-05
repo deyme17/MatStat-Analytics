@@ -10,8 +10,8 @@ class DataTransformController:
         self,
         context,
         transform_service,
-        get_shift_value: Optional[Callable[[], int]],
-        on_transformation_applied: Optional[Callable[[], None]]
+        get_shift_value: Optional[Callable[[], int]] = None,
+        on_transformation_applied: Optional[Callable[[], None]] = None
     ):
         """
         Args:

@@ -6,7 +6,7 @@ class AnomalyController:
     """
     Controller for detecting and removing statistical anomalies from the dataset.
     """
-    def __init__(self, context, anomaly_service, get_gamma_value: Optional[Callable[[], float]]):
+    def __init__(self, context, anomaly_service, get_gamma_value: Optional[Callable[[], float]] = None):
         """    
         Args:
             context (AppContext): Application context container

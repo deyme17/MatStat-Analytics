@@ -10,11 +10,11 @@ class DataVersionController:
     def __init__(
         self,
         context,
-        version_combo_controls: Optional[DataVersionUICallbacks],
-        set_bins_value: Optional[Callable[[int], None]],
-        update_navigation_buttons: Optional[Callable[[], None]],
-        on_reverted_to_original: Optional[Callable[[], None]],
-        on_version_changed: Optional[Callable[[pd.Series], None]]
+        version_combo_controls: Optional[DataVersionUICallbacks] = None,
+        set_bins_value: Optional[Callable[[int], None]] = None,
+        update_navigation_buttons: Optional[Callable[[], None]] = None,
+        on_reverted_to_original: Optional[Callable[[], None]] = None,
+        on_version_changed: Optional[Callable[[pd.Series], None]] = None
     ):
         """
         Args:

@@ -10,9 +10,9 @@ class GraphController:
         self,
         context,
         confidence_service,
-        graph_control: Optional[GraphPanelCallbacks],
-        update_statistics_callback: Optional[Callable[[], None]],
-        update_gof_callback: Optional[Callable[[], None]]
+        graph_control: Optional[GraphPanelCallbacks] = None,
+        update_statistics_callback: Optional[Callable[[], None]] = None,
+        update_gof_callback: Optional[Callable[[], None]] = None
     ):
         """
         Args:
