@@ -1,5 +1,6 @@
 from .graph_tab import BaseGraphTab
 from services.ui_services.renderers.graph_renderers import RENDERERS
+from typing import Callable, Any
 
 LINEWIDTH = 2
 CI_ALPHA = 0.2
@@ -7,8 +8,8 @@ CI_COLOR = 'pink'
 
 class EDFTab(BaseGraphTab):
     """Tab for Empirical Distribution Function (EDF) visualization"""
-    def __init__(self):
-        super().__init__("Empirical Distribution Function")
+    def __init__(self, controller, get_data_model:  Callable[[], Any] = None):
+        super().__init__("Empirical Distribution Function", controller, get_data_model)
 
     def draw(self, data):
         """Draw EDF and overlay theoretical CDF with CI"""
@@ -18,12 +19,13 @@ class EDFTab(BaseGraphTab):
 
         # render
         renderer = RENDERERS['edf']
-        model = panel.window.data_model
+        data_model = self.get_data_model()
+        bin_edges = data_model.hist.bin_edges
 
         renderer.render(
             self.ax,
             data,
-            bin_edges=model.hist.bin_edges,
+            bin_edges=bin_edges,
             show_edf_curve=params["kde"]
         )
 
@@ -38,14 +40,12 @@ class EDFTab(BaseGraphTab):
     def _draw_theoretical_cdf(self, data, params):
         """Draw theoretical CDF with confidence interval if possible."""
         dist = params["distribution"]
-        if dist is None or data.isna().sum() > 0:
+        if dist is None or data.isna().sum() > 0 or not self.controller:
             return
 
         try:
-            result = self.panel.window.graph_controller.compute_cdf_with_ci(    # TODO !!!
-                data, 
-                dist, 
-                params["confidence"]
+            result = self.controller.compute_cdf_with_ci(
+                data, dist, params["confidence"]
             )
             
             if result:

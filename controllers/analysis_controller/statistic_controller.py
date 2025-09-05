@@ -37,20 +37,20 @@ class StatisticController:
         if model is None or model.series.empty:
             return
 
-        bins = self.get_bins()
+        bins = self.get_bins_value()
         model.update_bins(bins)
 
         stats_data = self.statistic_service.get_characteristics(model.hist)
         ci_data = self.statistic_service.compute_intervals(
             model.series,
-            confidence_level=self.get_confidence(),
-            precision=self.get_precision()
+            confidence_level=self.get_confidence_value(),
+            precision=self.get_precision_value()
         )
 
         self.stats_renderer.render(
             stats_data.to_dict(),
             ci_data.to_dict(),
-            precision=self.get_precision()
+            precision=self.get_precision_value()
         )
 
     def clear(self) -> None:

@@ -5,8 +5,8 @@ LEGEND_FRAMEALPHA = 0.5
 
 class HistogramTab(BaseGraphTab):
     """Tab for histogram visualization"""
-    def __init__(self):
-        super().__init__("Histogram")
+    def __init__(self, controller, get_data_model=None):
+        super().__init__("Histogram", controller)
         
     def draw(self, data):
         """Draw histogram with current settings and distribution overlay"""

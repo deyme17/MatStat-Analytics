@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+from typing import Callable, Optional, Any
 
 FIG_SIZE = (6, 3)
 GRID_ALPHA = 0.7
@@ -9,9 +10,11 @@ FIG_COLOR = '#f0f8ff'
 
 class BaseGraphTab(QWidget):
     """Base class for all graph tabs"""
-    def __init__(self, name: str):
+    def __init__(self, name: str, controller, get_data_model:  Optional[Callable[[], Any]] = None):
         super().__init__()
         self.name = name
+        self.controller = controller
+        self.get_data_model = get_data_model
         self.panel = None
         self._init_canvas()
         

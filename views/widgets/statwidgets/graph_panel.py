@@ -24,6 +24,8 @@ class GraphPanel(QWidget):
     def __init__(
         self,
         dist_selector_cls,
+        graph_controller,
+        get_data_model: Callable[[], Any],
         on_bins_changed: Optional[Callable[[int], None]] = None,
         on_alpha_changed: Optional[Callable[[float], None]] = None,
         on_kde_toggled: Optional[Callable[[], None]] = None,
@@ -32,6 +34,8 @@ class GraphPanel(QWidget):
         """
         Args:
             dist_selector_cls: Distribution selector widget class
+            graph_controller: Controller for graph operations and computations
+            get_data_model: Function for getting current DataModel
             on_bins_changed: Callback for bin count changes
             on_alpha_changed: Callback for confidence level changes
             on_kde_toggled: Callback for KDE toggle
@@ -39,6 +43,7 @@ class GraphPanel(QWidget):
         """
         super().__init__()
         self.data = None
+        self.graph_controller = graph_controller
         self.graph_tabs = {}
         self._callbacks = {
             'bins': on_bins_changed or (lambda x: None),
@@ -52,7 +57,7 @@ class GraphPanel(QWidget):
 
         self.tabs = QTabWidget()
         for name, tab_cls in registered_graphs.items():
-            tab = tab_cls()
+            tab = tab_cls(self.graph_controller, get_data_model)
             tab.set_context(self)
             self.tabs.addTab(tab, name)
             self.graph_tabs[name] = tab
