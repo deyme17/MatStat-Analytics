@@ -91,7 +91,7 @@ class UIFactory:
     
     def setup_ui(self, controllers: dict[str, Any]) -> None:
         # WINDOW WIDGETS
-        self.window.widgets = WindowWidgets()
+        self.window.widgets = WindowWidgets.create_controls_bar()
 
         # GRAPH PANEL
         self.window.graph_panel = GraphPanel(
@@ -145,13 +145,13 @@ class ConnectFactory:
         controllers['data_version'].set_set_bins_value_func(lambda bins: self.window.graph_panel.bins_spinbox.setValue(bins))
         controllers['statistic'].connect_ui(
             stats_renderer=self.window.stat_tab.renderer,
-            get_bins_value=self.window.graph_panel.bins_spinbox.value(), 
-            get_confidence_value=self.window.graph_panel.confidence_spinbox.value(),         
-            get_precision_value=self.window.precision_spinbox.value() 
+            get_bins_value=self.window.graph_panel.bins_spinbox.value, 
+            get_confidence_value=self.window.graph_panel.confidence_spinbox.value,         
+            get_precision_value=self.window.widgets.precision_spinbox.value 
         )
         data_tab = self.window.data_tab
-        controllers['anomaly_data'].set_get_gamma_value_func(data_tab.anomaly_widget.anomaly_gamma_spinbox.value())
-        controllers['data_transform'].set_get_shift_value_func(data_tab.transform_widget.shift_spinbox.value())
+        controllers['anomaly_data'].set_get_gamma_value_func(data_tab.anomaly_widget.anomaly_gamma_spinbox.value)
+        controllers['data_transform'].set_get_shift_value_func(data_tab.transform_widget.shift_spinbox.value)
         controllers['missing_data'].set_display_service(
             MissingInfoDisplayService(
                 set_count_label=lambda text: data_tab.missing_widget.missing_count_label.setText(text),
@@ -166,7 +166,7 @@ class CallBackFactory:
     
     def connect_callbacks(self, controllers: dict[str, Any]) -> None:
         controllers['missing_data'].set_update_state_callback(controllers['ui_state'].update_state_for_data)
-        controllers['data_transform'].set_on_transformation_applied_callback(self.window.data_tab.original_button.setEnabled(True))
+        controllers['data_transform'].set_on_transformation_applied_callback(lambda: self.window.data_tab.original_button.setEnabled(True))
 
         controllers['graph'].connect_callbacks(
             graph_control=build_graph_panel_callbacks(self.window.graph_panel),
@@ -205,7 +205,7 @@ class CallBackFactory:
                 enable_original_button=self.window.data_tab.original_button.setEnabled
             ),
             model=UIModelCallbacks(
-                get_bins_count=lambda: self.window.graph_panel.bins_spinbox.value(),
+                get_bins_count=lambda: self.window.graph_panel.bins_spinbox.value,
                 update_model_bins=lambda bins: (self.context.data_model.update_bins(bins))
             )            
         )
