@@ -127,3 +127,13 @@ class WeibullDistribution(StatisticalDistribution):
         shape = max(0.1, params[0])
         scale = max(0.1, params[1])
         return scale * (-np.log(1 - x))**(1 / shape)
+
+    def validate_params(self) -> bool:
+        """Validate Weibull distribution parameters."""
+        if not self.params or len(self.params) != 2:
+            return False
+        shape, scale = self.params
+        return (shape > 0 and scale > 0 and 
+                np.isfinite(shape) and np.isfinite(scale) and
+                shape > 1e-6 and shape < 100 and
+                scale > 1e-10 and scale < 1e6)

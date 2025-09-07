@@ -123,3 +123,13 @@ class LaplaceDistribution(StatisticalDistribution):
         loc = params[0]
         scale = params[1]
         return stats.laplace.ppf(x, loc=loc, scale=scale)
+
+    def validate_params(self) -> bool:
+        """Validate Laplace distribution parameters."""
+        if not self.params or len(self.params) != 2:
+            return False
+        mu, b = self.params
+        return (b > 0 and 
+                np.isfinite(mu) and np.isfinite(b) and
+                b > 1e-10 and b < 1e6 and
+                abs(mu) < 1e6)

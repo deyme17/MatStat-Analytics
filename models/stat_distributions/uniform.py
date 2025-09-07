@@ -120,6 +120,14 @@ class UniformDistribution(StatisticalDistribution):
         Returns: 
             array of quantiles
         """
-        a = params[0]
-        b = params[1] - params[0]
-        return a + b * x
+        a, b = params
+        return a + (b - a) * x
+
+    def validate_params(self) -> bool:
+        """Validate uniform distribution parameters."""
+        if not self.params or len(self.params) != 2:
+            return False
+        a, b = self.params
+        return (a < b and 
+                np.isfinite(a) and np.isfinite(b) and
+                abs(b - a) > 1e-10)

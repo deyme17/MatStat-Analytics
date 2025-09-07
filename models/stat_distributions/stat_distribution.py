@@ -19,6 +19,10 @@ class StatisticalDistribution(ABC):
         pass
 
     @abstractmethod
+    def validate_params(self) -> bool:
+        pass
+
+    @abstractmethod
     def get_pdf(self, x: np.ndarray, params: tuple) -> np.ndarray:
         pass
 

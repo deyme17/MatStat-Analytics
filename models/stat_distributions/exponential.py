@@ -113,3 +113,12 @@ class ExponentialDistribution(StatisticalDistribution):
         """
         lam = params[0]
         return -np.log(1 - x) / lam
+    
+    def validate_params(self) -> bool:
+        """Validate exponential distribution parameters."""
+        if not self.params or len(self.params) != 1:
+            return False
+        lam = self.params[0]
+        return (lam > 0 and 
+                np.isfinite(lam) and
+                lam < 1e6 and lam > 1e-10)

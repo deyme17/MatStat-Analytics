@@ -111,3 +111,12 @@ class NormalDistribution(StatisticalDistribution):
         loc = params[0]
         scale = params[1]
         return stats.norm.ppf(x, loc=loc, scale=scale)
+
+    def validate_params(self) -> bool:
+        """Validate normal distribution parameters."""
+        if not self.params or len(self.params) != 2:
+            return False
+        mu, sigma = self.params
+        return (sigma > 0 and 
+                np.isfinite(mu) and np.isfinite(sigma) and
+                sigma < 1e6 and abs(mu) < 1e6)
