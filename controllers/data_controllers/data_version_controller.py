@@ -55,6 +55,7 @@ class DataVersionController:
             self.context.version_manager.update_current_data(original)
             self.on_reverted_to_original()
             self.context.refresher.refresh(original.series)
+            self.on_version_changed(original.series)
 
     def update_data_versions(self) -> None:
         """

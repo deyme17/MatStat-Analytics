@@ -49,7 +49,4 @@ class DataLoadController:
         model = self.data_model_class(data, bins=bin_count, label="Original")
         self.context.version_manager.add_dataset(filename, model)
         self.context.data_model = model
-
         self.on_data_loaded(data)
-
-        print(f"File {path} loaded successfully")

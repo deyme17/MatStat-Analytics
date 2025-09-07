@@ -183,12 +183,12 @@ class CallBackFactory:
             ui_controls=build_dp_control_callbacks(self.window),
             enable_data_combo_callback=self.window.data_tab.data_version_combo.setEnabled,
             update_data_callback=lambda data: controllers['missing_data'].update_data_reference(data),
-            update_data_versions_callback=controllers['ui_state'].update_state_for_data,
+            update_data_versions_callback=controllers['data_version'].update_data_versions
         )
         controllers['data_version'].connect_callbacks(
             version_combo_controls=build_data_version_callbacks(self.window.data_tab.data_version_combo),
             update_navigation_buttons=controllers['ui_state'].update_navigation_buttons,
-            on_reverted_to_original=lambda: self.window.data_tab.original_button.setEnabled(False),
+            on_reverted_to_original=lambda: controllers['ui_state'].update_state_for_data(self.context.data_model.series),
             on_version_changed=lambda series: controllers['missing_data'].update_data_reference(series),
         )
 
