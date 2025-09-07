@@ -23,7 +23,7 @@ class EDFRenderer(Renderer):
         if bin_edges is not None:
             bin_counts, _ = np.histogram(data, bins=bin_edges)
             cum_counts = np.cumsum(bin_counts)
-            cum_rel_freq = cum_counts / cum_counts[-1]
+            cum_rel_freq = cum_counts / cum_counts[-1] if cum_counts[-1] != 0 else np.zeros_like(cum_counts)
 
             for i in range(len(bin_edges) - 1):
                 x = [bin_edges[i], bin_edges[i + 1]]
