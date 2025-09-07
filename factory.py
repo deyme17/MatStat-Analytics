@@ -144,9 +144,9 @@ class ConnectFactory:
         self.window = window
 
     def connect_ui(self, controllers):
-        self.window.widgets.load_button.clicked.connect(
-            controllers['data_loader'].load_data_file
-        )
+        self.window.widgets.load_button.clicked.connect(controllers['data_loader'].load_data_file)
+        self.window.widgets.precision_spinbox.valueChanged.connect(controllers['statistic'].update_statistics_table)
+
         controllers['data_version'].set_set_bins_value_func(lambda bins: self.window.graph_panel.bins_spinbox.setValue(bins))
         controllers['statistic'].connect_ui(
             stats_renderer=self.window.stat_tab.renderer,
