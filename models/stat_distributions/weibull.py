@@ -100,18 +100,17 @@ class WeibullDistribution(StatisticalDistribution):
             array of variances
         """
         alpha, beta = params
-        x_safe = np.clip(x_vals, 1e-10, 1e10)
-
-        # the limitation for safety
-        safe_power = np.clip(x_safe ** beta, 0, 1e75)
-        expo = np.clip(safe_power / alpha, 0, 700)
-
-        dF_dalpha = -safe_power / (alpha ** 2) * np.exp(-expo)
-        dF_dbeta = safe_power * np.log(x_safe) / alpha * np.exp(-expo)
-
+        x_safe = np.clip(x_vals, 1e-10, 1e5)
+        
+        safe_power = np.clip(x_safe ** beta, 0, 1e50)
+        expo = np.clip(safe_power / alpha, 0, 500)
+        
+        dF_dalpha = np.clip(-safe_power / (alpha ** 2) * np.exp(-expo), -1e50, 1e50)
+        dF_dbeta = np.clip(safe_power * np.log(np.maximum(x_safe, 1e-10)) / alpha * np.exp(-expo), -1e50, 1e50)
+        
         var_alpha = alpha ** 2 / n
         var_beta = beta ** 2 / n
-
+        
         variance = (dF_dalpha ** 2) * var_alpha + (dF_dbeta ** 2) * var_beta
         return np.nan_to_num(variance, nan=0.0, posinf=0.0, neginf=0.0)
 
@@ -126,7 +125,10 @@ class WeibullDistribution(StatisticalDistribution):
         """
         shape = max(0.1, params[0])
         scale = max(0.1, params[1])
-        return scale * (-np.log(1 - x))**(1 / shape)
+        x_safe = np.clip(x, 1e-10, 1 - 1e-10)
+        log_term = -np.log(1 - x_safe)
+        log_term = np.clip(log_term, 0, 1e10)
+        return scale * log_term**(1 / shape)
 
     def validate_params(self) -> bool:
         """Validate Weibull distribution parameters."""
