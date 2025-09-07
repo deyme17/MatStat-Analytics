@@ -156,7 +156,7 @@ class ConnectFactory:
         )
         data_tab = self.window.data_tab
         controllers['anomaly_data'].set_get_gamma_value_func(data_tab.anomaly_widget.anomaly_gamma_spinbox.value)
-        controllers['data_transform'].set_get_shift_value_func(data_tab.transform_widget.shift_spinbox.value)
+        controllers['data_transform'].set_get_shift_value_func(lambda: data_tab.transform_widget.shift_spinbox.value())
         controllers['missing_data'].set_display_service(
             MissingInfoDisplayService(
                 set_count_label=lambda text: data_tab.missing_widget.missing_count_label.setText(text),
@@ -171,7 +171,7 @@ class CallBackFactory:
     
     def connect_callbacks(self, controllers: dict[str, Any]) -> None:
         controllers['anomaly_data'].set_get_gamma_value_func(lambda: self.window.data_tab.anomaly_widget.anomaly_gamma_spinbox.value())
-        controllers['data_transform'].set_get_shift_value_func(lambda: self.window.data_tab.transform_widget.shift_spinbox.value())
+        controllers['data_transform'].set_on_transformation_applied_callback(lambda: self.window.data_tab.original_button.setEnabled(True))
         controllers['missing_data'].set_update_state_callback(controllers['ui_state'].update_state_for_data)
 
         controllers['graph'].connect_callbacks(
