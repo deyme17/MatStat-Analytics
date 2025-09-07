@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 import pandas as pd
 
 from utils.ui_styles import groupStyle, groupMargin
-from services.analysis_services.gof_register import GOFService
 from models.stat_distributions.stat_distribution import StatisticalDistribution
 
 
@@ -15,15 +14,15 @@ class BaseTestPanel(QGroupBox, ABC, metaclass=Meta):
     Abstract base class for statistical test panels used in the application.
     Provides a common layout and logic for displaying hypothesis test results.
     """
-    def __init__(self, title: str, gof_service: GOFService) -> None:
+    def __init__(self, title: str, gof_controller) -> None:
         """
         Initialize the test panel group box with a title and base layout.
         Args:
             title (str): Title of the group box representing the test.
-            gof_service (GOFService): Service for executing Goodness-of-Fit tests.
+            gof_controller (GOFController): Controller for executing Goodness-of-Fit tests.
         """
         super().__init__(title)
-        self.gof_service: GOFService = gof_service
+        self.gof_controller = gof_controller
         self.setCheckable(False)
         self.setStyleSheet(groupStyle + groupMargin)
 

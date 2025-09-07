@@ -1,7 +1,4 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QDoubleSpinBox, QHBoxLayout
-import pandas as pd
-from typing import List, Type
-from services.analysis_services.gof_register import GOFService
 from views.widgets.hypoteswidgets.gof_test_panel import BaseTestPanel
 
 ALPHA_MIN, ALPHA_MAX = 0.01, 0.99
@@ -13,18 +10,18 @@ class GOFTestTab(QWidget):
     """
     A tab widget for evaluating Goodness-of-Fit (GOF) tests.
     """
-    def __init__(self, context, get_dist_func, gof_service: GOFService, test_panels: List[Type[BaseTestPanel]]) -> None:
+    def __init__(self, context, get_dist_func, gof_controller, test_panels: list[BaseTestPanel]) -> None:
         """
         Args:
             context (AppContext): Application context container
             get_dist_func: Function for getting current selected distribution.
-            gof_service (GOFService): Service to perform GOF tests.
+            gof_controller (GOFController): Controller to perform GOF tests.
             test_panels (list): List of GOF test panel classes (not instances).
         """
         super().__init__()
         self.data_model = context.data_model
         self.get_dist_func = get_dist_func
-        self.test_panels: List[BaseTestPanel] = [panel(gof_service) for panel in test_panels]
+        self.test_panels: list[BaseTestPanel] = [panel(gof_controller) for panel in test_panels]
 
         self.alpha_spinbox = QDoubleSpinBox()
         self.alpha_spinbox.setRange(ALPHA_MIN, ALPHA_MAX)

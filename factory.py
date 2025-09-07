@@ -3,7 +3,7 @@ from typing import Any
 # Controllers
 from controllers import (
     AnomalyController, MissingDataController, DataTransformController,
-    ParameterEstimation, SimulationController, StatisticController,
+    ParameterEstimation, SimulationController, StatisticController, GOFController,
     DataLoadController, DataVersionController,
     GraphController, UIStateController
 )
@@ -11,7 +11,7 @@ from controllers import (
 # Services
 from services import (
     TransformationService, AnomalyService, MissingService,
-    ConfidenceService, GOFService, TestPerformer, StatisticsService,
+    ConfidenceService, TestPerformer, StatisticsService,
     UIRefreshService, UIMessager, MissingInfoDisplayService, TableRenderer,
     DataVersionManager, DataLoaderService,
     SimulationService, DataSaver
@@ -68,6 +68,7 @@ class ControllersFactory:
             data_saver=DataSaver(self.context, on_save=lambda data: controllers['ui_state'].handle_post_load_state(data))
         )
         controllers['estimation'] = ParameterEstimation()
+        controllers['gof'] = GOFController()
         controllers['data_version'] = DataVersionController(context=self.context)
         controllers['anomaly_data'] = AnomalyController(
             context=self.context,
@@ -114,7 +115,7 @@ class UIFactory:
         gof_tab = GOFTestTab(
             context=self.context,
             get_dist_func=self.window.graph_panel.get_selected_distribution,
-            gof_service=GOFService(),
+            gof_controller=controllers['gof'],
             test_panels=[PearsonChi2Panel, KolmogorovSmirnovPanel]
         )
         sim_tab = SimulationTab(
