@@ -10,16 +10,16 @@ class GOFTestTab(QWidget):
     """
     A tab widget for evaluating Goodness-of-Fit (GOF) tests.
     """
-    def __init__(self, context, get_dist_func, gof_controller, test_panels: list[BaseTestPanel]) -> None:
+    def __init__(self, get_data_model, get_dist_func, gof_controller, test_panels: list[BaseTestPanel]) -> None:
         """
         Args:
-            context (AppContext): Application context container
+            get_data_model: Function for getting current data model.
             get_dist_func: Function for getting current selected distribution.
             gof_controller (GOFController): Controller to perform GOF tests.
             test_panels (list): List of GOF test panel classes (not instances).
         """
         super().__init__()
-        self.data_model = context.data_model
+        self.get_data_model = get_data_model()
         self.get_dist_func = get_dist_func
         self.test_panels: list[BaseTestPanel] = [panel(gof_controller) for panel in test_panels]
 
@@ -49,7 +49,7 @@ class GOFTestTab(QWidget):
         Evaluates all GOF tests based on current data and selected distribution.
         """
         dist = self.get_dist_func()
-        model = self.data_model
+        model = self.get_data_model()
 
         if dist is None or model is None or model.series.empty:
             return
