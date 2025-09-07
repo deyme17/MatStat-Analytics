@@ -1,6 +1,6 @@
 from scipy.stats import kstwobign
 import numpy as np
-from models.gofs.base_test import BaseGOFTest
+from models.gofs.base_gof_test import BaseGOFTest
 from models.stat_distributions.stat_distribution import StatisticalDistribution
 
 class KolmogorovSmirnovGOFTest(BaseGOFTest):

@@ -1,6 +1,6 @@
 from scipy.stats import chi2
 import numpy as np
-from models.gofs.base_test import BaseGOFTest
+from models.gofs.base_gof_test import BaseGOFTest
 from models.stat_distributions.stat_distribution import StatisticalDistribution
 
 class ChiSquaredGOFTest(BaseGOFTest):
