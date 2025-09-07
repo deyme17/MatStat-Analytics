@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QDoubleSpinBox, QHBoxLayout
-from views.widgets.hypoteswidgets.gof_test_panel import BaseTestPanel
+from views.widgets.gofwidgets.gof_test_panel import BaseTestPanel
 
 ALPHA_MIN, ALPHA_MAX = 0.01, 0.99
 ALPHA_STEP = 0.1
