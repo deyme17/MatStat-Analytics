@@ -25,9 +25,13 @@ class SimulationService:
         Return:
             numpy array of sampled values
         """
-        if not distribution.validate_params(): raise ValueError(f"Invalid parameters for {distribution.name}: {params}")
-        u = np.random.uniform(0, 1, size)
-        return distribution.get_inverse_cdf(u, params)
+        try:
+            if not distribution.validate_params(): 
+                return None
+            u = np.random.uniform(0, 1, size)
+            return distribution.get_inverse_cdf(u, params)
+        except Exception:
+            return None
 
     def run_experiment(self, distribution: StatisticalDistribution, sizes: list[int], n_repeat: int,
                        true_mean: float, alpha: float = 0.05) -> list[dict]:

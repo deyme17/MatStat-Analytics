@@ -137,6 +137,9 @@ class SimulationTab(QWidget):
 
         dist = dist_class()
         dist.params = params
+        if not dist.validate_params():
+            self.context.messanger.show_error("Invalid Parameters", f"Could not create Distribution {dist_name} with parameters {params}.")
+            return            
         true_mean = dist.get_mean()
         if true_mean is None:
             self.context.messanger.show_error("Invalid Parameters", "Could not determine true mean from parameters.")

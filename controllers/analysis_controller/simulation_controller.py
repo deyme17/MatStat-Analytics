@@ -26,15 +26,19 @@ class SimulationController:
         Return:
             List of dictionaries containing simulation results
         """
-        if save_data and sample_size and sample_size > 0:
-            simulated_data = self.simulation_service.generate_sample(
-                dist, sample_size, dist.params
+        try:
+            if save_data and sample_size and sample_size > 0:
+                simulated_data = self.simulation_service.generate_sample(
+                    dist, sample_size, dist.params
+                )
+                if simulated_data is not None and len(simulated_data) > 0:
+                    self.data_saver.save_data(dist.name, simulated_data)
+                else:
+                    print(f"Warning: Could not generate data for {dist.name}")
+            
+            return self.simulation_service.run_experiment(
+                dist, sizes, repeats, true_mean, alpha
             )
-            if simulated_data is not None and len(simulated_data) > 0:
-                self.data_saver.save_data(dist.name, simulated_data)
-            else:
-                print(f"Warning: No data generated for {dist.name} with params {dist.params}")
-        
-        return self.simulation_service.run_experiment(
-            dist, sizes, repeats, true_mean, alpha
-        )
+        except Exception as e:
+            print(f"Simulation error: {str(e)}")
+            return []
