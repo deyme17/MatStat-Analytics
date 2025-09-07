@@ -59,6 +59,7 @@ class GraphController:
         """
         Called when number of bins is changed. Full redraw and recompute.
         """
+        self.check_all_callbacks()
         if self._valid():
             self.plot_all()
 
@@ -68,7 +69,7 @@ class GraphController:
         """
         self.check_all_callbacks()
         if self._valid():
-            self.panel.refresh_all()
+            self.plot_all()
 
     def on_kde_toggled(self) -> None:
         """
