@@ -19,7 +19,7 @@ class GOFTestTab(QWidget):
             test_panels (list): List of GOF test panel classes (not instances).
         """
         super().__init__()
-        self.get_data_model = get_data_model()
+        self.get_data_model = get_data_model
         self.get_dist_func = get_dist_func
         self.test_panels: list[BaseTestPanel] = [panel(gof_controller) for panel in test_panels]
 

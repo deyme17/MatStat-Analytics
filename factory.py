@@ -113,8 +113,8 @@ class UIFactory:
         )
         stat_tab = StatisticTab(renderer_cls=TableRenderer)
         gof_tab = GOFTestTab(
-            context=self.context,
-            get_dist_func=self.window.graph_panel.get_selected_distribution,
+            get_data_model=lambda: self.context.data_model,
+            get_dist_func=lambda: self.window.graph_panel.get_selected_distribution(),
             gof_controller=controllers['gof'],
             test_panels=[PearsonChi2Panel, KolmogorovSmirnovPanel]
         )
