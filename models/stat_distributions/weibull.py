@@ -102,11 +102,13 @@ class WeibullDistribution(StatisticalDistribution):
         alpha, beta = params
         x_safe = np.clip(x_vals, 1e-10, 1e5)
         
-        safe_power = np.clip(x_safe ** beta, 0, 1e50)
-        expo = np.clip(safe_power / alpha, 0, 500)
-        
-        dF_dalpha = np.clip(-safe_power / (alpha ** 2) * np.exp(-expo), -1e50, 1e50)
-        dF_dbeta = np.clip(safe_power * np.log(np.maximum(x_safe, 1e-10)) / alpha * np.exp(-expo), -1e50, 1e50)
+        with np.errstate(over='ignore', under='ignore'):
+            safe_power = x_safe ** beta
+            expo = safe_power / alpha
+            exp_neg_expo = np.exp(-np.clip(expo, 0, 500))
+            
+            dF_dalpha = -safe_power / (alpha ** 2) * exp_neg_expo
+            dF_dbeta = safe_power * np.log(x_safe) / alpha * exp_neg_expo
         
         var_alpha = alpha ** 2 / n
         var_beta = beta ** 2 / n
