@@ -170,13 +170,6 @@ class CallBackFactory:
         self.context = context
     
     def connect_callbacks(self, controllers: dict[str, Any]) -> None:
-        # set panel callbacks
-        self.window.graph_panel.set_callbacks(
-            on_bins_changed=...,
-            on_alpha_changed=...,
-            on_kde_toggled=...
-        )
-
         # set controller callbacks
         controllers['anomaly_data'].set_get_gamma_value_func(lambda: self.window.data_tab.anomaly_widget.anomaly_gamma_spinbox.value())
         controllers['data_transform'].set_on_transformation_applied_callback(lambda: self.window.data_tab.original_button.setEnabled(True))
@@ -199,6 +192,8 @@ class CallBackFactory:
             on_reverted_to_original=lambda: controllers['ui_state'].update_state_for_data(self.context.data_model.series),
             on_version_changed=lambda series: controllers['missing_data'].update_data_reference(series),
         )
+        # set graph panel callbacks
+        self.window.graph_panel.connect_controls()
 
         # set refresher
         self.context.refresher = UIRefreshService(
