@@ -68,7 +68,7 @@ class AnomalyController:
 
         # Update data model and UI
         self.context.data_model = new_model
-        self.context.version_manager.update_current_data(new_model)
+        self.context.version_manager.update_current_dataset(new_model)
         self.context.refresher.refresh(cleaned)
 
         self.context.messanger.show_info(

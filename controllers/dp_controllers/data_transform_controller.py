@@ -61,7 +61,7 @@ class DataTransformController:
         if not self.on_transformation_applied: raise RuntimeError("No on_transformation_applied callback provided in DataTransformController")
         new_model = self.context.data_model.add_version(new_series, label)
         self.context.data_model = new_model
-        self.context.version_manager.update_current_data(new_model)
+        self.context.version_manager.update_current_dataset(new_model)
         self.context.refresher.refresh(self.context.data_model.series)
         self.on_transformation_applied()
 

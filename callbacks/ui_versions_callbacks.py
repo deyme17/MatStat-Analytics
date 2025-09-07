@@ -8,8 +8,13 @@ class DataVersionUICallbacks:
     block_signals: Callable[[bool], None]
 
 def build_data_version_callbacks(data_version_combo) -> DataVersionUICallbacks:
+    def set_version_list(items: list[str]) -> None:
+        """Clear combo and set new items list"""
+        data_version_combo.clear()
+        data_version_combo.addItems(items)
+    
     return DataVersionUICallbacks(
-        set_version_list=data_version_combo.addItems,
+        set_version_list=set_version_list,
         set_current_index=data_version_combo.setCurrentIndex,
         block_signals=data_version_combo.blockSignals
     )
