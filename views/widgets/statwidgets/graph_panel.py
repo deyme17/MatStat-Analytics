@@ -28,8 +28,7 @@ class GraphPanel(QWidget):
         get_data_model: Callable[[], Any],
         on_bins_changed: Optional[Callable[[int], None]] = None,
         on_alpha_changed: Optional[Callable[[float], None]] = None,
-        on_kde_toggled: Optional[Callable[[], None]] = None,
-        on_dist_changed: Optional[Callable[[], None]] = None,
+        on_kde_toggled: Optional[Callable[[], None]] = None
     ):
         """
         Args:
@@ -39,7 +38,6 @@ class GraphPanel(QWidget):
             on_bins_changed: Callback for bin count changes
             on_alpha_changed: Callback for confidence level changes
             on_kde_toggled: Callback for KDE toggle
-            on_dist_changed: Callback for distribution selection
         """
         super().__init__()
         self.data = None
@@ -48,8 +46,7 @@ class GraphPanel(QWidget):
         self._callbacks = {
             'bins': on_bins_changed or (lambda x: None),
             'alpha': on_alpha_changed or (lambda x: None),
-            'kde': on_kde_toggled or (lambda: None),
-            'dist': on_dist_changed or (lambda: None)
+            'kde': on_kde_toggled or (lambda: None)
         }
 
         self._init_controls(dist_selector_cls)
@@ -68,7 +65,7 @@ class GraphPanel(QWidget):
         layout.addWidget(self.dist_selector)
         self.setLayout(layout)
 
-    def _init_controls(self, dist_selector_cls: type) -> None:
+    def _init_controls(self, dist_selector_cls) -> None:
         """Initialize UI controls."""
         self.controls_layout = QHBoxLayout()
 
@@ -99,33 +96,29 @@ class GraphPanel(QWidget):
         self.controls_layout.addWidget(self.show_kde_checkbox)
 
         # Distribution selector
-        self.dist_selector = dist_selector_cls()
+        self.dist_selector = dist_selector_cls(on_change=self.graph_controller.on_distribution_changed)
 
     def _connect_controls(self) -> None:
         """Connect control signals to callbacks."""
         self.bins_spinbox.valueChanged.connect(self._callbacks['bins'])
         self.confidence_spinbox.valueChanged.connect(self._callbacks['alpha'])
         self.show_kde_checkbox.stateChanged.connect(lambda state: self._callbacks['kde']())
-        self.dist_selector.set_on_change(self._callbacks['dist'])
 
     def set_callbacks(
         self,
         on_bins_changed: Callable[[int], None],
         on_alpha_changed: Callable[[float], None],
-        on_kde_toggled: Callable[[], None],
-        on_dist_changed: Callable[[], None]) -> None:
+        on_kde_toggled: Callable[[], None]) -> None:
         """
         Update callbacks after initialization.
         Args:
             on_bins_changed: Callback for bin count changes
             on_alpha_changed: Callback for confidence level changes
             on_kde_toggled: Callback for KDE toggle
-            on_dist_changed: Callback for distribution selection
         """
         self._callbacks['bins'] = on_bins_changed
         self._callbacks['alpha'] = on_alpha_changed
         self._callbacks['kde'] = on_kde_toggled
-        self._callbacks['dist'] = on_dist_changed
 
     def set_data(self, data: pd.Series) -> None:
         """
