@@ -17,12 +17,12 @@ class DataModel:
         Raises:
              ValueError: if input df is empty
         """
-        self.label = label                                 # version label
-        self.original = df.copy()                      # full original df
+        self.label = label                          # version label
+        self.original = df.copy()                   # full original df
         self._df = df.reset_index(drop=True)        # cleaned current df
-        self._series = self._df.iloc[:, 0]
 
-        self.bins = bins                                   
+        self._series = self._df.iloc[:, 0]          # current series for plotting|stats|tests etc.
+        self.bins = bins        
         self.anomalies_removed = False                     
 
         if self._df.empty or len(self._df) == 0:
@@ -42,9 +42,9 @@ class DataModel:
     
     def select_column(self, idx: int):
         """Select a different column by index as current series"""
-        if idx < 0 or idx >= self.df.shape[1]:
+        if idx < 0 or idx >= self._df.shape[1]:
             raise IndexError("Column index out of range")
-        self._series = self.df.iloc[:, idx]
+        self._series = self._df.iloc[:, idx]
         self.clear_cache()
     
     def _recompute_cache(self):
@@ -80,19 +80,31 @@ class DataModel:
             bins: new number of bins
         """
         self.bins = bins
-        self._cache['hist'] = Hist(self._df, bins)
+        self._cache['hist'] = Hist(self._series, bins)
 
-    def apply_transformation(self, func, label: str = None) -> 'DataModel':
+    def apply_transformation(self, func, label: str = None, col_idx: int = None) -> 'DataModel':
         """
-        Apply transformation function to current df and return a new version.
+        Apply transformation function to current df or specific column and return a new version.
         Args:
-            func: function to apply to df
+            func: function to apply to df or series
             label: optional label for new version
+            col_idx: if provided, apply transformation to specific column by index;
+                    if None, apply to entire DataFrame
         Return:
             new DataModel with updated df and history
         """
-        transformed = func(self._df)
-        return self.add_version(transformed, label or "Transformed")
+        if col_idx is not None:
+            if col_idx < 0 or col_idx >= self._df.shape[1]:
+                raise IndexError(f"Column index {col_idx} out of range for DataFrame with {self._df.shape[1]} columns")
+
+            series_to_transform = self._df.iloc[:, col_idx]
+            transformed_series = func(series_to_transform)
+            new_df = self._df.copy()
+            new_df.iloc[:, col_idx] = transformed_series
+        else:
+            new_df = func(self._df)
+        
+        return self.add_version(new_df, label or "Transformed")
 
     def add_version(self, new_df: pd.DataFrame, label: str) -> 'DataModel':
         """
@@ -110,13 +122,28 @@ class DataModel:
             history=self.history + [self]
         )
 
-    def revert_to_original(self) -> 'DataModel':
+    def revert_to_original(self, col_idx: int = None) -> 'DataModel':
         """
         Revert to the original version in the transformation history.
+        Args:
+            col_idx: if provided, revert only specific column to original;
+                    if None, revert entire DataFrame to original
         Return:
-            first DataModel in the history or self if history is empty
+            DataModel with reverted data
         """
-        return self.history[0] if self.history else self
+        if not self.history: return self
+        original_model = self.history[0]
+        
+        if col_idx is not None:
+            if col_idx < 0 or col_idx >= self._df.shape[1]:
+                raise IndexError(f"Column index {col_idx} out of range")
+            
+            new_df = self._df.copy()
+            new_df.iloc[:, col_idx] = original_model.original.iloc[:, col_idx]
+            label = f"Reverted column {col_idx} to original"
+            return self.add_version(new_df, label)
+        else:
+            return original_model
 
     @property
     def current_transformation(self) -> str:
