@@ -3,7 +3,7 @@ from typing import Any
 # Controllers
 from controllers import (
     AnomalyController, MissingDataController, DataTransformController,
-    ParameterEstimation, SimulationController, StatisticController, GOFController,
+    ParameterEstimation, SimulationController, StatisticController, GOFController, HomogenController,
     DataLoadController, DataVersionController,
     GraphController, UIStateController
 )
@@ -21,11 +21,12 @@ from services import (
 from PyQt6.QtWidgets import QTabWidget
 from views import (
     # tabs
-    DataProcessingTab, GOFTestTab, ParamEstimationTab, SimulationTab, StatisticTab,
+    DataProcessingTab, GOFTestTab, ParamEstimationTab, SimulationTab, StatisticTab, HomogenTab,
     # widgets
     WindowWidgets,
     AnomalyWidget, MissingWidget, TransformDataWidget,
     KolmogorovSmirnovPanel, PearsonChi2Panel,
+    #...
     GraphPanel, DistributionSelector
 )
 
@@ -69,6 +70,7 @@ class ControllersFactory:
         )
         controllers['estimation'] = ParameterEstimation()
         controllers['gof'] = GOFController()
+        controllers['homogen'] = HomogenController()
         controllers['data_version'] = DataVersionController(context=self.context)
         controllers['anomaly_data'] = AnomalyController(
             context=self.context,
@@ -118,6 +120,11 @@ class UIFactory:
             gof_controller=controllers['gof'],
             test_panels=[PearsonChi2Panel, KolmogorovSmirnovPanel]
         )
+        homo_tab = HomogenTab(
+            get_data_model=lambda: self.context.data_model,
+            homogen_controller = controllers['homogen'],
+            homogen_panels=[]
+        )
         sim_tab = SimulationTab(
             context=self.context,
             simulation_controller=controllers['simulation']
@@ -131,12 +138,14 @@ class UIFactory:
         self.window.left_tab_widget.addTab(data_tab, "Data Processing")
         self.window.left_tab_widget.addTab(stat_tab, "Statistic")
         self.window.left_tab_widget.addTab(gof_tab, "Goodness-of-Fit Tests")
+        self.window.left_tab_widget.addTab(homo_tab, "Homogeneity Tests")
         self.window.left_tab_widget.addTab(sim_tab, "Simulation")
         self.window.left_tab_widget.addTab(est_tab, "Parameters estimation")
         # add to window attr
         self.window.data_tab = data_tab
         self.window.stat_tab = stat_tab
         self.window.gof_tab = gof_tab
+        self.window.homo_tab = homo_tab
         self.window.sim_tab = sim_tab
         self.window.est_tab = est_tab
 
