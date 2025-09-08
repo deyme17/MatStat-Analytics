@@ -24,13 +24,13 @@ class DataLoaderService:
         """Get list of supported file extensions."""
         return list(self._loaders.keys())
     
-    def load_data(self, path: str) -> Optional[pd.Series]:
+    def load_data(self, path: str) -> Optional[pd.DataFrame]:
         """
         Load numerical data from file.
         Args:
             path: path to the selected file
         Return:
-            pandas Series with valid numeric data, or None on error
+            pandas DataFrame with valid numeric data, or None on error
         """
         try:
             file_extension = os.path.splitext(path)[1].lower()
@@ -38,15 +38,12 @@ class DataLoaderService:
             if file_extension not in self._loaders:
                 raise ValueError(f"Unsupported file type: {file_extension}")
             
-            # Load data using appropriate loader
             loader = self._loaders[file_extension]
             df = loader.load(path)
-            
-            # Process the DataFrame to Series
-            series = self.process_dataframe(df)
-            
-            return series
-            
+
+            df = self.process_dataframe(df)
+            return df
+
         except FileNotFoundError:
             print(f"File not found: {path}")
             return None
@@ -61,28 +58,13 @@ class DataLoaderService:
             return None
         
     @staticmethod
-    def process_dataframe(df: pd.DataFrame) -> pd.Series:
-        """
-        Convert DataFrame to Series with numeric data.
-        Args:
-            df: Input DataFrame
-        Return:
-            pandas Series with numeric data
-        """
-        # Take the last column if multiple columns exist
-        if len(df.columns) > 1:
-            df = df.iloc[:, -1]
-        else:
-            df = df.iloc[:, 0]
-        
-        # Convert to numeric, replacing invalid values with NaN
-        series = pd.to_numeric(df, errors='coerce')
-        
-        if series.empty or series.isna().all():
+    def process_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+        df = df.apply(pd.to_numeric, errors='coerce')
+        df = df.dropna(axis=1, how='all')
+        if df.empty:
             raise ValueError("No valid numerical data found")
-        
-        return series
-    
+        return df
+
     @staticmethod
     def select_file(parent=None) -> Optional[str]:
         """
