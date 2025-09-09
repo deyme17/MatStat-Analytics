@@ -43,7 +43,7 @@ class DataProcessingTab(QWidget):
 
         self.transformation_label = QLabel("Current state: Original")
 
-        self.current_col_label = QLabel("Select variable to apply operation to: ")
+        self.current_col_label = QLabel("Select column to apply operation to: ")
         self.dataframe_cols_combo = QComboBox()
         self.dataframe_cols_combo.setEnabled(False)
         if self.on_column_changed:
