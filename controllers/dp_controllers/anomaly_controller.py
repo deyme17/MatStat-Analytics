@@ -19,21 +19,21 @@ class AnomalyController:
         self.get_gamma_value = get_gamma_value
 
     @require_one_dimensional_dataframe
-    def remove_sigma_anomalies(self) -> None:
+    def remove_sigma_anomalies(self, *args, **kwargs) -> None:
         """
         Detect and remove anomalies using the standard deviation threshold method (3 sigma).
         """
         self._remove_anomalies(self.anomaly_service.detect_sigma_anomalies, "Sigma Filtered")
 
     @require_one_dimensional_dataframe
-    def remove_asymmetry_anomalies(self) -> None:
+    def remove_asymmetry_anomalies(self, *args, **kwargs) -> None:
         """
         Detect and remove anomalies based on skewness and kurtosis adjustments.
         """
         self._remove_anomalies(self.anomaly_service.detect_asymmetry_anomalies, "Asymmetry Filtered")
 
     @require_one_dimensional_dataframe
-    def remove_conf_anomalies(self):
+    def remove_conf_anomalies(self, *args, **kwargs):
         """
         Detect and remove anomalies using confidence interval bounds.
         Confidence level is selected via the gamma spinbox.
@@ -43,7 +43,7 @@ class AnomalyController:
         func = lambda data: self.anomaly_service.detect_conf_anomalies(data, gamma)
         self._remove_anomalies(func, f"Conf. Filtered γ={gamma}")
 
-    def _remove_anomalies(self, detection_func: Callable[[pd.Series], pd.Series], label: str) -> None:
+    def _remove_anomalies(self, detection_func: Callable[[pd.DataFrame], pd.DataFrame], label: str) -> None:
         """
         Generic method to detect and remove anomalies using a given detection function.
         Args:
@@ -55,7 +55,7 @@ class AnomalyController:
             return
 
         data = data.reset_index(drop=True)
-        if data.isna().sum() > 0:
+        if data.isna().sum().iloc[0] > 0:
             self.context.messanger.show_error("Missing Values Error", "Please handle missing values first.")
             return
 
@@ -69,11 +69,12 @@ class AnomalyController:
         cleaned = data.drop(anomalies)
         new_model = self.context.data_model.add_version(cleaned, label)
         new_model.anomalies_removed = True
+        current_col = new_model.current_col_idx
 
         # Update data model and UI
         self.context.data_model = new_model
         self.context.version_manager.update_current_dataset(new_model)
-        self.context.refresher.refresh(cleaned)
+        self.context.refresher.refresh(cleaned.iloc[:, current_col])
 
         self.context.messanger.show_info(
             "Anomalies Removed",
