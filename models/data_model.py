@@ -21,8 +21,8 @@ class DataModel:
         self.original = df.copy()                   # full original df
         self._df = df.reset_index(drop=True)        # cleaned current df
 
-        self._current_col_idx = 0
-        self._series = self._df.iloc[:, self._current_col_idx]          # current series for plotting|stats|tests etc.
+        self.current_col_idx = 0
+        self._series = self._df.iloc[:, self.current_col_idx]          # current series for plotting|stats|tests etc.
         self.bins = bins        
         self.anomalies_removed = False                     
 
@@ -95,10 +95,10 @@ class DataModel:
             new DataModel with updated df and history
         """
         if to_series:
-            series_to_transform = self._df.iloc[:, self._current_col_idx]
+            series_to_transform = self._df.iloc[:, self.current_col_idx]
             transformed_series = func(series_to_transform)
             new_df = self._df.copy()
-            new_df.iloc[:, self._current_col_idx] = transformed_series
+            new_df.iloc[:, self.current_col_idx] = transformed_series
         else:
             new_df = func(self._df)
         
@@ -123,7 +123,7 @@ class DataModel:
     def add_version_from_series(self, new_series: pd.Series, label: str) -> 'DataModel':
         """Create new version with updated first column from series"""
         new_df = self._df.copy()
-        new_df.iloc[:, self._current_col_idx] = new_series
+        new_df.iloc[:, self.current_col_idx] = new_series
         return self.add_version(new_df, label)
 
     def revert_to_original(self, revert_series: bool = False) -> 'DataModel':
@@ -140,7 +140,7 @@ class DataModel:
         
         if revert_series:
             new_df = self._df.copy()
-            new_df.iloc[:, self._current_col_idx] = original_model.original.iloc[:, self._current_col_idx]
+            new_df.iloc[:, self.current_col_idx] = original_model.original.iloc[:, self.current_col_idx]
             label = f"Reverted column to original"
             return self.add_version(new_df, label)
         else:
