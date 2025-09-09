@@ -74,6 +74,7 @@ class DataLoaderService:
                 for i in range(df.shape[1]):
                     new_names.append(f"col{i+1}")
                 df.columns = new_names
+        df.columns = df.columns.astype(str)
 
         return df
 
