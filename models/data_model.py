@@ -21,7 +21,8 @@ class DataModel:
         self.original = df.copy()                   # full original df
         self._df = df.reset_index(drop=True)        # cleaned current df
 
-        self._series = self._df.iloc[:, 0]          # current series for plotting|stats|tests etc.
+        self._current_col_idx = 0
+        self._series = self._df.iloc[:, self._current_col_idx]          # current series for plotting|stats|tests etc.
         self.bins = bins        
         self.anomalies_removed = False                     
 
@@ -82,25 +83,22 @@ class DataModel:
         self.bins = bins
         self._cache['hist'] = Hist(self._series, bins)
 
-    def apply_transformation(self, func, label: str = None, col_idx: int = None) -> 'DataModel':
+    def apply_transformation(self, func, label: str = None, to_series: bool = True) -> 'DataModel':
         """
         Apply transformation function to current df or specific column and return a new version.
         Args:
             func: function to apply to df or series
             label: optional label for new version
-            col_idx: if provided, apply transformation to specific column by index;
-                    if None, apply to entire DataFrame
+            col_idx: if True, apply transformation to current column by index;
+                    if False, apply to entire DataFrame
         Return:
             new DataModel with updated df and history
         """
-        if col_idx is not None:
-            if col_idx < 0 or col_idx >= self._df.shape[1]:
-                raise IndexError(f"Column index {col_idx} out of range for DataFrame with {self._df.shape[1]} columns")
-
-            series_to_transform = self._df.iloc[:, col_idx]
+        if to_series:
+            series_to_transform = self._df.iloc[:, self._current_col_idx]
             transformed_series = func(series_to_transform)
             new_df = self._df.copy()
-            new_df.iloc[:, col_idx] = transformed_series
+            new_df.iloc[:, self._current_col_idx] = transformed_series
         else:
             new_df = func(self._df)
         
@@ -121,26 +119,29 @@ class DataModel:
             label=label,
             history=self.history + [self]
         )
+    
+    def add_version_from_series(self, new_series: pd.Series, label: str) -> 'DataModel':
+        """Create new version with updated first column from series"""
+        new_df = self._df.copy()
+        new_df.iloc[:, self._current_col_idx] = new_series
+        return self.add_version(new_df, label)
 
-    def revert_to_original(self, col_idx: int = None) -> 'DataModel':
+    def revert_to_original(self, revert_series: bool = False) -> 'DataModel':
         """
         Revert to the original version in the transformation history.
         Args:
-            col_idx: if provided, revert only specific column to original;
-                    if None, revert entire DataFrame to original
+            revert_series: if True, revert only current column to original;
+                    if False, revert entire DataFrame to original
         Return:
             DataModel with reverted data
         """
         if not self.history: return self
         original_model = self.history[0]
         
-        if col_idx is not None:
-            if col_idx < 0 or col_idx >= self._df.shape[1]:
-                raise IndexError(f"Column index {col_idx} out of range")
-            
+        if revert_series:
             new_df = self._df.copy()
-            new_df.iloc[:, col_idx] = original_model.original.iloc[:, col_idx]
-            label = f"Reverted column {col_idx} to original"
+            new_df.iloc[:, self._current_col_idx] = original_model.original.iloc[:, self._current_col_idx]
+            label = f"Reverted column to original"
             return self.add_version(new_df, label)
         else:
             return original_model
