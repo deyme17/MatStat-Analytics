@@ -11,16 +11,16 @@ class AnomalyService:
         """
         Detect anomalies based on the normal distribution (±sigma * std).
         Args:
-            data: input data series
+            data: input 1-dimensional pandas Series
             sigma: number of standard deviations for the bounds
         Return:
             dictionary with anomaly indices and bounds
         """
-        mean = np.mean(data)
-        std = np.std(data, ddof=1)
+        mean = data.mean()
+        std = data.std(ddof=1)
         lower = mean - sigma * std
         upper = mean + sigma * std
-        anomalies = np.where((data < lower) | (data > upper))[0]
+        anomalies = data.index[(data < lower) | (data > upper)].to_numpy()
         return {
             'anomalies': anomalies,
             'lower_limit': lower,
@@ -32,7 +32,7 @@ class AnomalyService:
         """
         Detect anomalies using confidence interval based on order statistics.
         Args:
-            data: input data series
+            data: input 1-dimensional pandas Series
             confidence_level: confidence level for the interval
         Return:
             dictionary with anomaly indices and bounds
@@ -44,7 +44,7 @@ class AnomalyService:
         upper_index = min(n - 1, int(np.round((1 - gamma) * n)) - 1)
         lower = sorted_data[lower_index]
         upper = sorted_data[upper_index]
-        anomalies = np.where((data < lower) | (data > upper))[0]
+        anomalies = data.index[(data < lower) | (data > upper)].to_numpy()
         return {
             'anomalies': anomalies,
             'lower_limit': lower,
@@ -56,13 +56,13 @@ class AnomalyService:
         """
         Detect anomalies using asymmetry and kurtosis-adjusted limits.
         Args:
-            data: input data series
+            data: input 1-dimensional pandas Series
         Return:
             dictionary with anomaly indices and bounds
         """
         N = len(data)
-        mean = np.mean(data)
-        std = np.std(data, ddof=1)
+        mean = data.mean()
+        std = data.std(ddof=1)
         skewness = stats.skew(data)
         excess = stats.kurtosis(data)
 
@@ -79,7 +79,7 @@ class AnomalyService:
             lower = mean - t1 * std
             upper = mean + t1 * std
 
-        anomalies = np.where((data < lower) | (data > upper))[0]
+        anomalies = data.index[(data < lower) | (data > upper)].to_numpy()
         return {
             'anomalies': anomalies,
             'lower_limit': lower,

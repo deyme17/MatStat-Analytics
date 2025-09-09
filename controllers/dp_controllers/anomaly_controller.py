@@ -1,4 +1,5 @@
 from typing import Callable, Optional
+from utils.decorators import require_one_dimensional_dataframe
 import pandas as pd
 
 
@@ -17,18 +18,21 @@ class AnomalyController:
         self.anomaly_service = anomaly_service
         self.get_gamma_value = get_gamma_value
 
+    @require_one_dimensional_dataframe
     def remove_sigma_anomalies(self) -> None:
         """
         Detect and remove anomalies using the standard deviation threshold method (3 sigma).
         """
         self._remove_anomalies(self.anomaly_service.detect_sigma_anomalies, "Sigma Filtered")
 
+    @require_one_dimensional_dataframe
     def remove_asymmetry_anomalies(self) -> None:
         """
         Detect and remove anomalies based on skewness and kurtosis adjustments.
         """
         self._remove_anomalies(self.anomaly_service.detect_asymmetry_anomalies, "Asymmetry Filtered")
 
+    @require_one_dimensional_dataframe
     def remove_conf_anomalies(self):
         """
         Detect and remove anomalies using confidence interval bounds.
@@ -46,7 +50,7 @@ class AnomalyController:
             detection_func: function that returns a dict with 'anomalies' and bounds
             label: label used to name the new version of the dataset
         """
-        data = self.context.data_model.series
+        data = self.context.data_model.dataframe
         if data is None:
             return
 
