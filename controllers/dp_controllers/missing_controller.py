@@ -47,23 +47,6 @@ class MissingDataController:
             info = self.missing_service.detect_missing(self.data)
             self.display_service.update(info)
 
-    def _update_after_imputation(self, new_series: pd.Series, label: str, message: str) -> None:
-        """
-        Internal helper to update state after missing data imputation.
-        Args:
-            new_series (pd.Series): Transformed pandas Series
-            label (str): Label for the transformation version
-            message (str): Success message to display
-        """
-        new_model = self.context.data_model.add_version(new_series, label)
-        self.context.data_model = new_model
-        self.data = new_model.series
-
-        self.context.version_manager.update_current_data(new_model)
-        self.context.refresher.refresh(new_series)
-        self.update_missing_values_info()
-        self.context.messanger.show_info("Success", message)
-
     def impute_with_mean(self) -> None:
         """
         Replace missing values with the mean of the series.
@@ -99,6 +82,25 @@ class MissingDataController:
             new_series = self.missing_service.drop_missing(self.data)
             dropped = original_len - len(new_series)
             self._update_after_imputation(new_series, "Dropped NA", f"Dropped {dropped} rows with missing values.")
+
+    def _update_after_imputation(self, new_series: pd.Series, label: str, message: str) -> None:
+        """
+        Internal helper to update state after missing data imputation.
+        Args:
+            new_series (pd.Series): Transformed pandas Series
+            label (str): Label for the transformation version
+            message (str): Success message to display
+        """
+        new_df = pd.DataFrame(new_series).reset_index(drop=True)
+
+        new_model = self.context.data_model.add_version(new_df, label)
+        self.context.data_model = new_model
+        self.data = new_model.series
+
+        self.context.version_manager.update_current_dataset(new_model)
+        self.context.refresher.refresh(new_model.series)
+        self.update_missing_values_info()
+        self.context.messanger.show_info("Success", message)
 
     def set_display_service(self, display_service: MissingInfoDisplayService) -> None:
         self.display_service = display_service
