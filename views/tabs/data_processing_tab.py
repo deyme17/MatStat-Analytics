@@ -15,20 +15,20 @@ class DataProcessingTab(QWidget):
     def __init__(self, widget_data: list[tuple[str, QGroupBox, Any]], 
                  on_data_version_changed=None, 
                  on_original_clicked=None,
-                 on_variable_changed=None
+                 on_column_changed=None
                  ):
         """
         Args:
             widget_data (list[tuple[str, QGroupBox, Any]]): Widget classes for data processing operations with it's controllers
             on_data_version_changed (Callable[[int], None], optional): Callback for dataset version change
-            on_variable_changed (Callable[[int], None], optional): Callback for current dataframe column change
+            on_column_changed (Callable[[int], None], optional): Callback for current dataframe column change
             on_original_clicked (Callable[[], None], optional): Callback for "Original" button click
         """
         super().__init__()
         self.widget_data = widget_data
         self.on_data_version_changed = on_data_version_changed
         self.on_original_clicked = on_original_clicked
-        self.on_variable_changed = on_variable_changed
+        self.on_column_changed = on_column_changed
 
         self._init_ui()
         self._setup_layout()
@@ -46,8 +46,8 @@ class DataProcessingTab(QWidget):
         self.current_col_label = QLabel("Select variable to apply operation to: ")
         self.dataframe_cols_combo = QComboBox()
         self.dataframe_cols_combo.setEnabled(False)
-        if self.on_variable_changed:
-            self.dataframe_cols_combo.currentIndexChanged.connect(self.on_variable_changed)
+        if self.on_column_changed:
+            self.dataframe_cols_combo.currentIndexChanged.connect(self.on_column_changed)
 
         self.original_button = QPushButton("Original")
         self.original_button.setEnabled(False)
@@ -55,12 +55,12 @@ class DataProcessingTab(QWidget):
         if self.on_original_clicked:
             self.original_button.clicked.connect(self.on_original_clicked)
 
-    def set_callbacks(self, on_data_version_changed=None, on_original_clicked=None, on_variable_changed=None):
+    def set_callbacks(self, on_data_version_changed=None, on_original_clicked=None, on_column_changed=None):
         """
         Assign or update callbacks after initialization.
         Args:
             on_data_version_changed (Callable[[int], None], optional)
-            on_variable_changed (Callable[[int], None], optional)
+            on_column_changed (Callable[[int], None], optional)
             on_original_clicked (Callable[[], None], optional)
         """
         def safe_connect_callback(cb):
@@ -74,7 +74,7 @@ class DataProcessingTab(QWidget):
 
         safe_connect_callback(on_data_version_changed)
         safe_connect_callback(on_original_clicked)
-        safe_connect_callback(on_variable_changed)
+        safe_connect_callback(on_column_changed)
 
     def _setup_layout(self):
         """Setup the main layout structure."""
