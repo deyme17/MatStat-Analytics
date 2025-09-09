@@ -112,7 +112,7 @@ class UIFactory:
             ],
             on_data_version_changed=controllers['data_version'].on_dataset_selection_changed,
             on_original_clicked=controllers['data_version'].revert_to_original,
-            on_variable_changed=...
+            on_column_changed=controllers['data_version'].on_current_col_changed
         )
         stat_tab = StatisticTab(renderer_cls=TableRenderer)
         gof_tab = GOFTestTab(
@@ -194,11 +194,13 @@ class CallBackFactory:
         controllers['ui_state'].connect_callbacks(
             ui_controls=build_dp_control_callbacks(self.window),
             enable_data_combo_callback=self.window.data_tab.data_version_combo.setEnabled,
+            enable_col_combo_callback=self.window.data_tab.dataframe_cols_combo.setEnabled,
             update_data_callback=lambda data: controllers['missing_data'].update_data_reference(data),
             update_data_versions_callback=controllers['data_version'].update_dataset_list
         )
         controllers['data_version'].connect_callbacks(
             version_combo_controls=build_combo_callbacks(self.window.data_tab.data_version_combo),
+            columns_combo_control=build_combo_callbacks(self.window.data_tab.dataframe_cols_combo),
             update_navigation_buttons=controllers['ui_state'].update_navigation_buttons,
             on_reverted_to_original=lambda: controllers['ui_state'].update_state_for_data(self.context.data_model.series),
             on_dataset_changed=lambda series: controllers['missing_data'].update_data_reference(series),
