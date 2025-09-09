@@ -2,6 +2,7 @@ import os
 from services.data_services.data_loader import loaders
 from typing import Optional
 import pandas as pd
+import string
 
 class DataLoaderService:
     """
@@ -63,7 +64,20 @@ class DataLoaderService:
         df = df.dropna(axis=1, how='all')
         if df.empty:
             raise ValueError("No valid numerical data found")
+
+        df = df.reset_index(drop=True)
+
+        if df.columns.isnull().any() or df.columns.astype(str).str.startswith("Unnamed").any():
+            if df.shape[1] == 1:
+                df.columns = ["x"]
+            else:
+                new_names = []
+                for i in range(df.shape[1]):
+                    new_names.append(f"col{i+1}")
+                df.columns = new_names
+
         return df
+
 
     @staticmethod
     def select_file(parent=None) -> Optional[str]:
