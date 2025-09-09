@@ -203,7 +203,10 @@ class CallBackFactory:
             columns_combo_control=build_combo_callbacks(self.window.data_tab.dataframe_cols_combo),
             update_navigation_buttons=controllers['ui_state'].update_navigation_buttons,
             on_reverted_to_original=lambda: controllers['ui_state'].update_state_for_data(self.context.data_model.series),
-            on_dataset_changed=lambda series: controllers['missing_data'].update_data_reference(series),
+            on_dataset_changed=lambda series: (
+                controllers['missing_data'].update_data_reference(series),
+                self.window.data_tab.dataframe_cols_combo.setEnabled(self.context.data_model.dataframe.shape[1] > 1)
+            )
         )
         # set graph panel callbacks
         self.window.graph_panel.connect_controls()
