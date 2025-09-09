@@ -33,7 +33,7 @@ from views import (
 # Callbacks
 from callbacks import (
     UIClearCallbacks, UIModelCallbacks, UIStateCallbacks, UIUpdateCallbacks,
-    build_dp_control_callbacks, build_data_version_callbacks, build_graph_panel_callbacks
+    build_dp_control_callbacks, build_combo_callbacks, build_graph_panel_callbacks
 )
 
 
@@ -111,7 +111,8 @@ class UIFactory:
                 ("missing_widget", MissingWidget, controllers['missing_data'])
             ],
             on_data_version_changed=controllers['data_version'].on_dataset_selection_changed,
-            on_original_clicked=controllers['data_version'].revert_to_original
+            on_original_clicked=controllers['data_version'].revert_to_original,
+            on_variable_changed=...
         )
         stat_tab = StatisticTab(renderer_cls=TableRenderer)
         gof_tab = GOFTestTab(
@@ -197,7 +198,7 @@ class CallBackFactory:
             update_data_versions_callback=controllers['data_version'].update_dataset_list
         )
         controllers['data_version'].connect_callbacks(
-            version_combo_controls=build_data_version_callbacks(self.window.data_tab.data_version_combo),
+            version_combo_controls=build_combo_callbacks(self.window.data_tab.data_version_combo),
             update_navigation_buttons=controllers['ui_state'].update_navigation_buttons,
             on_reverted_to_original=lambda: controllers['ui_state'].update_state_for_data(self.context.data_model.series),
             on_dataset_changed=lambda series: controllers['missing_data'].update_data_reference(series),

@@ -1,5 +1,5 @@
 from typing import Callable, Optional
-from callbacks.ui_versions_callbacks import DataVersionUICallbacks
+from callbacks.combo_callbacks import ComboUICallbacks
 import pandas as pd
 
 
@@ -11,7 +11,7 @@ class DataVersionController:
     def __init__(
         self,
         context,
-        version_combo_controls: Optional[DataVersionUICallbacks] = None,
+        version_combo_controls: Optional[ComboUICallbacks] = None,
         set_bins_value: Optional[Callable[[int], None]] = None,
         update_navigation_buttons: Optional[Callable[[], None]] = None,
         on_reverted_to_original: Optional[Callable[[], None]] = None,
@@ -68,7 +68,7 @@ class DataVersionController:
         dataset_names = self.context.version_manager.get_all_dataset_names()
         
         self.version_combo_controls.block_signals(True)
-        self.version_combo_controls.set_version_list(dataset_names)
+        self.version_combo_controls.set(dataset_names)
 
         current_name = self.context.version_manager.get_current_dataset_name()
         if current_name in dataset_names:
@@ -119,7 +119,7 @@ class DataVersionController:
         return "No Data"
 
     def connect_callbacks(self, 
-                         version_combo_controls: DataVersionUICallbacks,
+                         version_combo_controls: ComboUICallbacks,
                          update_navigation_buttons: Callable[[], None],
                          on_reverted_to_original: Callable[[], None],
                          on_dataset_changed: Callable[[pd.Series], None]) -> None:
