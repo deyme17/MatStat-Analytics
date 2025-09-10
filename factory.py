@@ -14,7 +14,7 @@ from services import (
     ConfidenceService, TestPerformer, StatisticsService,
     UIRefreshService, UIMessager, MissingInfoDisplayService, TableRenderer,
     DataVersionManager, DataLoaderService,
-    SimulationService, DataSaver
+    SimulationService, DataSaver, DataExporter
 )
 
 # Views
@@ -66,7 +66,8 @@ class ControllersFactory:
         )
         controllers['simulation'] = SimulationController(
             simulation_service=SimulationService(TestPerformer()),
-            data_saver=DataSaver(self.context, on_save=lambda data: controllers['ui_state'].handle_post_load_state(data))
+            data_saver=DataSaver(self.context, on_save=lambda data: controllers['ui_state'].handle_post_load_state(data)),
+            data_exporter=DataExporter
         )
         controllers['estimation'] = ParameterEstimation()
         controllers['gof'] = GOFController()

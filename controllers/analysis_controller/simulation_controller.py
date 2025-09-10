@@ -2,17 +2,19 @@ class SimulationController:
     """
     Main controller class for statistical simulation operations.
     """
-    def __init__(self, simulation_service, data_saver):
+    def __init__(self, simulation_service, data_saver, data_exporter):
         """
         Args:
             simulation_service: Service for performing statistical simulations
             data_saver: Service for saving simulated data to storage
+            data_exporter: Service for exporting simulated data as csv
         """
         self.simulation_service = simulation_service
         self.data_saver = data_saver
+        self.data_exporter = data_exporter
     
-    def run_simulation(self, dist, sizes, repeats, true_mean, alpha,
-                      save_data=False, sample_size=None):
+    def run_simulation(self, dist, sizes, repeats: int, true_mean: float, alpha: float,
+                      save_data: bool = False, export_data: bool = False, sample_size: int = None):
         """
         Run statistical simulation with optional data saving.
         Args:
@@ -22,6 +24,7 @@ class SimulationController:
             true_mean: Theoretical mean to test against in t-tests
             alpha: Significance level for statistical tests
             save_data: Whether to save simulated data (default: False)
+            export_data: Whether to export simulated data as csv (default: False)
             sample_size: Size of sample to save if save_data is True
         Return:
             List of dictionaries containing simulation results
@@ -33,6 +36,8 @@ class SimulationController:
                 )
                 if simulated_data is not None and len(simulated_data) > 0:
                     self.data_saver.save_data(dist.name, simulated_data)
+                if simulated_data is not None and len(simulated_data) > 0:
+                    self.data_exporter.export(dist.name, simulated_data)                    
                 else:
                     print(f"Warning: Could not generate data for {dist.name}")
             
