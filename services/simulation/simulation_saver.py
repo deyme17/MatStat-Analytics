@@ -21,29 +21,32 @@ class DataSaver:
         Save simulated data as a new dataset in the data history manager.
         Args:
             dist_name: name of the distribution
-            data: simulated data array
+            data: simulated data array (1D or 2D)
         """
         dataset_label = self._create_data_label(dist_name)
-        series = pd.Series(data)
         
-        # data
-        optimal_bins = get_default_bin_count(series)
-        data_model = DataModel(series, bins=optimal_bins, label=dataset_label)
+        if data.ndim == 1:
+            df = pd.DataFrame(data, columns=['data'])
+        elif data.ndim == 2:
+            df = pd.DataFrame(data, columns=[f"col{i+1}" for i in range(data.shape[1])])
+        else:
+            raise ValueError(f"Unsupported data dimensionality: {data.ndim}D")
+        
+        optimal_bins = get_default_bin_count(df)
+        data_model = DataModel(df, bins=optimal_bins, label=dataset_label)
 
-        # Add to version manager and update window state
         self.context.version_manager.add_dataset(dataset_label, data_model)
         self.context.data_model = data_model
 
         if self.on_save:
-            self.on_save(series)
+            self.on_save(data_model.series)
         
-        # success message
         self.context.messanger.show_info(
             "Data Saved", 
             f"Simulated data saved as '{dataset_label}' with {len(data)} samples."
         )
 
-    def _create_data_label(self, dist_name) -> None:
+    def _create_data_label(self, dist_name) -> str:
         """Creates a label for newly-generated data"""
         if dist_name not in self.simulation_counter:
             self.simulation_counter[dist_name] = 0

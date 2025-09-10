@@ -30,16 +30,18 @@ class SimulationController:
             List of dictionaries containing simulation results
         """
         try:
-            if save_data and sample_size and sample_size > 0:
+            simulated_data = None
+            if sample_size and sample_size > 0:
                 simulated_data = self.simulation_service.generate_sample(
                     dist, sample_size, dist.params
                 )
-                if simulated_data is not None and len(simulated_data) > 0:
+            if simulated_data is not None and len(simulated_data) > 0:
+                if save_data:
                     self.data_saver.save_data(dist.name, simulated_data)
-                if simulated_data is not None and len(simulated_data) > 0:
-                    self.data_exporter.export(dist.name, simulated_data)                    
-                else:
-                    print(f"Warning: Could not generate data for {dist.name}")
+                if export_data:
+                    self.data_exporter.export(dist.name, simulated_data)
+            elif sample_size and sample_size > 0:
+                print(f"Warning: Could not generate data for {dist.name}")
             
             return self.simulation_service.run_experiment(
                 dist, sizes, repeats, true_mean, alpha

@@ -1,12 +1,12 @@
 from scipy.stats import ttest_1samp
-import pandas as pd
+import numpy as np
 
 class TestPerformer:
     """
     Utility for performing statistical tests.
     """
     @staticmethod
-    def perform_t_test(sample: pd.Series, true_mean: float) -> dict:
+    def perform_t_test(sample: np.ndarray, true_mean: float) -> dict:
         """
         Perform one-sample t-test comparing sample mean to true mean.
         Args:
