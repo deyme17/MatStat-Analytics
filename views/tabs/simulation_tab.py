@@ -38,6 +38,7 @@ class SimulationTab(QWidget):
         self._init_parameter_controls(layout)
         self._init_alpha_controls(layout)
         self._init_save_controls(layout)
+        self._init_export_layout(layout)
         self._init_simulation_controls(layout)
         self._init_results_t_table(layout)
         
@@ -88,6 +89,14 @@ class SimulationTab(QWidget):
         save_size_layout.addWidget(self.size_spin)
         save_size_layout.addStretch()
         layout.addLayout(save_size_layout)
+
+    def _init_export_layout(self, layout):
+        """Initialize data export controls."""
+        export_controls_layout = QVBoxLayout()
+        self.export_data_checkbox = QCheckBox("Export simulated data as csv")
+        self.export_data_checkbox.setChecked(False)
+        export_controls_layout.addWidget(self.export_data_checkbox)
+        layout.addLayout(export_controls_layout)
 
     def _init_simulation_controls(self, layout):
         """Initialize simulation execution controls."""
