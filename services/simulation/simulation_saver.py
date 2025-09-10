@@ -26,7 +26,7 @@ class DataSaver:
         dataset_label = self._create_data_label(dist_name)
         
         if data.ndim == 1:
-            df = pd.DataFrame(data, columns=['data'])
+            df = pd.DataFrame(data, columns=['value'])
         elif data.ndim == 2:
             df = pd.DataFrame(data, columns=[f"col{i+1}" for i in range(data.shape[1])])
         else:

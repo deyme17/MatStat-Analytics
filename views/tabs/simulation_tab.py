@@ -155,9 +155,10 @@ class SimulationTab(QWidget):
             return
         
         save_data = self.save_data_checkbox.isChecked()
+        export_data = self.export_data_checkbox.isChecked()
         results = self.simulation_controller.run_simulation(
             dist, DEFAULT_SAMPLE_SIZES, repeats, true_mean, alpha, 
-            save_data=save_data, sample_size=sample_size
+            save_data=save_data, export_data=export_data, sample_size=sample_size
         )
         self._populate_table(results)
 

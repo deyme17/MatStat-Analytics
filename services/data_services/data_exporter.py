@@ -20,27 +20,34 @@ class CSVExporter(IExporter):
         data.to_csv(buffer, index=False)
         buffer.seek(0)
         return buffer
-    
 
 
 class DataExporter:
     @classmethod
-    def export(dist_name: str, data: np.ndarray, exporter_cls: IExporter = CSVExporter, out_dir: str = ".data/simulated_data") -> str:
+    def export(cls, dist_name: str, data: np.ndarray, exporter_cls: IExporter = CSVExporter, out_dir: str = "data/simulated_data") -> str:
         """
         Export data to file
         Args:
-            exporter_cls: class for data exporting
             dist_name: distribution name
-            data: ndarray
-            out_dir: directory to
+            data: ndarray (1D or 2D)
+            exporter_cls: class for data exporting
+            out_dir: directory to save file
         Returns:
             str: path to saved file
         """
-        df = pd.DataFrame(data)
+        if data.ndim == 1:
+            df = pd.DataFrame(data, columns=['value'])
+            n_cols = 1
+        elif data.ndim == 2:
+            df = pd.DataFrame(data, columns=[f'col{i+1}' for i in range(data.shape[1])])
+            n_cols = data.shape[1]
+        else:
+            raise ValueError(f"Unsupported data dimensionality: {data.ndim}D. Only 1D and 2D arrays are supported.")
+        
         buffer = exporter_cls.export(df)
 
-        filename = f"{dist_name.lower()}{df.shape[1]}_{len(df)}.{exporter_cls.extension}"
-        filepath = f"{out_dir}/{filename}"
+        filename = f"{dist_name.lower()}{n_cols}_{len(df)}.{exporter_cls.extension}"
+        filepath = os.path.join(out_dir, filename)
 
         os.makedirs(out_dir, exist_ok=True)
         with open(filepath, "wb") as f:
