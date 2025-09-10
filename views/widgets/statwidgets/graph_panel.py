@@ -71,7 +71,7 @@ class GraphPanel(QWidget):
         self.confidence_spinbox.setDecimals(CONF_PRECISION)
 
         # KDE toggle
-        self.show_kde_checkbox = QCheckBox("Show KDE")
+        self.show_kde_checkbox = QCheckBox("Show additional curves")
         self.show_kde_checkbox.setChecked(False)
 
         # Assemble controls
