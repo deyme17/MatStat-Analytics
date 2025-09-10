@@ -79,6 +79,14 @@ class GraphController:
         if self._valid():
             self.panel.refresh_all()
 
+    def on_line_toggled(self) -> None:
+        """
+        Called when broken line checkbox toggled. Redraw only.
+        """
+        self.check_all_callbacks()
+        if self._valid():
+            self.panel.refresh_all()
+
     def compute_cdf_with_ci(self, data: pd.Series, dist, confidence_level: float) -> tuple:
         """
         Compute confidence intervals for CDF using provided service.

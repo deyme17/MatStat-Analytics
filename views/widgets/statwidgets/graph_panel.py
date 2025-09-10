@@ -70,9 +70,12 @@ class GraphPanel(QWidget):
         self.confidence_spinbox.setValue(DEFAULT_CONF)
         self.confidence_spinbox.setDecimals(CONF_PRECISION)
 
-        # KDE toggle
-        self.show_kde_checkbox = QCheckBox("Show additional curves")
+        # curve toggle
+        self.show_kde_checkbox = QCheckBox("Show curves")
         self.show_kde_checkbox.setChecked(False)
+        # KDE toggle
+        self.show_line_checkbox = QCheckBox("Show broken lines")
+        self.show_line_checkbox.setChecked(False)
 
         # Assemble controls
         self.controls_layout.addWidget(QLabel("Bins:"))
@@ -82,6 +85,7 @@ class GraphPanel(QWidget):
         self.controls_layout.addWidget(self.confidence_spinbox)
         self.controls_layout.addStretch()
         self.controls_layout.addWidget(self.show_kde_checkbox)
+        self.controls_layout.addWidget(self.show_line_checkbox)
 
         # Distribution selector
         self.dist_selector = dist_selector_cls()
@@ -91,6 +95,7 @@ class GraphPanel(QWidget):
         self.bins_spinbox.valueChanged.connect(self.graph_controller.on_bins_changed)
         self.confidence_spinbox.valueChanged.connect(self.graph_controller.on_alpha_changed)
         self.show_kde_checkbox.stateChanged.connect(self.graph_controller.on_kde_toggled)
+        self.show_line_checkbox.stateChanged.connect(self.graph_controller.on_line_toggled)
         self.dist_selector.set_on_change(self.graph_controller.on_distribution_changed)
 
     def set_data(self, data: pd.Series) -> None:
@@ -137,6 +142,7 @@ class GraphPanel(QWidget):
         return {
             "bins": self.bins_spinbox.value(),
             "kde": self.show_kde_checkbox.isChecked(),
+            "line": self.show_line_checkbox.isChecked(),
             "confidence": self.confidence_spinbox.value(),
             "distribution": self.get_selected_distribution()
         }

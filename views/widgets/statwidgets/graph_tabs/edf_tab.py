@@ -26,7 +26,8 @@ class EDFTab(BaseGraphTab):
             self.ax,
             data,
             bin_edges=bin_edges,
-            show_edf_curve=params["kde"]
+            show_edf_curve=params["kde"],
+            show_ogiva=params["line"]
         )
 
         # cdf

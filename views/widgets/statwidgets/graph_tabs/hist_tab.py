@@ -20,7 +20,8 @@ class HistogramTab(BaseGraphTab):
             self.ax, 
             data,
             bins=params['bins'],
-            show_kde=params['kde']
+            show_kde=params['kde'],
+            freq_polygon=params['line']
         )
         
         # Draw distribution overlay if selected
