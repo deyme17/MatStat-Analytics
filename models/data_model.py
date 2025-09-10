@@ -6,7 +6,7 @@ class DataModel:
     Model that holds the current data df along with histogram, and statistics cache.
     Supports versioning and transformations.
     """
-    def __init__(self, df: pd.DataFrame, bins: int = 10, label: str = "Original", history=None):
+    def __init__(self, df: pd.DataFrame, bins: int = 10, label: str = "Original", history=None, current_col_idx: int = 0):
         """
         Initialize DataModel with original data and histogram/statistics cache.
         Args:
@@ -21,7 +21,7 @@ class DataModel:
         self.original = df.copy()                   # full original df
         self._df = df.reset_index(drop=True)        # cleaned current df
 
-        self.current_col_idx = 0
+        self.current_col_idx = current_col_idx
         self._series = self._df.iloc[:, self.current_col_idx]          # current series for plotting|stats|tests etc.
         self.bins = bins        
         self.anomalies_removed = False                     
@@ -118,7 +118,8 @@ class DataModel:
             new_df,
             bins=self.bins,
             label=label,
-            history=self.history + [self]
+            history=self.history + [self],
+            current_col_idx=self.current_col_idx
         )
     
     def add_version_from_series(self, new_series: pd.Series, label: str) -> 'DataModel':
@@ -145,7 +146,13 @@ class DataModel:
             label = f"Reverted column to original"
             return self.add_version(new_df, label)
         else:
-            return original_model
+            return DataModel(
+                original_model._df.copy(),
+                bins=original_model.bins,
+                label=original_model.label,
+                history=original_model.history,
+                current_col_idx=self.current_col_idx
+            )
 
     @property
     def current_transformation(self) -> str:
