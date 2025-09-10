@@ -45,6 +45,7 @@ class DataModel:
         """Select a different column by index as current series"""
         if idx < 0 or idx >= self._df.shape[1]:
             raise IndexError("Column index out of range")
+        self.current_col_idx = idx
         self._series = self._df.iloc[:, idx]
         self.clear_cache()
     

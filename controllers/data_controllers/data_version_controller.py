@@ -62,6 +62,7 @@ class DataVersionController:
             self.context.version_manager.change_column(col_name)
             col_idx = self.context.data_model.dataframe.columns.get_loc(col_name)
             self.context.data_model.select_column(col_idx)
+            assert self.context.data_model.current_col_idx == col_idx
             self._update_all_ui()
 
     def revert_to_original(self) -> None:
