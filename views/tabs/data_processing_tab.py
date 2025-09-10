@@ -1,7 +1,7 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QHBoxLayout, QGroupBox
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QHBoxLayout, QGroupBox, QCheckBox
 from typing import Any
 
-ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT = 333, 30
+ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT = 222, 30
 
 class DataProcessingTab(QWidget):
     """
@@ -52,8 +52,10 @@ class DataProcessingTab(QWidget):
         self.original_button = QPushButton("Original")
         self.original_button.setEnabled(False)
         self.original_button.setFixedSize(ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT)
+        self.original_dataset_checkbox = QCheckBox("Whole dataset")
+        self.original_dataset_checkbox.setChecked(False)
         if self.on_original_clicked:
-            self.original_button.clicked.connect(self.on_original_clicked)
+            self.original_button.clicked.connect(lambda: self.on_original_clicked(self.original_dataset_checkbox.isChecked()))
 
     def set_callbacks(self, on_data_version_changed=None, on_original_clicked=None, on_column_changed=None):
         """
@@ -81,6 +83,7 @@ class DataProcessingTab(QWidget):
         # Navigation layout for the button
         nav_layout = QHBoxLayout()
         nav_layout.addWidget(self.original_button)
+        nav_layout.addWidget(self.original_dataset_checkbox)
         nav_layout.addStretch()
 
         # Main layout

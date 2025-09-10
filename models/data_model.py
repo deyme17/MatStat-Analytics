@@ -128,7 +128,7 @@ class DataModel:
         new_df.iloc[:, self.current_col_idx] = new_series
         return self.add_version(new_df, label)
 
-    def revert_to_original(self, revert_series: bool = False) -> 'DataModel':
+    def revert_to_original(self, whole_dataset: bool = False) -> 'DataModel':
         """
         Revert to the original version in the transformation history.
         Args:
@@ -140,12 +140,7 @@ class DataModel:
         if not self.history: return self
         original_model = self.history[0]
         
-        if revert_series:
-            new_df = self._df.copy()
-            new_df.iloc[:, self.current_col_idx] = original_model.original.iloc[:, self.current_col_idx]
-            label = f"Reverted column to original"
-            return self.add_version(new_df, label)
-        else:
+        if whole_dataset:
             return DataModel(
                 original_model._df.copy(),
                 bins=original_model.bins,
@@ -153,6 +148,11 @@ class DataModel:
                 history=original_model.history,
                 current_col_idx=self.current_col_idx
             )
+        else:
+            new_df = self._df.copy()
+            new_df.iloc[:, self.current_col_idx] = original_model.original.iloc[:, self.current_col_idx]
+            label = f"Reverted column to original"
+            return self.add_version(new_df, label)
 
     @property
     def current_transformation(self) -> str:

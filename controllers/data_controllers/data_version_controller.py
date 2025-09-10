@@ -65,13 +65,13 @@ class DataVersionController:
             assert self.context.data_model.current_col_idx == col_idx
             self._update_all_ui()
 
-    def revert_to_original(self) -> None:
+    def revert_to_original(self, whole_dataset: bool = False) -> None:
         """
         Revert current dataset to its original version.
         """
         self.check_all_connected()
         if self.context.data_model:
-            original = self.context.data_model.revert_to_original()
+            original = self.context.data_model.revert_to_original(whole_dataset)
             self.context.version_manager.update_current_dataset(original)
             self.context.data_model = original
 
