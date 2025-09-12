@@ -22,5 +22,5 @@ class StatisticTab(QWidget):
         self.var_table = QTableWidget()
         self.var_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
         self.layout.addWidget(self.var_label)
-        self.layout.addWidget(self.var_label)
+        self.layout.addWidget(self.var_table)
         self.var_renderer = var_rendere_cls(self.var_table)
