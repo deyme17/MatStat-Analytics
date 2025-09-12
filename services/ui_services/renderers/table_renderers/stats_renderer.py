@@ -1,7 +1,8 @@
 from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem
+from .table_renderer import TableRenderer
 
 
-class StatsRenderer:
+class StatsRenderer(TableRenderer):
     """Handles rendering of statistical data into a QTableWidget with consistent formatting."""
 
     CI_MAPPING = {
@@ -14,7 +15,7 @@ class StatsRenderer:
     }
 
     def __init__(self, table: QTableWidget):
-        self._table = table
+        super().__init__(table)
 
     def render(self, stats_data: dict[str, float], ci_data: dict[str, tuple], precision: int = 2) -> None:
         """Renders statistics with confidence intervals into the attached table."""

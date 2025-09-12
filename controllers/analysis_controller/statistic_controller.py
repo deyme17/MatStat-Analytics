@@ -1,6 +1,5 @@
 from typing import Callable, Optional
-from services.ui_services.renderers.table_renderers.stats_renderer import StatsRenderer
-from services.ui_services.renderers.table_renderers.var_series_renderer import VarSerRenderer
+from services.ui_services.renderers.table_renderers.table_renderer import TableRenderer
 
 
 class StatisticController:
@@ -8,8 +7,8 @@ class StatisticController:
     Controller for managing the display of statistical characteristics in the UI.
     """
     def __init__(self, context, statistic_service,
-                 stats_renderer: Optional[StatsRenderer] = None,
-                 var_renderer: Optional[VarSerRenderer] = None,
+                 stats_renderer: Optional[TableRenderer] = None,
+                 var_renderer: Optional[TableRenderer] = None,
                  get_bins_value: Optional[Callable[[], int]] = None, 
                  get_precision_value: Optional[Callable[[], int]] = None,
                  get_confidence_value: Optional[Callable[[], float]] = None
@@ -64,7 +63,7 @@ class StatisticController:
         self.check_ui_connected()
         self.stats_renderer._setup_headers()
 
-    def connect_ui(self, stats_renderer: StatsRenderer, var_renderer: VarSerRenderer, get_bins_value: Callable[[], int], 
+    def connect_ui(self, stats_renderer: TableRenderer, var_renderer: TableRenderer, get_bins_value: Callable[[], int], 
                 get_precision_value: Callable[[], int], get_confidence_value: Callable[[], float]) -> None:
         self.stats_renderer = stats_renderer
         self.var_renderer = var_renderer
