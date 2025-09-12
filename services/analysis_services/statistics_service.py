@@ -59,6 +59,31 @@ class StatisticsService:
         })
 
     @staticmethod
+    def get_var_series(hist) -> pd.Series:
+        """
+        Compute variation series (frequency distribution table) from histogram.
+        Args:
+            hist: histogram model with bins and frequencies
+        Return:
+            pandas Series with variation series data
+        """
+        counts, bin_edges = np.histogram(hist.data, bins=hist.bins)
+        midpoints = [(bin_edges[i] + bin_edges[i+1]) / 2 for i in range(len(bin_edges)-1)]
+        relative_freq = counts / len(hist.data)
+        cumulative_rel_freq = np.cumsum(relative_freq)
+        boundaries = [f"[{bin_edges[i]:.2f}, {bin_edges[i+1]:.2f})" for i in range(len(bin_edges)-1)]
+        var_series_data = pd.Series({
+            'N': range(1, len(counts) + 1),
+            'Boundaries': boundaries,
+            'Midpoints': [round(mp, 2) for mp in midpoints],
+            'Frequency': counts,
+            'Relative Freq.': [round(rf, 4) for rf in relative_freq],
+            'Cumulative Rel.Freq.': [round(crf, 4) for crf in cumulative_rel_freq]
+        })
+        
+        return var_series_data
+
+    @staticmethod
     def compute_intervals(data: pd.Series, confidence_level: float = 0.95, precision: int = 2) -> pd.Series:
         """
         Compute confidence intervals for various characteristics.
