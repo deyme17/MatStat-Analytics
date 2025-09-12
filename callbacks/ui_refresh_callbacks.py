@@ -6,11 +6,11 @@ class UIClearCallbacks:
     def __init__(
         self,
         clear_graph: Callable[[], None],
-        clear_stats: Callable[[], None],
+        clear_tables: Callable[[], None],
         clear_gof: Callable[[], None]
     ):
         self.clear_graph = clear_graph
-        self.clear_stats = clear_stats
+        self.clear_tables = clear_tables
         self.clear_gof = clear_gof
 
 
@@ -18,11 +18,11 @@ class UIUpdateCallbacks:
     def __init__(
         self,
         set_graph_data: Callable[[Optional[pd.Series]], None],
-        update_stats: Callable[[], None],
+        update_tables: Callable[[], None],
         evaluate_gof: Callable[[], None]
     ):
         self.set_graph_data = set_graph_data
-        self.update_stats = update_stats
+        self.update_tables = update_tables
         self.evaluate_gof = evaluate_gof
 
 

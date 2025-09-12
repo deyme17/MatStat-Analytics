@@ -44,7 +44,7 @@ class UIRefreshService:
         """Clear all UI elements when data is missing or invalid."""
         self.clear.clear_graph()
         self.update.set_graph_data(None)
-        self.clear.clear_stats()
+        self.clear.clear_tables()
         self.clear.clear_gof()
 
     def _update_model_bins(self) -> None:
@@ -56,7 +56,7 @@ class UIRefreshService:
     def _update_visuals(self, series: pd.Series) -> None:
         """Update all visual elements with new data."""
         self.update.set_graph_data(series)
-        self.update.update_stats()
+        self.update.update_tables()
         self.update.evaluate_gof()
 
     def _update_state(self, series: pd.Series) -> None:

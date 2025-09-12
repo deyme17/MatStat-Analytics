@@ -12,7 +12,7 @@ from controllers import (
 from services import (
     TransformationService, AnomalyService, MissingService,
     ConfidenceService, TestPerformer, StatisticsService,
-    UIRefreshService, UIMessager, MissingInfoDisplayService, TableRenderer,
+    UIRefreshService, UIMessager, MissingInfoDisplayService, StatsRenderer, VarSerRenderer,
     DataVersionManager, DataLoaderService,
     SimulationService, DataSaver, DataExporter
 )
@@ -115,7 +115,7 @@ class UIFactory:
             on_original_clicked=controllers['data_version'].revert_to_original,
             on_column_changed=controllers['data_version'].on_current_col_changed
         )
-        stat_tab = StatisticTab(renderer_cls=TableRenderer)
+        stat_tab = StatisticTab(stat_renderer_cls=StatsRenderer, var_rendere_cls=VarSerRenderer)
         gof_tab = GOFTestTab(
             get_data_model=lambda: self.context.data_model,
             get_dist_func=lambda: self.window.graph_panel.get_selected_distribution(),
@@ -157,11 +157,12 @@ class ConnectFactory:
 
     def connect_ui(self, controllers):
         self.window.widgets.load_button.clicked.connect(controllers['data_loader'].load_data_file)
-        self.window.widgets.precision_spinbox.valueChanged.connect(controllers['statistic'].update_statistics_table)
+        self.window.widgets.precision_spinbox.valueChanged.connect(controllers['statistic'].update_tables)
 
         controllers['data_version'].set_set_bins_value_func(lambda bins: self.window.graph_panel.bins_spinbox.setValue(bins))
         controllers['statistic'].connect_ui(
-            stats_renderer=self.window.stat_tab.renderer,
+            stats_renderer=self.window.stat_tab.stat_renderer,
+            var_renderer=self.window.stat_tab.var_renderer,
             get_bins_value=lambda: self.window.graph_panel.bins_spinbox.value(),     
             get_confidence_value=lambda: self.window.graph_panel.confidence_spinbox.value(),         
             get_precision_value=lambda: self.window.widgets.precision_spinbox.value()
@@ -189,7 +190,7 @@ class CallBackFactory:
 
         controllers['graph'].connect_callbacks(
             graph_control=build_graph_panel_callbacks(self.window.graph_panel),
-            update_statistics_callback=controllers['statistic'].update_statistics_table,
+            update_tables_callback=controllers['statistic'].update_tables,
             update_gof_callback=self.window.gof_tab.evaluate_tests
         )
         controllers['ui_state'].connect_callbacks(
@@ -216,12 +217,12 @@ class CallBackFactory:
         self.context.refresher = UIRefreshService(
             clear=UIClearCallbacks(
                 clear_graph=self.window.graph_panel.clear,
-                clear_stats=controllers['statistic'].clear,
+                clear_tables=controllers['statistic'].clear_tables,
                 clear_gof=self.window.gof_tab.clear_panels
             ),
             update=UIUpdateCallbacks(
             set_graph_data=lambda data: (controllers['graph'].set_data(data)),
-            update_stats=controllers['statistic'].update_statistics_table,
+            update_tables=controllers['statistic'].update_tables,
             evaluate_gof=self.window.gof_tab.evaluate_tests
             ),
             state=UIStateCallbacks(

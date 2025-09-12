@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem
 
 
-class TableRenderer:
+class StatsRenderer:
     """Handles rendering of statistical data into a QTableWidget with consistent formatting."""
 
     CI_MAPPING = {

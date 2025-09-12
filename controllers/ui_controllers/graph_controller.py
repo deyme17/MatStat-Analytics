@@ -4,14 +4,14 @@ import pandas as pd
 
 class GraphController:
     """
-    Controller for coordinating plotting, statistics, and confidence intervals in the graph panel.
+    Controller for coordinating plotting, and confidence intervals in the graph panel.
     """
     def __init__(
         self,
         context,
         confidence_service,
         graph_control: Optional[GraphPanelCallbacks] = None,
-        update_statistics_callback: Optional[Callable[[], None]] = None,
+        update_tables_callback: Optional[Callable[[], None]] = None,
         update_gof_callback: Optional[Callable[[], None]] = None
     ):
         """
@@ -19,13 +19,13 @@ class GraphController:
             context: AppContext with shared data
             confidence_service: Service for confidence interval computations
             graph_control: Container of graph_panel control callbacks
-            update_statistics_callback: function to trigger statistics table update
+            update_tables_callback: function to trigger table update
             update_gof_callback: function to trigger goodness-of-fit tests
         """
         self.context = context
         self.panel = graph_control
         self.confidence_service = confidence_service
-        self.update_statistics_callback = update_statistics_callback
+        self.update_tables_callback = update_tables_callback
         self.update_gof_callback = update_gof_callback
 
     def set_data(self, series: pd.Series) -> None:
@@ -43,7 +43,7 @@ class GraphController:
         """
         self.check_all_callbacks()
         self.panel.refresh_all()
-        self.update_statistics_callback()
+        self.update_tables_callback()
         self.update_gof_callback()
 
     def on_distribution_changed(self) -> None:
@@ -104,12 +104,12 @@ class GraphController:
         )
     
     def connect_callbacks(self, graph_control: GraphPanelCallbacks,
-                                update_statistics_callback: Callable[[], None],
+                                update_tables_callback: Callable[[], None],
                                 update_gof_callback: Callable[[], None]) -> None:
         self.panel = graph_control
-        self.update_statistics_callback = update_statistics_callback
+        self.update_tables_callback = update_tables_callback
         self.update_gof_callback = update_gof_callback
 
     def check_all_callbacks(self) -> None:
-        if not (self.panel and self.update_statistics_callback and self.update_gof_callback):
+        if not (self.panel and self.update_tables_callback and self.update_gof_callback):
             raise RuntimeError("Not all callbacks provided for GraphController")
