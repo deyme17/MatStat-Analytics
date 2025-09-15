@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from typing import Callable, Optional, Any
 from callbacks.combo_callbacks import ComboUICallbacks
 import pandas as pd
 
@@ -134,6 +134,12 @@ class DataVersionController:
         self.version_combo_controls.block_signals(False)
 
         self.update_navigation_buttons()
+
+    def get_all_datasets(self) -> dict[str, Any]:
+        """
+        Returns a dictionary of all loaded datasets {name: DataModel}
+        """
+        return self.context.version_manager.datasets
 
     def _update_all_ui(self) -> None:
         """
