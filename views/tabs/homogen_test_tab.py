@@ -11,7 +11,7 @@ ALPHA_STEP = 0.01
 ALPHA_PRECISION = 2
 DEFAULT_ALPHA = 0.05
 
-LIST_WIDGET_HEIGHT = 50
+LIST_WIDGET_HEIGHT = 100
 LIST_WIDGET_WIDTH = 320
 
 
@@ -122,11 +122,9 @@ class HomogenTab(QWidget):
         buttons_layout = QHBoxLayout()
         self.select_all_btn = QPushButton("Select ALL")
         self.clear_selection_btn = QPushButton("Clear selection")
-        self.refresh_btn = QPushButton("Update datasets")
         
         buttons_layout.addWidget(self.select_all_btn)
         buttons_layout.addWidget(self.clear_selection_btn)
-        buttons_layout.addWidget(self.refresh_btn)
         
         # count label
         self.selected_count_label = QLabel("Selected: 0 datasets")
@@ -136,7 +134,7 @@ class HomogenTab(QWidget):
         layout.addWidget(self.selected_count_label)
         
         group.setLayout(layout)
-        group.setMaximumHeight(100)
+        group.setMaximumHeight(150)
         return group
 
     def _create_test_section(self, title: str, panels: list[BaseHomoTestPanel], 
@@ -162,7 +160,6 @@ class HomogenTab(QWidget):
         self.list_widget.itemSelectionChanged.connect(self._update_selected_models)
         self.select_all_btn.clicked.connect(self._select_all)
         self.clear_selection_btn.clicked.connect(self._clear_selection)
-        self.refresh_btn.clicked.connect(self.refresh_data_list)
 
     def refresh_data_list(self) -> None:
         """Refresh the data models list."""

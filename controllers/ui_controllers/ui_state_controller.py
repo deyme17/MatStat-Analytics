@@ -14,6 +14,7 @@ class UIStateController:
         detect_missing_func: Callable[[pd.Series], dict[str, Any]] = None,
         enable_data_combo_callback: Optional[Callable[[bool], None]] = None,
         enable_col_combo_callback: Optional[Callable[[bool], None]] = None,
+        update_homogen_list_widget: Optional[Callable[[bool], None]] = None,
         update_data_callback: Optional[Callable[[pd.Series], None]] = None,
         update_data_versions_callback: Optional[Callable[[], None]] = None
     ):
@@ -25,6 +26,7 @@ class UIStateController:
             ui_controls: Container of UI control callbacks
             enable_data_combo_callback: Callback to unable data version combo
             enable_col_combo_callback: Callback to unable column selection combo
+            update_homogen_list_widget: Callback to update list of datasets in homogen_tab
             update_data_callback: Callback to update data reference in other controllers
             update_data_versions_callback: Callback to update dropdown menu with all available data versions.
         """
@@ -33,6 +35,7 @@ class UIStateController:
         self.detect_missing_func = detect_missing_func
         self.enable_data_combo_callback = enable_data_combo_callback
         self.enable_col_combo_callback = enable_col_combo_callback
+        self.update_homogen_list_widget = update_homogen_list_widget
         self.update_data_callback = update_data_callback
         self.update_data_versions_callback = update_data_versions_callback
 
@@ -46,6 +49,7 @@ class UIStateController:
 
         self.ui.bins_controls.set_enabled(True)
         self.enable_data_combo_callback(True)
+        self.update_homogen_list_widget()
         self.enable_col_combo_callback(self.context.data_model.dataframe.shape[1] > 1)
 
         self.update_state_for_data(data)
@@ -101,15 +105,17 @@ class UIStateController:
     def connect_callbacks(self, ui_controls: DPControlCallbacks,
                                 enable_data_combo_callback: Callable[[bool], None],
                                 enable_col_combo_callback: Callable[[bool], None],
+                                update_homogen_list_widget: Callable[[bool], None],
                                 update_data_callback: Callable[[pd.Series], None],
                                 update_data_versions_callback: Callable[[], None]) -> None:
         self.ui = ui_controls
         self.enable_data_combo_callback = enable_data_combo_callback
         self.enable_col_combo_callback = enable_col_combo_callback
+        self.update_homogen_list_widget = update_homogen_list_widget
         self.update_data_callback = update_data_callback
         self.update_data_versions_callback = update_data_versions_callback
 
     def check_all_callbacks(self) -> None:
         if not (self.ui and self.enable_data_combo_callback and self.enable_col_combo_callback,
-                self.update_data_callback and self.update_data_versions_callback):
+                self.update_homogen_list_widget and self.update_data_callback and self.update_data_versions_callback):
             raise RuntimeError("Not all callbacks provided for UIStateController")

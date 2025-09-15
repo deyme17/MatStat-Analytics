@@ -199,6 +199,7 @@ class CallBackFactory:
             ui_controls=build_dp_control_callbacks(self.window),
             enable_data_combo_callback=self.window.data_tab.data_version_combo.setEnabled,
             enable_col_combo_callback=self.window.data_tab.dataframe_cols_combo.setEnabled,
+            update_homogen_list_widget=self.window.homo_tab.refresh_data_list
             update_data_callback=lambda data: controllers['missing_data'].update_data_reference(data),
             update_data_versions_callback=controllers['data_version'].update_dataset_list
         )
