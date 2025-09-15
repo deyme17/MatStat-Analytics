@@ -123,7 +123,7 @@ class UIFactory:
             test_panels=[PearsonChi2Panel, KolmogorovSmirnovPanel]
         )
         homo_tab = HomogenTab(
-            get_data_models=lambda: None,
+            get_data_models=controllers['data_version'].get_all_datasets,
             homogen_controller=controllers['homogen'],
             homogen_2samples_panels=[],
             homogen_Nsamples_panels=[],
