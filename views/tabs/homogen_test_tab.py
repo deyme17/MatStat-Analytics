@@ -151,7 +151,7 @@ class HomogenTab(QWidget):
         test_label = QLabel("Select test:")
         combo_box = QComboBox()
         for panel in panels:
-            test_name = getattr(panel, 'name', panel.__class__.__name__)
+            test_name = panel.get_test_name() or "Uknowm"
             combo_box.addItem(test_name)
         
         if not panels:
