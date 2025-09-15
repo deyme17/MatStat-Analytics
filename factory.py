@@ -125,6 +125,7 @@ class UIFactory:
         homo_tab = HomogenTab(
             get_data_models=controllers['data_version'].get_all_datasets,
             homogen_controller=controllers['homogen'],
+            messanger=self.context.messanger,
             homogen_2samples_panels=[],
             homogen_Nsamples_panels=[],
             independence_panels=[]
