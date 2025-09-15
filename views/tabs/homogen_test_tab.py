@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QListWidget, 
     QPushButton, QAbstractItemView, QLabel, QDoubleSpinBox, 
-    QGroupBox, QComboBox
+    QGroupBox, QComboBox, QCheckBox
 )
 from views.widgets.homogenwidgets.homogen_panel import BaseHomoTestPanel
 from utils.ui_styles import groupMargin, groupStyle
@@ -11,7 +11,7 @@ ALPHA_STEP = 0.01
 ALPHA_PRECISION = 2
 DEFAULT_ALPHA = 0.05
 
-LIST_WIDGET_HEIGHT = 100
+LIST_WIDGET_HEIGHT = 150
 LIST_WIDGET_WIDTH = 320
 
 
@@ -132,10 +132,15 @@ class HomogenTab(QWidget):
         
         # count label
         self.selected_count_label = QLabel("Selected: 0 datasets")
+
+        # independence checkbox
+        self.independence_checkbox = QCheckBox("Samples are independent")
+        self.independence_checkbox.setChecked(False)
         
         layout.addWidget(self.list_widget)
         layout.addLayout(buttons_layout)
         layout.addWidget(self.selected_count_label)
+        layout.addWidget(self.independence_checkbox)
         
         group.setLayout(layout)
         group.setMaximumHeight(150)
@@ -217,6 +222,7 @@ class HomogenTab(QWidget):
             run_method(
                 selected_models=self.selected_models,
                 alpha=alpha,
+                is_independent=self.independence_checkbox.isChecked(),
                 test_panel=selected_panel
             )
     def _run_2samples_test(self) -> None:
