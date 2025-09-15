@@ -123,9 +123,11 @@ class UIFactory:
             test_panels=[PearsonChi2Panel, KolmogorovSmirnovPanel]
         )
         homo_tab = HomogenTab(
-            get_data_model=lambda: self.context.data_model,
-            homogen_controller = controllers['homogen'],
-            homogen_panels=[]
+            get_data_models=lambda: None,
+            homogen_controller=controllers['homogen'],
+            homogen_2samples_panels=[],
+            homogen_Nsamples_panels=[],
+            independence_panels=[]
         )
         sim_tab = SimulationTab(
             context=self.context,
