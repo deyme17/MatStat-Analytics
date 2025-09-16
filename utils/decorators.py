@@ -30,28 +30,47 @@ def require_one_dimensional_dataframe(method):
         return method(self, *args, **kwargs)
     return wrapper
 
-def require_n_samples(method, n: int | None = None):
+def require_n_samples(n: int | None = None):
     """
     Decorator to ensure that dataset list has exactly N samples.
-    If n is None, requires at least 3 sample.
+    If n is None, requires at least 3 samples.
     """
-    @functools.wraps(method)
-    def wrapper(self, selected_models: dict[str, DataModel], *args, **kwargs):
-        count = len(selected_models)
-        if n is not None:
-            if count != n:
-                self.messanger.show_error(
-                    "Test running error",
-                    f"This test requires exactly {n} datasets, but {count} were selected."
-                )
-                return
-        else:
-            if count < 3:
-                self.messanger.show_error(
-                    "Test running error",
-                    "Please select at least three dataset for this method."
-                )
-                return
+    def decorator(method):
+        @functools.wraps(method)
+        def wrapper(self, *args, **kwargs):
+            samples = None
+            
+            if len(args) > 1 and isinstance(args[1], list):
+                samples = args[1]
+            elif 'samples' in kwargs:
+                samples = kwargs['samples']
+            
+            if samples is None:
+                raise ValueError("Could not find 'samples' parameter in method arguments")
+            
+            count = len(samples)
+            
+            if n is not None:
+                if count != n:
+                    if hasattr(self, 'messanger'):
+                        self.messanger.show_error(
+                            "Test running error",
+                            f"This test requires exactly {n} datasets, but {count} were selected."
+                        )
+                        return None
+                    else:
+                        raise ValueError(f"This test requires exactly {n} datasets, but {count} were selected.")
+            else:
+                if count < 3:
+                    if hasattr(self, 'messanger'):
+                        self.messanger.show_error(
+                            "Test running error",
+                            "Please select at least three datasets for this method."
+                        )
+                        return None
+                    else:
+                        raise ValueError("Please select at least three datasets for this method.")
 
-        return method(self, selected_models, *args, **kwargs)
-    return wrapper
+            return method(self, *args, **kwargs)
+        return wrapper
+    return decorator
