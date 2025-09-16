@@ -99,9 +99,16 @@ class NormalHomogenTest(BaseHomogenTest):
         # dependent
         if not is_independent:
             d = x - y
-            t_stat = np.mean(d) / (np.std(d, ddof=1) / np.sqrt(len(d)))
-            df = len(d) - 1
-            p_value = 2 * (1 - t.cdf(abs(t_stat), df=df))
+            std_d = np.std(d, ddof=1)
+
+            if std_d == 0 or len(d) <= 1:
+                t_stat = 0.0
+                p_value = 1.0
+            else:
+                t_stat = np.mean(d) / (std_d / np.sqrt(len(d)))
+                df = len(d) - 1
+                p_value = 2 * (1 - t.cdf(abs(t_stat), df=df))
+
             is_consistent = p_value > alpha
             return t_stat, p_value, is_consistent
 
