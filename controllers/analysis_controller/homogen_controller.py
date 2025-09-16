@@ -46,9 +46,9 @@ class HomogenController:
             return None
         
     @require_n_samples(1)
-    def run_1sample_test(self) -> Optional[dict]:
+    def run_1sample_test(self, test_name: str, samples: list[pd.Series]) -> Optional[dict]:
         ...
 
     @require_n_samples(None)
-    def run_nsample_test(self) -> Optional[dict]:
+    def run_Nsample_test(self, test_name: str, samples: list[pd.Series]) -> Optional[dict]:
         ...
