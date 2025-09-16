@@ -154,11 +154,12 @@ class HomogenTab(QWidget):
         """Run selected panel in the group."""
         if not self._validate_test_run():
             return
+        datasets = self.get_data_models()
         idx = group.combo.currentIndex()
         if 0 <= idx < len(group.panels):
             panel = group.panels[idx]
             panel.evaluate(
-                samples=self.selected_models,
+                samples=[datasets[dataset_name].series for dataset_name in self.selected_models],
                 alpha=self.alpha_spinbox.value(),
                 is_independent=self.independence_checkbox.isChecked()
             )
