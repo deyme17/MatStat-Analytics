@@ -37,7 +37,9 @@ class DataLoadController:
         if not path:
             return
 
-        filename = os.path.basename(path)
+        filename_ext = os.path.basename(path)
+        filename = self._build_filename(filename_ext)
+
         data = self.loader_service.load_data(path)
 
         if data is None or data.empty:
@@ -50,3 +52,16 @@ class DataLoadController:
         self.context.version_manager.add_dataset(filename, model)
         self.context.data_model = model
         self.on_data_loaded(model.series)
+
+    def _build_filename(self, filename_ext: str) -> str:
+        """
+        Creates unique filename for dataset
+        """
+        name, ext = os.path.splitext(filename_ext)
+        current_filenames = self.context.version_manager.get_all_dataset_names()
+        counter = 1
+        new_filename = filename_ext
+        while new_filename in current_filenames:
+            new_filename = f"{name}_{counter}{ext}"
+            counter += 1
+        return new_filename
