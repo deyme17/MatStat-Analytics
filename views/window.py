@@ -21,7 +21,6 @@ class Window(QMainWindow):
         self._init_palette()
         self.setStyleSheet(appStyle)
 
-        self.data_model = None
         self.context = AppContext()
         Factory.create(self, self.context)
 
