@@ -21,10 +21,13 @@ class WilcoxonHomogenTest(BaseHomogenTest):
             is_independent (bool): True if samples are independent else False
         Returns:
             dict: {
-                'w_statistic': float,
-                'z_value': float,
-                'p_value': float,
-                'decision': bool
+                "w_statistic": float,
+                "E[W]": float,
+                "D[W]": float,
+                "w_value": float,
+                "z_crit": float,
+                "p_value": float,
+                "decision": bool
             }
         """
         if len(samples) != 2: return {}
