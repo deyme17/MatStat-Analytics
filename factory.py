@@ -26,7 +26,7 @@ from views import (
     WindowWidgets,
     AnomalyWidget, MissingWidget, TransformDataWidget,
     KolmogorovSmirnovPanel, PearsonChi2Panel,
-    NormalHomogenPanel,
+    NormalHomogenPanel, WilcoxonPanel,
     GraphPanel, DistributionSelector
 )
 
@@ -126,9 +126,9 @@ class UIFactory:
             get_data_models=controllers['data_version'].get_all_datasets,
             homogen_controller=controllers['homogen'],
             messanger=self.context.messanger,
-            homogen_2samples_panels=[NormalHomogenPanel],
+            homogen_2samples_panels=[NormalHomogenPanel, WilcoxonPanel],
             homogen_Nsamples_panels=[],
-            independence_panels=[]
+            hamogen_1sample_panels=[]
         )
         sim_tab = SimulationTab(
             context=self.context,

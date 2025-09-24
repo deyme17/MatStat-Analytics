@@ -20,7 +20,7 @@ class HomogenTab(QWidget):
     def __init__(self, get_data_models, homogen_controller, messanger,
                  homogen_2samples_panels: list[BaseHomoTestPanel],
                  homogen_Nsamples_panels: list[BaseHomoTestPanel],
-                 independence_panels: list[BaseHomoTestPanel]) -> None:
+                 hamogen_1sample_panels: list[BaseHomoTestPanel]) -> None:
         """
         Args:
             get_data_models: Function for getting all data models (dict[str, DataModel]).
@@ -28,7 +28,7 @@ class HomogenTab(QWidget):
             messanger: Service for sending message to user
             homogen_2samples_panels (list): List of Homogeneity test panel classes for two samples test.
             homogen_Nsamples_panels (list): List of Homogeneity test panel classes for N samples test.
-            independence_panels (list): List of Independence test panel classes.
+            hamogen_1sample_panels (list): List of Homogeneity test panel classes for 1 samples test.
         """
         super().__init__()
         self.get_data_models = get_data_models
@@ -39,7 +39,7 @@ class HomogenTab(QWidget):
         # panels
         self.two_samples_panels = [pnl(homogen_controller) for pnl in homogen_2samples_panels]
         self.n_samples_panels = [pnl(homogen_controller) for pnl in homogen_Nsamples_panels]
-        self.independence_panels = [pnl(homogen_controller) for pnl in independence_panels]
+        self.hamogen_1sample_panels = [pnl(homogen_controller) for pnl in hamogen_1sample_panels]
 
         self._setup_ui()
         self._connect_signals()
@@ -55,7 +55,7 @@ class HomogenTab(QWidget):
         # test sections
         main_layout.addWidget(self._create_test_section("Homogeneity tests for two samples", self.two_samples_panels))
         main_layout.addWidget(self._create_test_section("Homogeneity tests for multiple samples", self.n_samples_panels))
-        main_layout.addWidget(self._create_test_section("Tests of independence of observations", self.independence_panels))
+        main_layout.addWidget(self._create_test_section("Homogeneity tests for one sample", self.hamogen_1sample_panels))
 
         main_layout.addStretch()
         self.setLayout(main_layout)
