@@ -48,7 +48,6 @@ class NormalHomogenTest(BaseHomogenTest):
             "p_value_mean": p_value_mean,
 
             "decision": (is_var_consident and is_mean_consident) if is_independent else False,
-            "type": "independent" if is_independent else "dependent"
         }
 
     def _perform_variance_concidence(self, x: np.ndarray, y: np.ndarray, n1: int, n2: int, 

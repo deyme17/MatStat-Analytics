@@ -7,8 +7,12 @@ class WilcoxonPanel(BaseHomoTestPanel):
     """
     def __init__(self, homogen_controller):
         stats = [
-            {"key": "w_statistic", "label": "Wilcoxon W"},
-            {"key": "p_value", "label": "P-value"},
+            {"key": "w_statistic", "label": "W-statistic"},
+            {"key": "E[W]", "label": "Expected value of W"},
+            {"key": "D[W]", "label": "Variance of W"},
+            {"key": "w_value", "label": "Normalized W (w)"},
+            {"key": "z_crit", "label": "Critical z"},
+            {"key": "p_value", "label": "P-value"}
         ]
         super().__init__(homogen_controller, stats, 2, True)
 
