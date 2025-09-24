@@ -158,12 +158,15 @@ class HomogenTab(QWidget):
         idx = group.combo.currentIndex()
         if 0 <= idx < len(group.panels):
             panel = group.panels[idx]
-            panel.evaluate(
-                samples=[datasets[dataset_name].series for dataset_name in self.selected_models],
-                alpha=self.alpha_spinbox.value(),
-                is_independent=self.independence_checkbox.isChecked()
-            )
-            panel.show()
+            try:
+                panel.evaluate(
+                    samples=[datasets[dataset_name].series for dataset_name in self.selected_models],
+                    alpha=self.alpha_spinbox.value(),
+                    is_independent=self.independence_checkbox.isChecked()
+                )
+                panel.show()
+            except Exception as e:
+                self.messanger.show_error("Test running error", str(e))
 
     def _validate_test_run(self):
         """Validate that test can be run."""
