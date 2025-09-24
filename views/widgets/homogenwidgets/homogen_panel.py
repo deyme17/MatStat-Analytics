@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QGroupBox, QLabel, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import QGroupBox, QLabel, QVBoxLayout
 from abc import ABC, abstractmethod
 import pandas as pd
 from utils.ui_styles import groupStyle, groupMargin
@@ -7,57 +7,73 @@ from utils.ui_styles import groupStyle, groupMargin
 class Meta(type(QGroupBox), type(ABC)):
     pass
 
+
 class BaseHomoTestPanel(QGroupBox, ABC, metaclass=Meta):
     """
-    Abstract base class for homogeneity test panels used in the application.
-    Provides a common layout and logic for displaying homogeneity test results.
+    Abstract base class for homogeneity test panels.
+    Accepts a dynamic list of statistics for flexible test panels.
     """
-    def __init__(self, homogen_controller) -> None:
+    def __init__(self, homogen_controller, stats_config: list[dict]) -> None:
         """
-        Initialize the homogeneity test panel.
+        Initialize the panel with given stats configuration.
         Args:
-            homogen_controller (HomogenController): Controller for executing homogeneity tests.
+            homogen_controller: Controller for executing tests.
+            stats_config (list[dict]): List of dictionaries with keys:
+                - "key": str, result dict key
+                - "label": str, label prefix
         """
         super().__init__()
         self.homogen_controller = homogen_controller
         self.setCheckable(False)
         self.setStyleSheet(groupStyle + groupMargin)
 
-        self.hypothesis_result: QLabel = QLabel("[ ] Hypothesis H₀ not tested")
-        self._layout: QVBoxLayout = QVBoxLayout()
+        self._layout = QVBoxLayout()
         self.setLayout(self._layout)
 
-    def add_stat_label(self, prefix: str = " ") -> QLabel:
-        """
-        Adds a QLabel to the layout for displaying test statistics.
-        Args:
-            prefix (str): Text prefix for the label.
-        Returns:
-            QLabel: The created label widget.
-        """
-        label = QLabel(prefix)
-        self._layout.addWidget(label)
-        return label
+        # dict for storing QLabel references
+        self.stat_labels: dict[str, QLabel] = {}
 
-    def finalize_layout(self, *extra_widgets: QWidget) -> None:
-        """
-        Finalize layout by appending any extra widgets and the result label.
-        Args:
-            *extra_widgets (QWidget): Optional widgets to add before the result.
-        """
-        for widget in extra_widgets:
-            self._layout.addWidget(widget)
+        for cfg in stats_config:
+            label = QLabel(f"{cfg['label']}: ")
+            self._layout.addWidget(label)
+            self.stat_labels[cfg["key"]] = label
+
+        self.hypothesis_result = QLabel("[ ] Hypothesis H₀ not tested")
         self._layout.addWidget(self.hypothesis_result)
+
+    def update_stats(self, result: dict) -> None:
+        """
+        Update all statistic labels based on result dict.
+        """
+        for key, label in self.stat_labels.items():
+            if key in result and result[key] is not None:
+                val = result[key]
+                if isinstance(val, float):
+                    label.setText(f"{label.text().split(':')[0]}: {val:.4f}")
+                else:
+                    label.setText(f"{label.text().split(':')[0]}: {val}")
+            else:
+                label.setText(f"{label.text().split(':')[0]}: N/A")
+
+        if "decision" in result:
+            self.update_result(result["decision"])
 
     def update_result(self, passed: bool) -> None:
         """
-        Update the hypothesis result label based on the test outcome.
-        Args:
-            passed (bool): True if H₀ is not rejected, False if rejected.
+        Update hypothesis decision.
         """
         self.hypothesis_result.setText(
             f"[{'✓' if passed else '✗'}] Hypothesis H₀ {'not rejected' if passed else 'rejected'}"
         )
+
+    def clear(self) -> None:
+        """
+        Reset to default state.
+        """
+        self.hypothesis_result.setText("[ ] Hypothesis H₀ not tested")
+        for key, label in self.stat_labels.items():
+            prefix = label.text().split(':')[0]
+            label.setText(f"{prefix}: ")
 
     @abstractmethod
     def get_test_name(self) -> str:
@@ -78,16 +94,3 @@ class BaseHomoTestPanel(QGroupBox, ABC, metaclass=Meta):
             is_independent (bool): True if samples are independent, False if paired.
         """
         pass
-
-    def clear(self) -> None:
-        """
-        Reset the panel to the default untested state.
-        """
-        self.hypothesis_result.setText("[ ] Hypothesis H₀ not tested")
-        for i in range(self._layout.count()):
-            widget = self._layout.itemAt(i).widget()
-            if isinstance(widget, QLabel) and widget != self.hypothesis_result:
-                text = widget.text()
-                if ':' in text:
-                    prefix = text.split(':')[0] + ': '
-                    widget.setText(prefix)
