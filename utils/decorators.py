@@ -1,6 +1,5 @@
 import functools
 import pandas as pd
-from models.data_model import DataModel
 
 
 def require_one_dimensional_dataframe(method):
@@ -30,47 +29,32 @@ def require_one_dimensional_dataframe(method):
         return method(self, *args, **kwargs)
     return wrapper
 
-def require_n_samples(n: int | None = None):
-    """
-    Decorator to ensure that dataset list has exactly N samples.
-    If n is None, requires at least 3 samples.
-    """
-    def decorator(method):
-        @functools.wraps(method)
-        def wrapper(self, *args, **kwargs):
-            samples = None
-            
-            if len(args) > 1 and isinstance(args[1], list):
-                samples = args[1]
-            elif 'samples' in kwargs:
-                samples = kwargs['samples']
-            
-            if samples is None:
-                raise ValueError("Could not find 'samples' parameter in method arguments")
-            
-            count = len(samples)
-            
-            if n is not None:
-                if count != n:
-                    if hasattr(self, 'messanger'):
-                        self.messanger.show_error(
-                            "Test running error",
-                            f"This test requires exactly {n} datasets, but {count} were selected."
-                        )
-                        return None
-                    else:
-                        raise ValueError(f"This test requires exactly {n} datasets, but {count} were selected.")
-            else:
-                if count < 3:
-                    if hasattr(self, 'messanger'):
-                        self.messanger.show_error(
-                            "Test running error",
-                            "Please select at least three datasets for this method."
-                        )
-                        return None
-                    else:
-                        raise ValueError("Please select at least three datasets for this method.")
 
-            return method(self, *args, **kwargs)
-        return wrapper
-    return decorator
+def check_samples(method):
+    """Ensure the correct number of datasets is selected, using self.n_datasets."""
+    @functools.wraps(method)
+    def wrapper(self, samples, *args, **kwargs):
+        count = len(samples)
+        n = getattr(self, "n_datasets", None)
+        if n is not None:
+            if count != n:
+                raise ValueError(f"{self.get_test_name()} requires exactly {n} datasets, but {count} were selected.")
+        else:
+            if count < 3:
+                raise ValueError(f"{self.get_test_name()} requires at least 3 datasets, but {count} were selected.")
+        return method(self, samples, *args, **kwargs)
+    return wrapper
+
+
+def check_independent(method):
+    """
+    Ensure independence requirement is met, using self.require_independent.
+    If self.require_independent is True, samples must be independent.
+    """
+    @functools.wraps(method)
+    def wrapper(self, samples, alpha, is_independent, *args, **kwargs):
+        req = getattr(self, "require_independent", None)
+        if req is True and not is_independent:
+            raise ValueError(f"{self.get_test_name()} requires independent samples.")
+        return method(self, samples, alpha, is_independent, *args, **kwargs)
+    return wrapper

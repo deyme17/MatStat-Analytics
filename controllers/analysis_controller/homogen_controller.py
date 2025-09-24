@@ -1,5 +1,4 @@
 from models.homogens import homogens_tests
-from utils.decorators import require_n_samples
 import pandas as pd
 from typing import Optional
 
@@ -18,13 +17,12 @@ class HomogenController:
             test_instance = homogen_test()
             self._tests[test_instance.name()] = test_instance
 
-    @require_n_samples(2)
-    def run_2samples_test(self, test_name: str, samples: list[pd.Series], alpha: float = 0.05, is_independent: bool = False) -> Optional[dict]:
+    def run_test(self, test_name: str, samples: list[pd.Series], alpha: float = 0.05, is_independent: bool = False) -> Optional[dict]:
         """
-        Run a homogeneity test for two samples.
+        Run a homogeneity test for samples.
         Args:
             test_name: The name of the homogeneity test to run (must be registered in `_tests`).
-            samples: Two input samples to test. Can be pandas Series or numpy arrays.
+            samples: Ssamples to test. Can be pandas Series or numpy arrays.
             alpha: Significance level for the statistical test.
             is_independent: True if the two samples are independent, False if paired/dependent.
         Returns:
@@ -44,11 +42,3 @@ class HomogenController:
         except Exception as e:
             print(f"[HomogenController] Error while running {test_name}: {e}")
             return None
-        
-    @require_n_samples(1)
-    def run_1sample_test(self, test_name: str, samples: list[pd.Series]) -> Optional[dict]:
-        ...
-
-    @require_n_samples(None)
-    def run_Nsample_test(self, test_name: str, samples: list[pd.Series]) -> Optional[dict]:
-        ...

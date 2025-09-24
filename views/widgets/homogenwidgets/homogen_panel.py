@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QGroupBox, QLabel, QVBoxLayout
 from abc import ABC, abstractmethod
+from utils.decorators import check_samples, check_independent
 import pandas as pd
 from utils.ui_styles import groupStyle, groupMargin
 
@@ -13,7 +14,8 @@ class BaseHomoTestPanel(QGroupBox, ABC, metaclass=Meta):
     Abstract base class for homogeneity test panels.
     Accepts a dynamic list of statistics for flexible test panels.
     """
-    def __init__(self, homogen_controller, stats_config: list[dict]) -> None:
+    def __init__(self, homogen_controller, stats_config: list[dict], 
+                 n_datasets: int, require_independent: bool = False) -> None:
         """
         Initialize the panel with given stats configuration.
         Args:
@@ -21,9 +23,13 @@ class BaseHomoTestPanel(QGroupBox, ABC, metaclass=Meta):
             stats_config (list[dict]): List of dictionaries with keys:
                 - "key": str, result dict key
                 - "label": str, label prefix
+            n_datasets: number of datasets for testing
         """
         super().__init__()
         self.homogen_controller = homogen_controller
+        self.n_datasets = n_datasets
+        self.require_independent = require_independent
+
         self.setCheckable(False)
         self.setStyleSheet(groupStyle + groupMargin)
 
@@ -75,22 +81,33 @@ class BaseHomoTestPanel(QGroupBox, ABC, metaclass=Meta):
             prefix = label.text().split(':')[0]
             label.setText(f"{prefix}: ")
 
+    @check_samples
+    @check_independent
+    def evaluate(self, samples: list[pd.Series], alpha: float, is_independent: bool) -> None:
+        """
+        Evaluate the test.
+        Args:
+            samples (list[pd.Series]): List of samples to test (should contain exactly 2 samples).
+            alpha (float): Significance level.
+            is_independent (bool): True if samples are independent, False if paired.
+        """
+        result = self.homogen_controller.run_test(
+            test_name=self.get_test_name(),
+            samples=samples,
+            alpha=alpha,
+            is_independent=is_independent
+        )
+        if not result:
+            self.clear()
+            return
+
+        self.update_stats(result)
+
     @abstractmethod
     def get_test_name(self) -> str:
         """
         Get the name of the test for identification.
         Returns:
             str: Name of the homogeneity test.
-        """
-        pass
-
-    @abstractmethod
-    def evaluate(self, samples: list[pd.Series], alpha: float, is_independent: bool) -> None:
-        """
-        Abstract method to evaluate the homogeneity test with the given samples.
-        Args:
-            samples (List[pd.Series]): List of samples test.
-            alpha (float): Significance level.
-            is_independent (bool): True if samples are independent, False if paired.
         """
         pass
