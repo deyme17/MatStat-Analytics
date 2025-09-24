@@ -39,10 +39,6 @@ class NormalHomogenPanel(BaseHomoTestPanel):
             alpha (float): Significance level.
             is_independent (bool): True if samples are independent, False if paired.
         """
-        if len(samples) != 2:
-            self.clear()
-            return
-
         result = self.homogen_controller.run_2samples_test(
             test_name=self.get_test_name(),
             samples=samples,
