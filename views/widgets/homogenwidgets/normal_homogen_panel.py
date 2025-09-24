@@ -17,7 +17,6 @@ class NormalHomogenPanel(BaseHomoTestPanel):
             {"key": "t_statistic", "label": "t-statistic"},
             {"key": "p_value_mean", "label": "P-value (mean)"},
             {"key": "mean_consistent", "label": "Mean consistency"},
-            {"key": "type", "label": "Test type"}
         ]
         super().__init__(homogen_controller, stats, 2)
 
