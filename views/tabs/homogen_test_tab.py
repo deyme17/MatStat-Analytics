@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QListWidget, 
     QPushButton, QAbstractItemView, QLabel, QDoubleSpinBox, 
-    QGroupBox, QComboBox, QCheckBox
+    QGroupBox, QComboBox, QScrollArea, QCheckBox
 )
 from views.widgets.homogenwidgets.homogen_panel import BaseHomoTestPanel
 from utils.ui_styles import groupMargin, groupStyle
@@ -58,7 +58,17 @@ class HomogenTab(QWidget):
         main_layout.addWidget(self._create_test_section("Homogeneity tests for one sample", self.hamogen_1sample_panels))
 
         main_layout.addStretch()
-        self.setLayout(main_layout)
+
+        container = QWidget()
+        container.setLayout(main_layout)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(container)
+
+        outer_layout = QVBoxLayout()
+        outer_layout.addWidget(scroll)
+        self.setLayout(outer_layout)
 
     def _create_alpha_spinbox(self):
         """Create alpha parameter selection section."""
@@ -157,6 +167,8 @@ class HomogenTab(QWidget):
         datasets = self.get_data_models()
         idx = group.combo.currentIndex()
         if 0 <= idx < len(group.panels):
+            for pnl in group.panels:
+                pnl.hide()
             panel = group.panels[idx]
             try:
                 panel.evaluate(
