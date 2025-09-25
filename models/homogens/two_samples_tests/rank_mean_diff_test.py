@@ -22,7 +22,7 @@ class RankMeanDiffTest(BaseHomogenTest):
         Returns:
             dict: {
                 "v_statistic": float(v),
-                "xi_crit": float(xi_crit),
+                "xi2_crit": float(xi2_crit),
                 "p_value": float(p_value),
                 "decision": decision
             }
@@ -43,13 +43,13 @@ class RankMeanDiffTest(BaseHomogenTest):
 
         v = (rx - ry) / (N * np.sqrt((N + 1) / 12 * N1 * N2))
 
-        xi_crit = chi2.ppf(1 - alpha / 2)
+        xi2_crit = chi2.ppf(1 - alpha / 2)
         p_value = 2 * (1 - chi2.cdf(abs(v)))
-        decision = abs(v) < xi_crit
+        decision = abs(v) < xi2_crit
 
         return {
             "v_statistic": float(v),
-            "xi_crit": float(xi_crit),
+            "xi2_crit": float(xi2_crit),
             "p_value": float(p_value),
             "decision": decision
         }
