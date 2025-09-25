@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.stats import chi2, rankdata
+from scipy.stats import norm, rankdata
 from models.homogens.base_homogen_test import BaseHomogenTest
 
 
@@ -22,7 +22,7 @@ class RankMeanDiffTest(BaseHomogenTest):
         Returns:
             dict: {
                 "v_statistic": float(v),
-                "chi2_crit": float(chi2_crit),
+                "z_crit": float(z_crit),
                 "p_value": float(p_value),
                 "decision": decision
             }
@@ -43,13 +43,13 @@ class RankMeanDiffTest(BaseHomogenTest):
 
         v = (rx - ry) / (N * np.sqrt((N + 1) / 12 * N1 * N2))
 
-        chi2_crit = chi2.ppf(1 - alpha / 2)
-        p_value = 2 * (1 - chi2.cdf(abs(v)))
-        decision = abs(v) < chi2_crit
+        z_crit = norm.ppf(1 - alpha / 2)
+        p_value = 2 * (1 - norm.cdf(abs(v)))
+        decision = abs(v) < z_crit
 
         return {
             "v_statistic": float(v),
-            "chi2_crit": float(chi2_crit),
+            "z_crit": float(z_crit),
             "p_value": float(p_value),
             "decision": decision
         }
