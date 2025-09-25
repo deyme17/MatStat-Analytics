@@ -7,7 +7,14 @@ class ANOVAPanel(BaseHomoTestPanel):
     """
     def __init__(self, homogen_controller):
         stats = [
-            {"key": "", "label": ""},
+            {"key": "S2_between", "label": "Intergroup Variation"},
+            {"key": "S2_within", "label": "Within-group variation"},
+            {"key": "S2_total", "label": "General variation"},
+            {"key": "F_statistic", "label": "F-statistic"},
+            {"key": "df1", "label": "Degrees of freedom V1"},
+            {"key": "df2", "label": "Degrees of freedom V2"},
+            {"key": "f_crit", "label": "Critical f"},
+            {"key": "p_value", "label": "P-value"}
         ]
         super().__init__(homogen_controller, stats, None, True)
 
