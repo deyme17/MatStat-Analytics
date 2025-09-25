@@ -9,9 +9,9 @@ class SignsCriterionTest(BaseHomogenTest):
 
     def name(self) -> str:
         """
-        Returns: "signs criterion test"
+        Returns: "Signs Criterion test"
         """
-        return "signs criterion test"
+        return "Signs Criterion test"
 
     def run(self, samples: list[np.ndarray], alpha: float = 0.05, is_independent: bool = True) -> dict:
         """

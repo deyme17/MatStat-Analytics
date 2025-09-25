@@ -17,4 +17,4 @@ class AbbePanel(BaseHomoTestPanel):
         super().__init__(homogen_controller, stats, 1, None)
 
     def get_test_name(self) -> str:
-        return "abbe test"
+        return "Abbe test"

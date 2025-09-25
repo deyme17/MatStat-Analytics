@@ -8,9 +8,9 @@ class MannWhitneyUTest(BaseHomogenTest):
 
     def name(self) -> str:
         """
-        Returns: "mann-whitney U test"
+        Returns: "Mann-Whitney U test"
         """
-        return "mann-whitney U test"
+        return "Mann-Whitney U test"
 
     def run(self, samples: list[np.ndarray], alpha: float = 0.05, is_independent: bool = True) -> dict:
         """

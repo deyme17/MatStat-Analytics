@@ -8,9 +8,9 @@ class RankMeanDiffTest(BaseHomogenTest):
 
     def name(self) -> str:
         """
-        Returns: "rank mean difference test"
+        Returns: "Rank Mean Difference test"
         """
-        return "rank mean difference test"
+        return "Rank Mean Difference test"
 
     def run(self, samples: list[np.ndarray], alpha: float = 0.05, is_independent: bool = True) -> dict:
         """

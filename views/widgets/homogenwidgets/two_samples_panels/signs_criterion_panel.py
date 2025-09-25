@@ -17,4 +17,4 @@ class SignsCriterionPanel(BaseHomoTestPanel):
         super().__init__(homogen_controller, stats, 2, False)
 
     def get_test_name(self) -> str:
-        return "signs criterion test"
+        return "Signs Criterion test"

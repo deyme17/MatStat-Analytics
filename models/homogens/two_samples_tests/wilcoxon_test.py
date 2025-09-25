@@ -8,9 +8,9 @@ class WilcoxonTest(BaseHomogenTest):
 
     def name(self) -> str:
         """
-        Returns: "wilcoxon test"
+        Returns: "Wilcoxon test"
         """
-        return "wilcoxon test"
+        return "Wilcoxon test"
 
     def run(self, samples: list[np.ndarray], alpha: float = 0.05, is_independent: bool = True) -> dict:
         """

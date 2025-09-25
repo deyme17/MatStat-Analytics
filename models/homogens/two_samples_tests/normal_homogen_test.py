@@ -8,9 +8,9 @@ class NormalHomogenTest(BaseHomogenTest):
 
     def name(self) -> str:
         """
-        Returns: "normal homogeneity test"
+        Returns: "Normal Homogeneity test"
         """
-        return "normal homogeneity test"
+        return "Normal Homogeneity test"
 
     def run(self, samples: list[np.ndarray], alpha: float = 0.05, is_independent: bool = False) -> dict:
         """

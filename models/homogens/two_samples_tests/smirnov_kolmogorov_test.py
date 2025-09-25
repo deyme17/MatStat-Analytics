@@ -7,9 +7,9 @@ class SmirnovKolmogorovTest(BaseHomogenTest):
 
     def name(self) -> str:
         """
-        Returns: "smirnov-kolmogorov test"
+        Returns: "Smirnov-Kolmogorov test"
         """
-        return "smirnov-kolmogorov test"
+        return "Smirnov-Kolmogorov test"
 
     def run(self, samples: list[np.ndarray], alpha: float = 0.05, is_independent: bool = True) -> dict:
         """

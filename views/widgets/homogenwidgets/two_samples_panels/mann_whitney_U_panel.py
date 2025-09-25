@@ -17,4 +17,4 @@ class MannWhitneyUPanel(BaseHomoTestPanel):
         super().__init__(homogen_controller, stats, 2, True)
 
     def get_test_name(self) -> str:
-        return "mann-whitney U test"
+        return "Mann-Whitney U test"
