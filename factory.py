@@ -26,8 +26,8 @@ from views import (
     WindowWidgets,
     AnomalyWidget, MissingWidget, TransformDataWidget,
     KolmogorovSmirnovPanel, PearsonChi2Panel,
-    NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel,
-    AbbePanel,
+    NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel, AbbePanel,
+    ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel,
     GraphPanel, DistributionSelector
 )
 
@@ -129,7 +129,7 @@ class UIFactory:
             messanger=self.context.messanger,
             homogen_2samples_panels=[NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, 
                                      RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel],
-            homogen_Nsamples_panels=[],
+            homogen_Nsamples_panels=[ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel],
             hamogen_1sample_panels=[AbbePanel]
         )
         sim_tab = SimulationTab(
