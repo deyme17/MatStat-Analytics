@@ -4,7 +4,7 @@ from models.homogens.base_homogen_test import BaseHomogenTest
 
 
 class NormalHomogenTest(BaseHomogenTest):
-    """Homogeneity test for normal-distributed data."""
+    """Homogeneity test for Normal-distributed data."""
 
     def name(self) -> str:
         """

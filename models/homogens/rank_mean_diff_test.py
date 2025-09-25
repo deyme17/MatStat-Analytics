@@ -4,7 +4,7 @@ from models.homogens.base_homogen_test import BaseHomogenTest
 
 
 class RankMeanDiffTest(BaseHomogenTest):
-    """Homogeneity rank mean difference test."""
+    """Homogeneity Rank Mean Difference test."""
 
     def name(self) -> str:
         """

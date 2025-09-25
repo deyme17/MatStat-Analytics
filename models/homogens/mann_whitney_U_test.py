@@ -1,10 +1,10 @@
 import numpy as np
-from scipy.stats import norm, rankdata
+from scipy.stats import norm
 from models.homogens.base_homogen_test import BaseHomogenTest
 
 
 class MannWhitneyUTest(BaseHomogenTest):
-    """Homogeneity mann-whitney U test."""
+    """Homogeneity Mann-Whitney U test."""
 
     def name(self) -> str:
         """

@@ -4,7 +4,7 @@ from models.homogens.base_homogen_test import BaseHomogenTest
 
 
 class WilcoxonHomogenTest(BaseHomogenTest):
-    """Homogeneity wilcoxon test."""
+    """Homogeneity Wilcoxon test."""
 
     def name(self) -> str:
         """
