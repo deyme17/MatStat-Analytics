@@ -56,5 +56,7 @@ def check_independent(method):
         req = getattr(self, "require_independent", None)
         if req is True and not is_independent:
             raise ValueError(f"{self.get_test_name()} requires independent samples.")
+        if req is False and is_independent:
+            raise ValueError(f"{self.get_test_name()} requires dependent samples.")
         return method(self, samples, alpha, is_independent, *args, **kwargs)
     return wrapper
