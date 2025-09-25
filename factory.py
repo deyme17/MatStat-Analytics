@@ -130,7 +130,7 @@ class UIFactory:
             homogen_2samples_panels=[NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, 
                                      RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel],
             homogen_Nsamples_panels=[],
-            hamogen_1sample_panels=[]
+            hamogen_1sample_panels=[AbbePanel]
         )
         sim_tab = SimulationTab(
             context=self.context,
