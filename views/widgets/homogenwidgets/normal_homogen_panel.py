@@ -18,7 +18,7 @@ class NormalHomogenPanel(BaseHomoTestPanel):
             {"key": "p_value_mean", "label": "P-value (mean)"},
             {"key": "mean_consistent", "label": "Mean consistency"},
         ]
-        super().__init__(homogen_controller, stats, 2)
+        super().__init__(homogen_controller, stats, 2, False)
 
     def get_test_name(self) -> str:
         """
