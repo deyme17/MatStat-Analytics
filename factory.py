@@ -26,7 +26,7 @@ from views import (
     WindowWidgets,
     AnomalyWidget, MissingWidget, TransformDataWidget,
     KolmogorovSmirnovPanel, PearsonChi2Panel,
-    NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel,
+    NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel,
     GraphPanel, DistributionSelector
 )
 
