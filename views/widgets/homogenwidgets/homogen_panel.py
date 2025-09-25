@@ -15,7 +15,7 @@ class BaseHomoTestPanel(QGroupBox, ABC, metaclass=Meta):
     Accepts a dynamic list of statistics for flexible test panels.
     """
     def __init__(self, homogen_controller, stats_config: list[dict], 
-                 n_datasets: int, require_independent: bool = False) -> None:
+                 n_datasets: int, require_independent: bool|None = None) -> None:
         """
         Initialize the panel with given stats configuration.
         Args:
@@ -24,6 +24,8 @@ class BaseHomoTestPanel(QGroupBox, ABC, metaclass=Meta):
                 - "key": str, result dict key
                 - "label": str, label prefix
             n_datasets: number of datasets for testing
+            require_independent: Does test require dependent or independent samples
+                (None if test is applied for both independent and dependent samples)
         """
         super().__init__()
         self.homogen_controller = homogen_controller
