@@ -14,7 +14,7 @@ class WilcoxonPanel(BaseHomoTestPanel):
             {"key": "z_crit", "label": "Critical z"},
             {"key": "p_value", "label": "P-value"}
         ]
-        super().__init__(homogen_controller, stats, 2, False)
+        super().__init__(homogen_controller, stats, 2, True)
 
     def get_test_name(self) -> str:
         return "wilcoxon test"
