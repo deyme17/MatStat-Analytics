@@ -4,3 +4,5 @@ from .two_samples_panels.mann_whitney_U_panel import MannWhitneyUPanel
 from .two_samples_panels.rank_mean_diff_panel import RankMeanDiffPanel
 from .two_samples_panels.smirnov_kolmogorov_panel import SmirnovKolmogorovPanel
 from .two_samples_panels.signs_criterion_panel import SignsCriterionPanel
+
+from .one_sample_panels.abbe_panel import AbbePanel
