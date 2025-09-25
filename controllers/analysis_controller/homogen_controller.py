@@ -40,5 +40,4 @@ class HomogenController:
 
             return self._tests[test_name].run(clean_samples, alpha, is_independent)
         except Exception as e:
-            print(f"[HomogenController] Error while running {test_name}: {e}")
-            return None
+           raise ValueError(e)
