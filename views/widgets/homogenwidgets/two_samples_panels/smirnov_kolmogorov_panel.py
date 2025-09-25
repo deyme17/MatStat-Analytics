@@ -2,7 +2,7 @@ from views.widgets.homogenwidgets.homogen_panel import BaseHomoTestPanel
 
 class SmirnovKolmogorovPanel(BaseHomoTestPanel):
     """
-    Panel for Smirnov-Kolmogorov test (paired samples).
+    Panel for Smirnov-Kolmogorov test.
     Displays test statistic and decision.
     """
     def __init__(self, homogen_controller):

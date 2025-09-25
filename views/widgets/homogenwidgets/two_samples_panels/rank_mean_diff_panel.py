@@ -2,7 +2,7 @@ from views.widgets.homogenwidgets.homogen_panel import BaseHomoTestPanel
 
 class RankMeanDiffPanel(BaseHomoTestPanel):
     """
-    Panel for Rank Mean Difference test (paired samples).
+    Panel for Rank Mean Difference test.
     Displays test statistic, p-value, and decision.
     """
     def __init__(self, homogen_controller):

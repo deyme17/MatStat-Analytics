@@ -2,7 +2,7 @@ from views.widgets.homogenwidgets.homogen_panel import BaseHomoTestPanel
 
 class MannWhitneyUPanel(BaseHomoTestPanel):
     """
-    Panel for Mann-Whitney U test (paired samples).
+    Panel for Mann-Whitney U test.
     Displays test statistic, p-value, and decision.
     """
     def __init__(self, homogen_controller):

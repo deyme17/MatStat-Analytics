@@ -2,7 +2,7 @@ from views.widgets.homogenwidgets.homogen_panel import BaseHomoTestPanel
 
 class WilcoxonPanel(BaseHomoTestPanel):
     """
-    Panel for Wilcoxon signed-rank test (paired samples).
+    Panel for Wilcoxon signed-rank test.
     Displays test statistic, p-value, and decision.
     """
     def __init__(self, homogen_controller):
