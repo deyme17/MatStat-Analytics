@@ -9,7 +9,7 @@ class AbbePanel(BaseHomoTestPanel):
         stats = [
             {"key": "d2_statistic", "label": "d²-statistic"},
             {"key": "q_statistic", "label": "q-statistic"},
-            {"key": "E[q]", "label": "Expected value ofq"},
+            {"key": "E[q]", "label": "Expected value of q"},
             {"key": "D[q]", "label": "Variance of q"},
             {"key": "U_statistic", "label": "U-statistic"},
             {"key": "p_value", "label": "P-value"}
