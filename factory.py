@@ -126,7 +126,7 @@ class UIFactory:
             get_data_models=controllers['data_version'].get_all_datasets,
             homogen_controller=controllers['homogen'],
             messanger=self.context.messanger,
-            homogen_2samples_panels=[NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel],
+            homogen_2samples_panels=[NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel],
             homogen_Nsamples_panels=[],
             hamogen_1sample_panels=[]
         )
