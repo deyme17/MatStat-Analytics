@@ -26,7 +26,7 @@ from views import (
     WindowWidgets,
     AnomalyWidget, MissingWidget, TransformDataWidget,
     KolmogorovSmirnovPanel, PearsonChi2Panel,
-    NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel, SignCriterionPanel,
+    NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel,
     GraphPanel, DistributionSelector
 )
 
@@ -127,7 +127,7 @@ class UIFactory:
             homogen_controller=controllers['homogen'],
             messanger=self.context.messanger,
             homogen_2samples_panels=[NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, 
-                                     RankMeanDiffPanel, SmirnovKolmogorovPanel, SignCriterionPanel],
+                                     RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel],
             homogen_Nsamples_panels=[],
             hamogen_1sample_panels=[]
         )
