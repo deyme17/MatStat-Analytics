@@ -7,7 +7,7 @@ class AbbePanel(BaseHomoTestPanel):
     """
     def __init__(self, homogen_controller):
         stats = [
-            {"key": "d_statistic", "label": "d-statistic"},
+            {"key": "d2_statistic", "label": "d²-statistic"},
             {"key": "q_statistic", "label": "q-statistic"},
             {"key": "E[q]", "label": "Expected value ofq"},
             {"key": "D[q]", "label": "Variance of q"},

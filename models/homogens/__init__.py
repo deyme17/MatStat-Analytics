@@ -5,6 +5,8 @@ from .two_samples_tests.rank_mean_diff_test import RankMeanDiffTest
 from .two_samples_tests.smirnov_kolmogorov_test import SmirnovKolmogorovTest
 from .two_samples_tests.signs_criterion_test import SignsCriterionTest
 
+from .one_sample_tests.abbe_test import AbbeTest
+
 homogens_tests = [
     NormalHomogenTest,
     WilcoxonTest,
@@ -12,4 +14,8 @@ homogens_tests = [
     RankMeanDiffTest,
     SmirnovKolmogorovTest,
     SignsCriterionTest,
+
+    AbbeTest,
+
+    
 ]
