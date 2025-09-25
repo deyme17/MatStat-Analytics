@@ -55,7 +55,7 @@ class HomogenTab(QWidget):
         # test sections
         main_layout.addWidget(self._create_test_section("Homogeneity tests for two samples", self.two_samples_panels))
         main_layout.addWidget(self._create_test_section("Homogeneity tests for multiple samples", self.n_samples_panels))
-        main_layout.addWidget(self._create_test_section("Homogeneity tests for one sample", self.hamogen_1sample_panels))
+        main_layout.addWidget(self._create_test_section("Tests for one sample", self.hamogen_1sample_panels))
 
         main_layout.addStretch()
 

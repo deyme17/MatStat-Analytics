@@ -8,9 +8,9 @@ class AbbeTest(BaseHomogenTest):
 
     def name(self) -> str:
         """
-        Returns: "Abbe test"
+        Returns: "Abbe independance test"
         """
-        return "Abbe test"
+        return "Abbe independance test"
 
     def run(self, samples: list[np.ndarray], alpha: float = 0.05, is_independent: bool = True) -> dict:
         """

@@ -21,12 +21,17 @@ class CochranQTest(BaseHomogenTest):
             is_independent (bool): True if samples are independent else False
         Returns:
             dict: {
-                ...
+                "Q_statistic": float(q),
+                "df": int(df),
+                "chi2_crit": float(chi2_crit),
+                "p_value": float(p_value),
+                "decision": bool
             }
         """
-        if len(samples) < 3: return {}
+        k = len(samples)
+        if k < 3: return {}
 
-        ...
+        ... 
 
         return {
         }
