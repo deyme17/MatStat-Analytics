@@ -32,7 +32,7 @@ class WilcoxonHomogenTest(BaseHomogenTest):
         """
         if len(samples) != 2: return {}
         if not is_independent:
-            raise ValueError("Wilcoxon test uses only for independent samples")
+            raise ValueError("Wilcoxon test is used only for independent samples")
 
         x, y = samples
         N1, N2 = len(x), len(y)
