@@ -7,6 +7,11 @@ from .two_samples_tests.signs_criterion_test import SignsCriterionTest
 
 from .one_sample_tests.abbe_test import AbbeTest
 
+from .n_samples_tests.bartlett_test import BartlettTest
+from .n_samples_tests.anova_test import ANOVATest
+from .n_samples_tests.cochran_Q_test import CochranQTest
+from .n_samples_tests.kruskal_wallis_H_test import HTest
+
 homogens_tests = [
     NormalHomogenTest,
     WilcoxonTest,
@@ -15,7 +20,10 @@ homogens_tests = [
     SmirnovKolmogorovTest,
     SignsCriterionTest,
 
-    AbbeTest,
+    BartlettTest,
+    ANOVATest,
+    CochranQTest,
+    HTest,
 
-    
+    AbbeTest
 ]
