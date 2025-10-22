@@ -1,7 +1,8 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QHBoxLayout, QGroupBox, QCheckBox
 from typing import Any
 
-ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT = 222, 30
+ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT = 111, 30
+EXPORT_BUTTON_WIDTH, EXPORT_BUTTON_HEIGHT = 111, 30
 
 class DataProcessingTab(QWidget):
     """
@@ -15,49 +16,66 @@ class DataProcessingTab(QWidget):
     def __init__(self, widget_data: list[tuple[str, QGroupBox, Any]], 
                  on_data_version_changed=None, 
                  on_original_clicked=None,
-                 on_column_changed=None
+                 on_column_changed=None,
+                 on_data_exported=None
                  ):
         """
         Args:
             widget_data (list[tuple[str, QGroupBox, Any]]): Widget classes for data processing operations with it's controllers
             on_data_version_changed (Callable[[int], None], optional): Callback for dataset version change
             on_column_changed (Callable[[int], None], optional): Callback for current dataframe column change
-            on_original_clicked (Callable[[], None], optional): Callback for "Original" button click
+            on_original_clicked (Callable[[bool], None], optional): Callback for "Original" button click
+            on_data_exported (Callable[[bool], None], optional): Callback for "Export data" button click
         """
         super().__init__()
         self.widget_data = widget_data
         self.on_data_version_changed = on_data_version_changed
         self.on_original_clicked = on_original_clicked
         self.on_column_changed = on_column_changed
+        self.on_data_exported = on_data_exported
 
         self._init_ui()
         self._setup_layout()
 
     def _init_ui(self):
         """Initialize UI components."""
-        self.data_version_label = QLabel("Select loaded dataset:")
-        self.data_version_combo = QComboBox()
-        self.data_version_combo.setEnabled(False)
-        if self.on_data_version_changed:
-            self.data_version_combo.currentIndexChanged.connect(self.on_data_version_changed)
+        def make_label(text: str) -> QLabel:
+            return QLabel(text)
+        
+        def make_combo(callback=None) -> QComboBox:
+            combo = QComboBox()
+            combo.setEnabled(False)
+            if callback:
+                combo.currentIndexChanged.connect(callback)
+            return combo
+        
+        def make_button(text: str, width: int, height: int, callback=None) -> QPushButton:
+            btn = QPushButton(text)
+            btn.setEnabled(False)
+            btn.setFixedSize(width, height)
+            if callback:
+                btn.clicked.connect(lambda: callback(self.whole_dataset_checkbox.isChecked()))
+            return btn
 
-        self.transformation_label = QLabel("Current state: Original")
+        self.data_version_label = make_label("Select loaded dataset:")
+        self.data_version_combo = make_combo(self.on_data_version_changed)
 
-        self.current_col_label = QLabel("Select column to apply operation to: ")
-        self.dataframe_cols_combo = QComboBox()
-        self.dataframe_cols_combo.setEnabled(False)
-        if self.on_column_changed:
-            self.dataframe_cols_combo.currentIndexChanged.connect(self.on_column_changed)
+        self.transformation_label = make_label("Current state: Original")
 
-        self.original_button = QPushButton("Original")
-        self.original_button.setEnabled(False)
-        self.original_button.setFixedSize(ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT)
-        self.original_dataset_checkbox = QCheckBox("Whole dataset")
-        self.original_dataset_checkbox.setChecked(False)
-        if self.on_original_clicked:
-            self.original_button.clicked.connect(lambda: self.on_original_clicked(self.original_dataset_checkbox.isChecked()))
+        self.current_col_label = make_label("Select column to apply operation to:")
+        self.dataframe_cols_combo = make_combo(self.on_column_changed)
 
-    def set_callbacks(self, on_data_version_changed=None, on_original_clicked=None, on_column_changed=None):
+        self.whole_dataset_checkbox = QCheckBox("Whole dataset")
+        self.whole_dataset_checkbox.setChecked(False)
+
+        self.original_button = make_button(
+            "Original", ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT, self.on_original_clicked
+        )
+        self.export_data_button = make_button(
+            "Export data", EXPORT_BUTTON_WIDTH, EXPORT_BUTTON_HEIGHT, self.on_data_exported
+        )
+
+    def set_callbacks(self, on_data_version_changed=None, on_original_clicked=None, on_column_changed=None, on_data_exported=None):
         """
         Assign or update callbacks after initialization.
         Args:
@@ -77,13 +95,15 @@ class DataProcessingTab(QWidget):
         safe_connect_callback(on_data_version_changed)
         safe_connect_callback(on_original_clicked)
         safe_connect_callback(on_column_changed)
+        safe_connect_callback(on_data_exported)
 
     def _setup_layout(self):
         """Setup the main layout structure."""
         # Navigation layout for the button
         nav_layout = QHBoxLayout()
         nav_layout.addWidget(self.original_button)
-        nav_layout.addWidget(self.original_dataset_checkbox)
+        nav_layout.addWidget(self.export_data_button)
+        nav_layout.addWidget(self.whole_dataset_checkbox)
         nav_layout.addStretch()
 
         # Main layout
