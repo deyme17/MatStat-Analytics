@@ -163,7 +163,11 @@ class ConnectFactory:
         self.window.widgets.load_button.clicked.connect(controllers['data_loader'].load_data_file)
         self.window.widgets.precision_spinbox.valueChanged.connect(controllers['statistic'].update_tables)
 
-        controllers['data_version'].set_set_bins_value_func(lambda bins: self.window.graph_panel.bins_spinbox.setValue(bins))
+        controllers['data_version'].connect_ui(
+            version_combo_controls=build_combo_callbacks(self.window.data_tab.data_version_combo),
+            columns_combo_control=build_combo_callbacks(self.window.data_tab.dataframe_cols_combo),
+            set_bins_value=lambda bins: self.window.graph_panel.bins_spinbox.setValue(bins)
+        )
         controllers['statistic'].connect_ui(
             stats_renderer=self.window.stat_tab.stat_renderer,
             var_renderer=self.window.stat_tab.var_renderer,
@@ -204,16 +208,6 @@ class CallBackFactory:
             update_homogen_list_widget=self.window.homo_tab.refresh_data_list,
             update_data_callback=lambda data: controllers['missing_data'].update_data_reference(data),
             update_data_versions_callback=controllers['data_version'].update_dataset_list
-        )
-        controllers['data_version'].connect_callbacks(
-            version_combo_controls=build_combo_callbacks(self.window.data_tab.data_version_combo),
-            columns_combo_control=build_combo_callbacks(self.window.data_tab.dataframe_cols_combo),
-            update_navigation_buttons=controllers['ui_state'].update_navigation_buttons,
-            on_reverted_to_original=lambda: controllers['ui_state'].update_state_for_data(self.context.data_model.series),
-            on_dataset_changed=lambda series: (
-                controllers['missing_data'].update_data_reference(series),
-                self.window.data_tab.dataframe_cols_combo.setEnabled(self.context.data_model.dataframe.shape[1] > 1)
-            )
         )
         # set graph panel callbacks
         self.window.graph_panel.connect_controls()
