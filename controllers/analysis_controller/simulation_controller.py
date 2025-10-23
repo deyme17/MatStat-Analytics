@@ -1,17 +1,19 @@
+from services import SimulationService, DataSaver, DataExporter
+
 class SimulationController:
     """
     Main controller class for statistical simulation operations.
     """
-    def __init__(self, simulation_service, data_saver, data_exporter):
+    def __init__(self, simulation_service: SimulationService, data_saver: DataSaver, data_exporter: DataExporter):
         """
         Args:
             simulation_service: Service for performing statistical simulations
             data_saver: Service for saving simulated data to storage
             data_exporter: Service for exporting simulated data as csv
         """
-        self.simulation_service = simulation_service
-        self.data_saver = data_saver
-        self.data_exporter = data_exporter
+        self.simulation_service: SimulationService = simulation_service
+        self.data_saver: DataSaver = data_saver
+        self.data_exporter: DataExporter = data_exporter
     
     def run_simulation(self, dist, sizes, repeats: int, true_mean: float, alpha: float,
                       save_data: bool = False, export_data: bool = False, sample_size: int = None):
