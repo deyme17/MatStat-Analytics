@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QHBoxLayout
 from PyQt6.QtGui import QIcon, QPalette, QColor
 
 from utils.ui_styles import appStyle
-from app_context import AppContext
+from utils.app_context import AppContext
 from factory import Factory
 
 WINDOW_PALETTE_RED, WINDOW_PALETTE_BLUE, WINDOW_PALETTE_GREEN = 240, 248, 255
