@@ -176,8 +176,8 @@ class ConnectFactory:
             get_precision_value=lambda: self.window.widgets.precision_spinbox.value()
         )
         data_tab = self.window.data_tab
-        controllers['anomaly_data'].set_get_gamma_value_func(data_tab.anomaly_widget.anomaly_gamma_spinbox.value)
-        controllers['data_transform'].set_get_shift_value_func(lambda: data_tab.transform_widget.shift_spinbox.value())
+        controllers['anomaly_data'].connect_ui(data_tab.anomaly_widget.anomaly_gamma_spinbox.value)
+        controllers['data_transform'].connect_ui(data_tab.transform_widget.shift_spinbox.value)
         controllers['missing_data'].set_display_service(
             MissingInfoDisplayService(
                 set_count_label=lambda text: data_tab.missing_widget.missing_count_label.setText(text),
