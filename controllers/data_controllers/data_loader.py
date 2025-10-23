@@ -3,8 +3,7 @@ from typing import Callable
 from utils.def_bins import get_default_bin_count
 
 from utils import AppContext, EventType, EventBus
-from services.data_services.data_loader.data_loader_service import DataLoaderService
-from services.data_services.data_version_manager import DataVersionManager
+from services import DataLoaderService, UIMessager, DataVersionManager
 from models.data_model import DataModel
 
 
@@ -26,6 +25,7 @@ class DataLoadController:
         """
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
+        self.messanger: UIMessager = context.messanger
         self.version_manager: DataVersionManager = context.version_manager
         self.loader_service: DataLoaderService = loader_service
         self.select_file_callback = select_file_callback
@@ -45,7 +45,7 @@ class DataLoadController:
         data = self.loader_service.load_data(path)
 
         if data is None or data.empty:
-            print(f"Failed to load file {path} or file is empty")
+            self.messanger.show_info(f"Failed to load file {path} or file is empty")
             return
 
         # Create new data model and update context

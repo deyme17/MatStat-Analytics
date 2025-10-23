@@ -65,6 +65,7 @@ class ControllersFactory:
             select_file_callback=lambda: DataLoaderService.select_file(self.window)
         )
         controllers['simulation'] = SimulationController(
+            context=self.context,
             simulation_service=SimulationService(TestPerformer()),
             data_saver=DataSaver(),
             data_exporter=DataExporter
