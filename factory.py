@@ -66,7 +66,7 @@ class ControllersFactory:
         )
         controllers['simulation'] = SimulationController(
             simulation_service=SimulationService(TestPerformer()),
-            data_saver=DataSaver(self.context),
+            data_saver=DataSaver(),
             data_exporter=DataExporter
         )
         controllers['estimation'] = ParameterEstimation()
@@ -161,7 +161,6 @@ class ConnectFactory:
 
     def connect_ui(self, controllers):
         self.window.widgets.load_button.clicked.connect(controllers['data_loader'].load_data_file)
-        self.window.widgets.precision_spinbox.valueChanged.connect(controllers['statistic'].update_tables)
 
         controllers['data_version'].connect_ui(
             version_combo_controls=build_combo_callbacks(self.window.data_tab.data_version_combo),
@@ -192,7 +191,7 @@ class CallBackFactory:
     
     def connect_callbacks(self, controllers: dict[str, Any]) -> None:
         # set controller callbacks
-        controllers['anomaly_data'].set_get_gamma_value_func(lambda: self.window.data_tab.anomaly_widget.anomaly_gamma_spinbox.value())
+        controllers['anomaly_data'].set_get_gamma_value_func(self.window.data_tab.anomaly_widget.anomaly_gamma_spinbox.value)
 
         controllers['graph'].connect_callbacks(
             graph_control=build_graph_panel_callbacks(self.window.graph_panel),

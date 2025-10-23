@@ -9,19 +9,15 @@ from utils import AppContext, EventBus, EventType
 
 
 class DataSaver:
-    def __init__(self, context: AppContext):
+    def __init__(self):
         """
         Args:
             context (AppContext): Application context container
             on_save: Callback to applying data saving
         """
-        self.context: AppContext = context
-        self.event_bus: EventBus = context.event_bus
-        self.messanger: UIMessager = context.messanger
-        self.version_manager: DataVersionManager = context.version_manager
         self.counter = {}
         
-    def save_data(self, dist_name: str, data: np.ndarray, type_: str = "Simulation") -> None:
+    def save_data(self, dist_name: str, data: np.ndarray, type_: str = "Simulation") -> DataModel:
         """
         Save simulated data as a new dataset in the data history manager.
         Args:
@@ -38,16 +34,7 @@ class DataSaver:
             raise ValueError(f"Unsupported data dimensionality: {data.ndim}D")
         
         optimal_bins = get_default_bin_count(df)
-        data_model = DataModel(df, bins=optimal_bins, label=dataset_label)
-
-        self.version_manager.add_dataset(dataset_label, data_model)
-        self.context.data_model = data_model
-
-        self.event_bus.emit_type(EventType.DATA_LOADED, data_model.series)
-        self.messanger.show_info(
-            "Data Saved", 
-            f"Simulated data saved as '{dataset_label}' with {len(data)} samples."
-        )
+        return DataModel(df, bins=optimal_bins, label=dataset_label)
 
     def _create_data_label(self, dist_name: str, type_: str) -> str:
         """Creates a label for newly-generated data"""
