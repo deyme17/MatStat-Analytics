@@ -1,5 +1,6 @@
 from utils import AppContext, EventType, EventBus, Event
 from services.data_services.data_version_manager import DataVersionManager
+from models.data_model import DataModel
 from callbacks.combo_callbacks import ComboUICallbacks
 from typing import Callable, Optional
 
@@ -18,12 +19,13 @@ class DataVersionController:
     ):
         """
         Args:
-            context: Shared application context (data, history, refresher, etc.)
+            context: Shared application context (data, history, etc.)
             version_combo_controls: Container of dataset combo control callbacks
             columns_combo_control: Container of column changing combo control callbacks
             set_bins_value: Function for setting bin count configuration
         """
         self.context: AppContext = context
+        self.data_model: DataModel = context.data_model
         self.event_bus: EventBus = context.event_bus
         self.version_manager: DataVersionManager = context.version_manager
         self.version_combo_controls = version_combo_controls
@@ -47,11 +49,11 @@ class DataVersionController:
         if 0 <= index < len(dataset_names):
             dataset_name = dataset_names[index]
             self.version_manager.switch_to_dataset(dataset_name)
-            self.context.data_model = self.version_manager.get_current_data_model()
+            self.data_model = self.version_manager.get_current_data_model()
             
             self.event_bus.emit_type(EventType.DATASET_CHANGED, {
-                'model': self.context.data_model,
-                'series': self.context.data_model.series
+                'model': self.data_model,
+                'series': self.data_model.series
             })
 
     def on_current_col_changed(self, index: int) -> None:
@@ -64,13 +66,13 @@ class DataVersionController:
         if 0 <= index < len(col_names):
             col_name = col_names[index]
             self.version_manager.change_column(col_name)
-            col_idx = self.context.data_model.dataframe.columns.get_loc(col_name)
-            self.context.data_model.select_column(col_idx)
-            assert self.context.data_model.current_col_idx == col_idx
+            col_idx = self.data_model.dataframe.columns.get_loc(col_name)
+            self.data_model.select_column(col_idx)
+            assert self.data_model.current_col_idx == col_idx
             
             self.event_bus.emit_type(EventType.COLUMN_CHANGED, {
-                'model': self.context.data_model,
-                'series': self.context.data_model.series,
+                'model': self.data_model,
+                'series': self.data_model.series,
                 'col_name': col_name,
                 'col_idx': col_idx
             })
@@ -79,10 +81,10 @@ class DataVersionController:
         """
         Revert current dataset to its original version.
         """
-        if self.context.data_model:
-            original = self.context.data_model.revert_to_original(whole_dataset)
+        if self.data_model:
+            original = self.data_model.revert_to_original(whole_dataset)
             self.version_manager.update_current_dataset(original)
-            self.context.data_model = original
+            self.data_model = original
             
             self.event_bus.emit_type(EventType.DATA_REVERTED, {
                 'model': original,
@@ -109,7 +111,7 @@ class DataVersionController:
         self.version_combo_controls.block_signals(False)
 
         self.update_columns_list()
-        self._update_all_ui()
+        self._set_bins_for_new_data()
 
     def update_columns_list(self):
         """
@@ -151,8 +153,8 @@ class DataVersionController:
         self.version_combo_controls.block_signals(False)
         
         self.event_bus.emit_type(EventType.DATASET_CHANGED, {
-            'model': self.context.data_model,
-            'series': self.context.data_model.series if self.context.data_model else None
+            'model': self.data_model,
+            'series': self.data_model.series if self.data_model else None
         })
 
     def get_all_datasets(self) -> dict:
@@ -161,28 +163,26 @@ class DataVersionController:
         """
         return self.version_manager.datasets
 
-    def _update_all_ui(self) -> None:
+    def _set_bins_for_new_data(self) -> None:
         """
-        Internal helper to refresh UI after switching dataset.
+        Internal helper to refresh bins after switching dataset.
         """
-        if self.context.data_model and self.set_bins_value:
-            series = self.context.data_model.series
-            self.set_bins_value(self.context.data_model.bins)
-            self.context.refresher.refresh(series)
+        if self.data_model and self.set_bins_value:
+            self.set_bins_value(self.data_model.bins)
 
     def has_transformation_history(self) -> bool:
         """
         Check if current dataset has any transformations applied.
         """
-        return (self.context.data_model and 
-                len(self.context.data_model.history) > 0)
+        return (self.data_model and 
+                len(self.data_model.history) > 0)
 
     def get_current_transformation_info(self) -> str:
         """
         Get description of current transformation state.
         """
-        if self.context.data_model:
-            return self.context.data_model.current_transformation
+        if self.data_model:
+            return self.data_model.current_transformation
         return "No Data"
 
     def connect_ui(self, 
