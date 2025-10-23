@@ -193,7 +193,6 @@ class CallBackFactory:
     def connect_callbacks(self, controllers: dict[str, Any]) -> None:
         # set controller callbacks
         controllers['anomaly_data'].set_get_gamma_value_func(lambda: self.window.data_tab.anomaly_widget.anomaly_gamma_spinbox.value())
-        controllers['data_transform'].set_on_transformation_applied_callback(lambda: self.window.data_tab.original_button.setEnabled(True))
         controllers['missing_data'].set_update_state_callback(controllers['ui_state'].update_state_for_data)
 
         controllers['graph'].connect_callbacks(
