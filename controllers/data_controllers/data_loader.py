@@ -1,7 +1,10 @@
 import os
-import pandas as pd
 from typing import Callable
 from utils.def_bins import get_default_bin_count
+
+from utils import AppContext, EventType, EventBus
+from services.data_services.data_loader.data_loader_service import DataLoaderService
+from services.data_services.data_version_manager import DataVersionManager
 from models.data_model import DataModel
 
 
@@ -11,22 +14,21 @@ class DataLoadController:
     """
     def __init__(
         self,
-        context,
-        loader_service,
+        context: AppContext,
+        loader_service: DataLoaderService,
         select_file_callback: Callable[[], str | None],
-        on_data_loaded_callback: Callable[[pd.Series], None]
     ):
         """
         Args:
             context: Shared application state and dependencies
             loader_service: Service for selecting and loading data
             select_file_callback: Function to show file dialog and return file path
-            on_data_loaded_callback: Callback to notify when data has been successfully loaded
         """
-        self.context = context
-        self.loader_service = loader_service
+        self.context: AppContext = context
+        self.event_bus: EventBus = context.event_bus
+        self.version_manager: DataVersionManager = context.version_manager
+        self.loader_service: DataLoaderService = loader_service
         self.select_file_callback = select_file_callback
-        self.on_data_loaded = on_data_loaded_callback
         self.data_model_class = DataModel
 
     def load_data_file(self) -> None:
@@ -49,16 +51,16 @@ class DataLoadController:
         # Create new data model and update context
         bin_count = get_default_bin_count(data)
         model = self.data_model_class(data, bins=bin_count, label="Original")
-        self.context.version_manager.add_dataset(filename, model)
+        self.version_manager.add_dataset(filename, model)
         self.context.data_model = model
-        self.on_data_loaded(model.series)
+        self.event_bus.emit_type(EventType.DATA_LOADED, model.series)
 
     def _build_filename(self, filename_ext: str) -> str:
         """
         Creates unique filename for dataset
         """
         name, ext = os.path.splitext(filename_ext)
-        current_filenames = self.context.version_manager.get_all_dataset_names()
+        current_filenames = self.version_manager.get_all_dataset_names()
         counter = 1
         new_filename = filename_ext
         while new_filename in current_filenames:

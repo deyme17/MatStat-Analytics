@@ -62,8 +62,7 @@ class ControllersFactory:
         controllers['data_loader'] = DataLoadController(
             context=self.context,
             loader_service=DataLoaderService(),
-            select_file_callback=lambda: DataLoaderService.select_file(self.window),
-            on_data_loaded_callback=lambda data: (controllers['ui_state'].handle_post_load_state(data))
+            select_file_callback=lambda: DataLoaderService.select_file(self.window)
         )
         controllers['simulation'] = SimulationController(
             simulation_service=SimulationService(TestPerformer()),
