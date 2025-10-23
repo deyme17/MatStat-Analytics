@@ -1,7 +1,7 @@
 from utils import AppContext, EventType, EventBus, Event
 from services.data_services.data_version_manager import DataVersionManager
 from models.data_model import DataModel
-from callbacks.combo_callbacks import ComboUICallbacks
+from utils.combo_callbacks import ComboUICallbacks
 from typing import Callable, Optional
 
 

@@ -5,7 +5,7 @@ from utils import EventBus, AppContext
 from controllers import (
     AnomalyController, MissingDataController, DataTransformController,
     ParameterEstimation, SimulationController, StatisticController, GOFController, HomogenController,
-    DataLoadController, DataVersionController, UIStateController
+    DataLoadController, DataVersionController
 )
 
 # Services
@@ -32,9 +32,7 @@ from views import (
 )
 
 # Callbacks
-from callbacks import (
-    build_dp_control_callbacks, build_combo_callbacks
-)
+from utils.combo_callbacks import build_combo_callbacks
 
 
 class ControllersFactory:
@@ -49,10 +47,6 @@ class ControllersFactory:
         controllers['statistic'] = StatisticController(
             event_bus=self.context.event_bus,
             statistic_service=StatisticsService()
-        )
-        controllers['ui_state'] = UIStateController(
-            context=self.context,
-            detect_missing_func=MissingService.detect_missing
         )
         controllers['data_loader'] = DataLoadController(
             context=self.context,
@@ -179,23 +173,8 @@ class ConnectFactory:
                 set_percent_label=lambda text: data_tab.missing_widget.missing_percentage_label.setText(text)
             )
         )
-
-class CallBackFactory:
-    def __init__(self, window, context: AppContext):
-        self.window = window
-        self.context: AppContext = context
-    
-    def connect_callbacks(self, controllers: dict[str, Any]) -> None:
-        controllers['ui_state'].connect_callbacks(
-            ui_controls=build_dp_control_callbacks(self.window),
-            enable_data_combo_callback=self.window.data_tab.data_version_combo.setEnabled,
-            enable_col_combo_callback=self.window.data_tab.dataframe_cols_combo.setEnabled,
-            update_homogen_list_widget=self.window.homo_tab.refresh_data_list,
-            update_data_callback=lambda data: controllers['missing_data'].update_data_reference(data),
-            update_data_versions_callback=controllers['data_version'].update_dataset_list
-        )
-        # set graph panel callbacks
         self.window.graph_panel.connect_controls()
+
 
 class Factory:
     def __init__(self, window, context: AppContext):
@@ -210,7 +189,6 @@ class Factory:
         factory._init_controllers()
         factory._setup_ui()
         factory._connect_ui()
-        factory._connect_callbacks()
         return factory
 
     def _setup_context(self):
@@ -230,7 +208,3 @@ class Factory:
     def _connect_ui(self):
         connect_factory = ConnectFactory(self.window)
         connect_factory.connect_ui(self.controllers)
-
-    def _connect_callbacks(self):
-        cb_factory = CallBackFactory(self.window, self.context)
-        cb_factory.connect_callbacks(self.controllers)
