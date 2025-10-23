@@ -178,7 +178,7 @@ class ConnectFactory:
         data_tab = self.window.data_tab
         controllers['anomaly_data'].connect_ui(data_tab.anomaly_widget.anomaly_gamma_spinbox.value)
         controllers['data_transform'].connect_ui(data_tab.transform_widget.shift_spinbox.value)
-        controllers['missing_data'].set_display_service(
+        controllers['missing_data'].connect_ui(
             MissingInfoDisplayService(
                 set_count_label=lambda text: data_tab.missing_widget.missing_count_label.setText(text),
                 set_percent_label=lambda text: data_tab.missing_widget.missing_percentage_label.setText(text)
@@ -193,7 +193,6 @@ class CallBackFactory:
     def connect_callbacks(self, controllers: dict[str, Any]) -> None:
         # set controller callbacks
         controllers['anomaly_data'].set_get_gamma_value_func(lambda: self.window.data_tab.anomaly_widget.anomaly_gamma_spinbox.value())
-        controllers['missing_data'].set_update_state_callback(controllers['ui_state'].update_state_for_data)
 
         controllers['graph'].connect_callbacks(
             graph_control=build_graph_panel_callbacks(self.window.graph_panel),
