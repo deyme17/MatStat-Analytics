@@ -66,7 +66,7 @@ class ControllersFactory:
         )
         controllers['simulation'] = SimulationController(
             simulation_service=SimulationService(TestPerformer()),
-            data_saver=DataSaver(self.context, on_save=lambda data: controllers['ui_state'].handle_post_load_state(data)),
+            data_saver=DataSaver(self.context),
             data_exporter=DataExporter
         )
         controllers['estimation'] = ParameterEstimation()
