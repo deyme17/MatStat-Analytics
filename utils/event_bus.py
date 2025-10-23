@@ -20,6 +20,7 @@ class EventType(Enum):
     
     # State events
     MISSING_VALUES_DETECTED = auto()
+    MISSING_VALUES_HANDLED = auto()
 
 
 class Event:

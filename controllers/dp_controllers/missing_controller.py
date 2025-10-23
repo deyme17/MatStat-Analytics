@@ -117,6 +117,7 @@ class MissingDataController:
 
         self.version_manager.update_current_dataset(new_model)
         
+        self.event_bus.emit_type(EventType.MISSING_VALUES_HANDLED)
         self.event_bus.emit_type(EventType.DATA_TRANSFORMED, {
             'model': new_model,
             'series': new_model.series,
