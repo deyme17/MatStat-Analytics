@@ -24,7 +24,6 @@ class AnomalyController:
             anomaly_service: Service for anomaly detection operations
             get_gamma_value: Function for getting gamma configuration
         """
-        self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
         self.data_model: DataModel = context.data_model
         self.version_manager: DataVersionManager = context.version_manager
@@ -71,13 +70,13 @@ class AnomalyController:
 
         data = data.reset_index(drop=True)
         if data.isna().sum().iloc[0] > 0:
-            self.context.messanger.show_error("Missing Values Error", "Please handle missing values first.")
+            self.messanger.show_error("Missing Values Error", "Please handle missing values first.")
             return
 
         result = detection_func(data)
         anomalies = result["anomalies"]
         if len(anomalies) == 0:
-            self.context.messanger.show_info("No Anomalies", "No anomalies detected.")
+            self.messanger.show_info("No Anomalies", "No anomalies detected.")
             return
 
         # remove anomalies and create new version of the dataset

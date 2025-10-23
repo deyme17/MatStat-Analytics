@@ -21,7 +21,6 @@ class DataTransformController:
             transform_service: Service to perform data transformation
             get_shift_value: Function for getting shift configuration
         """
-        self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
         self.data_model: DataModel = context.data_model
         self.version_manager: DataVersionManager = context.version_manager
