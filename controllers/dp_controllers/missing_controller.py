@@ -33,15 +33,10 @@ class MissingDataController:
         self._subscribe_to_events()
 
     def _subscribe_to_events(self):
-        self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_dataset_changed)
-        self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_column_changed)
+        self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_data_changed)
 
-    def _on_dataset_changed(self, event):
-        series = event.data.get('series')
-        if series is not None:
-            self.update_data_reference(series)
-
-    def _on_column_changed(self, event):
+    def _on_data_changed(self, event):
         series = event.data.get('series')
         if series is not None:
             self.update_data_reference(series)
