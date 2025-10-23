@@ -1,5 +1,5 @@
 from typing import Any
-from utils import EventBus
+from utils import EventBus, AppContext
 
 # Controllers
 from controllers import (
@@ -39,16 +39,16 @@ from callbacks import (
 
 
 class ControllersFactory:
-    def __init__(self, window, context):
+    def __init__(self, window, context: AppContext):
         self.window = window
-        self.context = context
+        self.context: AppContext = context
     
     def init_controllers(self) -> dict[str, Any]:
         """Initialize all controllers with no UI dependencies"""
         controllers = {}
         
         controllers['statistic'] = StatisticController(
-            context=self.context,
+            event_bus=self.context.event_bus,
             statistic_service=StatisticsService()
         )
         controllers['graph'] = GraphController(
@@ -89,9 +89,9 @@ class ControllersFactory:
         return controllers
 
 class UIFactory:
-    def __init__(self, window, context):
+    def __init__(self, window, context: AppContext):
         self.window = window
-        self.context = context
+        self.context: AppContext = context
     
     def setup_ui(self, controllers: dict[str, Any]) -> None:
         # WINDOW WIDGETS
@@ -186,9 +186,9 @@ class ConnectFactory:
         )
 
 class CallBackFactory:
-    def __init__(self, window, context):
+    def __init__(self, window, context: AppContext):
         self.window = window
-        self.context = context
+        self.context: AppContext = context
     
     def connect_callbacks(self, controllers: dict[str, Any]) -> None:
         # set controller callbacks
@@ -211,13 +211,13 @@ class CallBackFactory:
         self.window.graph_panel.connect_controls()
 
 class Factory:
-    def __init__(self, window, context):
+    def __init__(self, window, context: AppContext):
         self.window = window
-        self.context = context
+        self.context: AppContext = context
         self.controllers: dict[str, Any] = {}
 
     @classmethod
-    def create(cls, window, context):
+    def create(cls, window, context: AppContext):
         factory = cls(window, context)
         factory._setup_context()
         factory._init_controllers()

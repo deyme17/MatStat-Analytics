@@ -1,40 +1,76 @@
 from typing import Callable, Optional
 from services.ui_services.renderers.table_renderers.table_renderer import TableRenderer
+from services import StatisticsService
+from utils import EventBus, EventType, Event
 
 
 class StatisticController:
     """
     Controller for managing the display of statistical characteristics in the UI.
     """
-    def __init__(self, context, statistic_service,
-                 stats_renderer: Optional[TableRenderer] = None,
-                 var_renderer: Optional[TableRenderer] = None,
-                 get_bins_value: Optional[Callable[[], int]] = None, 
-                 get_precision_value: Optional[Callable[[], int]] = None,
-                 get_confidence_value: Optional[Callable[[], float]] = None
-                 ):
+    def __init__(
+        self,
+        event_bus: EventBus,
+        statistic_service: StatisticsService,
+        stats_renderer: Optional[TableRenderer] = None,
+        var_renderer: Optional[TableRenderer] = None,
+        get_bins_value: Optional[Callable[[], int]] = None, 
+        get_precision_value: Optional[Callable[[], int]] = None,
+        get_confidence_value: Optional[Callable[[], float]] = None
+    ):
         """
         Args:
-            context (AppContext): Application context container
+            event_bus: Event bus for pub/sub
             statistic_service: Service for statistics handling
-            stats_renderer (StatsRenderer): Responsible for drawing statistics in table
-            var_renderer (VarSerRenderer): Responsible for drawing variation series in table
+            stats_renderer: Responsible for drawing statistics in table
+            var_renderer: Responsible for drawing variation series in table
             get_bins_value: Function for getting bin count configuration
             get_precision_value: Function for getting precision configuration
             get_confidence_value: Function for getting confidence level selection
         """
-        self.context = context
-        self.statistic_service = statistic_service
-        self.stats_renderer = stats_renderer
-        self.var_renderer = var_renderer
+        self.event_bus: EventBus = event_bus
+        self.statistic_service: StatisticsService = statistic_service
+        self.stats_renderer: TableRenderer = stats_renderer
+        self.var_renderer: TableRenderer = var_renderer
         self.get_bins_value = get_bins_value             
         self.get_precision_value = get_precision_value        
-        self.get_confidence_value = get_confidence_value    
+        self.get_confidence_value = get_confidence_value
+        
+        self._subscribe_to_events()
 
-    def update_tables(self) -> None:
+    def _subscribe_to_events(self):
+        self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.BINS_CHANGED, self._on_bins_changed)
+        self.event_bus.subscribe(EventType.CONFIDENCE_CHANGED, self._on_confidence_changed)
+        self.event_bus.subscribe(EventType.PRECISION_CHANGED, self._on_precision_changed)
+
+    def _on_data_changed(self, event: Event):
+        model = event.data.get('model')
+        if model:
+            self.update_tables(model)
+
+    def _on_bins_changed(self, event: Event):
+        model = event.data.get('model')
+        if model:
+            self.update_tables(model)
+
+    def _on_confidence_changed(self, event: Event):
+        model = event.data.get('model')
+        if model:
+            self.update_tables(model)
+
+    def _on_precision_changed(self, event: Event):
+        model = event.data.get('model')
+        if model:
+            self.update_tables(model)
+
+    def update_tables(self, model=None) -> None:
         """Updates all the UI tables"""
-        self.check_ui_connected()
-        model = self.context.data_model
+        if not self._check_ui_connected():
+            return
+            
         if model is None or model.series.empty:
             return
         
@@ -75,19 +111,27 @@ class StatisticController:
         """
         Clear the contents of tables via renderer.
         """
-        self.check_ui_connected()
+        if not self._check_ui_connected():
+            return
         self.stats_renderer._setup_headers()
         self.var_renderer._setup_headers()
 
-    def connect_ui(self, stats_renderer: TableRenderer, var_renderer: TableRenderer, get_bins_value: Callable[[], int], 
-                get_precision_value: Callable[[], int], get_confidence_value: Callable[[], float]) -> None:
+    def connect_ui(
+        self,
+        stats_renderer: TableRenderer,
+        var_renderer: TableRenderer,
+        get_bins_value: Callable[[], int], 
+        get_precision_value: Callable[[], int],
+        get_confidence_value: Callable[[], float]
+    ) -> None:
         self.stats_renderer = stats_renderer
         self.var_renderer = var_renderer
         self.get_bins_value = get_bins_value             
         self.get_precision_value = get_precision_value        
         self.get_confidence_value = get_confidence_value
 
-    def check_ui_connected(self) -> None:
-        if not (self.stats_renderer and self.var_renderer and self.get_bins_value 
-                and self.get_precision_value and self.get_confidence_value):
-            raise RuntimeError("Not all ui functions&callbacks connected to StatisticController")
+    def _check_ui_connected(self) -> bool:
+        return bool(
+            self.stats_renderer and self.var_renderer and self.get_bins_value 
+            and self.get_precision_value and self.get_confidence_value
+        )
