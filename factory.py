@@ -1,4 +1,5 @@
 from typing import Any
+from utils import EventBus
 
 # Controllers
 from controllers import (
@@ -12,7 +13,7 @@ from controllers import (
 from services import (
     TransformationService, AnomalyService, MissingService,
     ConfidenceService, TestPerformer, StatisticsService,
-    UIRefreshService, UIMessager, MissingInfoDisplayService, StatsRenderer, VarSerRenderer,
+    UIMessager, MissingInfoDisplayService, StatsRenderer, VarSerRenderer,
     DataVersionManager, DataLoaderService,
     SimulationService, DataSaver, DataExporter
 )
@@ -33,7 +34,6 @@ from views import (
 
 # Callbacks
 from callbacks import (
-    UIClearCallbacks, UIModelCallbacks, UIStateCallbacks, UIUpdateCallbacks,
     build_dp_control_callbacks, build_combo_callbacks, build_graph_panel_callbacks
 )
 
@@ -210,30 +210,6 @@ class CallBackFactory:
         # set graph panel callbacks
         self.window.graph_panel.connect_controls()
 
-        # set refresher
-        self.context.refresher = UIRefreshService(
-            clear=UIClearCallbacks(
-                clear_graph=self.window.graph_panel.clear,
-                clear_tables=controllers['statistic'].clear_tables,
-                clear_gof=self.window.gof_tab.clear_panels
-            ),
-            update=UIUpdateCallbacks(
-            set_graph_data=lambda data: (controllers['graph'].set_data(data)),
-            update_tables=controllers['statistic'].update_tables,
-            evaluate_gof=self.window.gof_tab.evaluate_tests
-            ),
-            state=UIStateCallbacks(
-                update_state=controllers['ui_state'].update_state_for_data,
-                update_transformation_label=controllers['ui_state'].update_transformation_label,
-                update_navigation_buttons=controllers['ui_state'].update_navigation_buttons,
-                enable_original_button=self.window.data_tab.original_button.setEnabled
-            ),
-            model=UIModelCallbacks(
-                get_bins_count=lambda: self.window.graph_panel.bins_spinbox.value(),
-                update_model_bins=lambda bins: self.context.data_model.update_bins(bins)
-            )
-        )
-
 class Factory:
     def __init__(self, window, context):
         self.window = window
@@ -253,7 +229,7 @@ class Factory:
     def _setup_context(self):
         self.context.version_manager = DataVersionManager()
         self.context.messanger = UIMessager(parent=self.window)
-        self.context.refresher = None
+        self.context.event_bus = EventBus()
         self.context.data_model = None
 
     def _init_controllers(self):
