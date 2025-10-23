@@ -5,8 +5,7 @@ from utils import EventBus, AppContext
 from controllers import (
     AnomalyController, MissingDataController, DataTransformController,
     ParameterEstimation, SimulationController, StatisticController, GOFController, HomogenController,
-    DataLoadController, DataVersionController,
-    GraphController, UIStateController
+    DataLoadController, DataVersionController, UIStateController
 )
 
 # Services
@@ -34,7 +33,7 @@ from views import (
 
 # Callbacks
 from callbacks import (
-    build_dp_control_callbacks, build_combo_callbacks, build_graph_panel_callbacks
+    build_dp_control_callbacks, build_combo_callbacks
 )
 
 
@@ -50,10 +49,6 @@ class ControllersFactory:
         controllers['statistic'] = StatisticController(
             event_bus=self.context.event_bus,
             statistic_service=StatisticsService()
-        )
-        controllers['graph'] = GraphController(
-            context=self.context,
-            confidence_service=ConfidenceService(),
         )
         controllers['ui_state'] = UIStateController(
             context=self.context,
@@ -101,7 +96,7 @@ class UIFactory:
         # GRAPH PANEL
         self.window.graph_panel = GraphPanel(
             dist_selector_cls=DistributionSelector,
-            graph_controller=controllers['graph'],
+            confidence_service=ConfidenceService(),
             get_data_model=lambda: self.context.data_model
         )
 
@@ -171,9 +166,9 @@ class ConnectFactory:
         controllers['statistic'].connect_ui(
             stats_renderer=self.window.stat_tab.stat_renderer,
             var_renderer=self.window.stat_tab.var_renderer,
-            get_bins_value=lambda: self.window.graph_panel.bins_spinbox.value(),     
-            get_confidence_value=lambda: self.window.graph_panel.confidence_spinbox.value(),         
-            get_precision_value=lambda: self.window.widgets.precision_spinbox.value()
+            get_bins_value=self.window.graph_panel.bins_spinbox.value,     
+            get_confidence_value=self.window.graph_panel.confidence_spinbox.value,         
+            get_precision_value=self.window.widgets.precision_spinbox.value
         )
         data_tab = self.window.data_tab
         controllers['anomaly_data'].connect_ui(data_tab.anomaly_widget.anomaly_gamma_spinbox.value)
@@ -191,14 +186,6 @@ class CallBackFactory:
         self.context: AppContext = context
     
     def connect_callbacks(self, controllers: dict[str, Any]) -> None:
-        # set controller callbacks
-        controllers['anomaly_data'].set_get_gamma_value_func(self.window.data_tab.anomaly_widget.anomaly_gamma_spinbox.value)
-
-        controllers['graph'].connect_callbacks(
-            graph_control=build_graph_panel_callbacks(self.window.graph_panel),
-            update_tables_callback=controllers['statistic'].update_tables,
-            update_gof_callback=self.window.gof_tab.evaluate_tests
-        )
         controllers['ui_state'].connect_callbacks(
             ui_controls=build_dp_control_callbacks(self.window),
             enable_data_combo_callback=self.window.data_tab.data_version_combo.setEnabled,
