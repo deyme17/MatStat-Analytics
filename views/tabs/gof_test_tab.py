@@ -1,24 +1,30 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QDoubleSpinBox, QHBoxLayout
 from views.widgets.gofwidgets.gof_test_panel import BaseTestPanel
+from controllers import GOFController
+from utils import EventBus, EventType, Event
 
 ALPHA_MIN, ALPHA_MAX = 0.01, 0.99
 ALPHA_STEP = 0.1
 ALPHA_PRECISION = 2
 DEFAULT_ALPHA = 0.05
 
+
 class GOFTestTab(QWidget):
     """
     A tab widget for evaluating Goodness-of-Fit (GOF) tests.
     """
-    def __init__(self, get_data_model, get_dist_func, gof_controller, test_panels: list[BaseTestPanel]) -> None:
+    def __init__(self, get_data_model, get_dist_func, event_bus: EventBus,
+                 gof_controller: GOFController, test_panels: list[BaseTestPanel]) -> None:
         """
         Args:
             get_data_model: Function for getting current data model.
             get_dist_func: Function for getting current selected distribution.
+            event_bus: Event bus for pub/sub
             gof_controller (GOFController): Controller to perform GOF tests.
             test_panels (list): List of GOF test panel classes (not instances).
         """
         super().__init__()
+        self.event_bus: EventBus = event_bus
         self.get_data_model = get_data_model
         self.get_dist_func = get_dist_func
         self.test_panels: list[BaseTestPanel] = [panel(gof_controller) for panel in test_panels]
@@ -43,6 +49,20 @@ class GOFTestTab(QWidget):
             layout.addWidget(panel)
         layout.addStretch()
         self.setLayout(layout)
+
+        # subscribe to events
+        self._subscribe_to_events()
+
+    def _subscribe_to_events(self) -> None:
+        self.event_bus.subscribe(EventType.DISTRIBUTION_CHANGED, self._on_changed)
+        self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_changed)
+        self.event_bus.subscribe(EventType.DATA_TRANSFORMED, self._on_changed)
+        self.event_bus.subscribe(EventType.DATA_LOADED, self._on_changed)
+        self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_changed)
+        self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_changed)
+
+    def _on_changed(self, event: Event) -> None:
+        self.evaluate_tests()
 
     def evaluate_tests(self) -> None:
         """

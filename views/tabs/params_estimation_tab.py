@@ -2,6 +2,11 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QComboBox, QLabel,
     QPushButton, QTableWidget, QTableWidgetItem
 )
+from utils import AppContext
+from services import UIMessager
+from controllers import ParameterEstimation
+
+from models.data_model import DataModel
 from models.stat_distributions import registered_distributions
 from models.params_estimators import registered_estimation_methods
 
@@ -11,15 +16,16 @@ class ParamEstimationTab(QWidget):
     Tab widget for estimating distribution parameters using different methods.
     Uses AppContext for dependencies.
     """
-    def __init__(self, context, estimator):
+    def __init__(self, context: AppContext, estimator: ParameterEstimation):
         """
         Args:
             context: AppContext with data_model and messanger
             estimator: Parameters estimation implementation
         """
         super().__init__()
-        self.context = context
-        self.estimator = estimator
+        self.messanger: UIMessager = context.messanger
+        self.data_model: DataModel = context.data_model
+        self.estimator: ParameterEstimation = estimator
         self._init_ui()
 
     def _init_ui(self) -> None:
@@ -54,16 +60,16 @@ class ParamEstimationTab(QWidget):
 
     def _handle_estimation(self) -> None:
         """Handle parameter estimation request."""
-        if not self.context.data_model or not self.context.messanger:
+        if not self.data_model or not self.messanger:
             return
 
-        data = self.context.data_model.series
+        data = self.data_model.series
         if data is None:
-            self.context.messanger.show_error("No Data", "No data available for estimation")
+            self.messanger.show_error("No Data", "No data available for estimation")
             return
 
         if data.empty or data.isna().all():
-            self.context.messanger.show_error("Invalid Data", "Data contains no valid values")
+            self.messanger.show_error("Invalid Data", "Data contains no valid values")
             return
 
         dist_name = self.dist_combo.currentText()
@@ -73,14 +79,14 @@ class ParamEstimationTab(QWidget):
             # Get distribution class
             dist_class = registered_distributions.get(dist_name)
             if not dist_class:
-                self.context.messanger.show_error("Invalid Distribution", 
+                self.messanger.show_error("Invalid Distribution", 
                     f"Unknown distribution: {dist_name}")
                 return
 
             # Estimate parameters
             params = self.estimator.estimate(dist_name, method_name, data)
             if params is None:
-                self.context.messanger.show_error("Estimation Failed", 
+                self.messanger.show_error("Estimation Failed", 
                     f"Failed to estimate parameters for {dist_name}")
                 return
 
@@ -88,7 +94,7 @@ class ParamEstimationTab(QWidget):
             self._display_results(dist_class(), params)
 
         except Exception as e:
-            self.context.messanger.show_error("Estimation Error", 
+            self.messanger.show_error("Estimation Error", 
                 f"Error during estimation: {str(e)}")
 
     def _display_results(self, distribution, params: list) -> None:

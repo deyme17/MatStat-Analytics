@@ -1,5 +1,14 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QCheckBox, QLabel, QPushButton, QSpinBox, QComboBox, QTableWidget, QTableWidgetItem, QHBoxLayout, QLineEdit
+from PyQt6.QtWidgets import (
+    QWidget, QVBoxLayout, QCheckBox, QLabel, 
+    QPushButton, QSpinBox, QComboBox, QTableWidget, 
+    QTableWidgetItem, QHBoxLayout, QLineEdit
+)
+from typing import Optional, Tuple, Dict, Any
+
 from models.stat_distributions import registered_distributions
+from controllers import SimulationController
+from utils import AppContext
+from services import UIMessager
 
 DEFAULT_SAMPLE_SIZES = [20, 50, 100, 400, 1000, 2000, 5000]
 MIN_PARAM_INPUT_WIDTH = 200
@@ -12,12 +21,13 @@ MIN_REPEATS, MAX_REPEATS = 1, 1000
 DEFAULT_REPEATS = 200
 REPEAT_SPIN_WIDTH = 100
 
+
 class SimulationTab(QWidget):
     """
     A QWidget tab that allows users to run statistical simulations using various 
     parametric distributions.
     """
-    def __init__(self, context, simulation_controller):
+    def __init__(self, context: AppContext, simulation_controller: SimulationController):
         """
         Initialize the simulation tab with required services.
         Args:
@@ -25,12 +35,12 @@ class SimulationTab(QWidget):
             simulation_controller: Controller for performing statistical simulations
         """
         super().__init__()
-        self.context = context
-        self.simulation_controller = simulation_controller
+        self.messanger: UIMessager = context.messanger
+        self.simulation_controller: SimulationController = simulation_controller
         self._init_ui()
         self._update_param_placeholder()
 
-    def _init_ui(self):
+    def _init_ui(self) -> None:
         """Initializes and lays out all widgets in the tab."""
         layout = QVBoxLayout()
         
@@ -44,7 +54,7 @@ class SimulationTab(QWidget):
         
         self.setLayout(layout)
 
-    def _init_distribution_controls(self, layout):
+    def _init_distribution_controls(self, layout: QVBoxLayout) -> None:
         """Initialize distribution selection controls."""
         layout.addWidget(QLabel("Select Distribution:"))
         self.dist_combo = QComboBox()
@@ -52,7 +62,7 @@ class SimulationTab(QWidget):
         self.dist_combo.currentTextChanged.connect(self._update_param_placeholder)
         layout.addWidget(self.dist_combo)
 
-    def _init_parameter_controls(self, layout):
+    def _init_parameter_controls(self, layout: QVBoxLayout) -> None:
         """Initialize distribution parameter controls."""
         param_layout = QHBoxLayout()
         param_label = QLabel("Distribution Parameters:")
@@ -64,7 +74,7 @@ class SimulationTab(QWidget):
         param_layout.addStretch()
         layout.addLayout(param_layout)
 
-    def _init_alpha_controls(self, layout):
+    def _init_alpha_controls(self, layout: QVBoxLayout) -> None:
         """Initialize significance level controls."""
         alpha_layout = QHBoxLayout()
         alpha_label = QLabel("Significance Level α:")
@@ -76,7 +86,7 @@ class SimulationTab(QWidget):
         alpha_layout.addStretch()
         layout.addLayout(alpha_layout)
 
-    def _init_save_controls(self, layout):
+    def _init_save_controls(self, layout: QVBoxLayout) -> None:
         """Initialize data saving controls."""
         save_size_layout = QHBoxLayout()
         self.save_data_checkbox = QCheckBox("Save simulated data with size:")
@@ -90,7 +100,7 @@ class SimulationTab(QWidget):
         save_size_layout.addStretch()
         layout.addLayout(save_size_layout)
 
-    def _init_export_layout(self, layout):
+    def _init_export_layout(self, layout: QVBoxLayout) -> None:
         """Initialize data export controls."""
         export_controls_layout = QVBoxLayout()
         self.export_data_checkbox = QCheckBox("Export simulated data as csv")
@@ -98,7 +108,7 @@ class SimulationTab(QWidget):
         export_controls_layout.addWidget(self.export_data_checkbox)
         layout.addLayout(export_controls_layout)
 
-    def _init_simulation_controls(self, layout):
+    def _init_simulation_controls(self, layout: QVBoxLayout) -> None:
         """Initialize simulation execution controls."""
         control_layout = QHBoxLayout()
         self.repeat_spin = QSpinBox()
@@ -113,7 +123,7 @@ class SimulationTab(QWidget):
         control_layout.addStretch()
         layout.addLayout(control_layout)
 
-    def _init_results_t_table(self, layout):
+    def _init_results_t_table(self, layout: QVBoxLayout) -> None:
         """Initialize results table."""
         self.result_table = QTableWidget()
         self.result_table.setColumnCount(6)
@@ -123,7 +133,7 @@ class SimulationTab(QWidget):
         ])
         layout.addWidget(self.result_table)
 
-    def run_simulation(self):
+    def run_simulation(self) -> None:
         """
         Executes the simulation using the selected distribution and user-provided parameters.
         Runs t-tests on generated samples and updates the results table.
@@ -141,17 +151,17 @@ class SimulationTab(QWidget):
         # Create distribution instance
         dist_class = registered_distributions.get(dist_name)
         if not dist_class:
-            self.context.messanger.show_error("Unsupported", f"Distribution {dist_name} is not supported.")
+            self.messanger.show_error("Unsupported", f"Distribution {dist_name} is not supported.")
             return
 
         dist = dist_class()
         dist.params = params
         if not dist.validate_params():
-            self.context.messanger.show_error("Invalid Parameters", f"Could not create Distribution {dist_name} with parameters {params}.")
+            self.messanger.show_error("Invalid Parameters", f"Could not create Distribution {dist_name} with parameters {params}.")
             return            
         true_mean = dist.get_mean()
         if true_mean is None:
-            self.context.messanger.show_error("Invalid Parameters", "Could not determine true mean from parameters.")
+            self.messanger.show_error("Invalid Parameters", "Could not determine true mean from parameters.")
             return
         
         save_data = self.save_data_checkbox.isChecked()
@@ -162,25 +172,25 @@ class SimulationTab(QWidget):
         )
         self._populate_table(results)
 
-    def _parse_params(self, params_str):
+    def _parse_params(self, params_str) -> Optional[Tuple[float]]:
         try:
             params = tuple(map(float, params_str.split(',')))
             return params
         except:
-            self.context.messanger.show_error("Invalid Parameters", "Parameters must be comma-separated numbers.")
+            self.messanger.show_error("Invalid Parameters", "Parameters must be comma-separated numbers.")
             return
         
-    def _parse_alpha(self):
+    def _parse_alpha(self) -> Optional[float]:
         try:
             alpha = float(self.alpha_input.text())
             if not (0 < alpha < 1):
                 raise ValueError
             return alpha
         except ValueError:
-            self.context.messanger.show_error("Invalid α", "Significance level α must be between 0 and 1.")
+            self.messanger.show_error("Invalid α", "Significance level α must be between 0 and 1.")
             return
 
-    def _populate_table(self, results):
+    def _populate_table(self, results: Dict[str, Any]) -> None:
         """
         Populate the result table with simulation results.
         Args:
@@ -195,7 +205,7 @@ class SimulationTab(QWidget):
                 self.result_table.setItem(i, 4, QTableWidgetItem(f"({', '.join(f'{x:.4f}' for x in res['params_mean'])})"))
                 self.result_table.setItem(i, 5, QTableWidgetItem(f"({', '.join(f'{x:.4f}' for x in res['params_var'])})"))
          
-    def _update_param_placeholder(self):
+    def _update_param_placeholder(self) -> None:
             """
             Update the placeholder text for param_input based on the selected distribution.
             """

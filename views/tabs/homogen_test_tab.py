@@ -3,6 +3,9 @@ from PyQt6.QtWidgets import (
     QPushButton, QAbstractItemView, QLabel, QDoubleSpinBox, 
     QGroupBox, QComboBox, QScrollArea, QCheckBox
 )
+from services import UIMessager, DataVersionManager
+from utils import AppContext, EventBus, EventType, Event
+from controllers import HomogenController
 from views.widgets.homogenwidgets.homogen_panel import BaseHomoTestPanel
 from utils.ui_styles import groupMargin, groupStyle
 
@@ -17,23 +20,23 @@ LIST_WIDGET_WIDTH = 320
 
 class HomogenTab(QWidget):
     """Tab widget for homogeneity tests."""
-    def __init__(self, get_data_models, homogen_controller, messanger,
-                 homogen_2samples_panels: list[BaseHomoTestPanel],
-                 homogen_Nsamples_panels: list[BaseHomoTestPanel],
-                 hamogen_1sample_panels: list[BaseHomoTestPanel]) -> None:
+    def __init__(self, context: AppContext, homogen_controller: HomogenController,
+                                            homogen_2samples_panels: list[BaseHomoTestPanel],
+                                            homogen_Nsamples_panels: list[BaseHomoTestPanel],
+                                            hamogen_1sample_panels: list[BaseHomoTestPanel]) -> None:
         """
         Args:
-            get_data_models: Function for getting all data models (dict[str, DataModel]).
             homogen_controller (HomogenController): Controller to perform Homogeneity tests.
-            messanger: Service for sending message to user
+            context: Shared application context (version_manager, event_bus, messager)
             homogen_2samples_panels (list): List of Homogeneity test panel classes for two samples test.
             homogen_Nsamples_panels (list): List of Homogeneity test panel classes for N samples test.
             hamogen_1sample_panels (list): List of Homogeneity test panel classes for 1 samples test.
         """
         super().__init__()
-        self.get_data_models = get_data_models
-        self.homogen_controller = homogen_controller
-        self.messanger = messanger
+        self.homogen_controller: HomogenController = homogen_controller
+        self.version_manager: DataVersionManager = context.version_manager
+        self.messanger: UIMessager = context.messanger
+        self.event_bus: EventBus = context.event_bus
         self.selected_models = []
 
         # panels
@@ -43,9 +46,16 @@ class HomogenTab(QWidget):
 
         self._setup_ui()
         self._connect_signals()
-        self.refresh_data_list()
+        self._refresh_data_list()
+        self._subscribe_to_events()
 
-    def _setup_ui(self):
+    def _subscribe_to_events(self) -> None:
+        self.event_bus.subscribe(EventType.DATA_LOADED, self._on_data_loaded)
+
+    def _on_data_loaded(self, event: Event) -> None:
+        self._refresh_data_list()
+
+    def _setup_ui(self) -> None:
         """Setup the user interface."""
         self.setStyleSheet(groupStyle + groupMargin)
         main_layout = QVBoxLayout()
@@ -70,7 +80,7 @@ class HomogenTab(QWidget):
         outer_layout.addWidget(scroll)
         self.setLayout(outer_layout)
 
-    def _create_alpha_spinbox(self):
+    def _create_alpha_spinbox(self) -> QHBoxLayout:
         """Create alpha parameter selection section."""
         layout = QHBoxLayout()
         self.alpha_spinbox = QDoubleSpinBox()
@@ -83,7 +93,7 @@ class HomogenTab(QWidget):
         layout.addStretch()
         return layout
 
-    def _create_data_selection_section(self):
+    def _create_data_selection_section(self) -> QGroupBox:
         """Create data selection section."""
         group = QGroupBox("Select datasets for testing")
         layout = QVBoxLayout()
@@ -111,7 +121,7 @@ class HomogenTab(QWidget):
         group.setMaximumHeight(150)
         return group
 
-    def _create_test_section(self, title: str, panels: list[BaseHomoTestPanel]):
+    def _create_test_section(self, title: str, panels: list[BaseHomoTestPanel]) -> QGroupBox:
         """Create a test section with panels, run button, and clear button."""
         group = QGroupBox(title)
         layout = QVBoxLayout()
@@ -142,29 +152,29 @@ class HomogenTab(QWidget):
 
         return group
 
-    def _connect_signals(self):
+    def _connect_signals(self) -> None:
         """Connect UI signals."""
         self.list_widget.itemSelectionChanged.connect(self._update_selected_models)
         self.select_all_btn.clicked.connect(lambda: [self.list_widget.item(i).setSelected(True) for i in range(self.list_widget.count())])
         self.clear_selection_btn.clicked.connect(self.list_widget.clearSelection)
 
-    def refresh_data_list(self):
+    def _refresh_data_list(self) -> None:
         """Refresh the data models list."""
         self.list_widget.clear()
-        for name, model in (self.get_data_models() or {}).items():
+        for name, model in (self.version_manager.datasets or {}).items():
             if model.series is not None and not model.series.empty:
                 self.list_widget.addItem(name)
 
-    def _update_selected_models(self):
+    def _update_selected_models(self) -> None:
         """Update selected models list and label."""
         self.selected_models = [item.text() for item in self.list_widget.selectedItems()]
         self.selected_count_label.setText(f"Selected: {len(self.selected_models)} datasets")
 
-    def _run_selected_test(self, group: QGroupBox):
+    def _run_selected_test(self, group: QGroupBox) -> None:
         """Run selected panel in the group."""
         if not self._validate_test_run():
             return
-        datasets = self.get_data_models()
+        datasets = self.version_manager.datasets
         idx = group.combo.currentIndex()
         if 0 <= idx < len(group.panels):
             for pnl in group.panels:
@@ -180,7 +190,7 @@ class HomogenTab(QWidget):
             except Exception as e:
                 self.messanger.show_error("Test running error", str(e))
 
-    def _validate_test_run(self):
+    def _validate_test_run(self) -> bool:
         """Validate that test can be run."""
         if not self.selected_models:
             self.messanger.show_error("Test running error", "Please select at least one dataset")
