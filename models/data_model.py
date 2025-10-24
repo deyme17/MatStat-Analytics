@@ -154,6 +154,28 @@ class DataModel:
             label = f"Reverted column to original"
             return self.add_version(new_df, label)
 
+    def is_current_column_modified(self) -> bool:
+        """
+        Check if current column has been modified from original.
+        Return:
+            True if current column differs from original
+        """
+        if not self.history: return False
+        original_model = self.history[0]
+        current_col = self._df.iloc[:, self.current_col_idx]
+        original_col = original_model.original.iloc[:, self.current_col_idx]
+        return not current_col.equals(original_col)
+    
+    def is_dataset_modified(self) -> bool:
+        """
+        Check if entire dataset has been modified from original.
+        Return:
+            True if any column differs from original
+        """
+        if not self.history: return False
+        original_model = self.history[0]
+        return not self._df.equals(original_model.original)
+    
     @property
     def current_transformation(self) -> str:
         """
