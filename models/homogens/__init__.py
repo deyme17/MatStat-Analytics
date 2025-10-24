@@ -12,7 +12,9 @@ from .n_samples_tests.anova_test import ANOVATest
 from .n_samples_tests.cochran_Q_test import CochranQTest
 from .n_samples_tests.kruskal_wallis_H_test import HTest
 
-homogens_tests = [
+from .base_homogen_test import BaseHomogenTest
+
+homogens_tests: list[BaseHomogenTest] = [
     NormalHomogenTest,
     WilcoxonTest,
     MannWhitneyUTest,

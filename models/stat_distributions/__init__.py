@@ -4,7 +4,9 @@ from .laplace import LaplaceDistribution
 from .uniform import UniformDistribution
 from .weibull import WeibullDistribution
 
-registered_distributions = {
+from .stat_distribution import StatisticalDistribution
+
+registered_distributions: dict[str, StatisticalDistribution] = {
     "Normal": NormalDistribution,
     "Exponential": ExponentialDistribution,
     "Laplace": LaplaceDistribution,
