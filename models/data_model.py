@@ -162,9 +162,8 @@ class DataModel:
         """
         if not self.history: return False
         original_model = self.history[0]
-        current_col = self._df.iloc[:, self.current_col_idx]
         original_col = original_model.original.iloc[:, self.current_col_idx]
-        return not current_col.equals(original_col)
+        return not self._series.equals(original_col)
     
     def is_dataset_modified(self) -> bool:
         """
