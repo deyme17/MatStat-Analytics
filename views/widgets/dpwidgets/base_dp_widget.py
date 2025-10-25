@@ -34,8 +34,9 @@ class BaseDataWidget(QGroupBox):
 
     def _set_widget_status(self, enable: bool) -> None:
         """Set all widget's buttons enable/disable"""
-        for bttn, _, _ in self.buttons_config:
-            getattr(bttn).setEnabled(enable)
+        for attr_name, _, _ in self.buttons_config:
+            button = getattr(self, attr_name)
+            button.setEnabled(enable)
 
     def _disable_widget(self, event: Event) -> None:
         self._set_widget_status(False)
