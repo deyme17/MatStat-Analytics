@@ -23,8 +23,8 @@ class DataProcessingTab(QWidget):
             widget_data (list[tuple[str, QGroupBox, Any]]): Widget classes for data processing operations with it's controllers
         """
         super().__init__()
+        self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
-        self.data_model: DataModel = context.data_model
         self.widget_data = widget_data
 
         self._init_ui()
@@ -102,16 +102,16 @@ class DataProcessingTab(QWidget):
         Update the enabled state of the Original button based on whether
         the current column or whole dataset has been modified.
         """
-        if not self.data_model:
+        if not self.context.data_model:
             self.original_button.setEnabled(False)
             return
         
         whole_dataset = self.whole_dataset_checkbox.isChecked()
         
         if whole_dataset:
-            is_modified = self.data_model.is_dataset_modified()
+            is_modified = self.context.data_model.is_dataset_modified()
         else:
-            is_modified = self.data_model.is_current_column_modified()
+            is_modified = self.context.data_model.is_current_column_modified()
         
         self.original_button.setEnabled(is_modified)
 
@@ -127,5 +127,5 @@ class DataProcessingTab(QWidget):
 
     def _update_transformation_label(self) -> None:
         """Updates transformation_label"""
-        text = self.data_model.current_transformation or "Original"
+        text = self.context.data_model.current_transformation or "Original"
         self.transformation_label.setText(f"Current state: {text}")
