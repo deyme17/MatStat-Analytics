@@ -134,6 +134,7 @@ class DataProcessingTab(QWidget):
 
     def _on_original_button_clicked(self) -> None:
         """Callback for original button"""
+        self.original_button.setEnabled(False)
         whole_dataset = self.whole_dataset_checkbox.isChecked()
         self.event_bus.emit_type(
             EventType.DATA_REVERTED,

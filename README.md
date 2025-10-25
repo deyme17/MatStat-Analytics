@@ -119,6 +119,7 @@ MatStat-Analytics/
 │   ├── analysis_services/    # Analysis utilities
 │   ├── data_services/        # Data I/O and management
 │   ├── dp_services/          # Data preprocessing
+│   └── ui_services/          # UI rendering and utilities
 ├── views/               # User interface components
 │   ├── tabs/                 # Main application tabs
 │   └── widgets/              # Specialized UI widgets
