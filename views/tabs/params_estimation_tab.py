@@ -6,7 +6,6 @@ from utils import AppContext
 from services import UIMessager
 from controllers import ParameterEstimation
 
-from models.data_model import DataModel
 from models.stat_distributions import registered_distributions
 from models.params_estimators import registered_estimation_methods
 
@@ -23,8 +22,8 @@ class ParamEstimationTab(QWidget):
             estimator: Parameters estimation implementation
         """
         super().__init__()
+        self.context: AppContext = context
         self.messanger: UIMessager = context.messanger
-        self.data_model: DataModel = context.data_model
         self.estimator: ParameterEstimation = estimator
         self._init_ui()
 
@@ -60,10 +59,10 @@ class ParamEstimationTab(QWidget):
 
     def _handle_estimation(self) -> None:
         """Handle parameter estimation request."""
-        if not self.data_model or not self.messanger:
+        if not self.context.data_model or not self.messanger:
             return
 
-        data = self.data_model.series
+        data = self.context.data_model.series
         if data is None:
             self.messanger.show_error("No Data", "No data available for estimation")
             return
