@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QHBoxLayout, QGroupBox, QCheckBox
 from typing import Any, Callable
 from utils import EventBus, EventType, Event, AppContext
+from controllers import DataVersionController
 
 ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT = 222, 30
 
@@ -14,15 +15,17 @@ class DataProcessingTab(QWidget):
     - Missing data handling
     - Original data restoration
     """
-    def __init__(self, context: AppContext, widget_data: list[tuple[str, QGroupBox, Any]]):
+    def __init__(self, context: AppContext, data_version_controller: DataVersionController, widget_data: list[tuple[str, QGroupBox, Any]]):
         """
         Args:
             context: Shared application context (version_manager, event_bus, messager)
+            data_version_controller: Controller for handling data version changes
             widget_data (list[tuple[str, QGroupBox, Any]]): Widget classes for data processing operations with it's controllers
         """
         super().__init__()
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
+        self.data_version_controller: DataVersionController = data_version_controller
         self.widget_data = widget_data
 
         self._init_ui()
@@ -57,14 +60,14 @@ class DataProcessingTab(QWidget):
         self.data_version_label = QLabel("Select loaded dataset:")
         self.data_version_combo = QComboBox()
         self.data_version_combo.setEnabled(False)
-        self.data_version_combo.currentIndexChanged.connect(lambda: self.event_bus.emit_type(EventType.DATASET_CHANGED))
+        self.data_version_combo.currentIndexChanged.connect(self.data_version_controller.on_dataset_selection_changed)
 
         self.transformation_label = QLabel("Current state: Original")
 
         self.current_col_label = QLabel("Select column to apply operation to: ")
         self.dataframe_cols_combo = QComboBox()
         self.dataframe_cols_combo.setEnabled(False)
-        self.dataframe_cols_combo.currentIndexChanged.connect(lambda: self.event_bus.emit_type(EventType.COLUMN_CHANGED))
+        self.dataframe_cols_combo.currentIndexChanged.connect(self.data_version_controller.on_current_col_changed)
 
         self.whole_dataset_checkbox = QCheckBox("Whole dataset")
         self.whole_dataset_checkbox.setChecked(False)
@@ -133,13 +136,9 @@ class DataProcessingTab(QWidget):
         self.original_button.setEnabled(is_modified)
 
     def _on_original_button_clicked(self) -> None:
-        """Callback for original button"""
-        self.original_button.setEnabled(False)
+        """Callback for original button - directly calls controller"""
         whole_dataset = self.whole_dataset_checkbox.isChecked()
-        self.event_bus.emit_type(
-            EventType.DATA_REVERTED,
-            whole_dataset
-        )
+        self.data_version_controller.revert_to_original(whole_dataset)
 
     def _update_transformation_label(self) -> None:
         """Updates transformation_label"""
@@ -148,22 +147,3 @@ class DataProcessingTab(QWidget):
             return
         text = self.context.data_model.current_transformation or "Original"
         self.transformation_label.setText(f"Current state: {text}")
-
-    def connect_ui(self, on_data_version_changed: Callable[[int], None], on_column_changed: Callable[[int], None]):
-        """
-        Assign or update callbacks after initialization.
-        Args:
-            on_data_version_changed (Callable[[int], None], optional)
-            on_column_changed (Callable[[int], None], optional)
-        """
-        def safe_connect(cb):
-            if cb:
-                self.cb = cb
-                try:
-                    self.original_button.clicked.disconnect()
-                except TypeError:
-                    pass
-                self.original_button.clicked.connect(cb)
-
-        safe_connect(on_data_version_changed)
-        safe_connect(on_column_changed)

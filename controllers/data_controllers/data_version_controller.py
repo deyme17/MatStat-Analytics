@@ -34,15 +34,9 @@ class DataVersionController:
 
     def _subscribe_to_events(self):
         self.event_bus.subscribe(EventType.DATA_LOADED, self._on_data_loaded)
-        self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_data_reverted)
 
     def _on_data_loaded(self, event: Event):
         self.update_dataset_list()
-
-    def _on_data_reverted(self, event: Event):
-        """Handle data revert to refresh UI"""
-        whole_dataset = event.data if isinstance(event.data, bool) else False
-        self.revert_to_original(whole_dataset)
 
     def on_dataset_selection_changed(self, index: int) -> None:
         """

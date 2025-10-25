@@ -101,6 +101,7 @@ class UIFactory:
         # LEFT TABS
         data_tab = DataProcessingTab(
             context=self.context,
+            data_version_controller=controllers['data_version'],
             widget_data=[
                 ("transform_widget", TransformDataWidget, controllers['data_transform']),
                 ("anomaly_widget", AnomalyWidget, controllers['anomaly_data']),
@@ -169,10 +170,6 @@ class ConnectFactory:
             version_combo_controls=build_combo_callbacks(data_tab.data_version_combo),
             columns_combo_control=build_combo_callbacks(data_tab.dataframe_cols_combo),
             set_bins_value=lambda bins: self.window.graph_panel.bins_spinbox.setValue(bins)
-        )
-        data_tab.connect_ui(
-            on_data_version_changed=controllers['data_version'].on_dataset_selection_changed,
-            on_column_changed=controllers['data_version'].on_current_col_changed
         )
         controllers['anomaly_data'].connect_ui(data_tab.anomaly_widget.anomaly_gamma_spinbox.value)
         controllers['data_transform'].connect_ui(data_tab.transform_widget.shift_spinbox.value)
