@@ -52,7 +52,8 @@ class DataExporter:
         
         buffer = exporter_cls.export(df)
 
-        filename = f"{name.lower()}{n_cols}_{len(df)}.{exporter_cls.extension}"
+        filename = f"{name.lower()}_({n_cols},{len(df)}).{exporter_cls.extension}"
+        out_dir = os.path.normpath(out_dir)
         filepath = os.path.join(out_dir, filename)
 
         os.makedirs(out_dir, exist_ok=True)
