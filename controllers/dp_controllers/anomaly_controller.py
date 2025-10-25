@@ -24,6 +24,7 @@ class AnomalyController:
             anomaly_service: Service for anomaly detection operations
             get_gamma_value: Function for getting gamma configuration
         """
+        self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
         self.data_model: DataModel = context.data_model
         self.version_manager: DataVersionManager = context.version_manager
