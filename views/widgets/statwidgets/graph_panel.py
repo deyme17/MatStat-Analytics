@@ -116,6 +116,7 @@ class GraphPanel(QWidget):
 
     def _subscribe_to_events(self) -> None:
         """Subscribe to relevant events."""
+        self.event_bus.subscribe(EventType.MISSING_VALUES_DETECTED, self._on_missings)
         self.event_bus.subscribe(EventType.MISSING_VALUES_HANDLED, self._on_data_changed)
         self.event_bus.subscribe(EventType.DATA_TRANSFORMED, self._on_data_changed)
         self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_data_changed)
@@ -151,6 +152,9 @@ class GraphPanel(QWidget):
     def _on_render_params_changed(self, event: Event) -> None:
         """Handle rendering parameter changes."""
         self.refresh_all()
+
+    def _on_missings(self, event: Event) -> None:
+        self.clear()
 
     def refresh_all(self) -> None:
         """Redraw all graphs with current data."""

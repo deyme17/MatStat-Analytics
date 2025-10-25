@@ -41,6 +41,7 @@ class StatisticController:
 
     def _subscribe_to_events(self):
         self.event_bus.subscribe(EventType.MISSING_VALUES_HANDLED, self._on_changed)
+        self.event_bus.subscribe(EventType.MISSING_VALUES_DETECTED, self._on_missings)
         self.event_bus.subscribe(EventType.DATA_TRANSFORMED, self._on_changed)
         self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_changed)
         self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_changed)
@@ -53,6 +54,9 @@ class StatisticController:
         model = self.context.data_model
         if model:
             self.update_tables(model)
+
+    def _on_missings(self, event: Event):
+        self.clear_tables()
 
     def update_tables(self, model=None) -> None:
         """Updates all the UI tables"""

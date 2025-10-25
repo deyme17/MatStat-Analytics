@@ -59,11 +59,15 @@ class GOFTestTab(QWidget):
         self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_changed)
         self.event_bus.subscribe(EventType.DATA_TRANSFORMED, self._on_changed)
         self.event_bus.subscribe(EventType.MISSING_VALUES_HANDLED, self._on_changed)
+        self.event_bus.subscribe(EventType.MISSING_VALUES_DETECTED, self._on_missings)
         self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_changed)
         self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_changed)
 
     def _on_changed(self, event: Event) -> None:
         self.evaluate_tests()
+        
+    def _on_missings(self, event: Event) -> None:
+        self.clear_panels()
 
     def evaluate_tests(self) -> None:
         """
