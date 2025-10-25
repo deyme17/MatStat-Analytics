@@ -96,14 +96,12 @@ class UIFactory:
 
         # LEFT TABS
         data_tab = DataProcessingTab(
+            context=self.context,
             widget_data=[
                 ("transform_widget", TransformDataWidget, controllers['data_transform']),
                 ("anomaly_widget", AnomalyWidget, controllers['anomaly_data']),
                 ("missing_widget", MissingWidget, controllers['missing_data'])
-            ],
-            on_data_version_changed=controllers['data_version'].on_dataset_selection_changed,
-            on_original_clicked=controllers['data_version'].revert_to_original,
-            on_column_changed=controllers['data_version'].on_current_col_changed
+            ]
         )
         stat_tab = StatisticTab(stat_renderer_cls=StatsRenderer, var_rendere_cls=VarSerRenderer)
         gof_tab = GOFTestTab(
@@ -113,9 +111,8 @@ class UIFactory:
             test_panels=[PearsonChi2Panel, KolmogorovSmirnovPanel]
         )
         homo_tab = HomogenTab(
-            get_data_models=controllers['data_version'].get_all_datasets,
             homogen_controller=controllers['homogen'],
-            messanger=self.context.messanger,
+            context=self.context,
             homogen_2samples_panels=[NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, 
                                      RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel],
             homogen_Nsamples_panels=[ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel],
