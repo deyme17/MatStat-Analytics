@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (
 )
 from typing import Any, Dict, Type
 from utils import AppContext, EventBus, EventType, Event
+from .graph_tabs.graph_tab import BaseGraphTab
 
 MIN_BINS, MAX_BINS = 1, 999
 DEFAULT_BINS = 10
@@ -24,7 +25,7 @@ class GraphPanel(QWidget):
         self,
         context: AppContext,
         dist_selector_cls: Type,
-        graph_tabs: Dict[str, QWidget]
+        graph_tabs: Dict[str, BaseGraphTab]
     ):
         """
         Args:
@@ -35,7 +36,7 @@ class GraphPanel(QWidget):
         super().__init__()
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
-        self.graph_tabs: Dict[str, QWidget] = graph_tabs
+        self.graph_tabs: Dict[str, BaseGraphTab] = graph_tabs
 
         self._init_controls(dist_selector_cls)
         self._init_tabs()
