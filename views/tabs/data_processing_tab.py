@@ -62,31 +62,25 @@ class DataProcessingTab(QWidget):
 
     def _init_ui(self) -> None:
         """Initialize UI components."""
-        self.data_version_label = QLabel("Select loaded dataset:")
-        self.data_version_combo = QComboBox()
-        self.data_version_combo.setEnabled(False)
-        self.data_version_combo.currentIndexChanged.connect(self.data_version_controller.on_dataset_selection_changed)
+        self.data_version_label = self._make_label("Select loaded dataset:")
+        self.data_version_combo = self._make_combo(
+            on_change=self.data_version_controller.on_dataset_selection_changed
+        )
+        self.transformation_label = self._make_label("Current state: Original")
 
-        self.transformation_label = QLabel("Current state: Original")
-
-        self.current_col_label = QLabel("Select column to apply operation to: ")
-        self.dataframe_cols_combo = QComboBox()
-        self.dataframe_cols_combo.setEnabled(False)
-        self.dataframe_cols_combo.currentIndexChanged.connect(self.data_version_controller.on_current_col_changed)
-
-        self.whole_dataset_checkbox = QCheckBox("Whole dataset")
-        self.whole_dataset_checkbox.setChecked(False)
-        self.whole_dataset_checkbox.toggled.connect(self._on_checkbox_toggled)
-
-        self.original_button = QPushButton("Original")
-        self.original_button.setEnabled(False)
-        self.original_button.setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT)
-        self.original_button.clicked.connect(self._on_original_button_clicked)
-
-        self.export_button = QPushButton("Export Data")
-        self.export_button.setEnabled(False)
-        self.export_button.setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT)
-        self.export_button.clicked.connect(self._on_export_data_clicked)
+        self.current_col_label = self._make_label("Select column to apply operation to:")
+        self.dataframe_cols_combo = self._make_combo(
+            on_change=self.data_version_controller.on_current_col_changed
+        )
+        self.whole_dataset_checkbox = self._make_checkbox(
+            "Whole dataset", checked=False, callback=self._on_checkbox_toggled
+        )
+        self.original_button = self._make_button(
+            "Original", callback=self._on_original_button_clicked
+        )
+        self.export_button = self._make_button(
+            "Export Data", callback=self._on_export_data_clicked
+        )
 
     def _on_checkbox_toggled(self) -> None:
         """Update button state when checkbox is toggled"""
@@ -187,3 +181,28 @@ class DataProcessingTab(QWidget):
 
         except Exception as e:
             self.messanger.show_error("Export error", f"Export failed: {e}")
+
+    def _make_label(self, text: str) -> QLabel:
+        return QLabel(text)
+
+    def _make_combo(self, on_change=None, enabled=False) -> QComboBox:
+        combo = QComboBox()
+        combo.setEnabled(enabled)
+        if on_change:
+            combo.currentIndexChanged.connect(on_change)
+        return combo
+
+    def _make_button(self, text: str, callback=None, enabled=False) -> QPushButton:
+        btn = QPushButton(text)
+        btn.setEnabled(enabled)
+        btn.setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT)
+        if callback:
+            btn.clicked.connect(callback)
+        return btn
+
+    def _make_checkbox(self, text: str, checked=False, callback=None) -> QCheckBox:
+        cb = QCheckBox(text)
+        cb.setChecked(checked)
+        if callback:
+            cb.toggled.connect(callback)
+        return cb
