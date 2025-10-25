@@ -58,7 +58,7 @@ class GOFTestTab(QWidget):
         self.event_bus.subscribe(EventType.DISTRIBUTION_CHANGED, self._on_changed)
         self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_changed)
         self.event_bus.subscribe(EventType.DATA_TRANSFORMED, self._on_changed)
-        self.event_bus.subscribe(EventType.DATA_LOADED, self._on_changed)
+        self.event_bus.subscribe(EventType.MISSING_VALUES_HANDLED, self._on_changed)
         self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_changed)
         self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_changed)
 

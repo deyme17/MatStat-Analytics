@@ -39,7 +39,7 @@ class MissingDataController:
         self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_data_changed)
 
     def _on_data_changed(self, event):
-        series = event.data.get('series')
+        series = event.data.get('series') or self.context.data_model.series
         if series is not None:
             self.update_data_reference(series)
 
@@ -56,14 +56,15 @@ class MissingDataController:
         """
         Update the display with current missing values information.
         """
-        if not self.display_service:
-            return
+        if not self.display_service: return
         if self.data is not None:
             info = self.missing_service.detect_missing(self.data)
             self.display_service.update(info)
             
-            if info['count'] > 0:
-                self.event_bus.emit_type(EventType.MISSING_VALUES_DETECTED, info)
+            if info['total_missing'] > 0:
+                self.event_bus.emit_type(EventType.MISSING_VALUES_DETECTED)
+            else:
+                self.event_bus.emit_type(EventType.MISSING_VALUES_HANDLED)
 
     def impute_with_mean(self) -> None:
         """

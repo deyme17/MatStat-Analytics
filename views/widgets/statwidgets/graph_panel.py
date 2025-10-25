@@ -116,7 +116,7 @@ class GraphPanel(QWidget):
 
     def _subscribe_to_events(self) -> None:
         """Subscribe to relevant events."""
-        self.event_bus.subscribe(EventType.DATA_LOADED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.MISSING_VALUES_HANDLED, self._on_data_changed)
         self.event_bus.subscribe(EventType.DATA_TRANSFORMED, self._on_data_changed)
         self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_data_changed)
         self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_data_changed)
