@@ -1,10 +1,9 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QHBoxLayout, QGroupBox, QCheckBox
-from typing import Any, Callable
+from typing import Any
 from utils import EventBus, EventType, Event, AppContext
 from controllers import DataVersionController
 
-ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT = 111, 30
-EXPORT_BUTTON_WIDTH, EXPORT_BUTTON_HEIGHT = 111, 30
+ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT = 222, 30
 
 
 class DataProcessingTab(QWidget):
@@ -22,18 +21,12 @@ class DataProcessingTab(QWidget):
             context: Shared application context (version_manager, event_bus, messager)
             data_version_controller: Controller for handling data version changes
             widget_data (list[tuple[str, QGroupBox, Any]]): Widget classes for data processing operations with it's controllers
-            on_data_version_changed (Callable[[int], None], optional): Callback for dataset version change
-            on_column_changed (Callable[[int], None], optional): Callback for current dataframe column change
-            on_original_clicked (Callable[[], None], optional): Callback for "Original" button click
         """
         super().__init__()
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
         self.data_version_controller: DataVersionController = data_version_controller
         self.widget_data = widget_data
-        self.on_data_version_changed = on_data_version_changed
-        self.on_original_clicked = on_original_clicked
-        self.on_column_changed = on_column_changed
 
         self._init_ui()
         self._setup_layout()
@@ -69,7 +62,7 @@ class DataProcessingTab(QWidget):
         self.data_version_combo.setEnabled(False)
         self.data_version_combo.currentIndexChanged.connect(self.data_version_controller.on_dataset_selection_changed)
 
-        self.transformation_label = make_label("Current state: Original")
+        self.transformation_label = QLabel("Current state: Original")
 
         self.current_col_label = QLabel("Select column to apply operation to: ")
         self.dataframe_cols_combo = QComboBox()

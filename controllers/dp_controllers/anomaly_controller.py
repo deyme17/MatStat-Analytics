@@ -1,10 +1,9 @@
 from typing import Callable, Optional
+import pandas as pd
+
 from utils import AppContext, EventBus, EventType
 from utils.decorators import require_one_dimensional_dataframe
-
 from services import AnomalyService, DataVersionManager, UIMessager
-
-import pandas as pd
 
 
 class AnomalyController:
