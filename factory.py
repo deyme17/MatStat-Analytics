@@ -151,7 +151,7 @@ class ConnectFactory:
         self.window = window
 
     def connect_ui(self, controllers):
-        self.window.widgets.load_button.clicked.connect(controllers['data_loader'].load_data_file)
+        self.window.widgets.load_button.clicked.connect(lambda: controllers['data_loader'].load_data_file())
         self.window.widgets.precision_spinbox.valueChanged.connect(lambda: EventBus.emit_type(EventType.PRECISION_CHANGED))
 
         controllers['statistic'].connect_ui(
