@@ -3,7 +3,7 @@ from typing import Any
 from utils import EventBus, EventType, Event, AppContext
 from controllers import DataVersionController
 
-ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT = 222, 30
+BUTTON_WIDTH, BUTTON_HEIGHT = 222, 30
 
 
 class DataProcessingTab(QWidget):
@@ -75,8 +75,13 @@ class DataProcessingTab(QWidget):
 
         self.original_button = QPushButton("Original")
         self.original_button.setEnabled(False)
-        self.original_button.setFixedSize(ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT)
+        self.original_button.setFixedSize(BUTTON_WIDTH // 2, BUTTON_HEIGHT)
         self.original_button.clicked.connect(self._on_original_button_clicked)
+
+        self.export_button = QPushButton("Export Data")
+        self.export_button.setEnabled(False)
+        self.export_button.setFixedSize(BUTTON_WIDTH // 2, BUTTON_HEIGHT)
+        self.export_button.clicked.connect(lambda: None)
 
     def _on_checkbox_toggled(self) -> None:
         """Update button state when checkbox is toggled"""
@@ -87,6 +92,7 @@ class DataProcessingTab(QWidget):
         # Navigation layout for the button
         nav_layout = QHBoxLayout()
         nav_layout.addWidget(self.original_button)
+        nav_layout.addWidget(self.export_button)
         nav_layout.addWidget(self.whole_dataset_checkbox)
         nav_layout.addStretch()
 
