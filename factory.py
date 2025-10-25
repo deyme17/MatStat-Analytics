@@ -102,6 +102,7 @@ class UIFactory:
         data_tab = DataProcessingTab(
             context=self.context,
             data_version_controller=controllers['data_version'],
+            data_exporter=DataExporter,
             widget_data=[
                 ("transform_widget", TransformDataWidget, controllers['data_transform']),
                 ("anomaly_widget", AnomalyWidget, controllers['anomaly_data']),

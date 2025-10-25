@@ -2,8 +2,9 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton
 from typing import Any
 from utils import EventBus, EventType, Event, AppContext
 from controllers import DataVersionController
+from services import DataExporter, UIMessager
 
-BUTTON_WIDTH, BUTTON_HEIGHT = 222, 30
+BUTTON_WIDTH, BUTTON_HEIGHT = 111, 30
 
 
 class DataProcessingTab(QWidget):
@@ -15,16 +16,20 @@ class DataProcessingTab(QWidget):
     - Missing data handling
     - Original data restoration
     """
-    def __init__(self, context: AppContext, data_version_controller: DataVersionController, widget_data: list[tuple[str, QGroupBox, Any]]):
+    def __init__(self, context: AppContext, data_exporter: DataExporter, data_version_controller: DataVersionController, 
+                 widget_data: list[tuple[str, QGroupBox, Any]]) -> None: 
         """
         Args:
             context: Shared application context (version_manager, event_bus, messager)
             data_version_controller: Controller for handling data version changes
+            data_exporter: Class for exporting data
             widget_data (list[tuple[str, QGroupBox, Any]]): Widget classes for data processing operations with it's controllers
         """
         super().__init__()
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
+        self.messanger: UIMessager = context.messanger
+        self.exporter: DataExporter = data_exporter
         self.data_version_controller: DataVersionController = data_version_controller
         self.widget_data = widget_data
 
@@ -75,13 +80,13 @@ class DataProcessingTab(QWidget):
 
         self.original_button = QPushButton("Original")
         self.original_button.setEnabled(False)
-        self.original_button.setFixedSize(BUTTON_WIDTH // 2, BUTTON_HEIGHT)
+        self.original_button.setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT)
         self.original_button.clicked.connect(self._on_original_button_clicked)
 
         self.export_button = QPushButton("Export Data")
         self.export_button.setEnabled(False)
-        self.export_button.setFixedSize(BUTTON_WIDTH // 2, BUTTON_HEIGHT)
-        self.export_button.clicked.connect(lambda: None)
+        self.export_button.setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT)
+        self.export_button.clicked.connect(self._on_export_data_clicked)
 
     def _on_checkbox_toggled(self) -> None:
         """Update button state when checkbox is toggled"""
@@ -142,7 +147,7 @@ class DataProcessingTab(QWidget):
         self.original_button.setEnabled(is_modified)
 
     def _on_original_button_clicked(self) -> None:
-        """Callback for original button - directly calls controller"""
+        """Callback for original button"""
         whole_dataset = self.whole_dataset_checkbox.isChecked()
         self.data_version_controller.revert_to_original(whole_dataset)
 
@@ -153,3 +158,32 @@ class DataProcessingTab(QWidget):
             return
         text = self.context.data_model.current_transformation or "Original"
         self.transformation_label.setText(f"Current state: {text}")
+
+    def _on_export_data_clicked(self) -> None:
+        """Callback for export button"""
+        curr_data = self.context.data_model
+        if not curr_data:
+            self.messanger.show_error("No data available for export.")
+            return
+        
+        whole_dataset = self.whole_dataset_checkbox.isChecked()
+
+        try:
+            export_data = None
+            name = "Exported"
+
+            if whole_dataset and curr_data.dataframe is not None:
+                export_data = curr_data.dataframe
+                name = f"{curr_data.name}_dataset"
+            elif curr_data.series is not None:
+                export_data = curr_data.series.to_numpy()
+                name = f"{curr_data.name}_{curr_data.current_column}"
+            else:
+                self.messanger.show_error("Export error", "No data to export.")
+                return
+
+            filepath = self.exporter.export(name, export_data)
+            self.messanger.show_info("Data Export", f"Data exported successfully to:\n{filepath}")
+
+        except Exception as e:
+            self.messanger.show_error("Export error", f"Export failed: {e}")
