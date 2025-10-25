@@ -37,7 +37,7 @@ class MissingDataController:
         self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_data_changed)
 
     def _on_data_changed(self, event):
-        series = event.data.get('series') or self.context.data_model.series
+        series = self.context.data_model.series
         if series is not None:
             self.update_data_reference(series)
 
