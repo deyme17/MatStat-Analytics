@@ -17,6 +17,7 @@ class EventType(Enum):
     CONFIDENCE_CHANGED = auto()
     PRECISION_CHANGED = auto()
     DISTRIBUTION_CHANGED = auto()
+    ADDITIONAL_GRAPH_TOGGLED = auto()
     
     # State events
     MISSING_VALUES_DETECTED = auto()
