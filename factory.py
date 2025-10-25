@@ -170,6 +170,10 @@ class ConnectFactory:
             columns_combo_control=build_combo_callbacks(data_tab.dataframe_cols_combo),
             set_bins_value=lambda bins: self.window.graph_panel.bins_spinbox.setValue(bins)
         )
+        data_tab.connect_ui(
+            on_data_version_changed=controllers['data_version'].on_dataset_selection_changed,
+            on_column_changed=controllers['data_version'].on_current_col_changed
+        )
         controllers['anomaly_data'].connect_ui(data_tab.anomaly_widget.anomaly_gamma_spinbox.value)
         controllers['data_transform'].connect_ui(data_tab.transform_widget.shift_spinbox.value)
         controllers['missing_data'].connect_ui(

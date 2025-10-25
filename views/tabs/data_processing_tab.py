@@ -1,10 +1,8 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QHBoxLayout, QGroupBox, QCheckBox
-from typing import Any
-from models.data_model import DataModel
+from typing import Any, Callable
 from utils import EventBus, EventType, Event, AppContext
 
 ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT = 222, 30
-
 
 
 class DataProcessingTab(QWidget):
@@ -32,9 +30,23 @@ class DataProcessingTab(QWidget):
         self._subscribe_to_events()
 
     def _subscribe_to_events(self) -> None:
+        self.event_bus.subscribe(EventType.DATA_LOADED, self._on_data_loaded)
         self.event_bus.subscribe(EventType.DATA_TRANSFORMED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_data_changed)
         self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_data_changed)
         self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_data_changed)
+
+    def _on_data_loaded(self, event: Event) -> None:
+        """Enable combo boxes when data is loaded"""
+        dataset_count = len(self.context.version_manager.get_all_dataset_names())
+        self.data_version_combo.setEnabled(dataset_count > 0)
+        
+        if self.context.data_model:
+            col_count = self.context.data_model.dataframe.shape[1]
+            self.dataframe_cols_combo.setEnabled(col_count > 0)
+        
+        self._update_original_button_state()
+        self._update_transformation_label()
 
     def _on_data_changed(self, event: Event) -> None:
         self._update_original_button_state()
@@ -56,11 +68,16 @@ class DataProcessingTab(QWidget):
 
         self.whole_dataset_checkbox = QCheckBox("Whole dataset")
         self.whole_dataset_checkbox.setChecked(False)
+        self.whole_dataset_checkbox.toggled.connect(self._on_checkbox_toggled)
 
         self.original_button = QPushButton("Original")
         self.original_button.setEnabled(False)
         self.original_button.setFixedSize(ORIG_BUTTON_WIDTH, ORIG_BUTTON_HEIGHT)
         self.original_button.clicked.connect(self._on_original_button_clicked)
+
+    def _on_checkbox_toggled(self) -> None:
+        """Update button state when checkbox is toggled"""
+        self._update_original_button_state()
 
     def _setup_layout(self) -> None:
         """Setup the main layout structure."""
@@ -122,10 +139,30 @@ class DataProcessingTab(QWidget):
             EventType.DATA_REVERTED,
             whole_dataset
         )
-        self._update_original_button_state()
-        self._update_transformation_label()
 
     def _update_transformation_label(self) -> None:
         """Updates transformation_label"""
+        if not self.context.data_model:
+            self.transformation_label.setText("Current state: No Data")
+            return
         text = self.context.data_model.current_transformation or "Original"
         self.transformation_label.setText(f"Current state: {text}")
+
+    def connect_ui(self, on_data_version_changed: Callable[[int], None], on_column_changed: Callable[[int], None]):
+        """
+        Assign or update callbacks after initialization.
+        Args:
+            on_data_version_changed (Callable[[int], None], optional)
+            on_column_changed (Callable[[int], None], optional)
+        """
+        def safe_connect(cb):
+            if cb:
+                self.cb = cb
+                try:
+                    self.original_button.clicked.disconnect()
+                except TypeError:
+                    pass
+                self.original_button.clicked.connect(cb)
+
+        safe_connect(on_data_version_changed)
+        safe_connect(on_column_changed)

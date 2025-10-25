@@ -34,9 +34,15 @@ class DataVersionController:
 
     def _subscribe_to_events(self):
         self.event_bus.subscribe(EventType.DATA_LOADED, self._on_data_loaded)
+        self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_data_reverted)
 
     def _on_data_loaded(self, event: Event):
         self.update_dataset_list()
+
+    def _on_data_reverted(self, event: Event):
+        """Handle data revert to refresh UI"""
+        whole_dataset = event.data if isinstance(event.data, bool) else False
+        self.revert_to_original(whole_dataset)
 
     def on_dataset_selection_changed(self, index: int) -> None:
         """
@@ -48,10 +54,14 @@ class DataVersionController:
             dataset_name = dataset_names[index]
             self.version_manager.switch_to_dataset(dataset_name)
             self.context.data_model = self.version_manager.get_current_data_model()
+
+            self.update_columns_list()
+            self._set_bins_for_new_data()
             
             self.event_bus.emit_type(EventType.DATASET_CHANGED, {
                 'model': self.context.data_model,
-                'series': self.context.data_model.series
+                'series': self.context.data_model.series,
+                'from_combo': True
             })
 
     def on_current_col_changed(self, index: int) -> None:
@@ -72,7 +82,8 @@ class DataVersionController:
                 'model': self.context.data_model,
                 'series': self.context.data_model.series,
                 'col_name': col_name,
-                'col_idx': col_idx
+                'col_idx': col_idx,
+                'from_combo': True
             })
 
     def revert_to_original(self, whole_dataset: bool = False) -> None:
@@ -87,7 +98,8 @@ class DataVersionController:
             self.event_bus.emit_type(EventType.DATA_REVERTED, {
                 'model': original,
                 'series': original.series,
-                'whole_dataset': whole_dataset
+                'whole_dataset': whole_dataset,
+                'completed': True
             })
 
     def update_dataset_list(self) -> None:
@@ -131,7 +143,8 @@ class DataVersionController:
             self.columns_combo_control.set_current_index(col_names.index(current_col))
         else:
             self.columns_combo_control.set_current_index(0)
-            self.version_manager.change_column(col_names[0])
+            if col_names:
+                self.version_manager.change_column(col_names[0])
 
         self.columns_combo_control.block_signals(False)
 
