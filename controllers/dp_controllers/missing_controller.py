@@ -1,6 +1,5 @@
 from typing import Optional
 from services import MissingInfoDisplayService, MissingService, DataVersionManager, UIMessager
-from models.data_model import DataModel
 from utils import AppContext, EventBus, EventType
 import pandas as pd
 
@@ -22,7 +21,6 @@ class MissingDataController:
             display_service: Service for displaying missing data info
         """
         self.context: AppContext = context
-        self.data_model: DataModel = context.data_model
         self.event_bus: EventBus = context.event_bus
         self.messanger: UIMessager = context.messanger
         self.version_manager: DataVersionManager = context.version_manager
@@ -118,7 +116,7 @@ class MissingDataController:
         """
         new_df = pd.DataFrame(new_series).reset_index(drop=True)
 
-        new_model = self.data_model.add_version(new_df, label)
+        new_model = self.context.data_model.add_version(new_df, label)
         self.context.data_model = new_model
         self.data = new_model.series
 

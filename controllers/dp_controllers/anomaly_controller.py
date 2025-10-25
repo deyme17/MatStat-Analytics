@@ -3,7 +3,6 @@ from utils import AppContext, EventBus, EventType
 from utils.decorators import require_one_dimensional_dataframe
 
 from services import AnomalyService, DataVersionManager, UIMessager
-from models.data_model import DataModel
 
 import pandas as pd
 
@@ -26,7 +25,6 @@ class AnomalyController:
         """
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
-        self.data_model: DataModel = context.data_model
         self.version_manager: DataVersionManager = context.version_manager
         self.messanger: UIMessager = context.messanger
         self.anomaly_service: AnomalyService = anomaly_service
@@ -65,7 +63,7 @@ class AnomalyController:
             detection_func: function that returns a dict with 'anomalies' and bounds
             label: label used to name the new version of the dataset
         """
-        data = self.data_model.dataframe
+        data = self.context.data_model.dataframe
         if data is None:
             return
 
@@ -82,12 +80,12 @@ class AnomalyController:
 
         # remove anomalies and create new version of the dataset
         cleaned = data.drop(anomalies)
-        new_model = self.data_model.add_version(cleaned, label)
+        new_model = self.context.data_model.add_version(cleaned, label)
         new_model.anomalies_removed = True
         current_col = new_model.current_col_idx
 
         # update data model and UI
-        self.data_model = new_model
+        self.context.data_model = new_model
         self.version_manager.update_current_dataset(new_model)
         
         self.event_bus.emit_type(EventType.DATA_TRANSFORMED, {
