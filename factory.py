@@ -46,7 +46,7 @@ class ControllersFactory:
         controllers = {}
         
         controllers['statistic'] = StatisticController(
-            event_bus=self.context.event_bus,
+            context=self.context,
             statistic_service=StatisticsService()
         )
         controllers['data_loader'] = DataLoadController(

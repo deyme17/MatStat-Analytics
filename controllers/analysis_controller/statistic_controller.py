@@ -1,7 +1,7 @@
 from typing import Callable, Optional
 from services.ui_services.renderers.table_renderers.table_renderer import TableRenderer
 from services import StatisticsService
-from utils import EventBus, EventType, Event
+from utils import EventBus, EventType, Event, AppContext
 
 
 class StatisticController:
@@ -10,7 +10,7 @@ class StatisticController:
     """
     def __init__(
         self,
-        event_bus: EventBus,
+        context: AppContext,
         statistic_service: StatisticsService,
         stats_renderer: Optional[TableRenderer] = None,
         var_renderer: Optional[TableRenderer] = None,
@@ -20,7 +20,7 @@ class StatisticController:
     ):
         """
         Args:
-            event_bus: Event bus for pub/sub
+            context: Shared application context (version_manager, event_bus, messager)
             statistic_service: Service for statistics handling
             stats_renderer: Responsible for drawing statistics in table
             var_renderer: Responsible for drawing variation series in table
@@ -28,7 +28,8 @@ class StatisticController:
             get_precision_value: Function for getting precision configuration
             get_confidence_value: Function for getting confidence level selection
         """
-        self.event_bus: EventBus = event_bus
+        self.context: AppContext = context
+        self.event_bus: EventBus = context.event_bus
         self.statistic_service: StatisticsService = statistic_service
         self.stats_renderer: TableRenderer = stats_renderer
         self.var_renderer: TableRenderer = var_renderer
@@ -39,17 +40,22 @@ class StatisticController:
         self._subscribe_to_events()
 
     def _subscribe_to_events(self):
-        self.event_bus.subscribe(EventType.DATA_LOADED, self._on_changed)
-        self.event_bus.subscribe(EventType.DATA_TRANSFORMED, self._on_changed)
-        self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_changed)
-        self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_changed)
-        self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_changed)
-        self.event_bus.subscribe(EventType.BINS_CHANGED, self._on_changed)
-        self.event_bus.subscribe(EventType.CONFIDENCE_CHANGED, self._on_changed)
-        self.event_bus.subscribe(EventType.PRECISION_CHANGED, self._on_changed)
+        self.event_bus.subscribe(EventType.DATA_LOADED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.DATA_TRANSFORMED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.BINS_CHANGED, self._on_settings_changed)
+        self.event_bus.subscribe(EventType.CONFIDENCE_CHANGED, self._on_settings_changed)
+        self.event_bus.subscribe(EventType.PRECISION_CHANGED, self._on_settings_changed)
 
-    def _on_changed(self, event: Event):
+    def _on_data_changed(self, event: Event):
         model = event.data.get('model')
+        if model:
+            self.update_tables(model)
+
+    def _on_settings_changed(self, event: Event):
+        model = self.context.data_model
         if model:
             self.update_tables(model)
 
