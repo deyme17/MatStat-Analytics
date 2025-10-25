@@ -30,6 +30,7 @@ from views import (
     ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel,
     GraphPanel, DistributionSelector
 )
+from views.widgets.statwidgets.graph_tabs import EDFTab, HistogramTab
 
 # Callbacks
 from utils.combo_callbacks import build_combo_callbacks
@@ -91,7 +92,10 @@ class UIFactory:
         self.window.graph_panel = GraphPanel(
             context=self.context,
             dist_selector_cls=DistributionSelector,
-            confidence_service=ConfidenceService()
+            graph_tabs={
+                "Histogram": HistogramTab(self.context),
+                "EDF": EDFTab(self.context, ConfidenceService()),
+            }
         )
 
         # LEFT TABS
@@ -159,7 +163,7 @@ class ConnectFactory:
         )
 
         data_tab = self.window.data_tab
-        
+
         controllers['data_version'].connect_ui(
             version_combo_controls=build_combo_callbacks(data_tab.data_version_combo),
             columns_combo_control=build_combo_callbacks(data_tab.dataframe_cols_combo),

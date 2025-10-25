@@ -2,11 +2,7 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QSpinBox, QDoubleSpinBox, QCheckBox, QTabWidget
 )
-from views.widgets.statwidgets.graph_tabs import registered_graphs
-from typing import  Any
-
-from .stat_dist_selector import DistributionSelector
-from services import ConfidenceService
+from typing import Any, Dict, Type
 from utils import AppContext, EventBus, EventType, Event
 
 MIN_BINS, MAX_BINS = 1, 999
@@ -27,20 +23,19 @@ class GraphPanel(QWidget):
     def __init__(
         self,
         context: AppContext,
-        dist_selector_cls: DistributionSelector,
-        confidence_service: ConfidenceService
+        dist_selector_cls: Type,
+        graph_tabs: Dict[str, QWidget]
     ):
         """
         Args:
             context: Application context with event_bus and data_model
             dist_selector_cls: Distribution selector widget class
-            confidence_service: Service for confidence interval calculations
+            graph_tabs: Dictionary of {tab_name: tab_widget_instance}
         """
         super().__init__()
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
-        self.confidence_service: ConfidenceService = confidence_service
-        self.graph_tabs = {}
+        self.graph_tabs: Dict[str, QWidget] = graph_tabs
 
         self._init_controls(dist_selector_cls)
         self._init_tabs()
@@ -83,19 +78,14 @@ class GraphPanel(QWidget):
         self.controls_layout.addWidget(self.show_line_checkbox)
 
         # distribution selector
-        self.dist_selector: DistributionSelector = dist_selector_cls()
+        self.dist_selector = dist_selector_cls()
 
     def _init_tabs(self) -> None:
-        """Initialize graph tabs."""
+        """Initialize graph tabs from provided instances."""
         self.tabs = QTabWidget()
-        for name, tab_cls in registered_graphs.items():
-            tab = tab_cls(
-                confidence_service=self.confidence_service,
-                context=self.context
-            )
+        for name, tab in self.graph_tabs.items():
             tab.set_panel(self)
             self.tabs.addTab(tab, name)
-            self.graph_tabs[name] = tab
 
     def _setup_layout(self) -> None:
         """Setup main layout."""
