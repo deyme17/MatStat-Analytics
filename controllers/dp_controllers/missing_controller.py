@@ -62,6 +62,12 @@ class MissingDataController:
             self.display_service.update(info)
             
             if info['total_missing'] > 0:
+                self.messanger.show_info(
+                    "Missing Values Detected",
+                    f"Found {info['total_missing']} missing values "
+                    f"({info['missing_percentage']:.2f}%).\n"
+                    "Please handle missing values before performing data operations."
+                )
                 self.event_bus.emit_type(EventType.MISSING_VALUES_DETECTED)
             else:
                 self.event_bus.emit_type(EventType.MISSING_VALUES_HANDLED)
