@@ -7,20 +7,20 @@ from models.stat_distributions.stat_distribution import StatisticalDistribution
 DIST_IN_ROW = 3
 MAX_DIST_PANEL_HEIGHT = 100
 
+
 class DistributionSelector(QGroupBox):
     """
     Widget for selecting statistical distributions.
     Provides radio buttons for all registered distributions.
     """
-    def __init__(self, on_change: Optional[Callable[[], None]] = None, parent=None):
+    def __init__(self, parent=None):
         """
         Initialize the distribution selector.
         Args:
-            on_change (Callable): Optional callback to call when selection changes.
             parent: Optional QWidget parent.
         """
         super().__init__("Statistical Distributions", parent)
-        self._on_change = on_change
+        self._on_change: Optional[Callable[[], None]] = None
         self._setup_ui()
 
     def _setup_ui(self) -> None:
@@ -76,6 +76,6 @@ class DistributionSelector(QGroupBox):
         """
         Set callback for distribution selection changes.
         Args:
-            callback (Callable): A function to call on change.
+            callback: A function to call on change.
         """
         self._on_change = callback

@@ -3,8 +3,11 @@ from PyQt6.QtWidgets import (
     QSpinBox, QDoubleSpinBox, QCheckBox, QTabWidget
 )
 from views.widgets.statwidgets.graph_tabs import registered_graphs
-from typing import Callable, Optional, Any
-import pandas as pd
+from typing import  Any
+
+from .stat_dist_selector import DistributionSelector
+from services import ConfidenceService
+from utils import AppContext, EventBus, EventType, Event
 
 MIN_BINS, MAX_BINS = 1, 999
 DEFAULT_BINS = 10
@@ -19,65 +22,57 @@ CONF_PRECISION = 2
 class GraphPanel(QWidget):
     """
     Visualization panel hosting graph tabs and controls.
-    Completely decoupled from main window.
+    Uses EventBus for communication.
     """
     def __init__(
         self,
-        dist_selector_cls,
-        graph_controller,
-        get_data_model: Callable[[], Any],
+        context: AppContext,
+        dist_selector_cls: DistributionSelector,
+        confidence_service: ConfidenceService
     ):
         """
         Args:
+            context: Application context with event_bus and data_model
             dist_selector_cls: Distribution selector widget class
-            graph_controller: Controller for graph operations and computations
-            get_data_model: Function for getting current DataModel
+            confidence_service: Service for confidence interval calculations
         """
         super().__init__()
-        self.data = None
-        self.graph_controller = graph_controller
+        self.context: AppContext = context
+        self.event_bus: EventBus = context.event_bus
+        self.confidence_service: ConfidenceService = confidence_service
         self.graph_tabs = {}
 
         self._init_controls(dist_selector_cls)
-
-        self.tabs = QTabWidget()
-        for name, tab_cls in registered_graphs.items():
-            tab = tab_cls(self.graph_controller, get_data_model)
-            tab.set_context(self)
-            self.tabs.addTab(tab, name)
-            self.graph_tabs[name] = tab
-
-        layout = QVBoxLayout()
-        layout.addWidget(self.tabs)
-        layout.addLayout(self.controls_layout)
-        layout.addWidget(self.dist_selector)
-        self.setLayout(layout)
+        self._init_tabs()
+        self._setup_layout()
+        self._connect_signals()
+        self._subscribe_to_events()
 
     def _init_controls(self, dist_selector_cls) -> None:
         """Initialize UI controls."""
         self.controls_layout = QHBoxLayout()
 
-        # Bins control
+        # bins control
         self.bins_spinbox = QSpinBox()
         self.bins_spinbox.setRange(MIN_BINS, MAX_BINS)
         self.bins_spinbox.setValue(DEFAULT_BINS)
         self.bins_spinbox.setMaximumWidth(MAX_BINS_SPINBOX_WIDTH)
 
-        # Confidence level
+        # confidence level
         self.confidence_spinbox = QDoubleSpinBox()
         self.confidence_spinbox.setRange(MIN_CONF, MAX_CONF)
         self.confidence_spinbox.setSingleStep(CONF_STEP)
         self.confidence_spinbox.setValue(DEFAULT_CONF)
         self.confidence_spinbox.setDecimals(CONF_PRECISION)
 
-        # curve toggle
+        # toggle checkboxes
         self.show_kde_checkbox = QCheckBox("Show curves")
         self.show_kde_checkbox.setChecked(False)
-        # KDE toggle
+        
         self.show_line_checkbox = QCheckBox("Show broken lines")
         self.show_line_checkbox.setChecked(False)
 
-        # Assemble controls
+        # assemble controls
         self.controls_layout.addWidget(QLabel("Bins:"))
         self.controls_layout.addWidget(self.bins_spinbox)
         self.controls_layout.addSpacing(20)
@@ -87,33 +82,96 @@ class GraphPanel(QWidget):
         self.controls_layout.addWidget(self.show_kde_checkbox)
         self.controls_layout.addWidget(self.show_line_checkbox)
 
-        # Distribution selector
-        self.dist_selector = dist_selector_cls()
+        # distribution selector
+        self.dist_selector: DistributionSelector = dist_selector_cls()
 
-    def connect_controls(self) -> None:
-        """Connect control signals to callbacks."""
-        self.bins_spinbox.valueChanged.connect(self.graph_controller.on_bins_changed)
-        self.confidence_spinbox.valueChanged.connect(self.graph_controller.on_alpha_changed)
-        self.show_kde_checkbox.stateChanged.connect(self.graph_controller.on_kde_toggled)
-        self.show_line_checkbox.stateChanged.connect(self.graph_controller.on_line_toggled)
-        self.dist_selector.set_on_change(self.graph_controller.on_distribution_changed)
+    def _init_tabs(self) -> None:
+        """Initialize graph tabs."""
+        self.tabs = QTabWidget()
+        for name, tab_cls in registered_graphs.items():
+            tab = tab_cls(
+                confidence_service=self.confidence_service,
+                context=self.context
+            )
+            tab.set_panel(self)
+            self.tabs.addTab(tab, name)
+            self.graph_tabs[name] = tab
 
-    def set_data(self, data: pd.Series) -> None:
-        """
-        Set data for visualization.
-        Args:
-            data: Input data series
-        """
-        self.data = data
-        if data is not None:
-            self.bins_spinbox.setMaximum(len(data))
+    def _setup_layout(self) -> None:
+        """Setup main layout."""
+        layout = QVBoxLayout()
+        layout.addWidget(self.tabs)
+        layout.addLayout(self.controls_layout)
+        layout.addWidget(self.dist_selector)
+        self.setLayout(layout)
+
+    def _connect_signals(self) -> None:
+        """Connect control signals to event emissions."""
+        self.bins_spinbox.valueChanged.connect(
+            lambda value: self.event_bus.emit_type(EventType.BINS_CHANGED, value)
+        )
+        self.confidence_spinbox.valueChanged.connect(
+            lambda value: self.event_bus.emit_type(EventType.CONFIDENCE_CHANGED, value)
+        )
+        self.show_kde_checkbox.stateChanged.connect(
+            lambda: self.event_bus.emit_type(EventType.ADDITIONAL_GRAPH_TOGGLED)
+        )
+        self.show_line_checkbox.stateChanged.connect(
+            lambda: self.event_bus.emit_type(EventType.ADDITIONAL_GRAPH_TOGGLED)
+        )
+        self.dist_selector.set_on_change(
+            lambda: self.event_bus.emit_type(EventType.DISTRIBUTION_CHANGED)
+        )
+
+    def _subscribe_to_events(self) -> None:
+        """Subscribe to relevant events."""
+        self.event_bus.subscribe(EventType.DATA_LOADED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.DATA_TRANSFORMED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.BINS_CHANGED, self._on_bins_changed)
+        self.event_bus.subscribe(EventType.CONFIDENCE_CHANGED, self._on_render_params_changed)
+        self.event_bus.subscribe(EventType.DISTRIBUTION_CHANGED, self._on_render_params_changed)
+        self.event_bus.subscribe(EventType.ADDITIONAL_GRAPH_TOGGLED, self._on_render_params_changed)
+
+    def _on_data_changed(self, event: Event) -> None:
+        """Handle data changes."""
+        data_model = self.context.data_model
+        if data_model is None:
+            self.clear()
+            return
+        
+        # update bins spinbox maximum
+        series = data_model.series
+        if series is not None and not series.empty:
+            self.bins_spinbox.setMaximum(len(series))
+        
+        self.refresh_all()
+
+    def _on_bins_changed(self, event: Event) -> None:
+        """Handle bins change."""
+        bins = event.data
+        data_model = self.context.data_model
+        if data_model:
+            data_model.update_bins(bins)
+        self.refresh_all()
+
+    def _on_render_params_changed(self, event: Event) -> None:
+        """Handle rendering parameter changes."""
+        self.refresh_all()
 
     def refresh_all(self) -> None:
         """Redraw all graphs with current data."""
-        if self.data is None or self.data.empty:
+        data_model = self.context.data_model
+        if data_model is None:
             return
 
-        clean_data = self.data.dropna()
+        series = data_model.series
+        if series is None or series.empty:
+            return
+
+        clean_data = series.dropna()
         if clean_data.empty:
             return
 
@@ -125,7 +183,7 @@ class GraphPanel(QWidget):
         for tab in self.graph_tabs.values():
             tab.clear()
 
-    def get_selected_distribution(self) -> Optional[Any]:
+    def get_selected_distribution(self) -> Any:
         """Get currently selected distribution."""
         return self.dist_selector.get_selected_distribution()
 
@@ -133,11 +191,7 @@ class GraphPanel(QWidget):
         """
         Get current visualization parameters.
         Returns:
-            Dictionary with:
-            - bins: int
-            - kde: bool
-            - confidence: float
-            - distribution: StatisticalDistribution
+            Dictionary with bins, kde, line, confidence, distribution
         """
         return {
             "bins": self.bins_spinbox.value(),

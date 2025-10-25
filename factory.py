@@ -1,5 +1,5 @@
 from typing import Any
-from utils import EventBus, AppContext
+from utils import EventBus, EventType, AppContext
 
 # Controllers
 from controllers import (
@@ -89,9 +89,9 @@ class UIFactory:
 
         # GRAPH PANEL
         self.window.graph_panel = GraphPanel(
+            context=self.context,
             dist_selector_cls=DistributionSelector,
-            confidence_service=ConfidenceService(),
-            get_data_model=lambda: self.context.data_model
+            confidence_service=ConfidenceService()
         )
 
         # LEFT TABS
@@ -148,12 +148,8 @@ class ConnectFactory:
 
     def connect_ui(self, controllers):
         self.window.widgets.load_button.clicked.connect(controllers['data_loader'].load_data_file)
+        self.window.widgets.precision_spinbox.valueChanged.connect(lambda: EventBus.emit_type(EventType.PRECISION_CHANGED))
 
-        controllers['data_version'].connect_ui(
-            version_combo_controls=build_combo_callbacks(self.window.data_tab.data_version_combo),
-            columns_combo_control=build_combo_callbacks(self.window.data_tab.dataframe_cols_combo),
-            set_bins_value=lambda bins: self.window.graph_panel.bins_spinbox.setValue(bins)
-        )
         controllers['statistic'].connect_ui(
             stats_renderer=self.window.stat_tab.stat_renderer,
             var_renderer=self.window.stat_tab.var_renderer,
@@ -161,7 +157,14 @@ class ConnectFactory:
             get_confidence_value=self.window.graph_panel.confidence_spinbox.value,         
             get_precision_value=self.window.widgets.precision_spinbox.value
         )
+
         data_tab = self.window.data_tab
+        
+        controllers['data_version'].connect_ui(
+            version_combo_controls=build_combo_callbacks(data_tab.data_version_combo),
+            columns_combo_control=build_combo_callbacks(data_tab.dataframe_cols_combo),
+            set_bins_value=lambda bins: self.window.graph_panel.bins_spinbox.setValue(bins)
+        )
         controllers['anomaly_data'].connect_ui(data_tab.anomaly_widget.anomaly_gamma_spinbox.value)
         controllers['data_transform'].connect_ui(data_tab.transform_widget.shift_spinbox.value)
         controllers['missing_data'].connect_ui(
@@ -170,7 +173,6 @@ class ConnectFactory:
                 set_percent_label=lambda text: data_tab.missing_widget.missing_percentage_label.setText(text)
             )
         )
-        self.window.graph_panel.connect_controls()
 
 
 class Factory:
