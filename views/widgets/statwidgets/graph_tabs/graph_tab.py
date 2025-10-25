@@ -1,20 +1,25 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from typing import Callable, Optional, Any
+from utils import AppContext
 
 FIG_SIZE = (6, 3)
 GRID_ALPHA = 0.7
 GRID_COLOR = '#b0e0e6'
 FIG_COLOR = '#f0f8ff'
 
+
 class BaseGraphTab(QWidget):
     """Base class for all graph tabs"""
-    def __init__(self, name: str, controller, get_data_model:  Optional[Callable[[], Any]] = None):
+    def __init__(self, name: str, context: AppContext):
+        """
+        Args:
+            name: Tab name
+            context: Application context
+        """
         super().__init__()
         self.name = name
-        self.controller = controller
-        self.get_data_model = get_data_model
+        self.context = context
         self.panel = None
         self._init_canvas()
         
@@ -37,10 +42,16 @@ class BaseGraphTab(QWidget):
         self.ax.clear()
         self.canvas.draw()
 
-    def set_context(self, panel):
+    def set_panel(self, panel):
+        """Set reference to parent panel"""
         self.panel = panel
 
+    def get_data_model(self):
+        """Get current data model from context"""
+        return self.context.data_model
+
     def apply_default_style(self, ax, x_label, y_label):
+        """Apply default styling to axes"""
         ax.set_facecolor(FIG_COLOR)
         ax.grid(color=GRID_COLOR, linestyle='--', alpha=GRID_ALPHA)
         ax.set_xlabel(x_label)

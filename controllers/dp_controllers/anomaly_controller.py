@@ -1,5 +1,9 @@
 from typing import Callable, Optional
+from utils import AppContext, EventBus, EventType
 from utils.decorators import require_one_dimensional_dataframe
+
+from services import AnomalyService, DataVersionManager, UIMessager
+
 import pandas as pd
 
 
@@ -7,15 +11,23 @@ class AnomalyController:
     """
     Controller for detecting and removing statistical anomalies from the dataset.
     """
-    def __init__(self, context, anomaly_service, get_gamma_value: Optional[Callable[[], float]] = None):
+    def __init__(
+        self, 
+        context: AppContext, 
+        anomaly_service: AnomalyService, 
+        get_gamma_value: Optional[Callable[[], float]] = None
+    ):
         """    
         Args:
-            context (AppContext): Application context container
+            context: Application context container
             anomaly_service: Service for anomaly detection operations
             get_gamma_value: Function for getting gamma configuration
         """
-        self.context = context
-        self.anomaly_service = anomaly_service
+        self.context: AppContext = context
+        self.event_bus: EventBus = context.event_bus
+        self.version_manager: DataVersionManager = context.version_manager
+        self.messanger: UIMessager = context.messanger
+        self.anomaly_service: AnomalyService = anomaly_service
         self.get_gamma_value = get_gamma_value
 
     @require_one_dimensional_dataframe
@@ -38,7 +50,8 @@ class AnomalyController:
         Detect and remove anomalies using confidence interval bounds.
         Confidence level is selected via the gamma spinbox.
         """
-        if not self.get_gamma_value: raise RuntimeError("No get_gamma_value function provided in AnomalyController")
+        if not self.get_gamma_value:
+            raise RuntimeError("No get_gamma_value function provided in AnomalyController")
         gamma = self.get_gamma_value()
         func = lambda data: self.anomaly_service.detect_conf_anomalies(data, gamma)
         self._remove_anomalies(func, f"Conf. Filtered γ={gamma}")
@@ -56,31 +69,40 @@ class AnomalyController:
 
         data = data.reset_index(drop=True)
         if data.isna().sum().iloc[0] > 0:
-            self.context.messanger.show_error("Missing Values Error", "Please handle missing values first.")
+            self.messanger.show_error("Missing Values Error", "Please handle missing values first.")
             return
 
         result = detection_func(data)
         anomalies = result["anomalies"]
         if len(anomalies) == 0:
-            self.context.messanger.show_info("No Anomalies", "No anomalies detected.")
+            self.messanger.show_info("No Anomalies", "No anomalies detected.")
             return
 
-        # Remove anomalies and create new version of the dataset
+        # remove anomalies and create new version of the dataset
         cleaned = data.drop(anomalies)
         new_model = self.context.data_model.add_version(cleaned, label)
         new_model.anomalies_removed = True
         current_col = new_model.current_col_idx
 
-        # Update data model and UI
+        # update data model and UI
         self.context.data_model = new_model
-        self.context.version_manager.update_current_dataset(new_model)
-        self.context.refresher.refresh(cleaned.iloc[:, current_col])
-
-        self.context.messanger.show_info(
+        self.version_manager.update_current_dataset(new_model)
+        
+        self.event_bus.emit_type(EventType.DATA_TRANSFORMED, {
+            'model': new_model,
+            'series': cleaned.iloc[:, current_col],
+            'label': label,
+            'anomalies_count': len(anomalies),
+            'bounds': {
+                'lower': result['lower_limit'],
+                'upper': result['upper_limit']
+            }
+        })
+        self.messanger.show_info(
             "Anomalies Removed",
             f"Removed {len(anomalies)} anomalies.\n"
             f"Lower: {result['lower_limit']:.4f}, Upper: {result['upper_limit']:.4f}"
         )
 
-    def set_get_gamma_value_func(self, get_gamma_value: Callable[[], float]) -> None:
+    def connect_ui(self, get_gamma_value: Callable[[], float]) -> None:
         self.get_gamma_value = get_gamma_value

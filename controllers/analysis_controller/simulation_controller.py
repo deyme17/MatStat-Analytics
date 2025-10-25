@@ -1,19 +1,28 @@
+from services import SimulationService, DataSaver, DataExporter, DataVersionManager, UIMessager
+from models.stat_distributions.stat_distribution import StatisticalDistribution
+from utils import AppContext, EventType, EventBus
+
+
 class SimulationController:
     """
     Main controller class for statistical simulation operations.
     """
-    def __init__(self, simulation_service, data_saver, data_exporter):
+    def __init__(self, context: AppContext, simulation_service: SimulationService, data_saver: DataSaver, data_exporter: DataExporter):
         """
         Args:
             simulation_service: Service for performing statistical simulations
             data_saver: Service for saving simulated data to storage
             data_exporter: Service for exporting simulated data as csv
         """
-        self.simulation_service = simulation_service
-        self.data_saver = data_saver
-        self.data_exporter = data_exporter
+        self.simulation_service: SimulationService = simulation_service
+        self.data_saver: DataSaver = data_saver
+        self.data_exporter: DataExporter = data_exporter
+        self.context: AppContext = context
+        self.version_manager: DataVersionManager = context.version_manager
+        self.event_bus: EventBus = context.event_bus
+        self.messanger: UIMessager = context.messanger
     
-    def run_simulation(self, dist, sizes, repeats: int, true_mean: float, alpha: float,
+    def run_simulation(self, dist: StatisticalDistribution, sizes, repeats: int, true_mean: float, alpha: float,
                       save_data: bool = False, export_data: bool = False, sample_size: int = None):
         """
         Run statistical simulation with optional data saving.
@@ -37,15 +46,26 @@ class SimulationController:
                 )
             if simulated_data is not None and len(simulated_data) > 0:
                 if save_data:
-                    self.data_saver.save_data(dist.name, simulated_data)
+                    data_model = self.data_saver.save_data(dist.name, simulated_data)
+                    self.version_manager.add_dataset(data_model.label, data_model)
+                    self.context.data_model = data_model
+                    self.event_bus.emit_type(EventType.DATA_LOADED, data_model.series)
+                    self.messanger.show_info(
+                        "Data Saved", 
+                        f"Simulated data saved as '{data_model.label}' with {len(simulated_data)} samples."
+                    )
                 if export_data:
-                    self.data_exporter.export(dist.name, simulated_data)
+                    filepath = self.data_exporter.export(dist.name, simulated_data)
+                    self.messanger.show_info(
+                        "Data Exported", 
+                        f"Simulated data saved in '{filepath}' with {len(simulated_data)} samples."
+                    )
             elif sample_size and sample_size > 0:
-                print(f"Warning: Could not generate data for {dist.name}")
+                self.messanger.show_info(f"Warning: Could not generate data for {dist.name}")
             
             return self.simulation_service.run_experiment(
                 dist, sizes, repeats, true_mean, alpha
             )
         except Exception as e:
-            print(f"Simulation error: {str(e)}")
+            self.messanger.show_info(f"Simulation error: {str(e)}")
             return []

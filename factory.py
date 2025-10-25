@@ -1,18 +1,18 @@
 from typing import Any
+from utils import EventBus, EventType, AppContext
 
 # Controllers
 from controllers import (
     AnomalyController, MissingDataController, DataTransformController,
     ParameterEstimation, SimulationController, StatisticController, GOFController, HomogenController,
-    DataLoadController, DataVersionController,
-    GraphController, UIStateController
+    DataLoadController, DataVersionController
 )
 
 # Services
 from services import (
     TransformationService, AnomalyService, MissingService,
     ConfidenceService, TestPerformer, StatisticsService,
-    UIRefreshService, UIMessager, MissingInfoDisplayService, StatsRenderer, VarSerRenderer,
+    UIMessager, MissingInfoDisplayService, StatsRenderer, VarSerRenderer,
     DataVersionManager, DataLoaderService,
     SimulationService, DataSaver, DataExporter
 )
@@ -26,21 +26,20 @@ from views import (
     WindowWidgets,
     AnomalyWidget, MissingWidget, TransformDataWidget,
     KolmogorovSmirnovPanel, PearsonChi2Panel,
-    #...
+    NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel, AbbePanel,
+    ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel,
     GraphPanel, DistributionSelector
 )
+from views.widgets.statwidgets.graph_tabs import EDFTab, HistogramTab
 
 # Callbacks
-from callbacks import (
-    UIClearCallbacks, UIModelCallbacks, UIStateCallbacks, UIUpdateCallbacks,
-    build_dp_control_callbacks, build_combo_callbacks, build_graph_panel_callbacks
-)
+from utils.combo_callbacks import build_combo_callbacks
 
 
 class ControllersFactory:
-    def __init__(self, window, context):
+    def __init__(self, window, context: AppContext):
         self.window = window
-        self.context = context
+        self.context: AppContext = context
     
     def init_controllers(self) -> dict[str, Any]:
         """Initialize all controllers with no UI dependencies"""
@@ -50,23 +49,15 @@ class ControllersFactory:
             context=self.context,
             statistic_service=StatisticsService()
         )
-        controllers['graph'] = GraphController(
-            context=self.context,
-            confidence_service=ConfidenceService(),
-        )
-        controllers['ui_state'] = UIStateController(
-            context=self.context,
-            detect_missing_func=MissingService.detect_missing
-        )
         controllers['data_loader'] = DataLoadController(
             context=self.context,
             loader_service=DataLoaderService(),
-            select_file_callback=lambda: DataLoaderService.select_file(self.window),
-            on_data_loaded_callback=lambda data: (controllers['ui_state'].handle_post_load_state(data))
+            select_file_callback=lambda: DataLoaderService.select_file(self.window)
         )
         controllers['simulation'] = SimulationController(
+            context=self.context,
             simulation_service=SimulationService(TestPerformer()),
-            data_saver=DataSaver(self.context, on_save=lambda data: controllers['ui_state'].handle_post_load_state(data)),
+            data_saver=DataSaver(),
             data_exporter=DataExporter
         )
         controllers['estimation'] = ParameterEstimation()
@@ -89,9 +80,9 @@ class ControllersFactory:
         return controllers
 
 class UIFactory:
-    def __init__(self, window, context):
+    def __init__(self, window, context: AppContext):
         self.window = window
-        self.context = context
+        self.context: AppContext = context
     
     def setup_ui(self, controllers: dict[str, Any]) -> None:
         # WINDOW WIDGETS
@@ -99,33 +90,38 @@ class UIFactory:
 
         # GRAPH PANEL
         self.window.graph_panel = GraphPanel(
+            context=self.context,
             dist_selector_cls=DistributionSelector,
-            graph_controller=controllers['graph'],
-            get_data_model=lambda: self.context.data_model
+            graph_tabs={
+                "Histogram": HistogramTab(self.context),
+                "EDF": EDFTab(self.context, ConfidenceService()),
+            }
         )
 
         # LEFT TABS
         data_tab = DataProcessingTab(
+            context=self.context,
+            data_version_controller=controllers['data_version'],
             widget_data=[
                 ("transform_widget", TransformDataWidget, controllers['data_transform']),
                 ("anomaly_widget", AnomalyWidget, controllers['anomaly_data']),
                 ("missing_widget", MissingWidget, controllers['missing_data'])
-            ],
-            on_data_version_changed=controllers['data_version'].on_dataset_selection_changed,
-            on_original_clicked=controllers['data_version'].revert_to_original,
-            on_column_changed=controllers['data_version'].on_current_col_changed
+            ]
         )
         stat_tab = StatisticTab(stat_renderer_cls=StatsRenderer, var_rendere_cls=VarSerRenderer)
         gof_tab = GOFTestTab(
-            get_data_model=lambda: self.context.data_model,
+            context=self.context,
             get_dist_func=lambda: self.window.graph_panel.get_selected_distribution(),
             gof_controller=controllers['gof'],
             test_panels=[PearsonChi2Panel, KolmogorovSmirnovPanel]
         )
         homo_tab = HomogenTab(
-            get_data_model=lambda: self.context.data_model,
-            homogen_controller = controllers['homogen'],
-            homogen_panels=[]
+            homogen_controller=controllers['homogen'],
+            context=self.context,
+            homogen_2samples_panels=[NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, 
+                                     RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel],
+            homogen_Nsamples_panels=[ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel],
+            hamogen_1sample_panels=[AbbePanel]
         )
         sim_tab = SimulationTab(
             context=self.context,
@@ -152,111 +148,58 @@ class UIFactory:
         self.window.est_tab = est_tab
 
 class ConnectFactory:
-    def __init__(self, window):
+    def __init__(self, window, event_bus: EventBus):
         self.window = window
+        self.event_bus: EventBus = event_bus
 
     def connect_ui(self, controllers):
-        self.window.widgets.load_button.clicked.connect(controllers['data_loader'].load_data_file)
-        self.window.widgets.precision_spinbox.valueChanged.connect(controllers['statistic'].update_tables)
+        self.window.widgets.load_button.clicked.connect(lambda: controllers['data_loader'].load_data_file())
+        self.window.widgets.precision_spinbox.valueChanged.connect(lambda: self.event_bus.emit_type(EventType.PRECISION_CHANGED))
 
-        controllers['data_version'].set_set_bins_value_func(lambda bins: self.window.graph_panel.bins_spinbox.setValue(bins))
         controllers['statistic'].connect_ui(
             stats_renderer=self.window.stat_tab.stat_renderer,
             var_renderer=self.window.stat_tab.var_renderer,
-            get_bins_value=lambda: self.window.graph_panel.bins_spinbox.value(),     
-            get_confidence_value=lambda: self.window.graph_panel.confidence_spinbox.value(),         
-            get_precision_value=lambda: self.window.widgets.precision_spinbox.value()
+            get_bins_value=self.window.graph_panel.bins_spinbox.value,     
+            get_confidence_value=self.window.graph_panel.confidence_spinbox.value,         
+            get_precision_value=self.window.widgets.precision_spinbox.value
         )
+
         data_tab = self.window.data_tab
-        controllers['anomaly_data'].set_get_gamma_value_func(data_tab.anomaly_widget.anomaly_gamma_spinbox.value)
-        controllers['data_transform'].set_get_shift_value_func(lambda: data_tab.transform_widget.shift_spinbox.value())
-        controllers['missing_data'].set_display_service(
+
+        controllers['data_version'].connect_ui(
+            version_combo_controls=build_combo_callbacks(data_tab.data_version_combo),
+            columns_combo_control=build_combo_callbacks(data_tab.dataframe_cols_combo),
+            set_bins_value=lambda bins: self.window.graph_panel.bins_spinbox.setValue(bins)
+        )
+        controllers['anomaly_data'].connect_ui(data_tab.anomaly_widget.anomaly_gamma_spinbox.value)
+        controllers['data_transform'].connect_ui(data_tab.transform_widget.shift_spinbox.value)
+        controllers['missing_data'].connect_ui(
             MissingInfoDisplayService(
                 set_count_label=lambda text: data_tab.missing_widget.missing_count_label.setText(text),
                 set_percent_label=lambda text: data_tab.missing_widget.missing_percentage_label.setText(text)
             )
         )
 
-class CallBackFactory:
-    def __init__(self, window, context):
-        self.window = window
-        self.context = context
-    
-    def connect_callbacks(self, controllers: dict[str, Any]) -> None:
-        # set controller callbacks
-        controllers['anomaly_data'].set_get_gamma_value_func(lambda: self.window.data_tab.anomaly_widget.anomaly_gamma_spinbox.value())
-        controllers['data_transform'].set_on_transformation_applied_callback(lambda: self.window.data_tab.original_button.setEnabled(True))
-        controllers['missing_data'].set_update_state_callback(controllers['ui_state'].update_state_for_data)
-
-        controllers['graph'].connect_callbacks(
-            graph_control=build_graph_panel_callbacks(self.window.graph_panel),
-            update_tables_callback=controllers['statistic'].update_tables,
-            update_gof_callback=self.window.gof_tab.evaluate_tests
-        )
-        controllers['ui_state'].connect_callbacks(
-            ui_controls=build_dp_control_callbacks(self.window),
-            enable_data_combo_callback=self.window.data_tab.data_version_combo.setEnabled,
-            enable_col_combo_callback=self.window.data_tab.dataframe_cols_combo.setEnabled,
-            update_data_callback=lambda data: controllers['missing_data'].update_data_reference(data),
-            update_data_versions_callback=controllers['data_version'].update_dataset_list
-        )
-        controllers['data_version'].connect_callbacks(
-            version_combo_controls=build_combo_callbacks(self.window.data_tab.data_version_combo),
-            columns_combo_control=build_combo_callbacks(self.window.data_tab.dataframe_cols_combo),
-            update_navigation_buttons=controllers['ui_state'].update_navigation_buttons,
-            on_reverted_to_original=lambda: controllers['ui_state'].update_state_for_data(self.context.data_model.series),
-            on_dataset_changed=lambda series: (
-                controllers['missing_data'].update_data_reference(series),
-                self.window.data_tab.dataframe_cols_combo.setEnabled(self.context.data_model.dataframe.shape[1] > 1)
-            )
-        )
-        # set graph panel callbacks
-        self.window.graph_panel.connect_controls()
-
-        # set refresher
-        self.context.refresher = UIRefreshService(
-            clear=UIClearCallbacks(
-                clear_graph=self.window.graph_panel.clear,
-                clear_tables=controllers['statistic'].clear_tables,
-                clear_gof=self.window.gof_tab.clear_panels
-            ),
-            update=UIUpdateCallbacks(
-            set_graph_data=lambda data: (controllers['graph'].set_data(data)),
-            update_tables=controllers['statistic'].update_tables,
-            evaluate_gof=self.window.gof_tab.evaluate_tests
-            ),
-            state=UIStateCallbacks(
-                update_state=controllers['ui_state'].update_state_for_data,
-                update_transformation_label=controllers['ui_state'].update_transformation_label,
-                update_navigation_buttons=controllers['ui_state'].update_navigation_buttons,
-                enable_original_button=self.window.data_tab.original_button.setEnabled
-            ),
-            model=UIModelCallbacks(
-                get_bins_count=lambda: self.window.graph_panel.bins_spinbox.value(),
-                update_model_bins=lambda bins: self.context.data_model.update_bins(bins)
-            )
-        )
 
 class Factory:
-    def __init__(self, window, context):
+    def __init__(self, window, context: AppContext):
         self.window = window
-        self.context = context
+        self.context: AppContext = context
         self.controllers: dict[str, Any] = {}
 
     @classmethod
-    def create(cls, window, context):
+    def create(cls, window, context: AppContext):
         factory = cls(window, context)
         factory._setup_context()
         factory._init_controllers()
         factory._setup_ui()
         factory._connect_ui()
-        factory._connect_callbacks()
         return factory
 
     def _setup_context(self):
         self.context.version_manager = DataVersionManager()
         self.context.messanger = UIMessager(parent=self.window)
-        self.context.refresher = None
+        self.context.event_bus = EventBus()
         self.context.data_model = None
 
     def _init_controllers(self):
@@ -268,9 +211,5 @@ class Factory:
         ui_factory.setup_ui(self.controllers)
     
     def _connect_ui(self):
-        connect_factory = ConnectFactory(self.window)
+        connect_factory = ConnectFactory(self.window, self.context.event_bus)
         connect_factory.connect_ui(self.controllers)
-
-    def _connect_callbacks(self):
-        cb_factory = CallBackFactory(self.window, self.context)
-        cb_factory.connect_callbacks(self.controllers)

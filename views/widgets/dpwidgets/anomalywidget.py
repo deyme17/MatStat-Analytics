@@ -1,39 +1,35 @@
 from .base_dp_widget import BaseDataWidget
-from PyQt6.QtWidgets import QHBoxLayout, QPushButton, QLabel, QDoubleSpinBox
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QDoubleSpinBox
+from controllers import AnomalyController
+from utils import EventBus, EventType
 
 MIN_GAMMA, MAX_GAMMA = 0.80, 0.99
 GAMMA_STEP = 0.01
 DEFAULT_GAMMA = 0.95
 GAMMA_PRECISION = 2
 
+
 class AnomalyWidget(BaseDataWidget):
     """Widget for anomaly detection operations."""
-    def __init__(self, controller):
-        super().__init__("Anomaly Detection", controller)
-        self._init_ui()
-        
-    def _init_ui(self):
-        """Initialize UI components."""
-        # Create buttons
+    def __init__(self, controller: AnomalyController, event_bus: EventBus):
         buttons_config = [
             ("sigma_anomaly_button", "Remove 3σ anomalies", 
-             self.controller.remove_sigma_anomalies),
+             controller.remove_sigma_anomalies),
             ("asymmetry_anomaly_button", "Remove asymmetry anomalies", 
-             self.controller.remove_asymmetry_anomalies),
+             controller.remove_asymmetry_anomalies),
             ("confidence_anomaly_button", "Remove Anomalies by γ", 
-             self.controller.remove_conf_anomalies)
+             controller.remove_conf_anomalies)
         ]
-        
-        for attr_name, text, callback in buttons_config:
-            button = QPushButton(text)
-            button.setEnabled(False)
-            button.clicked.connect(callback)
-            setattr(self, attr_name, button)
-            self.add_widget(button)
-        
-        # Gamma controls
+        super().__init__("Anomaly Detection", controller, event_bus, buttons_config)
+        # gamma controls
         self._setup_gamma_controls()
-    
+        # subscibe to events
+        self._subscribe_to_events()
+
+    def _subscribe_to_events(self) -> None:
+        self.event_bus.subscribe(EventType.MISSING_VALUES_DETECTED, self._disable_widget)
+        self.event_bus.subscribe(EventType.MISSING_VALUES_HANDLED, self._unable_widget)
+
     def _setup_gamma_controls(self):
         """Setup gamma level controls."""
         gamma_layout = QHBoxLayout()

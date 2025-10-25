@@ -1,5 +1,6 @@
-from typing import Callable, Optional
-from services import MissingInfoDisplayService
+from typing import Optional
+from services import MissingInfoDisplayService, MissingService, DataVersionManager, UIMessager
+from utils import AppContext, EventBus, EventType
 import pandas as pd
 
 
@@ -9,43 +10,65 @@ class MissingDataController:
     """
     def __init__(
         self,
-        context,
+        context: AppContext,
         missing_service,
-        display_service: Optional[MissingInfoDisplayService] = None,
-        update_state_callback: Optional[Callable[[pd.Series], None]] = None
+        display_service: Optional[MissingInfoDisplayService] = None
     ):
         """
         Args:
-            context (AppContext): Application context container
+            context: Application context container
             missing_service: Service for missing data handling
             display_service: Service for displaying missing data info
-            update_state_callback (Callable): Function to call when data state changes
         """
-        self.context = context
-        self.missing_service = missing_service
-        self.display_service = display_service
-        self.update_state_callback = update_state_callback
+        self.context: AppContext = context
+        self.event_bus: EventBus = context.event_bus
+        self.messanger: UIMessager = context.messanger
+        self.version_manager: DataVersionManager = context.version_manager
+        self.missing_service: MissingService = missing_service
+        self.display_service: MissingInfoDisplayService = display_service
         self.data = None
+        
+        self._subscribe_to_events()
+
+    def _subscribe_to_events(self):
+        self.event_bus.subscribe(EventType.DATA_LOADED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_data_changed)
+
+    def _on_data_changed(self, event):
+        series = self.context.data_model.series
+        if series is not None:
+            self.update_data_reference(series)
 
     def update_data_reference(self, data: pd.Series) -> None:
         """
         Update the internal data reference and refresh missing values info.
         Args:
-            data (pd.Series): New data series to reference
+            data: New data series to reference
         """
-        if not self.update_state_callback: raise RuntimeError("No update_state_callback provided in MissingDataController")
         self.data = data
         self.update_missing_values_info()
-        self.update_state_callback(data)
 
     def update_missing_values_info(self) -> None:
         """
         Update the display with current missing values information.
         """
-        if not self.display_service: raise RuntimeError("No display_service provided in MissingDataController")
+        if not self.display_service: return
         if self.data is not None:
             info = self.missing_service.detect_missing(self.data)
             self.display_service.update(info)
+            
+            if info['total_missing'] > 0:
+                self.event_bus.emit_type(EventType.MISSING_VALUES_DETECTED)
+                self.messanger.show_info(
+                    "Missing Values Detected",
+                    f"Found {info['total_missing']} missing values "
+                    f"({info['missing_percentage']:.2f}%).\n"
+                    "Please handle missing values before performing data operations."
+                )
+            else:
+                self.event_bus.emit_type(EventType.MISSING_VALUES_HANDLED)
 
     def impute_with_mean(self) -> None:
         """
@@ -67,7 +90,7 @@ class MissingDataController:
         """
         Interpolate missing values using specified method.
         Args:
-            method (str): Interpolation method to use
+            method: Interpolation method to use
         """
         if self.data is not None:
             new_series = self.missing_service.interpolate_missing(self.data, method)
@@ -87,9 +110,9 @@ class MissingDataController:
         """
         Internal helper to update state after missing data imputation.
         Args:
-            new_series (pd.Series): Transformed pandas Series
-            label (str): Label for the transformation version
-            message (str): Success message to display
+            new_series: Transformed pandas Series
+            label: Label for the transformation version
+            message: Success message to display
         """
         new_df = pd.DataFrame(new_series).reset_index(drop=True)
 
@@ -97,12 +120,16 @@ class MissingDataController:
         self.context.data_model = new_model
         self.data = new_model.series
 
-        self.context.version_manager.update_current_dataset(new_model)
-        self.context.refresher.refresh(new_model.series)
+        self.version_manager.update_current_dataset(new_model)
+        
+        self.event_bus.emit_type(EventType.MISSING_VALUES_HANDLED)
+        self.event_bus.emit_type(EventType.DATA_TRANSFORMED, {
+            'model': new_model,
+            'series': new_model.series,
+            'label': label
+        })
         self.update_missing_values_info()
-        self.context.messanger.show_info("Success", message)
+        self.messanger.show_info("Success", message)
 
-    def set_display_service(self, display_service: MissingInfoDisplayService) -> None:
+    def connect_ui(self, display_service: MissingInfoDisplayService) -> None:
         self.display_service = display_service
-    def set_update_state_callback(self, update_state_callback: Callable[[pd.Series], None]) -> None:
-        self.update_state_callback = update_state_callback

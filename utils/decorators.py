@@ -28,3 +28,35 @@ def require_one_dimensional_dataframe(method):
 
         return method(self, *args, **kwargs)
     return wrapper
+
+
+def check_samples(method):
+    """Ensure the correct number of datasets is selected, using self.n_datasets."""
+    @functools.wraps(method)
+    def wrapper(self, samples, *args, **kwargs):
+        count = len(samples)
+        n = getattr(self, "n_datasets", None)
+        if n is not None:
+            if count != n:
+                raise ValueError(f"{self.get_test_name()} requires exactly {n} datasets, but {count} were selected.")
+        else:
+            if count < 3:
+                raise ValueError(f"{self.get_test_name()} requires at least 3 datasets, but {count} were selected.")
+        return method(self, samples, *args, **kwargs)
+    return wrapper
+
+
+def check_independent(method):
+    """
+    Ensure independence requirement is met, using self.require_independent.
+    If self.require_independent is True, samples must be independent.
+    """
+    @functools.wraps(method)
+    def wrapper(self, samples, alpha, is_independent, *args, **kwargs):
+        req = getattr(self, "require_independent", None)
+        if req is True and not is_independent:
+            raise ValueError(f"{self.get_test_name()} requires independent samples.")
+        if req is False and is_independent:
+            raise ValueError(f"{self.get_test_name()} requires dependent samples.")
+        return method(self, samples, alpha, is_independent, *args, **kwargs)
+    return wrapper

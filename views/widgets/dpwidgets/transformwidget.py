@@ -1,35 +1,31 @@
 from .base_dp_widget import BaseDataWidget
 from PyQt6.QtWidgets import QHBoxLayout, QPushButton, QLabel, QDoubleSpinBox
+from controllers import DataTransformController
+from utils import EventBus, EventType, Event
 
 MIN_SHIFT, MAX_SHIFT = -1000, 1000
 SHIFT_STEP = 1
 DEFAULT_SHIFT = 0
 
+
 class TransformDataWidget(BaseDataWidget):
     """Widget for performing basic data transformations."""
-    def __init__(self, controller):
-        super().__init__("Process Data", controller)
-        self._init_ui()
-        
-    def _init_ui(self):
-        """Initialize UI components."""
-        # Transformation buttons
+    def __init__(self, controller: DataTransformController, event_bus: EventBus):
         buttons_config = [
             ("standardize_button", "Standardize", 
-             self.controller.standardize_data),
+             controller.standardize_data),
             ("log_button", "Log Transform", 
-             self.controller.log_transform_data)
+             controller.log_transform_data)
         ]
-        
-        for attr_name, text, callback in buttons_config:
-            button = QPushButton(text)
-            button.setEnabled(False)
-            button.clicked.connect(callback)
-            setattr(self, attr_name, button)
-            self.add_widget(button)
-
-        # Shift controls
+        super().__init__("Process Data", controller, event_bus, buttons_config)
+        # shift controls
         self._setup_shift_controls()
+        # subscribe to events
+        self._subscribe_to_events()
+
+    def _subscribe_to_events(self) -> None:
+        self.event_bus.subscribe(EventType.MISSING_VALUES_DETECTED, self._disable_widget)
+        self.event_bus.subscribe(EventType.MISSING_VALUES_HANDLED, self._unable_widget)
     
     def _setup_shift_controls(self):
         """Setup shift controls."""
