@@ -1,18 +1,21 @@
 from .graph_tab import BaseGraphTab
 from services.ui_services.renderers.graph_renderers import RENDERERS
+from utils import AppContext
 
 LEGEND_FRAMEALPHA = 0.5
 
+
 class HistogramTab(BaseGraphTab):
     """Tab for histogram visualization"""
-    def __init__(self, controller, get_data_model=None):
-        super().__init__("Histogram", controller)
+    def __init__(self, context: AppContext):
+        super().__init__(name="Histogram", context=context)
         
     def draw(self, data):
         """Draw histogram with current settings and distribution overlay"""
         self.clear()
-        panel = self.panel
-        params = panel.get_render_params()
+        if self.panel is None: return
+            
+        params = self.panel.get_render_params()
         
         # Render histogram
         renderer = RENDERERS['histogram']
@@ -24,10 +27,10 @@ class HistogramTab(BaseGraphTab):
             freq_polygon=params['line']
         )
         
-        # Draw distribution overlay if selected
+        # draw distribution overlay if selected
         self._draw_distribution_overlay(data, params)
         
-        # Apply styling
+        # styling
         self.apply_default_style(self.ax, "Value", "Frequency")
         self.canvas.draw()
 
