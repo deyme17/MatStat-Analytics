@@ -1,7 +1,9 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QDoubleSpinBox, QHBoxLayout
+from models.stat_distributions import StatisticalDistribution
 from views.widgets.gofwidgets.gof_test_panel import BaseTestPanel
+from typing import Callable
 from controllers import GOFController
-from utils import EventBus, EventType, Event
+from utils import EventBus, EventType, Event, AppContext
 
 ALPHA_MIN, ALPHA_MAX = 0.01, 0.99
 ALPHA_STEP = 0.1
@@ -13,20 +15,19 @@ class GOFTestTab(QWidget):
     """
     A tab widget for evaluating Goodness-of-Fit (GOF) tests.
     """
-    def __init__(self, get_data_model, get_dist_func, event_bus: EventBus,
+    def __init__(self, context: AppContext, get_dist_func: Callable[[None], StatisticalDistribution],
                  gof_controller: GOFController, test_panels: list[BaseTestPanel]) -> None:
         """
         Args:
-            get_data_model: Function for getting current data model.
+            context: Shared application context (version_manager, event_bus, messager)
             get_dist_func: Function for getting current selected distribution.
-            event_bus: Event bus for pub/sub
             gof_controller (GOFController): Controller to perform GOF tests.
             test_panels (list): List of GOF test panel classes (not instances).
         """
         super().__init__()
-        self.event_bus: EventBus = event_bus
-        self.get_data_model = get_data_model
-        self.get_dist_func = get_dist_func
+        self.context: AppContext = context
+        self.event_bus: EventBus = context.event_bus
+        self.get_dist_func: Callable[[None], StatisticalDistribution] = get_dist_func
         self.test_panels: list[BaseTestPanel] = [panel(gof_controller) for panel in test_panels]
 
         self.alpha_spinbox = QDoubleSpinBox()
@@ -69,7 +70,7 @@ class GOFTestTab(QWidget):
         Evaluates all GOF tests based on current data and selected distribution.
         """
         dist = self.get_dist_func()
-        model = self.get_data_model()
+        model = self.context.data_model
 
         if dist is None or model is None or model.series.empty:
             return
