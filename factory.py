@@ -147,12 +147,13 @@ class UIFactory:
         self.window.est_tab = est_tab
 
 class ConnectFactory:
-    def __init__(self, window):
+    def __init__(self, window, event_bus: EventBus):
         self.window = window
+        self.event_bus: EventBus = event_bus
 
     def connect_ui(self, controllers):
         self.window.widgets.load_button.clicked.connect(lambda: controllers['data_loader'].load_data_file())
-        self.window.widgets.precision_spinbox.valueChanged.connect(lambda: EventBus.emit_type(EventType.PRECISION_CHANGED))
+        self.window.widgets.precision_spinbox.valueChanged.connect(lambda: self.event_bus.emit_type(EventType.PRECISION_CHANGED))
 
         controllers['statistic'].connect_ui(
             stats_renderer=self.window.stat_tab.stat_renderer,
@@ -209,5 +210,5 @@ class Factory:
         ui_factory.setup_ui(self.controllers)
     
     def _connect_ui(self):
-        connect_factory = ConnectFactory(self.window)
+        connect_factory = ConnectFactory(self.window, self.context.event_bus)
         connect_factory.connect_ui(self.controllers)
