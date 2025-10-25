@@ -40,21 +40,16 @@ class StatisticController:
         self._subscribe_to_events()
 
     def _subscribe_to_events(self):
-        self.event_bus.subscribe(EventType.DATA_LOADED, self._on_data_changed)
-        self.event_bus.subscribe(EventType.DATA_TRANSFORMED, self._on_data_changed)
-        self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_data_changed)
-        self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_data_changed)
-        self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_data_changed)
-        self.event_bus.subscribe(EventType.BINS_CHANGED, self._on_settings_changed)
-        self.event_bus.subscribe(EventType.CONFIDENCE_CHANGED, self._on_settings_changed)
-        self.event_bus.subscribe(EventType.PRECISION_CHANGED, self._on_settings_changed)
+        self.event_bus.subscribe(EventType.DATA_LOADED, self._on_changed)
+        self.event_bus.subscribe(EventType.DATA_TRANSFORMED, self._on_changed)
+        self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_changed)
+        self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_changed)
+        self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_changed)
+        self.event_bus.subscribe(EventType.BINS_CHANGED, self._on_changed)
+        self.event_bus.subscribe(EventType.CONFIDENCE_CHANGED, self._on_changed)
+        self.event_bus.subscribe(EventType.PRECISION_CHANGED, self._on_changed)
 
-    def _on_data_changed(self, event: Event):
-        model = event.data.get('model')
-        if model:
-            self.update_tables(model)
-
-    def _on_settings_changed(self, event: Event):
+    def _on_changed(self, event: Event):
         model = self.context.data_model
         if model:
             self.update_tables(model)

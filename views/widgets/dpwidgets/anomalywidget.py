@@ -27,7 +27,6 @@ class AnomalyWidget(BaseDataWidget):
         self._subscribe_to_events()
 
     def _subscribe_to_events(self) -> None:
-        self.event_bus.subscribe(EventType.DATA_LOADED, self._unable_widget)
         self.event_bus.subscribe(EventType.MISSING_VALUES_DETECTED, self._disable_widget)
         self.event_bus.subscribe(EventType.MISSING_VALUES_HANDLED, self._unable_widget)
 
