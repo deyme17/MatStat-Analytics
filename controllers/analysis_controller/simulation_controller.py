@@ -22,8 +22,7 @@ class SimulationController:
         self.event_bus: EventBus = context.event_bus
         self.messanger: UIMessager = context.messanger
     
-    def run_simulation(self, dist: StatisticalDistribution, sizes, repeats: int, true_mean: float, alpha: float,
-                      save_data: bool = False, export_data: bool = False, sample_size: int = None):
+    def run_simulation(self, dist: StatisticalDistribution, sizes: list[int], repeats: int, true_mean: float, alpha: float):
         """
         Run statistical simulation with optional data saving.
         Args:
@@ -32,28 +31,43 @@ class SimulationController:
             repeats: Number of repetitions per sample size
             true_mean: Theoretical mean to test against in t-tests
             alpha: Significance level for statistical tests
-            save_data: Whether to save simulated data (default: False)
-            export_data: Whether to export simulated data as csv (default: False)
-            sample_size: Size of sample to save if save_data is True
         Return:
             List of dictionaries containing simulation results
         """
         try:
+            return self.simulation_service.run_experiment(
+                dist, sizes, repeats, true_mean, alpha
+            )
+        except Exception as e:
+            self.messanger.show_info(f"Simulation error: {str(e)}")
+            return []
+        
+    def generate_data(self, dist: StatisticalDistribution, n_features: int, coors_coeffs: list[list[float]],
+                      sample_size: int, export_data: bool = False) -> None:
+        """
+        Generate simulated data from statistical distribution with optional export.
+        Args:
+            dist: Statistical distribution instance to simulate data from
+            n_features: Number of features/dimensions in the generated dataset
+            coors_coeffs: Correlation coefficients matrix defining feature relationships
+            sample_size: Number of samples/observations to generate
+            export_data: Whether to export generated data to external file
+        """
+        try:
             simulated_data = None
             if sample_size and sample_size > 0:
-                simulated_data = self.simulation_service.generate_sample(
-                    dist, sample_size, dist.params
+                simulated_data = self.simulation_service.generate_data(
+                    dist, n_features, coors_coeffs, sample_size, dist.params
                 )
             if simulated_data is not None and len(simulated_data) > 0:
-                if save_data:
-                    data_model = self.data_saver.save_data(dist.name, simulated_data)
-                    self.version_manager.add_dataset(data_model.label, data_model)
-                    self.context.data_model = data_model
-                    self.event_bus.emit_type(EventType.DATA_LOADED, data_model.series)
-                    self.messanger.show_info(
-                        "Data Saved", 
-                        f"Simulated data saved as '{data_model.label}' with {len(simulated_data)} samples."
-                    )
+                data_model = self.data_saver.save_data(dist.name, simulated_data)
+                self.version_manager.add_dataset(data_model.label, data_model)
+                self.context.data_model = data_model
+                self.event_bus.emit_type(EventType.DATA_LOADED, data_model.series)
+                self.messanger.show_info(
+                    "Data Saved", 
+                    f"Simulated data saved as '{data_model.label}' with {len(simulated_data)} samples."
+                )
                 if export_data:
                     filepath = self.data_exporter.export(dist.name, simulated_data)
                     self.messanger.show_info(
@@ -62,10 +76,6 @@ class SimulationController:
                     )
             elif sample_size and sample_size > 0:
                 self.messanger.show_info(f"Warning: Could not generate data for {dist.name}")
-            
-            return self.simulation_service.run_experiment(
-                dist, sizes, repeats, true_mean, alpha
-            )
         except Exception as e:
             self.messanger.show_info(f"Simulation error: {str(e)}")
-            return []
+            return
