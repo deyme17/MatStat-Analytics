@@ -57,7 +57,7 @@ class SimulationController:
             simulated_data = None
             if sample_size and sample_size > 0:
                 simulated_data = self.simulation_service.generate_data(
-                    dist, n_features, coors_coeffs, sample_size, dist.params
+                    dist, sample_size, dist.params, n_features, coors_coeffs
                 )
             if simulated_data is not None and len(simulated_data) > 0:
                 data_model = self.data_saver.save_data(dist.name, simulated_data)
