@@ -31,7 +31,7 @@ from views import (
     ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel,
     GraphPanel, DistributionSelector
 )
-from views.widgets.statwidgets.graph_tabs import EDFTab, HistogramTab
+from views.widgets.statwidgets.graph_tabs import EDFTab, HistogramTab, HistogramMapTab, CorrelationFieldTab
 
 # Callbacks
 from utils.combo_callbacks import build_combo_callbacks
@@ -96,6 +96,8 @@ class UIFactory:
             graph_tabs={
                 "Histogram": HistogramTab(self.context),
                 "EDF": EDFTab(self.context, ConfidenceService()),
+                "3D Histogram Map": HistogramMapTab(self.context),
+                "Correlation Field": CorrelationFieldTab(self.context)
             }
         )
 
