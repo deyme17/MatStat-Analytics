@@ -18,7 +18,7 @@ class DataSaver:
         Returns:
             data saved as DataModel
         """
-        dataset_label = self._create_data_label(dist_name, type_)
+        dataset_label = self._create_data_label(dist_name, type_, str(data.shape[1]))
         
         if data.ndim == 1:
             df = pd.DataFrame(data, columns=['value'])
@@ -30,12 +30,13 @@ class DataSaver:
         optimal_bins = get_default_bin_count(df)
         return DataModel(df, bins=optimal_bins, label=dataset_label)
 
-    def _create_data_label(self, dist_name: str, type_: str) -> str:
+    def _create_data_label(self, dist_name: str, type_: str, n_dim: str) -> str:
         """Creates a label for newly-generated data"""
-        if dist_name not in self.counter:
-            self.counter[dist_name] = 0
+        key = dist_name + n_dim
+        if key not in self.counter:
+            self.counter[key] = 0
         
-        self.counter[dist_name] += 1
-        counter = self.counter[dist_name]
+        self.counter[key] += 1
+        counter = self.counter[key]
         
-        return f"{dist_name}{type_}{counter}"
+        return f"{dist_name}{type_}{n_dim}D_({counter})"
