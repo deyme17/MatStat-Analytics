@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from scipy import interpolate
 from services.ui_services.renderers.graph_renderers.graph_renderer import Renderer
 
@@ -9,7 +10,7 @@ class EDFRenderer(Renderer):
     as a step function and optional interpolated curve.
     """
     @staticmethod
-    def render(ax, data: pd.Series, bin_edges: list[float] = None, show_edf_curve: bool = False, show_ogiva: bool = False):
+    def render(ax: plt.Axes, data: pd.Series, bin_edges: list[float] = None, show_edf_curve: bool = False, show_ogiva: bool = False):
         """
         Render the EDF on a given Matplotlib axis.
         Args:

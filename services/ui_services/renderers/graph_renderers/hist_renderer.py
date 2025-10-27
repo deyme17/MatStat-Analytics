@@ -1,6 +1,7 @@
 import seaborn as sns
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from services.ui_services.renderers.graph_renderers.graph_renderer import Renderer
 
 class HistRenderer(Renderer):
@@ -8,7 +9,7 @@ class HistRenderer(Renderer):
     Renderer for drawing histograms with optional KDE curve using seaborn.
     """
     @staticmethod
-    def render(ax, data: pd.Series, bins: int, show_kde: bool = False, freq_polygon: bool = False):
+    def render(ax: plt.Axes, data: pd.Series, bins: int, show_kde: bool = False, freq_polygon: bool = False):
         """
         Render histogram on the given Matplotlib axis.
         Args:
