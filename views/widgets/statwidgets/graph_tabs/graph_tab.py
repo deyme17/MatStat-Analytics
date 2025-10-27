@@ -10,7 +10,7 @@ FIG_COLOR = '#f0f8ff'
 
 
 class BaseGraphTab(QWidget):
-    """Base class for all graph tabs"""
+    """Base class for graph tabs"""
     def __init__(self, name: str, context: AppContext):
         """
         Args:
