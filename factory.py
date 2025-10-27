@@ -25,6 +25,7 @@ from views import (
     # widgets
     WindowWidgets,
     AnomalyWidget, MissingWidget, TransformDataWidget,
+    GenerationWidget, ExperimentWidget,
     KolmogorovSmirnovPanel, PearsonChi2Panel,
     NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel, AbbePanel,
     ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel,
@@ -125,8 +126,10 @@ class UIFactory:
             hamogen_1sample_panels=[AbbePanel]
         )
         sim_tab = SimulationTab(
-            context=self.context,
-            simulation_controller=controllers['simulation']
+            messanger=self.context.messanger,
+            simulation_controller=controllers['simulation'],
+            experiment_widget=ExperimentWidget,
+            generation_widget=GenerationWidget
         )
         est_tab = ParamEstimationTab(
             context=self.context,

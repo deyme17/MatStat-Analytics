@@ -22,9 +22,9 @@ class SimulationController:
         self.event_bus: EventBus = context.event_bus
         self.messanger: UIMessager = context.messanger
     
-    def run_simulation(self, dist: StatisticalDistribution, sizes: list[int], repeats: int, true_mean: float, alpha: float):
+    def run_experiment(self, dist: StatisticalDistribution, sizes: list[int], repeats: int, true_mean: float, alpha: float):
         """
-        Run statistical simulation with optional data saving.
+        Run statistical experiment with optional data saving.
         Args:
             dist: Distribution instance to simulate from
             sizes: List of sample sizes for the simulation experiment
@@ -32,14 +32,14 @@ class SimulationController:
             true_mean: Theoretical mean to test against in t-tests
             alpha: Significance level for statistical tests
         Return:
-            List of dictionaries containing simulation results
+            List of dictionaries containing experiment results
         """
         try:
             return self.simulation_service.run_experiment(
                 dist, sizes, repeats, true_mean, alpha
             )
         except Exception as e:
-            self.messanger.show_info(f"Simulation error: {str(e)}")
+            self.messanger.show_info("Simulation error", f"{str(e)}")
             return []
         
     def generate_data(self, dist: StatisticalDistribution, n_features: int, coors_coeffs: list[list[float]],
@@ -75,7 +75,7 @@ class SimulationController:
                         f"Simulated data saved in '{filepath}' with {len(simulated_data)} samples."
                     )
             elif sample_size and sample_size > 0:
-                self.messanger.show_info(f"Warning: Could not generate data for {dist.name}")
+                self.messanger.show_info("Warning", f"Could not generate data for {dist.name}")
         except Exception as e:
-            self.messanger.show_info(f"Simulation error: {str(e)}")
+            self.messanger.show_info("Simulation error", f"{str(e)}")
             return

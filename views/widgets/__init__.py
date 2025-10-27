@@ -3,3 +3,4 @@ from .dpwidgets import *
 from .gofwidgets import *
 from .statwidgets import *
 from .homogenwidgets import *
+from .simulationwidgets import *
