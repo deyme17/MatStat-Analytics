@@ -13,6 +13,7 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
 - **Multidimensional Data**: Full support for datasets with multiple columns/variables
 - **Column Selection**: Choose specific columns for analysis operations
 - **Data Versioning**: Track changes with rollback capabilities to original or previous states
+- **Export Data**: Possibility to export transformed data
 - **Missing Data Handling**: 
   - Detection of missing values
   - Imputation methods (mean, median, interpolation)
@@ -62,7 +63,7 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
   - Kruskal-Wallis H Test
 
 ### 🎲 **Simulation & Modeling**
-- **Sample Simulation**: Generate synthetic datasets from theoretical distributions
+- **Sample Simulation**: Generate synthetic datasets from theoretical distributions (could be multivariate)
 - **Export Capabilities**: Save simulation results as CSV files
 
 ### 📊 **Advanced Visualization**
