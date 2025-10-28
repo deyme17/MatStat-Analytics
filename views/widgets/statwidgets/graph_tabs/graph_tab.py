@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
 from utils import AppContext
 
 FIG_SIZE = (6, 3)
@@ -50,7 +51,7 @@ class BaseGraphTab(QWidget):
         """Get current data model from context"""
         return self.context.data_model
 
-    def apply_default_style(self, ax, x_label, y_label):
+    def apply_default_style(self, ax: plt.Axes, x_label: str, y_label: str):
         """Apply default styling to axes"""
         ax.set_facecolor(FIG_COLOR)
         ax.grid(color=GRID_COLOR, linestyle='--', alpha=GRID_ALPHA)

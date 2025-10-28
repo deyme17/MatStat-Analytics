@@ -1,6 +1,7 @@
 from .graph_tab import BaseGraphTab
 from services.ui_services.renderers.graph_renderers import RENDERERS
 from utils import AppContext
+import pandas as pd
 
 LEGEND_FRAMEALPHA = 0.5
 
@@ -10,7 +11,7 @@ class HistogramTab(BaseGraphTab):
     def __init__(self, context: AppContext):
         super().__init__(name="Histogram", context=context)
         
-    def draw(self, data):
+    def draw(self, data: pd.Series):
         """Draw histogram with current settings and distribution overlay"""
         self.clear()
         if self.panel is None: return
@@ -34,7 +35,7 @@ class HistogramTab(BaseGraphTab):
         self.apply_default_style(self.ax, "Value", "Frequency")
         self.canvas.draw()
 
-    def _draw_distribution_overlay(self, data, params):
+    def _draw_distribution_overlay(self, data: pd.Series, params: dict):
         """Draw theoretical distribution curve over the histogram."""
         dist = params["distribution"]
         if dist is None or data.isna().sum() > 0:

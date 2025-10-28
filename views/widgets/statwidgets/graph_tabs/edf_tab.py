@@ -2,6 +2,7 @@ from .graph_tab import BaseGraphTab
 from services.ui_services.renderers.graph_renderers import RENDERERS
 from services import ConfidenceService
 from utils import AppContext
+import pandas as pd
 
 LINEWIDTH = 2
 CI_ALPHA = 0.2
@@ -14,7 +15,7 @@ class EDFTab(BaseGraphTab):
         super().__init__(name="Empirical Distribution Function", context=context)
         self.confidence_service: ConfidenceService = confidence_service
 
-    def draw(self, data):
+    def draw(self, data: pd.Series):
         """Draw EDF and overlay theoretical CDF with CI"""
         self.clear()
         if self.panel is None: return
@@ -46,7 +47,7 @@ class EDFTab(BaseGraphTab):
         self.ax.set_ylim(-0.05, 1.05)
         self.canvas.draw()
 
-    def _draw_theoretical_cdf(self, data, params):
+    def _draw_theoretical_cdf(self, data: pd.Series, params: dict):
         """Draw theoretical CDF with confidence interval if possible."""
         dist = params["distribution"]
         if dist is None or data.isna().sum() > 0:
