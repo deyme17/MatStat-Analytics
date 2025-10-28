@@ -5,7 +5,9 @@ from .dist_renderer import DistributionRenderer
 from .graph2var_renderers.corr_field_renderer import CorrelationFieldRenderer
 from .graph2var_renderers.histMap_renderer import HistogramMapRenderer
 
-RENDERERS = {
+from .graph_renderer import Renderer
+
+RENDERERS: dict[str, type[Renderer]] = {
     'histogram': HistRenderer,
     'edf': EDFRenderer,
     'distribution': DistributionRenderer,
