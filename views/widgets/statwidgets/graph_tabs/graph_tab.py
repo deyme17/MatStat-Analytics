@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from PyQt6.QtWidgets import QWidget, QVBoxLayout
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -34,6 +35,7 @@ class BaseGraphTab(QWidget):
         layout.addWidget(self.canvas)
         self.setLayout(layout)
     
+    @abstractmethod
     def draw(self, data):
         """Main drawing method to be implemented by subclasses"""
         raise NotImplementedError
