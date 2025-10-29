@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from services.ui_services.renderers.graph_renderers.graph_renderer import Renderer
-from typing import Any
 
 
 class HistogramMapRenderer(Renderer):
@@ -10,7 +9,7 @@ class HistogramMapRenderer(Renderer):
     Renderer for drawing 3D histogram on 2D ax (as map) for two columns of a DataFrame.
     """
     @staticmethod
-    def render(ax: plt.Axes, df: pd.DataFrame, col_x: str, col_y: str, bins1: int = 10, bins2: int = 10) -> Any:
+    def render(ax: plt.Axes, df: pd.DataFrame, col_x: str, col_y: str, bins1: int = 10, bins2: int = 10):
         """
         Render 3D histogram as heatmap on the given Matplotlib axis.
         Args:
