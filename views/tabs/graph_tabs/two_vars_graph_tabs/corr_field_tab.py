@@ -14,6 +14,8 @@ class CorrelationFieldTab(Base2VarGraphTab):
         try:
             col1, col2 = self.get_current_column_names()
             data_model = self.get_data_model()
+            if not col1 or not col2 or not data_model.dataframe:
+                return
             renderer = RENDERERS['correlation_field']
             renderer.render(self.ax, data_model.dataframe, col1, col2)
             self.apply_default_style(self.ax, col1, col2)
