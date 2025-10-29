@@ -68,7 +68,7 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
 
 ### 📊 **Advanced Visualization**
 
-#### **Interactive Graphs**
+#### **Graphs**
 - **Histograms**: 
   - Automatic and manual bin selection
   - Frequency polygons (via checkbox)
@@ -77,7 +77,16 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
   - Empirical Distribution Functions (EDF)
   - Theoretical distribution overlays
   - Cumulative frequency curves (ogives) with checkbox control
-- **Comparative Analysis**: Side-by-side empirical vs theoretical comparisons
+  - Comparative Analysis: Side-by-side empirical vs theoretical comparisons
+- **H-H plot**:
+  - Quantile–quantile style diagnostic comparing empirical and theoretical quantiles
+  - Visual check for goodness of fit and distribution symmetry
+- **3D Histogram as 2D map**:
+  - Heatmap-based projection of 3D histograms for two numeric variables
+  - Color intensity represents relative joint frequency
+- **Correlation field**:
+  - Scatter visualization of two variables with color-coded density
+  - Real-time Pearson correlation coefficient displayed on the plot
 
 ## Technical Architecture
 
@@ -86,6 +95,7 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
 - **Strategy Pattern**: Pluggable algorithms for different statistical tests
 - **Factory Pattern**: Dynamic creation of test objects and estimators
 - **Observer Pattern**: UI state management and real-time updates
+- **Event Bus**: Centralized publish–subscribe system that enables decoupled communication between components.
 
 ### **Core Components**
 - **Models**: Statistical distributions, test implementations, data structures
