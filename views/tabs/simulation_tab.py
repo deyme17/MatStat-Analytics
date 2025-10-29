@@ -6,7 +6,7 @@ from typing import Optional, Tuple
 
 from models.stat_distributions import registered_distributions
 from controllers import SimulationController
-from views.widgets import ExperimentWidget, GenerationWidget
+from views.widgets.simulationwidgets import ExperimentWidget, GenerationWidget
 from services import UIMessager
 
 MIN_PARAM_INPUT_WIDTH = 200
