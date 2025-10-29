@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QComboBox, QLabel, QHBoxLayout, QWidget
 from ..graph_tab import BaseGraphTab
 from typing import Tuple, Optional, List
-from utils import AppContext, EventBus, EventType
+from utils import AppContext, EventBus, EventType, Event
 
 CONTROLS_HEIGHT = 25
 CONTROLS_WIDTH = 300
@@ -19,11 +19,15 @@ class Base2VarGraphTab(BaseGraphTab):
         self.event_bus: EventBus = context.event_bus
         self.second_column_selector = None
         self._add_column_selector()
+        self._subscribe_to_events()
 
     def _subscribe_to_events(self) -> None:
         """Subscribe to data change events"""
-        self.event_bus.subscribe(EventType.DATA_LOADED, self.update_column_list)
-        self.event_bus.subscribe(EventType.DATASET_CHANGED, self.update_column_list)
+        self.event_bus.subscribe(EventType.DATA_LOADED, self._on_dataset_changed)
+        self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_dataset_changed)
+
+    def _on_dataset_changed(self, event: Event) -> None:
+        self.update_column_list()
     
     def _add_column_selector(self) -> None:
         """Add second column selector at the very bottom with fixed height & width"""
@@ -68,16 +72,17 @@ class Base2VarGraphTab(BaseGraphTab):
             self.second_column_selector.setCurrentIndex(0)
         
         self.second_column_selector.blockSignals(False)
+        self.draw()
     
     def get_current_column_names(self) -> Optional[Tuple[str, str]]:
         """
-        Returnes the names of two choosen columns
+        Returns the names of two chosen columns
         """
         data_model = self.get_data_model()
         if data_model is None or data_model.dataframe is None:
-            return
-        
+            return None
         first_col = self.context.version_manager.get_current_column_name()
         second_col = self.second_column_selector.currentText()
-        
+        if not first_col or not second_col:
+            return None
         return first_col, second_col

@@ -12,10 +12,16 @@ class CorrelationFieldTab(Base2VarGraphTab):
         """Draw correlation field for two columns"""
         self.clear()
         try:
-            col1, col2 = self.get_current_column_names()
             data_model = self.get_data_model()
-            if not col1 or not col2 or not data_model.dataframe:
+            if data_model is None or data_model.dataframe is None or data_model.dataframe.empty:
                 return
+            columns = self.get_current_column_names()
+            if columns is None:
+                return
+            col1, col2 = columns
+            if not col1 or not col2:
+                return
+            
             renderer = RENDERERS['correlation_field']
             renderer.render(self.ax, data_model.dataframe, col1, col2)
             self.apply_default_style(self.ax, col1, col2)

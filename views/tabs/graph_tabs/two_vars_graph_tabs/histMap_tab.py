@@ -43,9 +43,15 @@ class HistogramMapTab(Base2VarGraphTab):
         self.clear()
         try:
             data_model = self.get_data_model()
-            col1, col2 = self.get_current_column_names()
-            if not col1 or not col2 or not data_model.dataframe:
+            if data_model is None or data_model.dataframe is None or data_model.dataframe.empty:
                 return
+            columns = self.get_current_column_names()
+            if columns is None:
+                return
+            col1, col2 = columns
+            if not col1 or not col2:
+                return
+            
             renderer = RENDERERS['histogram_map']
             renderer.render(
                 self.ax, 
