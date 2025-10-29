@@ -13,8 +13,9 @@ class CorrelationFieldTab(Base2VarGraphTab):
         self.clear()
         try:
             col1, col2 = self.get_current_column_names()
+            data_model = self.get_data_model()
             renderer = RENDERERS['correlation_field']
-            renderer.render(self.ax, self.context.data_model.dataframe, col1, col2)
+            renderer.render(self.ax, data_model.dataframe, col1, col2)
             self.apply_default_style(self.ax, col1, col2)
             self.canvas.draw()
         except Exception as e:

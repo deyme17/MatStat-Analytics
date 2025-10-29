@@ -43,7 +43,7 @@ class HistogramMapTab(Base2VarGraphTab):
         """Draw 3D histogram as heatmap for two columns"""
         self.clear()
         try:
-            data_model = self.context.data_model
+            data_model = self.get_data_model()
             col1, col2 = self.get_current_column_names()
             renderer = RENDERERS['histogram_map']
             renderer.render(
