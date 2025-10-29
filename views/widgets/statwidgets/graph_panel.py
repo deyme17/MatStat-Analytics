@@ -161,17 +161,15 @@ class GraphPanel(QWidget):
         data_model = self.context.data_model
         if data_model is None:
             return
-
         series = data_model.series
         if series is None or series.empty:
             return
-
         clean_data = series.dropna()
         if clean_data.empty:
             return
 
         for tab in self.graph_tabs.values():
-            tab.draw(clean_data)
+            tab.draw()
 
     def clear(self) -> None:
         """Clear all graph tabs."""

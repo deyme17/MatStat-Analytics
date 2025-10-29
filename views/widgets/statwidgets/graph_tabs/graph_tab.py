@@ -36,7 +36,7 @@ class BaseGraphTab(QWidget):
         self.setLayout(layout)
     
     @abstractmethod
-    def draw(self, data):
+    def draw(self):
         """Main drawing method to be implemented by subclasses"""
         raise NotImplementedError
         

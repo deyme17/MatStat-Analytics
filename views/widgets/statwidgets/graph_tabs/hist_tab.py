@@ -11,25 +11,26 @@ class HistogramTab(BaseGraphTab):
     def __init__(self, context: AppContext):
         super().__init__(name="Histogram", context=context)
         
-    def draw(self, data: pd.Series):
+    def draw(self):
         """Draw histogram with current settings and distribution overlay"""
         self.clear()
         if self.panel is None: return
             
         params = self.panel.get_render_params()
+        series = self.context.data_model.series
         
         # Render histogram
         renderer = RENDERERS['histogram']
         renderer.render(
             self.ax, 
-            data,
+            series,
             bins=params['bins'],
             show_kde=params['kde'],
             freq_polygon=params['line']
         )
         
         # draw distribution overlay if selected
-        self._draw_distribution_overlay(data, params)
+        self._draw_distribution_overlay(series, params)
         
         # styling
         self.apply_default_style(self.ax, "Value", "Frequency")

@@ -15,7 +15,7 @@ class EDFTab(BaseGraphTab):
         super().__init__(name="Empirical Distribution Function", context=context)
         self.confidence_service: ConfidenceService = confidence_service
 
-    def draw(self, data: pd.Series):
+    def draw(self):
         """Draw EDF and overlay theoretical CDF with CI"""
         self.clear()
         if self.panel is None: return
@@ -33,14 +33,14 @@ class EDFTab(BaseGraphTab):
         renderer = RENDERERS['edf']
         renderer.render(
             self.ax,
-            data,
+            data_model.series,
             bin_edges=bin_edges,
             show_edf_curve=params["kde"],
             show_ogiva=params["line"]
         )
 
         # draw theoretical CDF if distribution selected
-        self._draw_theoretical_cdf(data, params)
+        self._draw_theoretical_cdf(data_model.series, params)
 
         # styling
         self.apply_default_style(self.ax, "Value", "Cumulative Probability")
