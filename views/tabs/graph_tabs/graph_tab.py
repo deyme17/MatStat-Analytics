@@ -44,6 +44,8 @@ class BaseGraphTab(QWidget):
     def clear(self) -> None:
         """Clear the canvas"""
         self.ax.clear()
+        legend = self.ax.get_legend()
+        if legend is not None: legend.remove()
         self.canvas.draw()
 
     def set_panel(self, panel) -> None:
