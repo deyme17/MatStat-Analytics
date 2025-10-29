@@ -35,13 +35,13 @@ class DataModel:
         self.history = history or []                       # list of previous versions
 
     @property
-    def dataframe(self):
+    def dataframe(self) -> pd.DataFrame:
         return self._df
     @property
-    def series(self):
+    def series(self) -> pd.Series:
         return self._series
     
-    def select_column(self, idx: int):
+    def select_column(self, idx: int) -> None:
         """Select a different column by index as current series"""
         if idx < 0 or idx >= self._df.shape[1]:
             raise IndexError("Column index out of range")
@@ -49,7 +49,7 @@ class DataModel:
         self._series = self._df.iloc[:, idx]
         self.clear_cache()
     
-    def _recompute_cache(self):
+    def _recompute_cache(self) -> None:
         """Recompute and store histogram, and descriptive stats in cache."""
         self._cache['hist'] = Hist(self._series, self.bins)
         self._cache['stats'] = {
@@ -61,7 +61,7 @@ class DataModel:
             "max": self._series.max()
         }
 
-    def clear_cache(self):
+    def clear_cache(self) -> None:
         """Clear and recompute all cached values."""
         self._cache.clear()
         self._recompute_cache()
@@ -75,7 +75,7 @@ class DataModel:
         """Return dictionary with descriptive statistics."""
         return self._cache.get('stats')
 
-    def update_bins(self, bins: int):
+    def update_bins(self, bins: int) -> None:
         """
         Update histogram bin count and recompute histogram cache.
         Args:            
