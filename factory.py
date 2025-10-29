@@ -31,7 +31,7 @@ from views import (
     ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel,
     GraphPanel, DistributionSelector
 )
-from views.widgets.statwidgets.graph_tabs import EDFTab, HistogramTab, HistogramMapTab, CorrelationFieldTab
+from views.tabs.graph_tabs import EDFTab, HistogramTab, HistogramMapTab, CorrelationFieldTab
 
 # Callbacks
 from utils.combo_callbacks import build_combo_callbacks
