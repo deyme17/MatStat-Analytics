@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (
 )
 from typing import Any, Dict, Type
 from utils import AppContext, EventBus, EventType, Event
-from .graph_tabs.graph_tab import BaseGraphTab
+from views.tabs.graph_tabs.graph_tab import BaseGraphTab
 
 MIN_BINS, MAX_BINS = 1, 999
 DEFAULT_BINS = 10
