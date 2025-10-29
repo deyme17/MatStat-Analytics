@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
+from models.data_model import DataModel
 from utils import AppContext
 
 FIG_SIZE = (6, 3)
@@ -24,8 +25,8 @@ class BaseGraphTab(QWidget):
         self.context = context
         self.panel = None
         self._init_canvas()
-        
-    def _init_canvas(self):
+    
+    def _init_canvas(self) -> None:
         """Initialize matplotlib canvas"""
         self.figure = Figure(figsize=FIG_SIZE)
         self.canvas = FigureCanvas(self.figure)
@@ -36,24 +37,24 @@ class BaseGraphTab(QWidget):
         self.setLayout(layout)
     
     @abstractmethod
-    def draw(self):
+    def draw(self) -> None:
         """Main drawing method to be implemented by subclasses"""
         raise NotImplementedError
-        
-    def clear(self):
+    
+    def clear(self) -> None:
         """Clear the canvas"""
         self.ax.clear()
         self.canvas.draw()
 
-    def set_panel(self, panel):
+    def set_panel(self, panel) -> None:
         """Set reference to parent panel"""
         self.panel = panel
 
-    def get_data_model(self):
+    def get_data_model(self) -> DataModel:
         """Get current data model from context"""
         return self.context.data_model
 
-    def apply_default_style(self, ax: plt.Axes, x_label: str, y_label: str):
+    def apply_default_style(self, ax: plt.Axes, x_label: str, y_label: str) -> None:
         """Apply default styling to axes"""
         ax.set_facecolor(FIG_COLOR)
         ax.grid(color=GRID_COLOR, linestyle='--', alpha=GRID_ALPHA)
