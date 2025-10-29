@@ -13,5 +13,5 @@ RENDERERS: dict[str, type[Renderer]] = {
     'distribution': DistributionRenderer,
 
     'correlation_field': CorrelationFieldRenderer,
-    'histogramMao': HistogramMapRenderer
+    'histogram_map': HistogramMapRenderer
 }
