@@ -33,14 +33,14 @@ class SimulationTab(QWidget):
         self._init_parameter_controls(layout)
         layout.addStretch()
         
-        # experiment widget
-        layout.addWidget(self.experiment_widget)
-        self.experiment_widget.run_button.clicked.connect(self.run_experiment)
-        layout.addStretch()
-        
         # generation widget
         layout.addWidget(self.generation_widget)
         self.generation_widget.save_button.clicked.connect(self.save_generated_data)
+        layout.addStretch()
+        
+        # experiment widget
+        layout.addWidget(self.experiment_widget)
+        self.experiment_widget.run_button.clicked.connect(self.run_experiment)
         layout.addStretch()
         
         self.setLayout(layout)
