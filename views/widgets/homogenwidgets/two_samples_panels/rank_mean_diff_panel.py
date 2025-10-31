@@ -14,4 +14,4 @@ class RankMeanDiffPanel(BaseHomoTestPanel):
         super().__init__(homogen_controller, stats, 2, True)
 
     def get_test_name(self) -> str:
-        return "Rank Mean ifference test"
+        return "Rank Mean Difference test"
