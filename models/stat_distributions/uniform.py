@@ -64,7 +64,7 @@ class UniformDistribution(StatisticalDistribution):
         """
         return stats.uniform.pdf(x, loc=params[0], scale=params[1] - params[0])
 
-    def get_distribution_object(self, params: tuple):
+    def get_distribution_object(self, params: tuple) -> stats.rv_frozen:
         """
         Return a frozen scipy.stats.uniform object with given parameters.
         Args:

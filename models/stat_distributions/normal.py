@@ -63,7 +63,7 @@ class NormalDistribution(StatisticalDistribution):
         """
         return stats.norm.pdf(x, loc=params[0], scale=params[1])
 
-    def get_distribution_object(self, params: tuple):
+    def get_distribution_object(self, params: tuple) -> stats.rv_frozen:
         """
         Return a frozen scipy.stats.norm object with given parameters.
         Args:
