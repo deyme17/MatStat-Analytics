@@ -38,9 +38,10 @@ class StatisticalDistribution(ABC):
     @abstractmethod
     def get_mean(self) -> float:
         pass
-
+    
+    @abstractmethod
     def get_distribution_object(self, params: tuple) -> Any:
-        return None
+        pass
 
     def get_plot_data(self, data: pd.Series, params: tuple) -> tuple[np.ndarray, np.ndarray]:
         x_min, x_max = self._get_plot_range(data)
