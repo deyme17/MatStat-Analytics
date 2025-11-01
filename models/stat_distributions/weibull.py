@@ -1,4 +1,5 @@
 from models.stat_distributions.stat_distribution import StatisticalDistribution
+from typing import Any
 import numpy as np
 from scipy import stats
 from scipy.special import gamma
@@ -79,7 +80,7 @@ class WeibullDistribution(StatisticalDistribution):
         scale = max(0.1, params[1])
         return stats.weibull_min.pdf(x, c=shape, loc=0, scale=scale)
 
-    def get_distribution_object(self, params: tuple) -> stats.rv_frozen:
+    def get_distribution_object(self, params: tuple) -> Any:
         """
         Return a frozen scipy.stats.weibull_min object with given parameters.
         Args:

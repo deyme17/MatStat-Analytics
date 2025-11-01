@@ -1,4 +1,5 @@
 from models.stat_distributions.stat_distribution import StatisticalDistribution
+from typing import Any
 import numpy as np
 from scipy import stats
 import pandas as pd
@@ -63,7 +64,7 @@ class NormalDistribution(StatisticalDistribution):
         """
         return stats.norm.pdf(x, loc=params[0], scale=params[1])
 
-    def get_distribution_object(self, params: tuple) -> stats.rv_frozen:
+    def get_distribution_object(self, params: tuple) -> Any:
         """
         Return a frozen scipy.stats.norm object with given parameters.
         Args:

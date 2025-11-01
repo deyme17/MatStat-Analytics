@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
-from scipy import stats
+from typing import Any
 import pandas as pd
 
 class StatisticalDistribution(ABC):
@@ -39,7 +39,7 @@ class StatisticalDistribution(ABC):
     def get_mean(self) -> float:
         pass
 
-    def get_distribution_object(self, params: tuple) -> stats.rv_frozen:
+    def get_distribution_object(self, params: tuple) -> Any:
         return None
 
     def get_plot_data(self, data: pd.Series, params: tuple) -> tuple[np.ndarray, np.ndarray]:

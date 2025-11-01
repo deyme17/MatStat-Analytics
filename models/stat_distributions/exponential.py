@@ -1,5 +1,6 @@
 from models.stat_distributions.stat_distribution import StatisticalDistribution
 import numpy as np
+from typing import Any
 from scipy import stats
 import pandas as pd
 
@@ -63,7 +64,7 @@ class ExponentialDistribution(StatisticalDistribution):
         """
         return stats.expon.pdf(x, loc=0, scale=1 / params[0] if params[0] > 0 else 1)
 
-    def get_distribution_object(self, params: tuple) -> stats.rv_frozen:
+    def get_distribution_object(self, params: tuple) -> Any:
         """
         Return a frozen scipy.stats.expon object with given parameters.
         Args:
