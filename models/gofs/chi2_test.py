@@ -23,6 +23,9 @@ class ChiSquaredGOFTest(BaseGOFTest):
         Returns:
             dictionary with test results (statistic, p-value, decision, extra info)
         """
+        if data.ndim != 1 or data.shape[1] != 1:
+            raise ValueError("Data must be a 1D array of shape (n, 1)")
+        
         hist, bin_edges = np.histogram(data, bins=bins)
         total = len(data)
 

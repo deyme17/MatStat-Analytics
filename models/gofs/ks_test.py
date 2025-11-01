@@ -22,6 +22,9 @@ class KolmogorovSmirnovGOFTest(BaseGOFTest):
         Returns:
             dictionary with test results (statistic, p-value, decision, extra info)
         """
+        if data.ndim != 1 or data.shape[1] != 1:
+            raise ValueError("Data must be a 1D array of shape (n, 1)")
+        
         n = len(data)
         sorted_data = np.sort(data)
         params = dist.fit(data)
