@@ -26,7 +26,7 @@ from views import (
     WindowWidgets,
     AnomalyWidget, MissingWidget, TransformDataWidget,
     GenerationWidget, ExperimentWidget,
-    KolmogorovSmirnovPanel, PearsonChi2Panel,
+    KolmogorovSmirnovPanel, PearsonChi2Panel, Pearson2DNormalPanel,
     NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel, AbbePanel,
     ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel,
     GraphPanel, DistributionSelector
@@ -119,7 +119,7 @@ class UIFactory:
             get_dist_func=lambda: self.window.graph_panel.get_selected_distribution(),
             gof_controller=controllers['gof'],
             test_panels=[PearsonChi2Panel, KolmogorovSmirnovPanel],
-            mult_test_panels=[]
+            mult_test_panels=[Pearson2DNormalPanel]
         )
         homo_tab = HomogenTab(
             homogen_controller=controllers['homogen'],
