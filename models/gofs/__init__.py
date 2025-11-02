@@ -5,5 +5,6 @@ from .base_gof_test import BaseGOFTest
 
 gof_tests: list[BaseGOFTest] = [
     KolmogorovSmirnovGOFTest,
-    ChiSquaredGOFTest
+    ChiSquaredGOFTest,
+    Normal2DChi2GOFTest,
 ]

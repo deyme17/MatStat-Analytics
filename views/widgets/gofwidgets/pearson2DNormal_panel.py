@@ -15,7 +15,7 @@ class Pearson2DNormalPanel(BaseTestPanel):
             gof_controller (GOFController): Controller for computing test values.
         """
         super().__init__("2D Normal Chi² Test", gof_controller)
-
+        self.note: QLabel = self.add_stat_label("! Note: Test only 2D data for normality")
         self.statistic_label: QLabel = self.add_stat_label("χ²: ")
         self.df_label: QLabel = self.add_stat_label("Degrees of freedom: ")
         self.critical_value_label: QLabel = self.add_stat_label("χ²(α, df): ")

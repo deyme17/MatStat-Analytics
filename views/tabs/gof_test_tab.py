@@ -104,12 +104,12 @@ class GOFTestTab(QWidget):
         """
         dist = self.get_dist_func()
         model = self.context.data_model
-        if dist is None or model is None:
-            return
+        if model is None: return
         
         alpha = self.alpha_spinbox.value()
 
-        self._evaluate_simple_tests(model, dist, alpha)
+        if dist is not None:
+            self._evaluate_simple_tests(model, dist, alpha)
         if multi:
             self._evaluate_multi_tests(model, dist, alpha)
 

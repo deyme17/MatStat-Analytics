@@ -38,5 +38,6 @@ class GOFController:
                 return None
                 
             return self._tests[test_name].run(data_clean.values, dist, alpha=alpha)
-        except Exception:
+        except Exception as e:
+            print(f"Some troubles in GOFController: {e}")
             return None
