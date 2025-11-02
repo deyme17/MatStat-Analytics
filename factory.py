@@ -119,7 +119,7 @@ class UIFactory:
             get_dist_func=lambda: self.window.graph_panel.get_selected_distribution(),
             gof_controller=controllers['gof'],
             test_panels=[PearsonChi2Panel, KolmogorovSmirnovPanel],
-            mult_test_panels=[Pearson2DNormalPanel]
+            multi_test_panels=[Pearson2DNormalPanel]
         )
         homo_tab = HomogenTab(
             homogen_controller=controllers['homogen'],
