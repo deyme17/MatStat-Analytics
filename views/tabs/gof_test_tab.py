@@ -18,21 +18,21 @@ class GOFTestTab(QWidget):
     """
     def __init__(self, context: AppContext, 
                  get_dist_func: Callable[[None], StatisticalDistribution], gof_controller: GOFController, 
-                 test_panels: list[BaseTestPanel],  mult_test_panels: list[BaseTestPanel]) -> None:
+                 test_panels: list[BaseTestPanel],  multi_test_panels: list[BaseTestPanel]) -> None:
         """
         Args:
             context: Shared application context (version_manager, event_bus, messager)
             get_dist_func: Function for getting current selected distribution.
             gof_controller (GOFController): Controller to perform GOF tests.
             test_panels (list): List of simple (takes series as data) GOF test panel classes.
-            mult_test_panels (list): List of multivariate (takes dataframe as data) GOF test panel classes.
+            multi_test_panels (list): List of multivariate (takes dataframe as data) GOF test panel classes.
         """
         super().__init__()
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
         self.get_dist_func: Callable[[None], StatisticalDistribution] = get_dist_func
         self.test_panels: list[BaseTestPanel] = [panel(gof_controller) for panel in test_panels]
-        self.mult_test_panels: list[BaseTestPanel] = [panel(gof_controller) for panel in mult_test_panels]
+        self.multi_test_panels: list[BaseTestPanel] = [panel(gof_controller) for panel in multi_test_panels]
 
         self.alpha_spinbox = QDoubleSpinBox()
         self.alpha_spinbox.setRange(ALPHA_MIN, ALPHA_MAX)
@@ -58,7 +58,7 @@ class GOFTestTab(QWidget):
 
         # multivariate tests
         layout.addWidget(QLabel(f"{HEADING_TITLE_SIZE * '='} Multivariate tests {HEADING_TITLE_SIZE * '='}"))
-        for panel in self.mult_test_panels:
+        for panel in self.multi_test_panels:
             layout.addWidget(panel)
 
         layout.addStretch()
@@ -68,23 +68,39 @@ class GOFTestTab(QWidget):
         self._subscribe_to_events()
 
     def _subscribe_to_events(self) -> None:
-        self.event_bus.subscribe(EventType.DISTRIBUTION_CHANGED, self._on_changed)
-        self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_changed)
-        self.event_bus.subscribe(EventType.DATA_TRANSFORMED, self._on_changed)
-        self.event_bus.subscribe(EventType.MISSING_VALUES_HANDLED, self._on_changed)
+        self.event_bus.subscribe(EventType.DISTRIBUTION_CHANGED, self._update_simple_tests)
+        self.event_bus.subscribe(EventType.DATASET_CHANGED, self._update_all_tests)
+        self.event_bus.subscribe(EventType.DATA_TRANSFORMED, self._update_all_tests)
+        self.event_bus.subscribe(EventType.MISSING_VALUES_HANDLED, self._update_all_tests)
         self.event_bus.subscribe(EventType.MISSING_VALUES_DETECTED, self._on_missings)
-        self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_changed)
-        self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_changed)
+        self.event_bus.subscribe(EventType.DATA_REVERTED, self._update_all_tests)
+        self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._update_simple_tests)
 
-    def _on_changed(self, event: Event) -> None:
+    def _update_all_tests(self, event: Event) -> None:
         self.evaluate_tests()
+
+    def _update_simple_tests(self, event: Event) -> None:
+        self.evaluate_tests(multi=False)
         
     def _on_missings(self, event: Event) -> None:
         self.clear_panels()
 
-    def evaluate_tests(self) -> None:
+    def _evaluate_simple_tests(self, model, dist: StatisticalDistribution, alpha: float) -> None:
+        series = model.series.dropna()
+        if series.empty: return
+        for test in self.test_panels:
+            test.evaluate(series, dist, alpha)
+
+    def _evaluate_multi_tests(self, model, dist: StatisticalDistribution, alpha: float) -> None:
+        df = model.dataframe.dropna()
+        if df.empty: return
+        for test in self.multi_test_panels:
+            test.evaluate(df, dist, alpha)
+
+    def evaluate_tests(self, multi: bool = True) -> None:
         """
         Evaluates all GOF tests based on current data and selected distribution.
+        Parameter `multi` corresponds for calculation multivariate tests
         """
         dist = self.get_dist_func()
         model = self.context.data_model
@@ -93,21 +109,13 @@ class GOFTestTab(QWidget):
         
         alpha = self.alpha_spinbox.value()
 
-        # run simple tests with series data
-        series = model.series.dropna()
-        if series.empty: return
-        for test in self.test_panels:
-            test.evaluate(series, dist, alpha)
-
-        # run multivariate tests with df
-        df = model.dataframe.dropna()
-        if df.empty: return
-        for test in self.mult_test_panels:
-            test.evaluate(df, dist, alpha)
+        self._evaluate_simple_tests(model, dist, alpha)
+        if multi:
+            self._evaluate_multi_tests(model, dist, alpha)
 
     def clear_panels(self) -> None:
         """
         Clears all hypothesis test panels.
         """
-        for test in zip(self.test_panels, self.mult_test_panels):
+        for test in zip(self.test_panels, self.multi_test_panels):
             test.clear()
