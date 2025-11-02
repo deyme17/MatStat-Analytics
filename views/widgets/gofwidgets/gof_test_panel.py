@@ -62,11 +62,11 @@ class BaseTestPanel(QGroupBox, ABC, metaclass=Meta):
         )
 
     @abstractmethod
-    def evaluate(self, data: pd.Series, dist: StatisticalDistribution, alpha: float) -> None:
+    def evaluate(self, data: pd.Series | pd.DataFrame, dist: StatisticalDistribution, alpha: float) -> None:
         """
         Abstract method to evaluate the test with the given data and distribution.
         Args:
-            data (pd.Series): Sample data to evaluate.
+            data (pd.Series or pd.DataFrame): Sample data to evaluate.
             dist (StatisticalDistribution): Fitted distribution to compare against.
             alpha (float): Significance level.
         """
