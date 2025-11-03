@@ -11,6 +11,7 @@ class EventType(Enum):
     DATA_EXPORTED = auto()
     DATASET_CHANGED = auto()
     COLUMN_CHANGED = auto()
+    CORR_COEFF_CHANGED = auto()
     
     # UI events
     BINS_CHANGED = auto()
