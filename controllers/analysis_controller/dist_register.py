@@ -1,18 +1,18 @@
-from models.stat_distributions import registered_distributions, StatisticalDistribution
 from typing import List, Optional
+from models.stat_distributions import registered_distributions, StatisticalDistribution
 
 class DistributionRegister:
     """
-    Main controller class for parameter estimation operations.
-    Provides a unified interface for estimating distribution parameters
-    using different estimation methods.
+    Wrapper for registered distributions with safe access.
     """
     def __init__(self):
         self._distributions = registered_distributions
 
     @property
     def distributions(self) -> List[str]:
-        return self._distributions.keys()
-    
-    def get_dist(self, dist_name) -> Optional[StatisticalDistribution]:
-        return self._distributions.get(dist_name, None)
+        """Return list of available distribution names."""
+        return list(self._distributions.keys())
+
+    def get_dist(self, dist_name: str) -> Optional[type[StatisticalDistribution]]:
+        """Return distribution class by name, or None if not found."""
+        return self._distributions.get(dist_name)
