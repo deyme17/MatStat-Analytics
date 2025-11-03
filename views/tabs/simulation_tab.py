@@ -4,8 +4,7 @@ from PyQt6.QtWidgets import (
 )
 from typing import Optional, Tuple
 
-from models.stat_distributions import registered_distributions
-from controllers import SimulationController
+from controllers import SimulationController, DistributionRegister
 from views.widgets.simulationwidgets import ExperimentWidget, GenerationWidget
 from services import UIMessager
 
@@ -14,11 +13,12 @@ MIN_PARAM_INPUT_WIDTH = 200
 
 class SimulationTab(QWidget):
     """Main tab that combines experiment and generation widgets."""
-    def __init__(self, messanger: UIMessager, simulation_controller: SimulationController,
+    def __init__(self, messanger: UIMessager, simulation_controller: SimulationController, dist_register: DistributionRegister,
                  experiment_widget: type[ExperimentWidget], generation_widget: type[GenerationWidget]):
         super().__init__()
         self.messanger: UIMessager = messanger
         self.simulation_controller: SimulationController = simulation_controller
+        self.dist_register: DistributionRegister = dist_register
         self.experiment_widget: ExperimentWidget = experiment_widget(messanger, simulation_controller)
         self.generation_widget: GenerationWidget = generation_widget(messanger, simulation_controller)
         self._init_ui()
@@ -47,7 +47,7 @@ class SimulationTab(QWidget):
         """Initialize distribution selection controls."""
         layout.addWidget(QLabel("Select Distribution:"))
         self.dist_combo = QComboBox()
-        self.dist_combo.addItems(registered_distributions.keys())
+        self.dist_combo.addItems(self.dist_register.distributions)
         self.dist_combo.currentTextChanged.connect(self._update_param_placeholder)
         layout.addWidget(self.dist_combo)
     
@@ -93,7 +93,7 @@ class SimulationTab(QWidget):
         if params is None:
             return None
         
-        dist_class = registered_distributions.get(dist_name)
+        dist_class = self.dist_register.get_dist(dist_name)
         if not dist_class:
             self.messanger.show_error("Unsupported", f"Distribution {dist_name} is not supported.")
             return None
@@ -120,7 +120,7 @@ class SimulationTab(QWidget):
     def _update_param_placeholder(self) -> None:
         """Update parameter input placeholder based on selected distribution."""
         dist_name = self.dist_combo.currentText()
-        dist_class = registered_distributions.get(dist_name)
+        dist_class = self.dist_register.get_dist(dist_name)
         if dist_class:
             dist_instance = dist_class()
             params = dist_instance.distribution_params

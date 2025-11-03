@@ -2,9 +2,11 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QSpinBox, QDoubleSpinBox, QCheckBox, QTabWidget
 )
-from typing import Any, Dict, Type
+from controllers import DistributionRegister
+from typing import Any, Dict
 from utils import AppContext, EventBus, EventType, Event
 from views.tabs.graph_tabs.graph_tab import BaseGraphTab
+from .stat_dist_selector import DistributionSelector
 
 MIN_BINS, MAX_BINS = 1, 999
 DEFAULT_BINS = 10
@@ -24,27 +26,28 @@ class GraphPanel(QWidget):
     def __init__(
         self,
         context: AppContext,
-        dist_selector_cls: Type,
+        dist_selector: DistributionSelector,
         graph_tabs: Dict[str, BaseGraphTab]
     ):
         """
         Args:
             context: Application context with event_bus and data_model
-            dist_selector_cls: Distribution selector widget class
+            dist_selector: Distribution selector widget
             graph_tabs: Dictionary of {tab_name: tab_widget_instance}
         """
         super().__init__()
+        self.dist_selector = dist_selector
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
         self.graph_tabs: Dict[str, BaseGraphTab] = graph_tabs
 
-        self._init_controls(dist_selector_cls)
+        self._init_controls()
         self._init_tabs()
         self._setup_layout()
         self._connect_signals()
         self._subscribe_to_events()
 
-    def _init_controls(self, dist_selector_cls) -> None:
+    def _init_controls(self) -> None:
         """Initialize UI controls."""
         self.controls_layout = QHBoxLayout()
 
@@ -77,9 +80,6 @@ class GraphPanel(QWidget):
         self.controls_layout.addStretch()
         self.controls_layout.addWidget(self.show_kde_checkbox)
         self.controls_layout.addWidget(self.show_line_checkbox)
-
-        # distribution selector
-        self.dist_selector = dist_selector_cls()
 
     def _init_tabs(self) -> None:
         """Initialize graph tabs from provided instances."""

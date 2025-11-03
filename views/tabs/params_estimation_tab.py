@@ -4,10 +4,8 @@ from PyQt6.QtWidgets import (
 )
 from utils import AppContext
 from services import UIMessager
-from controllers import ParameterEstimation
-
-from models.stat_distributions import registered_distributions
-from models.params_estimators import registered_estimation_methods
+from controllers import ParameterEstimation, DistributionRegister
+from models.stat_distributions import StatisticalDistribution
 
 
 class ParamEstimationTab(QWidget):
@@ -15,7 +13,7 @@ class ParamEstimationTab(QWidget):
     Tab widget for estimating distribution parameters using different methods.
     Uses AppContext for dependencies.
     """
-    def __init__(self, context: AppContext, estimator: ParameterEstimation):
+    def __init__(self, context: AppContext, estimator: ParameterEstimation, dist_register: DistributionRegister):
         """
         Args:
             context: AppContext with data_model and messanger
@@ -25,6 +23,7 @@ class ParamEstimationTab(QWidget):
         self.context: AppContext = context
         self.messanger: UIMessager = context.messanger
         self.estimator: ParameterEstimation = estimator
+        self.dist_register: DistributionRegister = dist_register
         self._init_ui()
 
     def _init_ui(self) -> None:
@@ -33,11 +32,11 @@ class ParamEstimationTab(QWidget):
 
         # Distribution selection
         self.dist_combo = QComboBox()
-        self.dist_combo.addItems(registered_distributions.keys())
+        self.dist_combo.addItems(self.dist_register.distributions)
 
         # Method selection
         self.method_combo = QComboBox()
-        self.method_combo.addItems(registered_estimation_methods.keys())
+        self.method_combo.addItems(self.estimator.methods)
 
         # Estimation button
         self.estimate_button = QPushButton("Estimate Parameters")
@@ -76,7 +75,7 @@ class ParamEstimationTab(QWidget):
 
         try:
             # Get distribution class
-            dist_class = registered_distributions.get(dist_name)
+            dist_class = self.dist_register.get_dist(dist_name)
             if not dist_class:
                 self.messanger.show_error("Invalid Distribution", 
                     f"Unknown distribution: {dist_name}")
@@ -96,7 +95,7 @@ class ParamEstimationTab(QWidget):
             self.messanger.show_error("Estimation Error", 
                 f"Error during estimation: {str(e)}")
 
-    def _display_results(self, distribution, params: list) -> None:
+    def _display_results(self, distribution: StatisticalDistribution, params: list) -> None:
         """Display estimated parameters in the results table."""
         param_names = list(distribution.distribution_params.keys())
         self.result_table.setRowCount(len(params))
