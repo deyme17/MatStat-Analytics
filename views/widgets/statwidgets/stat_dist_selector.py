@@ -1,8 +1,8 @@
 from PyQt6.QtWidgets import QGroupBox, QGridLayout, QRadioButton, QButtonGroup
 from typing import Callable, Optional
 from utils.ui_styles import groupStyle, groupMargin
-from models.stat_distributions import registered_distributions
 from models.stat_distributions.stat_distribution import StatisticalDistribution
+from controllers import DistributionRegister
 
 DIST_IN_ROW = 3
 MAX_DIST_PANEL_HEIGHT = 100
@@ -13,13 +13,14 @@ class DistributionSelector(QGroupBox):
     Widget for selecting statistical distributions.
     Provides radio buttons for all registered distributions.
     """
-    def __init__(self, parent=None):
+    def __init__(self, dist_register: DistributionRegister):
         """
         Initialize the distribution selector.
         Args:
-            parent: Optional QWidget parent.
+            dist_register: DistributionRegister for getting register distributions
         """
-        super().__init__("Statistical Distributions", parent)
+        super().__init__("Statistical Distributions")
+        self.dist_register: DistributionRegister = dist_register
         self._on_change: Optional[Callable[[], None]] = None
         self._setup_ui()
 
@@ -46,7 +47,7 @@ class DistributionSelector(QGroupBox):
 
     def _add_distribution_options(self, layout: QGridLayout) -> None:
         """Add registered distributions as options."""
-        for index, (name, _) in enumerate(registered_distributions.items()):
+        for index, name in enumerate(self.dist_register.distributions):
             btn = QRadioButton(name)
             self.button_group.addButton(btn)
             layout.addWidget(btn, (index + 1) // DIST_IN_ROW, (index + 1) % DIST_IN_ROW)
@@ -60,7 +61,7 @@ class DistributionSelector(QGroupBox):
         """
         btn = self.button_group.checkedButton()
         if btn and btn.text() != "None":
-            return registered_distributions[btn.text()]()
+            return self.dist_register.get_dist(btn.text())()
         return None
 
     def reset_selection(self) -> None:
