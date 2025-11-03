@@ -27,8 +27,11 @@ class CorrelationMatrixTab(BaseGraphTab):
     def draw(self):
         """Draw correlation matrix using selected correlation coeficient"""
         self.clear()
-        if self.panel is None: return
-        dataframe = self.context.data_model.dataframe
+        data_model = self.context.data_model
+        if self.panel is None or data_model is None: return
+
+        dataframe = data_model.dataframe
+        if dataframe is None: return
         
         # Render corr matrix
         renderer = RENDERERS['correlation_matrix']
