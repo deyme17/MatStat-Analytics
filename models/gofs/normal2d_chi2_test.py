@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Optional
 from models.gofs.base_gof_test import BaseGOFTest
 from models.stat_distributions.stat_distribution import StatisticalDistribution
 from scipy.stats import chi2, multivariate_normal
@@ -9,7 +10,7 @@ class Normal2DChi2GOFTest(BaseGOFTest):
     def name(self) -> str:
         return "norm2d_chi2"
 
-    def run(self, data: np.ndarray, dist: StatisticalDistribution, bins: int = 6, alpha: float = 0.05) -> dict:
+    def run(self, data: np.ndarray, dist: StatisticalDistribution, bins: int = 6, alpha: float = 0.05) -> Optional[dict]:
         """
         Perform a 2D chi-squared goodness-of-fit test for normality.
         Args:
@@ -21,7 +22,7 @@ class Normal2DChi2GOFTest(BaseGOFTest):
             dict with test statistic, p-value, decision and extra info
         """
         if data.ndim != 2 or data.shape[1] != 2:
-            raise ValueError("Data must be a 2D array of shape (n, 2)")
+            return
 
         n = len(data)
 

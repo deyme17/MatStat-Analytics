@@ -11,7 +11,7 @@ class CorrMatrixRenderer(Renderer):
     """
     @staticmethod
     def render(ax: plt.Axes, data: pd.DataFrame, corr_callable: Callable[[str, pd.Series, pd.Series], float], 
-               corr_name: str, annot: bool = True, cmap: str = "coolwarm"):
+               corr_name: str, annot: bool = True, cmap: str = "viridis"):
         """
         Render correlation matrix on the given Matplotlib axis.
         Args:

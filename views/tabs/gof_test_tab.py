@@ -93,7 +93,7 @@ class GOFTestTab(QWidget):
 
     def _evaluate_multi_tests(self, model, dist: StatisticalDistribution, alpha: float) -> None:
         df = model.dataframe.dropna()
-        if df.empty: return
+        if df.empty or df.shape[1] < 2: return
         for test in self.multi_test_panels:
             test.evaluate(df, dist, alpha)
 
