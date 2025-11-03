@@ -31,12 +31,10 @@ class SimulationTab(QWidget):
         # dist selection
         self._init_distribution_controls(layout)
         self._init_parameter_controls(layout)
-        layout.addStretch()
         
         # generation widget
         layout.addWidget(self.generation_widget)
         self.generation_widget.save_button.clicked.connect(self.save_generated_data)
-        layout.addStretch()
         
         # experiment widget
         layout.addWidget(self.experiment_widget)
