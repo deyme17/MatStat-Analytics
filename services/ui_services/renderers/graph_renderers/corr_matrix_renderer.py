@@ -1,6 +1,7 @@
 import seaborn as sns
 import numpy as np
 import pandas as pd
+from typing import Callable
 import matplotlib.pyplot as plt
 from services.ui_services.renderers.graph_renderers.graph_renderer import Renderer
 
@@ -9,8 +10,8 @@ class CorrMatrixRenderer(Renderer):
     Renderer for drawing correlation matrices using seaborn heatmap.
     """
     @staticmethod
-    def render(ax: plt.Axes, data: pd.DataFrame, corr_callable: callable[[pd.Series, pd.Series], float], 
-               corr_name: str = None, annot: bool = True, cmap: str = "coolwarm"):
+    def render(ax: plt.Axes, data: pd.DataFrame, corr_callable: Callable[[str, pd.Series, pd.Series], float], 
+               corr_name: str, annot: bool = True, cmap: str = "coolwarm"):
         """
         Render correlation matrix on the given Matplotlib axis.
         Args:
@@ -29,7 +30,7 @@ class CorrMatrixRenderer(Renderer):
         # correlation matrix
         for i, col1 in enumerate(columns):
             for j, col2 in enumerate(columns):
-                corr_matrix[i, j] = corr_callable(data[col1], data[col2])
+                corr_matrix[i, j] = corr_callable(corr_name, data[col1], data[col2])
 
         corr_df = pd.DataFrame(corr_matrix, index=columns, columns=columns)
         sns.heatmap(corr_df, annot=annot, cmap=cmap, ax=ax, vmin=-1, vmax=1)
