@@ -4,8 +4,8 @@ from utils import EventBus, EventType, AppContext
 # Controllers
 from controllers import (
     AnomalyController, MissingDataController, DataTransformController,
-    ParameterEstimation, SimulationController, StatisticController, GOFController, HomogenController,
-    DataLoadController, DataVersionController
+    ParameterEstimation, SimulationController, StatisticController, GOFController, HomogenController, CorrelationController,
+    DataLoadController, DataVersionController, DistributionRegister
 )
 
 # Services
@@ -21,17 +21,17 @@ from services import (
 from PyQt6.QtWidgets import QTabWidget
 from views import (
     # tabs
-    DataProcessingTab, GOFTestTab, ParamEstimationTab, SimulationTab, StatisticTab, HomogenTab,
+    DataProcessingTab, GOFTestTab, ParamEstimationTab, SimulationTab, StatisticTab, HomogenTab, CorrelationTab,
     # widgets
     WindowWidgets,
     AnomalyWidget, MissingWidget, TransformDataWidget,
-    GenerationWidget, ExperimentWidget,
+    GenerationWidget, ExperimentWidget, CorrelationTestWidget,
     KolmogorovSmirnovPanel, PearsonChi2Panel, Pearson2DNormalPanel,
     NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel, AbbePanel,
     ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel,
     GraphPanel, DistributionSelector
 )
-from views.tabs.graph_tabs import EDFTab, HistogramTab, HHTab, HistogramMapTab, CorrelationFieldTab
+from views.tabs.graph_tabs import EDFTab, HistogramTab, HHTab, HistogramMapTab, CorrelationFieldTab, CorrelationMatrixTab
 
 # Callbacks
 from utils.combo_callbacks import build_combo_callbacks
@@ -77,6 +77,8 @@ class ControllersFactory:
             context=self.context,
             missing_service=MissingService()
         )
+        controllers['correlation'] = CorrelationController()
+        controllers['dist_register'] = DistributionRegister()
         
         return controllers
 
@@ -92,13 +94,14 @@ class UIFactory:
         # GRAPH PANEL
         self.window.graph_panel = GraphPanel(
             context=self.context,
-            dist_selector_cls=DistributionSelector,
+            dist_selector=DistributionSelector(dist_register=controllers['dist_register']),
             graph_tabs={
                 "Histogram": HistogramTab(self.context),
                 "EDF": EDFTab(self.context, ConfidenceService()),
                 "H-H Plot": HHTab(self.context),
                 "3D Histogram Map": HistogramMapTab(self.context),
-                "Correlation Field": CorrelationFieldTab(self.context)
+                "Correlation Field": CorrelationFieldTab(self.context),
+                "Correlation Matrix": CorrelationMatrixTab(self.context, controllers['correlation'])
             }
         )
 
@@ -132,12 +135,19 @@ class UIFactory:
         sim_tab = SimulationTab(
             messanger=self.context.messanger,
             simulation_controller=controllers['simulation'],
+            dist_register=controllers['dist_register'],
             experiment_widget=ExperimentWidget,
             generation_widget=GenerationWidget
         )
         est_tab = ParamEstimationTab(
             context=self.context,
-            estimator=controllers['estimation']
+            estimator=controllers['estimation'],
+            dist_register=controllers['dist_register']
+        )
+        corr_tab = CorrelationTab(
+            context=self.context,
+            corr_controller=controllers['correlation'],
+            corr_test_widget=CorrelationTestWidget
         )
 
         self.window.left_tab_widget = QTabWidget()
@@ -147,6 +157,7 @@ class UIFactory:
         self.window.left_tab_widget.addTab(homo_tab, "Homogeneity Tests")
         self.window.left_tab_widget.addTab(sim_tab, "Simulation")
         self.window.left_tab_widget.addTab(est_tab, "Parameters estimation")
+        self.window.left_tab_widget.addTab(corr_tab, "Correlation")
         # add to window attr
         self.window.data_tab = data_tab
         self.window.stat_tab = stat_tab
@@ -154,6 +165,7 @@ class UIFactory:
         self.window.homo_tab = homo_tab
         self.window.sim_tab = sim_tab
         self.window.est_tab = est_tab
+        self.window.corr_tab = corr_tab
 
 class ConnectFactory:
     def __init__(self, window, event_bus: EventBus):
