@@ -22,7 +22,7 @@ class CorrelationMatrixTab(BaseGraphTab):
         """Handle rendering parameter changes."""
         corr_coef_name = event.data
         self._cached_corr = corr_coef_name
-        self.draw(corr_coef_name)
+        self.draw()
         
     def draw(self):
         """Draw correlation matrix using selected correlation coeficient"""
