@@ -8,7 +8,7 @@ class ParameterEstimation:
     using different estimation methods.
     """
     def __init__(self):
-        self.methods = registered_estimation_methods
+        self._methods = registered_estimation_methods
 
     def estimate(self, dist_name: str, method_name: str, data):
         """Estimate parameters for a specified distribution using a chosen method.
@@ -26,8 +26,12 @@ class ParameterEstimation:
 
         dist_instance = dist_class()
 
-        estimator = self.methods.get(method_name)
+        estimator = self._methods.get(method_name)
         if not estimator:
             return None
 
         return estimator.estimate(dist_instance, data)
+    
+    @property
+    def methods(self) -> list[str]:
+        return self._methods.keys()
