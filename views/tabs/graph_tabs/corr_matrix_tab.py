@@ -7,11 +7,10 @@ from utils import AppContext, EventBus, EventType, Event
 
 class CorrelationMatrixTab(BaseGraphTab):
     """Tab for correlation matrix visualization"""
-    def __init__(self, context: AppContext, controller: CorrelationController, 
-                 get_corr_coef: Callable[[None], str]):
+    def __init__(self, context: AppContext, controller: CorrelationController):
         super().__init__(name="Correlation Matrix", context=context)
         self.controller: CorrelationController = controller
-        self.get_corr_coef: Callable[[None], str] = get_corr_coef
+        self._cached_corr = None
         self.event_bus: EventBus = context.event_bus
         self._subscribe_to_events()
 
@@ -22,15 +21,14 @@ class CorrelationMatrixTab(BaseGraphTab):
     def _on_corr_changed(self, event: Event) -> None:
         """Handle rendering parameter changes."""
         corr_coef_name = event.data
+        self._cached_corr = corr_coef_name
         self.draw(corr_coef_name)
         
-    def draw(self, corr_coef_name: str = None):
+    def draw(self):
         """Draw correlation matrix using selected correlation coeficient"""
         self.clear()
         if self.panel is None: return
-            
         dataframe = self.context.data_model.dataframe
-        corr_coef_name = self.get_corr_coef() if not corr_coef_name else corr_coef_name
         
         # Render corr matrix
         renderer = RENDERERS['correlation_matrix']
@@ -38,7 +36,7 @@ class CorrelationMatrixTab(BaseGraphTab):
             self.ax,
             dataframe,
             self.controller.calculate,
-            corr_coef_name,
+            self._cached_corr,
         )
         # styling
         self.apply_default_style(self.ax, "X", "Y")
