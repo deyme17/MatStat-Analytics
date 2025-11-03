@@ -34,5 +34,5 @@ class CorrMatrixRenderer(Renderer):
 
         corr_df = pd.DataFrame(corr_matrix, index=columns, columns=columns)
         sns.heatmap(corr_df, annot=annot, cmap=cmap, ax=ax, vmin=-1, vmax=1)
-        title = "Correlation Matrix" + (f"({corr_name})" if corr_name else '')
+        title = "Correlation Matrix" + (f" ({corr_name})" if corr_name else '')
         ax.set_title(title)
