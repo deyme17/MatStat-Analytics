@@ -12,7 +12,7 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
 - **Multi-format Support**: Load data from `.txt`, `.csv`, `.xls`, `.xlsx` files
 - **Multidimensional Data**: Full support for datasets with multiple columns/variables
 - **Column Selection**: Choose specific columns for analysis operations
-- **Data Versioning**: Track changes with rollback capabilities to original or previous states
+- **Data Versioning**: Track changes with rollback capabilities to original
 - **Export Data**: Possibility to export transformed data
 - **Missing Data Handling**: 
   - Detection of missing values
@@ -45,6 +45,7 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
 - **Pearson's Chi-Square Test**: Test for distribution compliance
 - **Kolmogorov-Smirnov Test**: Enhanced KS test implementation
 - **Distribution Fitting**: Test against Normal, Exponential, Laplace, Weibull, Uniform distributions
+- **Pearson's Chi-Square Test for 2D data**: Implementation of the KS test, which tests 2D data for normal distribution.
 
 #### **Homogeneity Tests**
 - **One Sample Tests**:
@@ -61,6 +62,10 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
   - Bartlett's Test for equal variances
   - Cochran's Q Test
   - Kruskal-Wallis H Test
+
+### **Testing correlation sagnificance**
+  - Multiple correlation methods supported (Pearson, Spearman, Kendall, Correlation Ratio)
+  - Testing result displayed alongside confidence intervals for selected correlation metrics
 
 ### 🎲 **Simulation & Modeling**
 - **Sample Simulation**: Generate synthetic datasets from theoretical distributions (could be multivariate)
@@ -87,6 +92,9 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
 - **Correlation field**:
   - Scatter visualization of two variables with color-coded density
   - Real-time Pearson correlation coefficient displayed on the plot
+- **Correlation Matrix**:
+  - Heatmap representation of variable interdependencies
+  - Multiple correlation methods supported (Pearson, Spearman, Kendall, Correlation Ratio)
 
 ## Technical Architecture
 
@@ -96,6 +104,7 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
 - **Factory Pattern**: Dynamic creation of test objects and estimators
 - **Observer Pattern**: UI state management and real-time updates
 - **Event Bus**: Centralized publish–subscribe system that enables decoupled communication between components.
+- **Register Pattern**: Centralized registry maintaining available statistical distributions, tests, etc.
 
 ### **Core Components**
 - **Models**: Statistical distributions, test implementations, data structures
