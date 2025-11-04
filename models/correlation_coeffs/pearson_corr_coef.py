@@ -4,6 +4,7 @@ import numpy as np
 
 class PearsonCorrelation(ICorrelationCoefficient):
     def fit(self, x: np.ndarray, y: np.ndarray) -> float:
+        if len(x) != len(y): raise ValueError("x and y must have the same length")
         self.r, _ = stats.pearsonr(x, y)
         self.n = len(x)
         return self.r
@@ -14,7 +15,8 @@ class PearsonCorrelation(ICorrelationCoefficient):
         se = 1 / np.sqrt(self.n - 3)
         z_crit = stats.norm.ppf(1 - (1 - confidence) / 2)
         low, high = z - z_crit * se, z + z_crit * se
-        return np.tanh([low, high])
+        low, high = np.tanh([low, high])
+        return (float(low), float(high))
     
     def name(self) -> str:
         return "Pearson"
