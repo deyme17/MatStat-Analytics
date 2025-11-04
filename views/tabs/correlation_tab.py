@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox
 from utils import AppContext, EventBus, EventType
 from services import UIMessager
+from views.widgets.coorwidgets import CorrelationTestWidget
 from controllers import CorrelationController
 
 
@@ -9,19 +10,19 @@ class CorrelationTab(QWidget):
     Tab for selecting correlation coefficient.
     Emits event on selection change to notify dependent components.
     """
-    def __init__(self, context: AppContext, corr_controller: CorrelationController, corr_test_widget=None):
+    def __init__(self, context: AppContext, corr_controller: CorrelationController, corr_test_widget: type[CorrelationTestWidget]):
         """
         Args:
             context: AppContext with data_model and messenger
             corr_controller: CorrelationController instance
-            corr_test_widget: Optional widget for correlation test parameters
+            corr_test_widget: Widget for correlation test parameters
         """
         super().__init__()
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
         self.messenger: UIMessager = context.messanger
         self.controller: CorrelationController = corr_controller
-        self.test_widget = corr_test_widget
+        self.test_widget: CorrelationTestWidget = corr_test_widget(context, corr_controller)
 
         self._init_ui()
 
@@ -41,8 +42,8 @@ class CorrelationTab(QWidget):
         layout.addWidget(QLabel("Select Correlation Coefficient:"))
         layout.addWidget(self.corr_combo)
 
-        if self.test_widget:
-            layout.addWidget(self.test_widget)
+        self.test_widget.connect_coeff_combo(lambda: self.corr_combo.currentText())
+        layout.addWidget(self.test_widget)
 
         layout.addStretch()
         self.setLayout(layout)
