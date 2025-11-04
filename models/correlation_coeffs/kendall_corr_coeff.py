@@ -10,7 +10,8 @@ class KendallCorrelation(ICorrelationCoefficient):
     
     def interval(self, confidence: float = 0.95) -> tuple[float, float]:
         if self.r is None: raise ValueError("Call fit() first")
-        var = 2 * (2 * self.n + 5) / (9 * self.n * (self.n - 1))
+        EPSILON = 1e-11
+        var = 2 * (2 * self.n + 5) / (9 * self.n * (self.n - 1 + EPSILON))
         se = np.sqrt(var)
         z_crit = stats.norm.ppf(1 - (1 - confidence) / 2)
         return (self.r - z_crit * se, self.r + z_crit * se)

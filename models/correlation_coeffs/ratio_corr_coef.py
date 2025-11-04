@@ -17,7 +17,8 @@ class CorrelationRatio(ICorrelationCoefficient):
             x_r, y_r = self.x[idx], self.y[idx]
             boot.append(self._correlation_ratio(x_r, y_r))
 
-        return np.percentile(boot, [(1 - confidence) / 2 * 100, (1 + confidence) / 2 * 100])
+        low, high = np.percentile(boot, [(1 - confidence) / 2 * 100, (1 + confidence) / 2 * 100])
+        return (float(low), float(high))
 
     def name(self) -> str:
         return "Correlation Ratio (η)"

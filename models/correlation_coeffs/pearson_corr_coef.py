@@ -11,7 +11,8 @@ class PearsonCorrelation(ICorrelationCoefficient):
     
     def interval(self, confidence: float = 0.95) -> tuple[float, float]:
         if self.r is None: raise ValueError("Call fit() first")
-        z = 0.5 * np.log((1 + self.r) / (1 - self.r))
+        EPSILON = 1e-11
+        z = 0.5 * np.log((1 + self.r) / (1 - self.r + EPSILON))
         se = 1 / np.sqrt(self.n - 3)
         z_crit = stats.norm.ppf(1 - (1 - confidence) / 2)
         low, high = z - z_crit * se, z + z_crit * se
