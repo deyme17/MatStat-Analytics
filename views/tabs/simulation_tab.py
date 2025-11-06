@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QComboBox, 
+    QWidget, QVBoxLayout, QLabel, QComboBox, QScrollArea
 )
 
 from controllers import SimulationController, DistributionRegister
@@ -23,7 +23,13 @@ class SimulationTab(QWidget):
     
     def _init_ui(self) -> None:
         """Initialize the main tab layout."""
-        layout = QVBoxLayout()
+        main_layout = QVBoxLayout(self)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+
+        content_widget = QWidget()
+        layout = QVBoxLayout(content_widget)
         
         # dist selection
         self._init_distribution_controls(layout)
@@ -31,13 +37,16 @@ class SimulationTab(QWidget):
         # generation widget
         layout.addWidget(self.generation_widget)
         self.generation_widget.save_button.clicked.connect(self.save_generated_data)
-        
+
         # experiment widget
         layout.addWidget(self.experiment_widget)
         self.experiment_widget.run_button.clicked.connect(self.run_experiment)
         
         layout.addStretch()
-        self.setLayout(layout)
+        
+        scroll.setWidget(content_widget)
+        main_layout.addWidget(scroll)
+        self.setLayout(main_layout)
     
     def _init_distribution_controls(self, layout: QVBoxLayout) -> None:
         """Initialize distribution selection controls."""
