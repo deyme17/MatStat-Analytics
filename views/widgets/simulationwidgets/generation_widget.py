@@ -215,7 +215,7 @@ class GenerationWidget(QWidget):
                 return
         
         self.simulation_controller.generate_data(
-            dist_cls, n_features, corr_matrix, sample_size, export_data, params_list
+            dist_cls, n_features, params_list, corr_matrix, sample_size, export_data,
         )
     
     def get_correlation_matrix(self) -> Optional[List[List[float]]]:
