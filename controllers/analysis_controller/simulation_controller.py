@@ -1,6 +1,7 @@
 from services import SimulationService, DataSaver, DataExporter, DataVersionManager, UIMessager
 from models.stat_distributions.stat_distribution import StatisticalDistribution
 from utils import AppContext, EventType, EventBus
+from typing import Optional, List, Tuple
 
 
 class SimulationController:
@@ -22,7 +23,7 @@ class SimulationController:
         self.event_bus: EventBus = context.event_bus
         self.messanger: UIMessager = context.messanger
     
-    def run_experiment(self, dist: StatisticalDistribution, sizes: list[int], repeats: int, true_mean: float, alpha: float):
+    def run_experiment(self, dist: StatisticalDistribution, sizes: List[int], repeats: int, true_mean: float, alpha: float):
         """
         Run statistical experiment with optional data saving.
         Args:
@@ -42,8 +43,8 @@ class SimulationController:
             self.messanger.show_info("Simulation error", f"{str(e)}")
             return []
         
-    def generate_data(self, dist_cls: type[StatisticalDistribution], n_features: int, 
-                      params_list: list[tuple[float]], coors_coeffs: list[list[float]],
+    def generate_data(self, dist_cls: type[StatisticalDistribution], n_features: int,
+                      params_list: List[Tuple], coor_coeffs: Optional[List[List[float]]],
                       sample_size: int, export_data: bool = False) -> None:
         """
         Generate simulated data from statistical distribution with optional export.
@@ -51,7 +52,7 @@ class SimulationController:
             dist_cls: Statistical distribution class to simulate data from
             params_list: List of parameters for each feature
             n_features: Number of features/dimensions in the generated dataset
-            coors_coeffs: Correlation coefficients matrix defining feature relationships
+            coor_coeffs: Correlation coefficients matrix defining feature relationships
             sample_size: Number of samples/observations to generate
             export_data: Whether to export generated data to external file
         """
@@ -59,7 +60,7 @@ class SimulationController:
             simulated_data = None
             if sample_size and sample_size > 0:
                 simulated_data = self.simulation_service.generate_data(
-                    dist_cls, n_features, params_list, coors_coeffs, sample_size
+                    dist_cls, n_features, params_list, coor_coeffs, sample_size
                 )
             if simulated_data is not None and len(simulated_data) > 0:
                 data_model = self.data_saver.save_data(dist_cls.__name__, simulated_data)
