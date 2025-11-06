@@ -84,13 +84,13 @@ class SimulationService:
 
         return results
     
-    def generate_data(self, dist_cls: type[StatisticalDistribution], n_features: int,
+    def generate_data(self, distribution: StatisticalDistribution, n_features: int,
                       params_list: list[tuple[float]], corr_coeffs: Optional[List[List[float]]], 
                       size: int) -> np.ndarray:
         """
         Generate multivariate correlated data from specified statistical distribution.
             Args:
-                dist_cls: class of StatisticalDistribution (e.g. NormalDistribution)
+                distribution: instance of StatisticalDistribution
                 n_features: number of dimensions to generate
                 params_list: list of parameter tuples for each feature
                 corr_coeffs: correlation matrix or None
@@ -100,12 +100,9 @@ class SimulationService:
         """
         if len(params_list) != n_features:
             raise ValueError("Number of parameter sets must match n_features")
-        
-        dist = dist_cls()
-        dist.params = params_list[0]
-
         if n_features == 1 or not corr_coeffs:
-            sample = self.generate_sample(dist, size, dist.params)
+            distribution.params = params_list[0]
+            sample = self.generate_sample(distribution, size, distribution.params)
             return sample.reshape(-1, 1) if sample is not None else None
         
         # validate correlation matrix
@@ -114,9 +111,8 @@ class SimulationService:
         # generate independent samples for each feature
         independent_samples = np.zeros((size, n_features))
         for i in range(n_features):
-            dist = dist_cls()
-            dist.params = params_list[0]
-            sample = self.generate_sample(dist, size, dist.params)
+            distribution.params = params_list[i]
+            sample = self.generate_sample(distribution, size, distribution.params)
             if sample is None:
                 return None
             independent_samples[:, i] = sample
