@@ -42,12 +42,14 @@ class SimulationController:
             self.messanger.show_info("Simulation error", f"{str(e)}")
             return []
         
-    def generate_data(self, dist: StatisticalDistribution, n_features: int, coors_coeffs: list[list[float]],
+    def generate_data(self, dist_cls: type[StatisticalDistribution], n_features: int, 
+                      params_list: list[tuple[float]], coors_coeffs: list[list[float]],
                       sample_size: int, export_data: bool = False) -> None:
         """
         Generate simulated data from statistical distribution with optional export.
         Args:
-            dist: Statistical distribution instance to simulate data from
+            dist_cls: Statistical distribution class to simulate data from
+            params_list: List of parameters for each feature
             n_features: Number of features/dimensions in the generated dataset
             coors_coeffs: Correlation coefficients matrix defining feature relationships
             sample_size: Number of samples/observations to generate
@@ -57,10 +59,10 @@ class SimulationController:
             simulated_data = None
             if sample_size and sample_size > 0:
                 simulated_data = self.simulation_service.generate_data(
-                    dist, sample_size, dist.params, n_features, coors_coeffs
+                    dist_cls, n_features, params_list, coors_coeffs, sample_size
                 )
             if simulated_data is not None and len(simulated_data) > 0:
-                data_model = self.data_saver.save_data(dist.name, simulated_data)
+                data_model = self.data_saver.save_data(dist_cls.__name__, simulated_data)
                 self.version_manager.add_dataset(data_model.label, data_model)
                 self.context.data_model = data_model
                 self.event_bus.emit_type(EventType.DATA_LOADED, data_model.series)
@@ -69,13 +71,13 @@ class SimulationController:
                     f"Simulated data saved as '{data_model.label}' with {len(simulated_data)} samples."
                 )
                 if export_data:
-                    filepath = self.data_exporter.export(dist.name, simulated_data)
+                    filepath = self.data_exporter.export(dist_cls.__name__, simulated_data)
                     self.messanger.show_info(
                         "Data Exported", 
                         f"Simulated data saved in '{filepath}' with {len(simulated_data)} samples."
                     )
             elif sample_size and sample_size > 0:
-                self.messanger.show_info("Warning", f"Could not generate data for {dist.name}")
+                self.messanger.show_info("Warning", f"Could not generate data for {dist_cls.__name__}")
         except Exception as e:
             self.messanger.show_info("Simulation error", f"{str(e)}")
             return
