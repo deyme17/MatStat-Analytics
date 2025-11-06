@@ -17,7 +17,7 @@ class SimulationService:
         """
         self.test_performer: TestPerformer = test_performer
 
-    def generate_sample(self, distribution: StatisticalDistribution, size: int, params: dict) -> np.ndarray:
+    def generate_sample(self, distribution: StatisticalDistribution, size: int, params: Dict) -> np.ndarray:
         """
         Generate a random sample from a distribution using the inverse CDF method.
         Args:
@@ -32,11 +32,12 @@ class SimulationService:
                 return None
             u = np.random.uniform(0, 1, size)
             return distribution.get_inverse_cdf(u, params)
-        except Exception:
+        except Exception as e:
+            print(f"[SimulationService] Error in generate_sample: {e}")
             return None
 
     def run_experiment(self, distribution: StatisticalDistribution, sizes: List[int], n_repeat: int,
-                       true_mean: float, alpha: float = 0.05) -> List[dict]:
+                       true_mean: float, alpha: float = 0.05) -> List[Dict]:
         """
         Run repeated T-tests on simulated samples of varying sizes.
         Args:
@@ -83,21 +84,28 @@ class SimulationService:
 
         return results
     
-    def generate_data(self, distribution: StatisticalDistribution, size: int, params: Dict, n_features: int,
-                      corr_coeffs: Optional[List[List[float]]] = None) -> np.ndarray:
+    def generate_data(self, dist_cls: type[StatisticalDistribution], n_features: int,
+                      params_list: list[tuple[float]], corr_coeffs: Optional[List[List[float]]], 
+                      size: int) -> np.ndarray:
         """
         Generate multivariate correlated data from specified statistical distribution.
-        Args:
-            distribution: Statistical distribution instance defining data generation process
-            size: Number of samples/observations to generate
-            params: Dictionary of distribution parameters (mean, std, bounds, etc.)
-            n_features: Number of features/dimensions in the output dataset
-            corr_coeffs: Correlation coefficients matrix defining inter-feature relationships
+            Args:
+                dist_cls: class of StatisticalDistribution (e.g. NormalDistribution)
+                n_features: number of dimensions to generate
+                params_list: list of parameter tuples for each feature
+                corr_coeffs: correlation matrix or None
+                size: sample size
         Returns:
             np.ndarray: Generated dataset with shape (size, n_features) with specified correlations
         """
+        if len(params_list) != n_features:
+            raise ValueError("Number of parameter sets must match n_features")
+        
+        dist = dist_cls()
+        dist.params = params_list[0]
+
         if n_features == 1 or not corr_coeffs:
-            sample = self.generate_sample(distribution, size, params)
+            sample = self.generate_sample(dist, size, dist.params)
             return sample.reshape(-1, 1) if sample is not None else None
         
         # validate correlation matrix
@@ -106,7 +114,9 @@ class SimulationService:
         # generate independent samples for each feature
         independent_samples = np.zeros((size, n_features))
         for i in range(n_features):
-            sample = self.generate_sample(distribution, size, params)
+            dist = dist_cls()
+            dist.params = params_list[0]
+            sample = self.generate_sample(dist, size, dist.params)
             if sample is None:
                 return None
             independent_samples[:, i] = sample
