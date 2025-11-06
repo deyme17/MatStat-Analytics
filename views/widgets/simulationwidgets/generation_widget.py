@@ -2,8 +2,9 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QCheckBox, QLabel, QPushButton, QSpinBox, 
     QHBoxLayout, QLineEdit, QScrollArea, QFrame
 )
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
+from models.stat_distributions import StatisticalDistribution
 from controllers import SimulationController
 from services import UIMessager
 
@@ -11,7 +12,7 @@ MIN_DS_SIZE, MAX_DS_SIZE = 10, 10000
 DEFAULT_DS_SIZE = 1000
 SPIN_WIDTH = 150
 HEADING_TITLE_SIZE = 16
-MAX_FEATURES = 10
+MAX_FEATURES = 9
 CORR_AREA_SCROLL_SIZE = 500
 CORR_LINE_EDIT_SIZE = 100
 MIN_PARAM_INPUT_WIDTH = 200
@@ -21,10 +22,11 @@ class GenerationWidget(QWidget):
     """Widget for generating and saving data from distributions."""
     def __init__(self, messanger: UIMessager, simulation_controller: SimulationController):
         super().__init__()
-        self.messanger = messanger
-        self.simulation_controller = simulation_controller
-        self.correlation_inputs: List[tuple] = []
+        self.messanger: UIMessager = messanger
+        self.simulation_controller: SimulationController = simulation_controller
+        self.correlation_inputs: List[Tuple] = []
         self.feature_param_inputs: List[QLineEdit] = []
+        self._cached_placeholder = " "
         self._init_ui()
     
     def _init_ui(self) -> None:
@@ -33,7 +35,7 @@ class GenerationWidget(QWidget):
         
         layout.addWidget(QLabel(f"{HEADING_TITLE_SIZE * '='} Generation {HEADING_TITLE_SIZE * '='}"))
         self._init_generation_controls(layout)
-        self._init_multifeature_controls(layout)
+        self._init_controls(layout)
         self._init_save_layout(layout)
         
         self.setLayout(layout)
@@ -53,7 +55,7 @@ class GenerationWidget(QWidget):
         self.n_features_spin.setRange(1, MAX_FEATURES)
         self.n_features_spin.setValue(1)
         self.n_features_spin.setMaximumWidth(SPIN_WIDTH)
-        self.n_features_spin.valueChanged.connect(self._update_multifeature_inputs)
+        self.n_features_spin.valueChanged.connect(self._update_inputs)
         
         generation_layout.addWidget(self.save_data_size_label)
         generation_layout.addWidget(self.size_spin)
@@ -62,87 +64,68 @@ class GenerationWidget(QWidget):
         generation_layout.addStretch()
         layout.addLayout(generation_layout)
     
-    def _init_multifeature_controls(self, layout: QVBoxLayout) -> None:
+    def _init_controls(self, layout: QVBoxLayout) -> None:
         """Initialize multi-feature parameter and correlation controls."""
-        self.multifeature_frame = QFrame()
-        self.multifeature_frame.setFrameShape(QFrame.Shape.StyledPanel)
-        self.multifeature_frame.setVisible(False)
-        
-        multifeature_main_layout = QVBoxLayout()
+        self.parameters_frame = QFrame()
+        self.parameters_frame.setFrameShape(QFrame.Shape.StyledPanel)
+        parameters_main_layout = QVBoxLayout()
         
         # params section
-        multifeature_main_layout.addWidget(QLabel("Feature-specific Parameters:"))
+        parameters_main_layout.addWidget(QLabel("Feature-specific Parameters:"))
         self.feature_params_layout = QVBoxLayout()
-        multifeature_main_layout.addLayout(self.feature_params_layout)
-
-        multifeature_main_layout.addWidget(QLabel("-" * (HEADING_TITLE_SIZE * 2)))
+        parameters_main_layout.addLayout(self.feature_params_layout)
+        parameters_main_layout.addWidget(QLabel("-" * (HEADING_TITLE_SIZE * 2)))
         
-        # correlation saection
-        multifeature_main_layout.addWidget(QLabel("Correlation Coefficients:"))
-        
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setMaximumHeight(CORR_AREA_SCROLL_SIZE)
+        # correlation section
+        parameters_main_layout.addWidget(QLabel("Correlation Coefficients:"))
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setMaximumHeight(CORR_AREA_SCROLL_SIZE)
         
         self.correlation_widget = QWidget()
         self.correlation_layout = QVBoxLayout()
         self.correlation_widget.setLayout(self.correlation_layout)
-        scroll_area.setWidget(self.correlation_widget)
+        self.scroll_area.setWidget(self.correlation_widget)
         
-        multifeature_main_layout.addWidget(scroll_area)
-        self.multifeature_frame.setLayout(multifeature_main_layout)
-        layout.addWidget(self.multifeature_frame)
+        parameters_main_layout.addWidget(self.scroll_area)
+        self.parameters_frame.setLayout(parameters_main_layout)
+        layout.addWidget(self.parameters_frame)
+        self._update_inputs()
     
-    def _update_multifeature_inputs(self) -> None:
+    def _update_inputs(self) -> None:
         """Update parameter and correlation input fields based on number of features."""
         n_features = self.n_features_spin.value()
-        for label, line_edit in self.correlation_inputs:
-            self.correlation_layout.removeWidget(label)
-            self.correlation_layout.removeWidget(line_edit)
-            label.deleteLater()
-            line_edit.deleteLater()
-        self.correlation_inputs.clear()
+        self._clear_layout(self.correlation_layout)
+        self._clear_layout(self.feature_params_layout)
 
-        while self.feature_params_layout.count():
-            item = self.feature_params_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
-            elif item.layout():
-                self._clear_layout(item.layout())
+        self.correlation_inputs.clear()
         self.feature_param_inputs.clear()
         
-        if n_features <= 1:
-            self.multifeature_frame.setVisible(False)
-            return
-        
-        self.multifeature_frame.setVisible(True)
-        
+        # feature parameter inputs
         for i in range(n_features):
-            param_layout = QHBoxLayout()
-            label = QLabel(f"Feature {i+1} params:")
-            line_edit = QLineEdit()
-            line_edit.setPlaceholderText("e.g., 0, 1")
-            line_edit.setMinimumWidth(MIN_PARAM_INPUT_WIDTH)
-            param_layout.addWidget(label)
-            param_layout.addWidget(line_edit)
-            param_layout.addStretch()
+            _, line_edit, param_layout = self._create_input_row(
+                label_text=f"feature {i+1} params:", 
+                placeholder=self._cached_placeholder, 
+                min_width=MIN_PARAM_INPUT_WIDTH
+            )
             self.feature_params_layout.addLayout(param_layout)
             self.feature_param_inputs.append(line_edit)
+            
+        # correlation inputs
+        corr_need = n_features > 1
+        self.scroll_area.setVisible(corr_need)
+        if corr_need:         
+            for i in range(n_features):
+                for j in range(i + 1, n_features):
+                    label, line_edit, corr_layout = self._create_input_row(
+                        label_text=f"corr{{col{i+1}, col{j+1}}}:", 
+                        placeholder="0.0", 
+                        max_width=CORR_LINE_EDIT_SIZE
+                    )
+                    self.correlation_layout.addLayout(corr_layout)
+                    self.correlation_inputs.append((label, line_edit))
         
-        for i in range(n_features):
-            for j in range(i + 1, n_features):
-                corr_layout = QHBoxLayout()
-                label = QLabel(f"corr{{col{i+1}, col{j+1}}}:")
-                line_edit = QLineEdit()
-                line_edit.setPlaceholderText("0.0")
-                line_edit.setMaximumWidth(CORR_LINE_EDIT_SIZE)
-                corr_layout.addWidget(label)
-                corr_layout.addWidget(line_edit)
-                corr_layout.addStretch()
-                self.correlation_layout.addLayout(corr_layout)
-                self.correlation_inputs.append((label, line_edit))
-    
-    def _clear_layout(self, layout):
+    def _clear_layout(self, layout: QVBoxLayout):
         """Helper to recursively clear a layout."""
         while layout.count():
             item = layout.takeAt(0)
@@ -150,6 +133,25 @@ class GenerationWidget(QWidget):
                 item.widget().deleteLater()
             elif item.layout():
                 self._clear_layout(item.layout())
+
+    def _create_input_row(self, label_text: str, placeholder: str, max_width: Optional[int] = None, min_width: Optional[int] = None) -> Tuple[QLabel, QLineEdit, QHBoxLayout]:
+            """creates a row with qlabel, qlineedit and a h_layout."""
+            layout = QHBoxLayout()
+            
+            label = QLabel(label_text)
+            line_edit = QLineEdit()
+            line_edit.setPlaceholderText(placeholder)
+        
+            if max_width is not None:
+                line_edit.setMaximumWidth(max_width)
+            if min_width is not None:
+                line_edit.setMinimumWidth(min_width)
+
+            layout.addWidget(label)
+            layout.addWidget(line_edit)
+            layout.addStretch()
+            
+            return label, line_edit, layout
     
     def _init_save_layout(self, layout: QVBoxLayout) -> None:
         """Initialize data export controls."""
@@ -163,23 +165,17 @@ class GenerationWidget(QWidget):
     
     def update_param_placeholder(self, placeholder: str) -> None:
         """Update parameter input placeholders for all feature inputs."""
+        self._cached_placeholder = placeholder
         for line_edit in self.feature_param_inputs:
             line_edit.setPlaceholderText(placeholder)
     
-    def get_params(self) -> Optional[List[tuple]]:
+    def get_params(self) -> Optional[List[Tuple]]:
         """
         Parse feature-specific parameters.
         Returns list of parameter tuples, one per feature.
         For single feature, returns list with one tuple.
         """
         n_features = self.n_features_spin.value()
-        
-        if n_features <= 1:
-            # Для одновимірного - параметри мають бути введені в simulation_tab
-            # Тут повертаємо None, щоб simulation_tab обробив це
-            self.messanger.show_error("Configuration Error", 
-                "For single feature, parameters should be set in main tab.")
-            return None
         
         params_list = []
         for i, line_edit in enumerate(self.feature_param_inputs):
@@ -197,18 +193,20 @@ class GenerationWidget(QWidget):
                     f"Feature {i+1} parameters must be comma-separated numbers.")
                 return None
         
-        if len(set(len(p) for p in params_list)) > 1:
+        if (len(set(len(p) for p in params_list)) > 1 or 
+            len(params_list) >= n_features):
             self.messanger.show_error("Invalid Parameters", 
-                "All features must have the same number of parameters.")
+                "All features must have the same number of parameters (>= 1).")
             return None
         
         return params_list
     
-    def save_generated_data(self, dist, params_list: List[tuple]) -> None:
+    def save_generated_data(self, dist_cls:  type[StatisticalDistribution]) -> None:
         """Generate and save data from distribution."""
         n_features = self.n_features_spin.value()
         sample_size = self.size_spin.value()
         export_data = self.export_data_checkbox.isChecked()
+        params_list = self.get_params()
         
         corr_matrix = None
         if n_features > 1:
@@ -217,14 +215,13 @@ class GenerationWidget(QWidget):
                 return
         
         self.simulation_controller.generate_data(
-            dist, n_features, corr_matrix, sample_size, export_data, params_list
+            dist_cls, n_features, corr_matrix, sample_size, export_data, params_list
         )
     
     def get_correlation_matrix(self) -> Optional[List[List[float]]]:
         """Parse correlation coefficients and construct correlation matrix."""
         n_features = self.n_features_spin.value()
-        if n_features <= 1:
-            return None
+        if n_features <= 1: return None
         
         corr_matrix = [[1.0 if i == j else 0.0 for j in range(n_features)] 
                        for i in range(n_features)]
