@@ -194,7 +194,7 @@ class GenerationWidget(QWidget):
                 return None
         
         if (len(set(len(p) for p in params_list)) > 1 or 
-            len(params_list) >= n_features):
+            len(params_list) < n_features):
             self.messanger.show_error("Invalid Parameters", 
                 "All features must have the same number of parameters (>= 1).")
             return None
