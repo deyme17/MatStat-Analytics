@@ -1,16 +1,16 @@
 from models.correlation_coeffs import ICorrelationCoefficient
+from typing import Optional, List, Dict, Tuple
 import pandas as pd
-from typing import Optional
 
 class CorrelationController:
     """
     Controller for calculating correlation coeficients and its confidance intervals.
     """
-    def __init__(self, corr_coeffs: list[type[ICorrelationCoefficient]]):
-        self._corr_coeffs: dict[str, ICorrelationCoefficient] = {}
+    def __init__(self, corr_coeffs: List[type[ICorrelationCoefficient]]):
+        self._corr_coeffs: Dict[str, ICorrelationCoefficient] = {}
         self._register_corr_coeffs(corr_coeffs)
 
-    def _register_corr_coeffs(self, corr_coeffs: list[type[ICorrelationCoefficient]]):
+    def _register_corr_coeffs(self, corr_coeffs: List[type[ICorrelationCoefficient]]):
         """Register all available GOF tests."""
         for corr_coeff in corr_coeffs:
             coeff_instance = corr_coeff()
@@ -27,7 +27,7 @@ class CorrelationController:
         return corr.fit(x, y)
         
     def get_confidence_interval(self, corr_name: str, x: pd.Series, y: pd.Series,
-                                confidence: float = 0.95) -> Optional[tuple[float, float]]:
+                                confidence: float = 0.95) -> Optional[Tuple[float, float]]:
         """
         Compute confidence interval for a given correlation method.
         """
