@@ -67,7 +67,7 @@ class ControllersFactory:
             data_saver=DataSaver(),
             data_exporter=DataExporter
         )
-        controllers['estimation'] = ParameterEstimation()
+        controllers['estimation'] = ParameterEstimation(estimation_methods)
         controllers['gof'] = GOFController()
         controllers['homogen'] = HomogenController()
         controllers['data_version'] = DataVersionController(context=self.context)

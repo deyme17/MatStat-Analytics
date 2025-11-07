@@ -77,19 +77,19 @@ class ParamEstimationTab(QWidget):
             # Get distribution class
             dist_class = self.dist_register.get_dist(dist_name)
             if not dist_class:
-                self.messanger.show_error("Invalid Distribution", 
-                    f"Unknown distribution: {dist_name}")
+                self.messanger.show_error("Invalid Distribution", f"Unknown distribution: {dist_name}")
                 return
+            dist = dist_class()
 
             # Estimate parameters
-            params = self.estimator.estimate(dist_name, method_name, data)
+            params = self.estimator.estimate(dist, method_name, data)
             if params is None:
                 self.messanger.show_error("Estimation Failed", 
                     f"Failed to estimate parameters for {dist_name}")
                 return
 
             # Display results
-            self._display_results(dist_class(), params)
+            self._display_results(dist, params)
 
         except Exception as e:
             self.messanger.show_error("Estimation Error", 
