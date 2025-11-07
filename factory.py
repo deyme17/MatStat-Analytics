@@ -68,7 +68,7 @@ class ControllersFactory:
             data_exporter=DataExporter
         )
         controllers['estimation'] = ParameterEstimation(estimation_methods)
-        controllers['gof'] = GOFController()
+        controllers['gof'] = GOFController(gof_tests)
         controllers['homogen'] = HomogenController()
         controllers['data_version'] = DataVersionController(context=self.context)
         controllers['anomaly_data'] = AnomalyController(
