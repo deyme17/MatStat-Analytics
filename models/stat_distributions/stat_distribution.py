@@ -53,6 +53,10 @@ class StatisticalDistribution(ABC):
         min_val = np.nanmin(data)
         max_val = np.nanmax(data)
         return min_val * 0.8, max_val * 1.2
+    
+    @property
+    def name(self) -> str:
+        return self.name
 
     def __str__(self) -> str:
         return f"{self.name} Distribution"

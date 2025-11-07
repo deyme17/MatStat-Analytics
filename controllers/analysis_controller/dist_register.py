@@ -1,12 +1,19 @@
 from typing import List, Optional
-from models.stat_distributions import registered_distributions, StatisticalDistribution
+from models.stat_distributions import StatisticalDistribution
 
 class DistributionRegister:
     """
     Wrapper for registered distributions with safe access.
     """
-    def __init__(self):
-        self._distributions = registered_distributions
+    def __init__(self, stat_distributions: list[type[StatisticalDistribution]]):
+        self._distributions = dict[str, StatisticalDistribution] = {}
+        self._register_distributions(stat_distributions)
+
+    def _register_distributions(self, stat_distributions: list[type[StatisticalDistribution]]):
+        """Register all available GOF tests."""
+        for dist in stat_distributions:
+            dist_instance = dist()
+            self._distributions[dist_instance.name] = dist_instance
 
     @property
     def distributions(self) -> List[str]:

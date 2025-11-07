@@ -84,7 +84,7 @@ class ControllersFactory:
             missing_service=MissingService()
         )
         controllers['correlation'] = CorrelationController(corr_coeffs)
-        controllers['dist_register'] = DistributionRegister()
+        controllers['dist_register'] = DistributionRegister(stat_distributions)
         
         return controllers
 
