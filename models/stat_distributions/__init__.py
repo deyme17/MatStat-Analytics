@@ -6,10 +6,10 @@ from .weibull import WeibullDistribution
 
 from .stat_distribution import StatisticalDistribution
 
-registered_distributions: dict[str, StatisticalDistribution] = {
-    "Normal": NormalDistribution,
-    "Exponential": ExponentialDistribution,
-    "Laplace": LaplaceDistribution,
-    "Uniform": UniformDistribution,
-    "Weibull": WeibullDistribution,
-}
+stat_distributions: list[type[StatisticalDistribution]] = [
+    NormalDistribution,
+    ExponentialDistribution,
+    LaplaceDistribution,
+    UniformDistribution,
+    WeibullDistribution,
+]
