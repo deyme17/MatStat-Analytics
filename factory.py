@@ -1,6 +1,12 @@
 from typing import Any
 from utils import EventBus, EventType, AppContext
 
+# Models
+from models import (
+    stat_distributions, estimation_methods, 
+    corr_coeffs, gof_tests, homogen_tests
+    )
+
 # Controllers
 from controllers import (
     AnomalyController, MissingDataController, DataTransformController,
@@ -77,7 +83,7 @@ class ControllersFactory:
             context=self.context,
             missing_service=MissingService()
         )
-        controllers['correlation'] = CorrelationController()
+        controllers['correlation'] = CorrelationController(corr_coeffs)
         controllers['dist_register'] = DistributionRegister()
         
         return controllers
