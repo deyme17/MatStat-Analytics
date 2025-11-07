@@ -6,14 +6,13 @@ class DistributionRegister:
     Wrapper for registered distributions with safe access.
     """
     def __init__(self, stat_distributions: List[type[StatisticalDistribution]]):
-        self._distributions = Dict[str, StatisticalDistribution] = {}
+        self._distributions: Dict[str, StatisticalDistribution] = {}
         self._register_distributions(stat_distributions)
 
     def _register_distributions(self, stat_distributions: List[type[StatisticalDistribution]]):
         """Register all available GOF tests."""
         for dist in stat_distributions:
-            dist_instance = dist()
-            self._distributions[dist_instance.name] = dist_instance
+            self._distributions[dist().name] = dist
 
     @property
     def distributions(self) -> List[str]:

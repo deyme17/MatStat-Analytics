@@ -31,7 +31,7 @@ class CorrelationTab(QWidget):
         layout = QVBoxLayout()
 
         self.corr_combo = QComboBox()
-        coeff_names = list(self.controller._tests.keys())
+        coeff_names = list(self.controller.corr_coeffs)
         if not coeff_names:
             coeff_names = ["-"]
 

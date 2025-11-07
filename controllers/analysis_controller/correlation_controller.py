@@ -37,3 +37,8 @@ class CorrelationController:
         x, y = x.to_numpy(), y.to_numpy()
         corr.fit(x, y)
         return corr.interval(confidence)
+    
+    @property
+    def corr_coeffs(self) -> List[str]:
+        """Return list of available correlation coefficient names."""
+        return list(self._corr_coeffs.keys())
