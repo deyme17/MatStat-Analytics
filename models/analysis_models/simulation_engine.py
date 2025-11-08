@@ -3,15 +3,15 @@ import pandas as pd
 from typing import List, Optional, Dict
 from scipy.stats import t
 from models.stat_distributions.stat_distribution import StatisticalDistribution
-from services.analysis_services.stat_tests import TestPerformer
+from services.stat_services.test_performer import TestPerformer
 
-class SimulationService:
+class SimulationEngine:
     """
     Service for simulating samples from distributions and evaluating T-tests.
     """
     def __init__(self, test_performer: TestPerformer):
         """
-        Initialize SimulationService with a StatisticsService instance.
+        Initialize SimulationEngine with a StatisticsService instance.
         Args:
             test_performer: Service for performing statistical tests
         """
@@ -33,7 +33,7 @@ class SimulationService:
             u = np.random.uniform(0, 1, size)
             return distribution.get_inverse_cdf(u, params)
         except Exception as e:
-            print(f"[SimulationService] Error in generate_sample: {e}")
+            print(f"[SimulationEngine] Error in generate_sample: {e}")
             return None
 
     def run_experiment(self, distribution: StatisticalDistribution, sizes: List[int], n_repeat: int,

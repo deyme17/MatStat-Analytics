@@ -1,4 +1,5 @@
-from services import SimulationService, DataSaver, DataExporter, DataVersionManager, UIMessager
+from services import DataSaver, DataExporter, DataVersionManager, UIMessager
+from models.analysis_models import SimulationEngine
 from models.stat_distributions.stat_distribution import StatisticalDistribution
 from utils import AppContext, EventType, EventBus
 from typing import Optional, List, Tuple
@@ -8,14 +9,14 @@ class SimulationController:
     """
     Main controller class for statistical simulation operations.
     """
-    def __init__(self, context: AppContext, simulation_service: SimulationService, data_saver: DataSaver, data_exporter: DataExporter):
+    def __init__(self, context: AppContext, simulation_engine: SimulationEngine, data_saver: DataSaver, data_exporter: DataExporter):
         """
         Args:
-            simulation_service: Service for performing statistical simulations
+            simulation_engine: Class for performing statistical simulations
             data_saver: Service for saving simulated data to storage
             data_exporter: Service for exporting simulated data as csv
         """
-        self.simulation_service: SimulationService = simulation_service
+        self.simulation_engine: SimulationEngine = simulation_engine
         self.data_saver: DataSaver = data_saver
         self.data_exporter: DataExporter = data_exporter
         self.context: AppContext = context
@@ -36,7 +37,7 @@ class SimulationController:
             List of dictionaries containing experiment results
         """
         try:
-            return self.simulation_service.run_experiment(
+            return self.simulation_engine.run_experiment(
                 dist, sizes, repeats, true_mean, alpha
             )
         except Exception as e:
@@ -59,7 +60,7 @@ class SimulationController:
         try:
             simulated_data = None
             if sample_size and sample_size > 0:
-                simulated_data = self.simulation_service.generate_data(
+                simulated_data = self.simulation_engine.generate_data(
                     distribution, n_features, params_list, coor_coeffs, sample_size
                 )
             if simulated_data is not None and len(simulated_data) > 0:

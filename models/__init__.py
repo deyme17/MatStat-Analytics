@@ -5,3 +5,4 @@ from .gofs import *
 from .homogens import *
 from .correlation_coeffs import *
 from .params_estimators import *
+from .analysis_models import *

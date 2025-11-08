@@ -2,9 +2,9 @@ import pandas as pd
 import numpy as np
 from scipy.stats import skew, kurtosis, t, chi2
 
-class StatisticsService:
+class StatisticsCalculator:
     """
-    Service for computing descriptive statistics and its confidence intervals.
+    Class for computing descriptive statistics and its confidence intervals.
     """
     @staticmethod
     def _common_stats(data: pd.Series) -> dict:
@@ -34,7 +34,7 @@ class StatisticsService:
         Return:
             pandas Series with labeled values
         """
-        stats = StatisticsService._common_stats(hist.data)
+        stats = StatisticsCalculator._common_stats(hist.data)
 
         splitting_step = round(stats['n'] / hist.bins, 2)
         contrec_excess = round(1 / (stats['excess'] + 3), 2) if (stats['excess'] + 3) != 0 else 0
@@ -94,7 +94,7 @@ class StatisticsService:
         Return:
             pandas Series with confidence intervals as tuples
         """
-        stats = StatisticsService._common_stats(data)
+        stats = StatisticsCalculator._common_stats(data)
         n, mean, std_dev, variance = stats['n'], stats['mean'], stats['std_dev'], stats['variance']
         median, skewness, excess = stats['median'], stats['skewness'], stats['excess']
 

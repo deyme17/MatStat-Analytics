@@ -3,8 +3,8 @@ from utils import EventBus, EventType, AppContext
 
 # Models
 from models import (
-    stat_distributions, estimation_methods, 
-    corr_coeffs, gof_tests, homogen_tests
+    stat_distributions, estimation_methods, corr_coeffs, gof_tests, homogen_tests,
+    SimulationEngine, StatisticsCalculator,
     )
 
 # Controllers
@@ -17,10 +17,10 @@ from controllers import (
 # Services
 from services import (
     TransformationService, AnomalyService, MissingService,
-    ConfidenceService, TestPerformer, StatisticsService,
+    ConfidenceAssesment, TestPerformer,
     UIMessager, MissingInfoDisplayService, StatsRenderer, VarSerRenderer,
     DataVersionManager, DataLoaderService,
-    SimulationService, DataSaver, DataExporter
+    DataSaver, DataExporter
 )
 
 # Views
@@ -54,7 +54,7 @@ class ControllersFactory:
         
         controllers['statistic'] = StatisticController(
             context=self.context,
-            statistic_service=StatisticsService()
+            stat_calculator=StatisticsCalculator()
         )
         controllers['data_loader'] = DataLoadController(
             context=self.context,
@@ -63,7 +63,7 @@ class ControllersFactory:
         )
         controllers['simulation'] = SimulationController(
             context=self.context,
-            simulation_service=SimulationService(TestPerformer()),
+            simulation_engine=SimulationEngine(TestPerformer()),
             data_saver=DataSaver(),
             data_exporter=DataExporter
         )
@@ -103,7 +103,7 @@ class UIFactory:
             dist_selector=DistributionSelector(dist_register=controllers['dist_register']),
             graph_tabs={
                 "Histogram": HistogramTab(self.context),
-                "EDF": EDFTab(self.context, ConfidenceService()),
+                "EDF": EDFTab(self.context, ConfidenceAssesment()),
                 "H-H Plot": HHTab(self.context),
                 "3D Histogram Map": HistogramMapTab(self.context),
                 "Correlation Field": CorrelationFieldTab(self.context),

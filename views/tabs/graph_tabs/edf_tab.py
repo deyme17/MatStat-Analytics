@@ -1,6 +1,6 @@
 from .graph_tab import BaseGraphTab
 from services.ui_services.renderers.graph_renderers import RENDERERS
-from services import ConfidenceService
+from services import ConfidenceAssesment
 from utils import AppContext
 import pandas as pd
 
@@ -11,9 +11,9 @@ CI_COLOR = 'pink'
 
 class EDFTab(BaseGraphTab):
     """Tab for Empirical Distribution Function (EDF) visualization"""
-    def __init__(self, context: AppContext, confidence_service: ConfidenceService):
+    def __init__(self, context: AppContext, confidence_service: ConfidenceAssesment):
         super().__init__(name="Empirical Distribution Function", context=context)
-        self.confidence_service: ConfidenceService = confidence_service
+        self.confidence_service: ConfidenceAssesment = confidence_service
 
     def draw(self):
         """Draw EDF and overlay theoretical CDF with CI"""

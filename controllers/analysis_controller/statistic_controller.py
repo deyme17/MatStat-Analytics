@@ -1,6 +1,7 @@
 from typing import Callable, Optional
 from services.ui_services.renderers.table_renderers.table_renderer import TableRenderer
-from services import StatisticsService
+from models import StatisticsCalculator
+from models.data_model import DataModel
 from utils import EventBus, EventType, Event, AppContext
 
 
@@ -11,7 +12,7 @@ class StatisticController:
     def __init__(
         self,
         context: AppContext,
-        statistic_service: StatisticsService,
+        stat_calculator: StatisticsCalculator,
         stats_renderer: Optional[TableRenderer] = None,
         var_renderer: Optional[TableRenderer] = None,
         get_bins_value: Optional[Callable[[], int]] = None, 
@@ -21,7 +22,7 @@ class StatisticController:
         """
         Args:
             context: Shared application context (version_manager, event_bus, messager)
-            statistic_service: Service for statistics handling
+            stat_calculator: Class for statistics handling
             stats_renderer: Responsible for drawing statistics in table
             var_renderer: Responsible for drawing variation series in table
             get_bins_value: Function for getting bin count configuration
@@ -30,7 +31,7 @@ class StatisticController:
         """
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
-        self.statistic_service: StatisticsService = statistic_service
+        self.stat_calculator: StatisticsCalculator = stat_calculator
         self.stats_renderer: TableRenderer = stats_renderer
         self.var_renderer: TableRenderer = var_renderer
         self.get_bins_value = get_bins_value             
@@ -58,7 +59,7 @@ class StatisticController:
     def _on_missings(self, event: Event):
         self.clear_tables()
 
-    def update_tables(self, model=None) -> None:
+    def update_tables(self, model: DataModel = None) -> None:
         """Updates all the UI tables"""
         if not self._check_ui_connected():
             return
@@ -72,14 +73,14 @@ class StatisticController:
         self._update_statistic_table(model)
         self._update_var_series_table(model)
 
-    def _update_statistic_table(self, model) -> None:
+    def _update_statistic_table(self, model: DataModel) -> None:
         """
         Recalculate statistics and update the UI tables.
         Args:
             model: DataModel
         """
-        stats_data = self.statistic_service.get_characteristics(model.hist)
-        ci_data = self.statistic_service.compute_intervals(
+        stats_data = self.stat_calculator.get_characteristics(model.hist)
+        ci_data = self.stat_calculator.compute_intervals(
             model.series,
             confidence_level=self.get_confidence_value(),
             precision=self.get_precision_value()
@@ -90,13 +91,13 @@ class StatisticController:
             precision=self.get_precision_value()
         )
 
-    def _update_var_series_table(self, model) -> None:
+    def _update_var_series_table(self, model: DataModel) -> None:
         """
         Recalculate variation series and update the UI tables.
         Args:
             model: DataModel
         """
-        data = self.statistic_service.get_var_series(model.hist)
+        data = self.stat_calculator.get_var_series(model.hist)
         self.var_renderer.render(data.to_dict())
 
     def clear_tables(self) -> None:
