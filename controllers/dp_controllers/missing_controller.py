@@ -1,5 +1,6 @@
 from typing import Optional
-from services import MissingInfoDisplayService, MissingService, DataVersionManager, UIMessager
+from services import MissingInfoDisplayService, DataVersionManager, UIMessager
+from models import MissingProcessor
 from utils import AppContext, EventBus, EventType
 import pandas as pd
 
@@ -11,20 +12,20 @@ class MissingDataController:
     def __init__(
         self,
         context: AppContext,
-        missing_service,
+        missing_proc,
         display_service: Optional[MissingInfoDisplayService] = None
     ):
         """
         Args:
             context: Application context container
-            missing_service: Service for missing data handling
+            missing_proc: Class for missing data handling
             display_service: Service for displaying missing data info
         """
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
         self.messanger: UIMessager = context.messanger
         self.version_manager: DataVersionManager = context.version_manager
-        self.missing_service: MissingService = missing_service
+        self.missing_proc: MissingProcessor = missing_proc
         self.display_service: MissingInfoDisplayService = display_service
         self.data = None
         
@@ -56,7 +57,7 @@ class MissingDataController:
         """
         if not self.display_service: return
         if self.data is not None:
-            info = self.missing_service.detect_missing(self.data)
+            info = self.missing_proc.detect_missing(self.data)
             self.display_service.update(info)
             
             if info['total_missing'] > 0:
@@ -75,7 +76,7 @@ class MissingDataController:
         Replace missing values with the mean of the series.
         """
         if self.data is not None:
-            new_series = self.missing_service.replace_missing_with_mean(self.data)
+            new_series = self.missing_proc.replace_missing_with_mean(self.data)
             self._update_after_imputation(new_series, "Mean Imputed", "Missing values replaced with mean successfully.")
 
     def impute_with_median(self) -> None:
@@ -83,7 +84,7 @@ class MissingDataController:
         Replace missing values with the median of the series.
         """
         if self.data is not None:
-            new_series = self.missing_service.replace_missing_with_median(self.data)
+            new_series = self.missing_proc.replace_missing_with_median(self.data)
             self._update_after_imputation(new_series, "Median Imputed", "Missing values replaced with median successfully.")
 
     def interpolate_missing(self, method: str) -> None:
@@ -93,7 +94,7 @@ class MissingDataController:
             method: Interpolation method to use
         """
         if self.data is not None:
-            new_series = self.missing_service.interpolate_missing(self.data, method)
+            new_series = self.missing_proc.interpolate_missing(self.data, method)
             self._update_after_imputation(new_series, f"Interpolated ({method})", f"Missing values interpolated ({method}) successfully.")
 
     def drop_missing_values(self) -> None:
@@ -102,7 +103,7 @@ class MissingDataController:
         """
         if self.data is not None:
             original_len = len(self.data)
-            new_series = self.missing_service.drop_missing(self.data)
+            new_series = self.missing_proc.drop_missing(self.data)
             dropped = original_len - len(new_series)
             self._update_after_imputation(new_series, "Dropped NA", f"Dropped {dropped} rows with missing values.")
 

@@ -4,6 +4,7 @@ from utils import EventBus, EventType, AppContext
 # Models
 from models import (
     stat_distributions, estimation_methods, corr_coeffs, gof_tests, homogen_tests,
+    TransformationProcessor, AnomalyProcessor, MissingProcessor,
     SimulationEngine, StatisticsCalculator,
     )
 
@@ -16,7 +17,6 @@ from controllers import (
 
 # Services
 from services import (
-    TransformationService, AnomalyService, MissingService,
     ConfidenceAssesment, TestPerformer,
     UIMessager, MissingInfoDisplayService, StatsRenderer, VarSerRenderer,
     DataVersionManager, DataLoaderService,
@@ -73,15 +73,15 @@ class ControllersFactory:
         controllers['data_version'] = DataVersionController(context=self.context)
         controllers['anomaly_data'] = AnomalyController(
             context=self.context,
-            anomaly_service=AnomalyService(),
+            anomaly_proc=AnomalyProcessor(),
         )
         controllers['data_transform'] = DataTransformController(
             context=self.context,
-            transform_service=TransformationService()
+            transform_proc=TransformationProcessor()
         )
         controllers['missing_data'] = MissingDataController(
             context=self.context,
-            missing_service=MissingService()
+            missing_proc=MissingProcessor()
         )
         controllers['correlation'] = CorrelationController(corr_coeffs)
         controllers['dist_register'] = DistributionRegister(stat_distributions)

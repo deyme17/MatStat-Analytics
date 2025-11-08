@@ -3,7 +3,8 @@ import pandas as pd
 
 from utils import AppContext, EventBus, EventType
 from utils.decorators import require_one_dimensional_dataframe
-from services import AnomalyService, DataVersionManager, UIMessager
+from services import DataVersionManager, UIMessager
+from models import AnomalyProcessor
 
 
 class AnomalyController:
@@ -13,20 +14,20 @@ class AnomalyController:
     def __init__(
         self, 
         context: AppContext, 
-        anomaly_service: AnomalyService, 
+        anomaly_proc: AnomalyProcessor, 
         get_gamma_value: Optional[Callable[[], float]] = None
     ):
         """    
         Args:
             context: Application context container
-            anomaly_service: Service for anomaly detection operations
+            anomaly_proc: Class for anomaly detection operations
             get_gamma_value: Function for getting gamma configuration
         """
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
         self.version_manager: DataVersionManager = context.version_manager
         self.messanger: UIMessager = context.messanger
-        self.anomaly_service: AnomalyService = anomaly_service
+        self.anomaly_proc: AnomalyProcessor = anomaly_proc
         self.get_gamma_value = get_gamma_value
 
     @require_one_dimensional_dataframe
@@ -34,14 +35,14 @@ class AnomalyController:
         """
         Detect and remove anomalies using the standard deviation threshold method (3 sigma).
         """
-        self._remove_anomalies(self.anomaly_service.detect_sigma_anomalies, "Sigma Filtered")
+        self._remove_anomalies(self.anomaly_proc.detect_sigma_anomalies, "Sigma Filtered")
 
     @require_one_dimensional_dataframe
     def remove_asymmetry_anomalies(self, *args, **kwargs) -> None:
         """
         Detect and remove anomalies based on skewness and kurtosis adjustments.
         """
-        self._remove_anomalies(self.anomaly_service.detect_asymmetry_anomalies, "Asymmetry Filtered")
+        self._remove_anomalies(self.anomaly_proc.detect_asymmetry_anomalies, "Asymmetry Filtered")
 
     @require_one_dimensional_dataframe
     def remove_conf_anomalies(self, *args, **kwargs):
@@ -52,7 +53,7 @@ class AnomalyController:
         if not self.get_gamma_value:
             raise RuntimeError("No get_gamma_value function provided in AnomalyController")
         gamma = self.get_gamma_value()
-        func = lambda data: self.anomaly_service.detect_conf_anomalies(data, gamma)
+        func = lambda data: self.anomaly_proc.detect_conf_anomalies(data, gamma)
         self._remove_anomalies(func, f"Conf. Filtered γ={gamma}")
 
     def _remove_anomalies(self, detection_func: Callable[[pd.DataFrame], pd.DataFrame], label: str) -> None:

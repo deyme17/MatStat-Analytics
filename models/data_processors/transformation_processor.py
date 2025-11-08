@@ -1,9 +1,9 @@
 import pandas as pd
 import numpy as np
 
-class TransformationService:
+class TransformationProcessor:
     """
-    Service for applying mathematical transformations to pandas Series.
+    Class for applying mathematical transformations to pandas Series.
     """
     @staticmethod
     def standardize(data: pd.Series) -> pd.Series:
