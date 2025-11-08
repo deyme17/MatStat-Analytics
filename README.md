@@ -131,17 +131,22 @@ MatStat-Analytics/
 │   ├── data_controllers/       # Data management
 │   ├── dp_controllers/         # Data preprocessing
 ├── models/              # Core statistical models
-│   ├── gofs/                  # Goodness-of-fit tests
-│   ├── homogens/             # Homogeneity tests
-│   ├── params_estimators/    # Parameter estimation
-│   └── stat_distributions/   # Statistical distributions
+│   ├── gofs/                   # Goodness-of-fit tests
+│   ├── homogens/               # Homogeneity tests
+│   ├── correlarion_coeffs/     # Correltion coefficients
+│   ├── regression/             # Regression methods
+│   ├── params_estimators/      # Parameter estimation
+│   ├── data_processors/        # Data preprocessing
+│   ├── stat_distributions/     # Statistical distributions
+│   ├── simulation_engine.py    # Generation of data samples
+│   ├── stat_calculator.py      # Statictics calculation
+│   └──data_model.py            # main model of the data 
 ├── services/            # Reusable services
-│   ├── analysis_services/    # Analysis utilities
-│   ├── data_services/        # Data I/O and management
-│   ├── dp_services/          # Data preprocessing
-│   └── ui_services/          # UI rendering and utilities
+│   ├── stat_services/          # Statistics utilities
+│   ├── data_services/          # Data I/O and management
+│   └── ui_services/            # UI rendering and utilities
 ├── views/               # User interface components
-│   ├── tabs/                 # Main application tabs
-│   └── widgets/              # Specialized UI widgets
+│   ├── tabs/                   # Main application tabs
+│   └── widgets/                # Specialized UI widgets
 └── utils/               # Helper utilities and decorators
 ```
