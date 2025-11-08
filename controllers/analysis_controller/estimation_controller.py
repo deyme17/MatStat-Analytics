@@ -3,6 +3,7 @@ from models.stat_distributions import StatisticalDistribution
 from typing import Optional, List, Tuple, Dict
 import pandas as pd
 
+
 class ParameterEstimation:
     """
     Main controller class for parameter estimation operations.

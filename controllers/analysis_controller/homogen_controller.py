@@ -2,6 +2,7 @@ from typing import Optional, List, Dict
 from models.homogens import BaseHomogenTest
 import pandas as pd
 
+
 class HomogenController:
     """
     Controller for managing and executing homogeneity tests.

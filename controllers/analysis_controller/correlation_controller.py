@@ -2,6 +2,7 @@ from models.correlation_coeffs import ICorrelationCoefficient
 from typing import Optional, List, Dict, Tuple
 import pandas as pd
 
+
 class CorrelationController:
     """
     Controller for calculating correlation coeficients and its confidance intervals.

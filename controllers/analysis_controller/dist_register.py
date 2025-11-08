@@ -1,6 +1,7 @@
 from typing import List, Optional, Dict
 from models.stat_distributions import StatisticalDistribution
 
+
 class DistributionRegister:
     """
     Wrapper for registered distributions with safe access.

@@ -3,6 +3,7 @@ from typing import Optional, Dict, List
 from models.stat_distributions.stat_distribution import StatisticalDistribution
 from models.gofs import BaseGOFTest
 
+
 class GOFController:
     """
     Controller for managing and executing goodness-of-fit (GOF) tests.
