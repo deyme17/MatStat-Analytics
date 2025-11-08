@@ -1,5 +1,5 @@
 from services import DataSaver, DataExporter, DataVersionManager, UIMessager
-from models.analysis_models import SimulationEngine
+from models import SimulationEngine
 from models.stat_distributions.stat_distribution import StatisticalDistribution
 from utils import AppContext, EventType, EventBus
 from typing import Optional, List, Tuple
