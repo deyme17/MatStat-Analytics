@@ -15,11 +15,20 @@ class IRegression(ABC):
         pass
 
     @abstractmethod
-    def summury(self) -> dict[str, str|float|int]:
+    def summary(self) -> dict[str, str|float|int]:
         """Returns model's summary (coefficients, intercept, metrics, etc.)"""
         pass
 
     @abstractmethod
-    def confidance_intervals(self, alpha: float = 0.95) -> pd.DataFrame:
-        """Returns confidance intervals for coeficients if possible"""
+    def confidence_intervals(self, alpha: float = 0.95) -> np.ndarray:
+        """
+        Returns confidance intervals for coefficients (if possible) in format:
+            [coef, std_err, ci_lower, ci_upper] for each coefficient
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        """Returns a name of regression type"""
         pass
