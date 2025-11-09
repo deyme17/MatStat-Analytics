@@ -1,0 +1,34 @@
+from abc import ABC, abstractmethod
+import numpy as np
+
+class IOptimizationAlgorithm(ABC):
+    """Base interface for optimization algorithms used in regression models."""
+    @abstractmethod
+    def fit(self, X: np.ndarray, y: np.ndarray) -> None:
+        """
+        Fit the algorithm to training data.
+        Args:
+            X: Feature matrix of shape (n_samples, n_features)
+            y: Target vector of shape (n_samples,)
+        """
+        pass
+    
+    @abstractmethod
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """
+        Predict target values for given features.
+        Args:
+            X: Feature matrix of shape (n_samples, n_features)
+        Returns:
+            Predicted values of shape (n_samples,)
+        """
+        pass
+    
+    @abstractmethod
+    def get_params(self) -> dict:
+        """
+        Get fitted model parameters.
+        Returns:
+            Dictionary containing model parameters (e.g., coefficients, intercept)
+        """
+        pass
