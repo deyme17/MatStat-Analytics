@@ -32,6 +32,15 @@ class IOptimizationAlgorithm(ABC):
             Dictionary containing model parameters (e.g., coefficients, intercept)
         """
         pass
+    
+    @abstractmethod
+    def compute_confidence_intervals(self, X: np.ndarray, y: np.ndarray, 
+                                    residuals: np.ndarray, alpha: float = 0.95) -> np.ndarray | None:
+        """
+        Computes confidance intervals for coefficients (if possible) in format:
+            [coef, std_err, ci_lower, ci_upper] for each coefficient + intercept
+        """
+        pass
 
     @property
     @abstractmethod
