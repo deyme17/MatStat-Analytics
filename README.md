@@ -63,9 +63,25 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
   - Cochran's Q Test
   - Kruskal-Wallis H Test
 
-### **Testing correlation sagnificance**
+### **Correlarion Analysis**
   - Multiple correlation methods supported (Pearson, Spearman, Kendall, Correlation Ratio)
   - Testing result displayed alongside confidence intervals for selected correlation metrics
+
+### **Regression Analysis**
+  - Configuration
+    - Regression model selection (e.g. Linear Regression with OLS)
+    - Dependent variables selection: `y` (target array)
+    - Independent variable selection: `X` (feature matrix)
+    - Fit a model: `fit(X, y)` method trains the model
+  - Summary
+    - `summary()` method returns:
+      - `coefficients`: learned weights for each feature
+      - `intercept`: bias term
+      - `R^2`: coefficient of determination
+      - `residual std error`: standard deviation of residuals
+      - `confidence intervals` computes confidence intervals for coefficients and intercept using the fitted model and residuals
+  - Prediction
+    - `predict(X)` returns predicted values for new data
 
 ### 🎲 **Simulation & Modeling**
 - **Sample Simulation**: Generate synthetic datasets from theoretical distributions (could be multivariate)
@@ -92,6 +108,7 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
 - **Correlation field**:
   - Scatter visualization of two variables with color-coded density
   - Real-time Pearson correlation coefficient displayed on the plot
+  - Optional plotting regression line, calculated using Simple Linear Regression (OLS based)
 - **Correlation Matrix**:
   - Heatmap representation of variable interdependencies
   - Multiple correlation methods supported (Pearson, Spearman, Kendall, Correlation Ratio)
@@ -134,7 +151,7 @@ MatStat-Analytics/
 │   ├── gofs/                   # Goodness-of-fit tests
 │   ├── homogens/               # Homogeneity tests
 │   ├── correlarion_coeffs/     # Correltion coefficients
-│   ├── regression/             # Regression methods
+│   ├── regression/             # Regression algorithms/models
 │   ├── params_estimators/      # Parameter estimation
 │   ├── data_processors/        # Data preprocessing
 │   ├── stat_distributions/     # Statistical distributions
