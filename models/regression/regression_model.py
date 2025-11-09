@@ -23,7 +23,7 @@ class IRegression(ABC):
     def confidence_intervals(self, alpha: float = 0.95) -> np.ndarray:
         """
         Returns confidance intervals for coefficients (if possible) in format:
-            [coef, std_err, ci_lower, ci_upper] for each coefficient
+            [coef, std_err, ci_lower, ci_upper] for each coefficient + intercept
         """
         pass
 
