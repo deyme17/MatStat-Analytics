@@ -28,12 +28,12 @@ from services import (
 from PyQt6.QtWidgets import QTabWidget
 from views import (
     # tabs
-    DataProcessingTab, GOFTestTab, ParamEstimationTab, SimulationTab, StatisticTab, HomogenTab, CorrelationTab,
+    DataProcessingTab, GOFTestTab, ParamEstimationTab, SimulationTab, StatisticTab, HomogenTab, CorrelationTab, RegressionTab,
     # widgets
     WindowWidgets,
     AnomalyWidget, MissingWidget, TransformDataWidget,
-    GenerationWidget, ExperimentWidget, CorrelationTestWidget,
     KolmogorovSmirnovPanel, PearsonChi2Panel, Pearson2DNormalPanel,
+    GenerationWidget, ExperimentWidget, CorrelationTestWidget, RegrSummaryWidget, RegrPredictionWidget,
     NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel, AbbePanel,
     ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel,
     GraphPanel, DistributionSelector
@@ -157,6 +157,12 @@ class UIFactory:
             corr_controller=controllers['correlation'],
             corr_test_widget=CorrelationTestWidget
         )
+        regr_tab = RegressionTab(
+            context=self.context,
+            regr_controller=controllers['regression'],
+            summary_widget=RegrSummaryWidget,
+            prediction_widget=RegrPredictionWidget
+        )
 
         self.window.left_tab_widget = QTabWidget()
         self.window.left_tab_widget.addTab(data_tab, "Data Processing")
@@ -166,6 +172,7 @@ class UIFactory:
         self.window.left_tab_widget.addTab(sim_tab, "Simulation")
         self.window.left_tab_widget.addTab(est_tab, "Parameters estimation")
         self.window.left_tab_widget.addTab(corr_tab, "Correlation")
+        self.window.left_tab_widget.addTab(regr_tab, "Regression")
         # add to window attr
         self.window.data_tab = data_tab
         self.window.stat_tab = stat_tab
@@ -174,6 +181,7 @@ class UIFactory:
         self.window.sim_tab = sim_tab
         self.window.est_tab = est_tab
         self.window.corr_tab = corr_tab
+        self.window.regr_tab = regr_tab
 
 class ConnectFactory:
     def __init__(self, window, event_bus: EventBus):
