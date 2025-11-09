@@ -3,7 +3,7 @@ from utils import EventBus, EventType, AppContext
 
 # Models
 from models import (
-    stat_distributions, estimation_methods, corr_coeffs, gof_tests, homogen_tests,
+    stat_distributions, estimation_methods, corr_coeffs, gof_tests, homogen_tests, regression_models,
     TransformationProcessor, AnomalyProcessor, MissingProcessor,
     SimulationEngine, StatisticsCalculator,
     )
@@ -11,13 +11,14 @@ from models import (
 # Controllers
 from controllers import (
     AnomalyController, MissingDataController, DataTransformController,
-    ParameterEstimation, SimulationController, StatisticController, GOFController, HomogenController, CorrelationController,
+    ParameterEstimation, SimulationController, StatisticController, GOFController, HomogenController, 
+    CorrelationController, RegressionController,
     DataLoadController, DataVersionController, DistributionRegister
 )
 
 # Services
 from services import (
-    ConfidenceAssesment, TestPerformer, OLS,
+    ConfidenceAssesment, TestPerformer,
     UIMessager, MissingInfoDisplayService, StatsRenderer, VarSerRenderer,
     DataVersionManager, DataLoaderService,
     DataSaver, DataExporter
@@ -84,6 +85,7 @@ class ControllersFactory:
             missing_proc=MissingProcessor()
         )
         controllers['correlation'] = CorrelationController(corr_coeffs)
+        controllers['regression'] = RegressionController(regression_models)
         controllers['dist_register'] = DistributionRegister(stat_distributions)
         
         return controllers
@@ -106,7 +108,7 @@ class UIFactory:
                 "EDF": EDFTab(self.context, ConfidenceAssesment()),
                 "H-H Plot": HHTab(self.context),
                 "3D Histogram Map": HistogramMapTab(self.context),
-                "Correlation Field": CorrelationFieldTab(self.context, ols=OLS()),
+                "Correlation Field": CorrelationFieldTab(self.context, controllers['regression']),
                 "Correlation Matrix": CorrelationMatrixTab(self.context, controllers['correlation'])
             }
         )

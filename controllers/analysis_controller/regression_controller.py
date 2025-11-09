@@ -6,25 +6,25 @@ from models.regression.interfaces import IRegression
 class RegressionController:
     """
     Main controller class for regression tasks.
-    Provides a unified interface for various regression types.
+    Provides a unified interface for various regression models.
     """
-    def __init__(self, regression_types: List[IRegression]):
-        self._regressions: Dict[str, IRegression] = {}
+    def __init__(self, regression_models: List[IRegression]):
+        self._models: Dict[str, IRegression] = {}
         self._current_model: IRegression | None = None
         self._feature_names: List[str] | None = None
-        self._register_regressions(regression_types)
+        self._register_models(regression_models)
 
-    def _register_regressions(self, regression_types: List[IRegression]):
-        for regression in regression_types:
-            self._regressions[regression.name] = regression
+    def _register_models(self, regression_models: List[IRegression]):
+        for regression in regression_models:
+            self._models[regression.name] = regression
 
     def fit(self, model_name: str, X_df: pd.DataFrame, y_series: pd.Series) -> None:
         """Train selected model on DataFrame."""
-        if model_name not in self._regressions:
+        if model_name not in self._models:
             raise ValueError(f"Unknown model: {model_name}")
 
         self._feature_names = list(X_df.columns)
-        self._current_model = self._regressions[model_name]
+        self._current_model = self._models[model_name]
 
         X = X_df.to_numpy(dtype=float)
         y = y_series.to_numpy(dtype=float)
@@ -59,5 +59,5 @@ class RegressionController:
         return df_ci
 
     @property
-    def regression_types(self) -> List[str]:
-        return list(self._regressions.keys())
+    def regression_models(self) -> List[str]:
+        return list(self._models.keys())

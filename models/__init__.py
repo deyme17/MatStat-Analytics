@@ -6,5 +6,6 @@ from .stat_distributions import *
 from .gofs import *
 from .homogens import *
 from .correlation_coeffs import *
+from .regression import *
 from .params_estimators import *
 from .data_processors import *
