@@ -21,10 +21,14 @@ class OLS:
         if X.shape[0] != y.shape[0]:
             raise ValueError("X and y must have the same number of samples")
 
-        # + intercrpt column
+        # add intercept column
         X_ext = np.column_stack([X, np.ones(X.shape[0])])
-        # OLS
-        beta = np.linalg.inv(X_ext.T @ X_ext) @ X_ext.T @ y
+
+        # compute OLS coefficients
+        try:
+            beta = np.linalg.inv(X_ext.T @ X_ext) @ X_ext.T @ y
+        except np.linalg.LinAlgError:
+            raise ValueError("Design matrix is singular; cannot compute inverse.")
 
         self.coef_ = beta[:-1]
         self.intercept_ = beta[-1]
@@ -40,7 +44,7 @@ class OLS:
         """
         if not self.fitted:
             raise RuntimeError("Model not fitted yet")
-        if X.ndim == 1 and self.coef_.size > 1:
+        if X.ndim == 1:
             X = X.reshape(-1, 1)
         return X @ self.coef_ + self.intercept_
 
