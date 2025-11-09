@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import stats
 from ..interfaces import IOptimizationAlgorithm
 
 class OLS(IOptimizationAlgorithm):
@@ -60,7 +61,38 @@ class OLS(IOptimizationAlgorithm):
         """
         if not self.fitted: raise RuntimeError("Model not fitted yet")
         return {"coef": self.coef_, "intercept": self.intercept_}
-    
+
+    def compute_confidence_intervals(self, X: np.ndarray, y: np.ndarray, 
+                                    residuals: np.ndarray, alpha: float = 0.95) -> np.ndarray:
+        """
+        Computes and returns confidance intervals for coefficients for OLS in format:
+            [coef, std_err, ci_lower, ci_upper] for each coefficient + intercept
+        """
+        if X.ndim == 1: X = X.reshape(-1, 1)
+        
+        n_samples, n_features = X.shape
+        X_ext = np.column_stack([X, np.ones(n_samples)])
+        
+        df = n_samples - n_features - 1
+        mse = np.sum(residuals ** 2) / df
+        
+        try:
+            XtX_inv = np.linalg.inv(X_ext.T @ X_ext)
+        except np.linalg.LinAlgError:
+            raise ValueError("Cannot compute confidence intervals: singular matrix")
+        
+        var_coef = np.diag(XtX_inv) * mse
+        std_err = np.sqrt(var_coef)
+        
+        t_val = stats.t.ppf((1 + alpha) / 2, df)
+        
+        all_params = np.concatenate([self.coef_, [self.intercept_]])
+        
+        ci_lower = all_params - t_val * std_err
+        ci_upper = all_params + t_val * std_err
+        
+        return np.column_stack([all_params, std_err, ci_lower, ci_upper])
+
     @property
     def name(self) -> str:
         """Returns a name of optimization algorithm"""
