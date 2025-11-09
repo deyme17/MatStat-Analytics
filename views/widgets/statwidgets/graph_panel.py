@@ -2,7 +2,6 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QSpinBox, QDoubleSpinBox, QCheckBox, QTabWidget
 )
-from controllers import DistributionRegister
 from typing import Any, Dict
 from utils import AppContext, EventBus, EventType, Event
 from views.tabs.graph_tabs.graph_tab import BaseGraphTab
