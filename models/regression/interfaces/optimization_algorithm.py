@@ -32,3 +32,9 @@ class IOptimizationAlgorithm(ABC):
             Dictionary containing model parameters (e.g., coefficients, intercept)
         """
         pass
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        """Returns a name of optimization algorithm"""
+        pass
