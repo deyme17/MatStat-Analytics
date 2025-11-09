@@ -16,7 +16,15 @@ class IRegression(ABC):
 
     @abstractmethod
     def summary(self) -> dict[str, str|float|int]:
-        """Returns model's summary (coefficients, intercept, metrics, etc.)"""
+        """
+        Returns model's summary (coefficients, intercept, metrics, etc.)
+        Example: {
+            "coefficients": np.ndarray,
+            "intercept": float,
+            "r_squared": float,
+            "residual_std_error": float,
+        }
+        """
         pass
 
     @abstractmethod
