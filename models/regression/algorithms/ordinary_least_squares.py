@@ -60,3 +60,8 @@ class OLS(IOptimizationAlgorithm):
         """
         if not self.fitted: raise RuntimeError("Model not fitted yet")
         return {"coef": self.coef_, "intercept": self.intercept_}
+    
+    @property
+    def name(self) -> str:
+        """Returns a name of optimization algorithm"""
+        return "OLS"
