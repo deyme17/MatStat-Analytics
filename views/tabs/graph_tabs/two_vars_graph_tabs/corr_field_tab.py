@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QCheckBox
 from .base_2varGraph_tab import Base2VarGraphTab
-from services.stat_services import OLS
+from services import SimpleLinearRegression
 from services.ui_services.renderers.graph_renderers import RENDERERS
 from utils import AppContext
 import pandas as pd
@@ -8,10 +8,10 @@ import pandas as pd
 
 class CorrelationFieldTab(Base2VarGraphTab):
     """Tab for correlation field visualization"""
-    def __init__(self, context: AppContext, ols: OLS):
+    def __init__(self, context: AppContext, slr: SimpleLinearRegression):
         super().__init__(name="Correlation Field", context=context)
         self._add_regression_line_checkbox()
-        self.ols: OLS = ols
+        self.slr: SimpleLinearRegression = slr
 
     def _add_regression_line_checkbox(self):
         """Add regression line checkbox to the second column selector row"""
@@ -50,7 +50,7 @@ class CorrelationFieldTab(Base2VarGraphTab):
             # regression line
             regression_coeffs = None
             if self.regression_checkbox.isChecked():
-                regression_coeffs = self._calculate_regression_coeffs(data_model.dataframe, col1, col2)
+                regression_coeffs = self.slr.calculate_regression_coeffs(data_model.dataframe[col1], data_model.dataframe[col2])
             
             renderer = RENDERERS['correlation_field']
             renderer.render(self.ax, data_model.dataframe, col1, col2, regression_coeffs)
@@ -59,14 +59,3 @@ class CorrelationFieldTab(Base2VarGraphTab):
         except Exception as e:
             print(f"Correlation Field Error: {e}")
             self.clear()
-
-    def _calculate_regression_coeffs(self, df: pd.DataFrame, x: str, y: str) -> tuple[float, float]:
-        """Calculates regression line coefficients and returns it as (a, b)"""
-        if x not in df or y not in df:
-            raise ValueError(f"Columns {x} or {y} not found in DataFrame")
-        self.ols.fit(df[x].to_numpy(), df[y].to_numpy())
-        params_dict = self.ols.get_params()
-        coef = params_dict.get("coef")
-        a = coef[0] if coef is not None else None
-        b = params_dict.get("intercept")
-        return a, b
