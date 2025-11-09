@@ -7,6 +7,7 @@ from typing import Optional, List, Tuple
 from models.stat_distributions import StatisticalDistribution
 from controllers import SimulationController
 from services import UIMessager
+from utils.ui_styles import groupMargin, groupStyle
 
 MIN_DS_SIZE, MAX_DS_SIZE = 10, 10000
 DEFAULT_DS_SIZE = 1000
@@ -31,6 +32,7 @@ class GenerationWidget(QWidget):
     
     def _init_ui(self) -> None:
         """Initialize generation UI components."""
+        self.setStyleSheet(groupStyle + groupMargin)
         layout = QVBoxLayout()
         
         layout.addWidget(QLabel(f"{HEADING_TITLE_SIZE * '='} Generation {HEADING_TITLE_SIZE * '='}"))

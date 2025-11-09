@@ -8,6 +8,7 @@ from typing import Optional, Dict, Any, List
 from models.stat_distributions import StatisticalDistribution
 from controllers import SimulationController
 from services import UIMessager
+from utils.ui_styles import groupMargin, groupStyle
 
 DEFAULT_SAMPLE_SIZES = [20, 50, 100, 400, 1000, 2000, 5000]
 DEFAULT_ALPHA_VAL_LABEL = "0.05"
@@ -29,6 +30,7 @@ class ExperimentWidget(QWidget):
     
     def _init_ui(self) -> None:
         """Initialize experiment UI components."""
+        self.setStyleSheet(groupStyle + groupMargin)
         layout = QVBoxLayout()
         
         layout.addWidget(QLabel(f"{HEADING_TITLE_SIZE * '='} Experiment {HEADING_TITLE_SIZE * '='}"))
