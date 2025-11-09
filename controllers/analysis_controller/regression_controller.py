@@ -1,6 +1,6 @@
 from typing import List, Dict, Any
 import pandas as pd
-from models.regression.regression_model import IRegression
+from models.regression.interfaces import IRegression
 
 
 class RegressionController:
