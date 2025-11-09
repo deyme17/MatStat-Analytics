@@ -39,6 +39,10 @@ class OLS(IOptimizationAlgorithm):
         self.coef_ = beta[:-1]
         self.intercept_ = beta[-1]
         self.fitted = True
+        # reset cache
+        self._std_err_ = None
+        self._df_ = None
+        self._all_params_ = None
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         """
