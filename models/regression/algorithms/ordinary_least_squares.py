@@ -66,14 +66,13 @@ class OLS(IOptimizationAlgorithm):
         if not self.fitted: raise RuntimeError("Model not fitted yet")
         return {"coef": self.coef_, "intercept": self.intercept_}
 
-    def compute_confidence_intervals(self, X: np.ndarray, y: np.ndarray, 
-                                    residuals: np.ndarray, alpha: float = 0.95) -> np.ndarray:
+    def compute_confidence_intervals(self, X: np.ndarray, residuals: np.ndarray, alpha: float = 0.95) -> np.ndarray:
         """
         Computes and returns confidance intervals for coefficients for OLS in format:
             [coef, std_err, ci_lower, ci_upper] for each coefficient + intercept
         """
         if self._std_err_ is None:
-            self._compute_std_errors(X, y, residuals)
+            self._compute_std_errors(X, residuals)
         
         t_val = stats.t.ppf((1 + alpha) / 2, self._df_)
         
@@ -82,8 +81,7 @@ class OLS(IOptimizationAlgorithm):
         
         return np.column_stack([self._all_params_, self._std_err_, ci_lower, ci_upper])
 
-    def _compute_std_errors(self, X: np.ndarray, y: np.ndarray, 
-                           residuals: np.ndarray) -> None:
+    def _compute_std_errors(self, X: np.ndarray, residuals: np.ndarray) -> None:
         """
         Calculate and cache std errors
         """
@@ -105,7 +103,7 @@ class OLS(IOptimizationAlgorithm):
         self._std_err_ = np.sqrt(var_coef)
         
         self._all_params_ = np.concatenate([self.coef_, [self.intercept_]])
-        
+
     @property
     def name(self) -> str:
         """Returns a name of optimization algorithm"""
