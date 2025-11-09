@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-import pandas as pd
+from typing import Dict, Any
 import numpy as np
 
 class IRegression(ABC):
@@ -15,7 +15,7 @@ class IRegression(ABC):
         pass
 
     @abstractmethod
-    def summary(self) -> dict[str, str|float|int]:
+    def summary(self) -> Dict[str, Any]:
         """
         Returns model's summary (coefficients, intercept, metrics, etc.)
         Example: {
