@@ -50,7 +50,7 @@ class CorrelationFieldTab(Base2VarGraphTab):
             # regression line
             regression_coeffs = None
             if self.regression_checkbox.isChecked():
-                regression_coeffs = self.slr.calculate_regression_coeffs(data_model.dataframe[col1], data_model.dataframe[col2])
+                regression_coeffs = self._calculate_regression_coeffs(data_model.dataframe, col1, col2)
             
             renderer = RENDERERS['correlation_field']
             renderer.render(self.ax, data_model.dataframe, col1, col2, regression_coeffs)
@@ -59,3 +59,13 @@ class CorrelationFieldTab(Base2VarGraphTab):
         except Exception as e:
             print(f"Correlation Field Error: {e}")
             self.clear()
+
+    def _calculate_regression_coeffs(self, df: pd.DataFrame, x: str, y: str) -> tuple[float, float]:
+        """Calculates regression line coefficients and returns it as (a, b)"""
+        if x not in df or y not in df:
+            raise ValueError(f"Columns {x} or {y} not found in DataFrame")
+        self.slr.fit(df[x].to_numpy(), df[y].to_numpy())
+        params_dict = self.slr.get_params()
+        a = params_dict.get("coef")
+        b = params_dict.get("intercept")
+        return a, b

@@ -18,7 +18,7 @@ from controllers import (
 
 # Services
 from services import (
-    ConfidenceAssesment, TestPerformer,
+    ConfidenceAssesment, TestPerformer, SimpleLinearRegression,
     UIMessager, MissingInfoDisplayService, StatsRenderer, VarSerRenderer,
     DataVersionManager, DataLoaderService,
     DataSaver, DataExporter
@@ -108,7 +108,7 @@ class UIFactory:
                 "EDF": EDFTab(self.context, ConfidenceAssesment()),
                 "H-H Plot": HHTab(self.context),
                 "3D Histogram Map": HistogramMapTab(self.context),
-                "Correlation Field": CorrelationFieldTab(self.context, controllers['regression']),
+                "Correlation Field": CorrelationFieldTab(self.context, SimpleLinearRegression()),
                 "Correlation Matrix": CorrelationMatrixTab(self.context, controllers['correlation'])
             }
         )
