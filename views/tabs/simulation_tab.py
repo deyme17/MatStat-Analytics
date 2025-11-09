@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QComboBox, QScrollArea
 )
-
+from utils.ui_styles import groupMargin, groupStyle
 from controllers import SimulationController, DistributionRegister
 from views.widgets.simulationwidgets import ExperimentWidget, GenerationWidget
 from services import UIMessager
@@ -23,6 +23,7 @@ class SimulationTab(QWidget):
     
     def _init_ui(self) -> None:
         """Initialize the main tab layout."""
+        self.setStyleSheet(groupStyle + groupMargin)
         main_layout = QVBoxLayout(self)
 
         scroll = QScrollArea()
