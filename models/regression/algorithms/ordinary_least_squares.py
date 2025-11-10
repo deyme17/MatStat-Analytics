@@ -73,11 +73,11 @@ class OLS(IOptimizationAlgorithm):
 
     def compute_confidence_intervals(self, X: np.ndarray, residuals: np.ndarray, alpha: float = 0.95) -> Dict[str, Any]:
         """
-        Returns dictionary with t-value, p-value and confidance intervals for coefficients.
+        Returns dictionary with t-stat, p-value and confidance intervals for coefficients.
         Returns: 
             {
-                't_value': float,
-                'p_values': np.ndarray (`float` for each coefficient + intercept)
+                't_stats': np.ndarray (`float` for each coefficient + intercept),
+                'p_values': np.ndarray (`float` for each coefficient + intercept),
                 'CI': np.ndarray ([coef, std_err, ci_lower, ci_upper] for each coefficient + intercept)
             }
         """

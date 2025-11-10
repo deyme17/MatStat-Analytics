@@ -48,11 +48,11 @@ class RegressionController:
 
     def confidence_intervals(self, alpha: float = 0.05) -> Dict[str, Any]:
         """
-        Returns dictionary with t-value, p-value and confidance intervals for coefficients.
+        Returns dictionary with t-stat, p-value and confidance intervals for coefficients.
         Returns: 
             {
-                't_value': float,
-                'p_value': pd.Series
+                't_stats': pd.Series,
+                'p_value': pd.Series,
                 'CI': pd.DatFrame
             }
         """
@@ -65,15 +65,14 @@ class RegressionController:
         if ci_result is None:
             return
         
-        t_value = ci_result['t_value']
-        p_values_series = pd.Series(ci_result['p_values'])
-
+        t_stats = pd.Series(ci_result['t_stats'])
+        p_values = pd.Series(ci_result['p_values'])
         df_ci = pd.DataFrame(ci_result['CI'], columns=["coef", "std_err", "ci_lower", "ci_upper"])
         df_ci.insert(0, "variable", self._feature_names + ["intercept"])
 
         return {
-            't_value': t_value,
-            'p_value': p_values_series, 
+            't_stats': t_stats,
+            'p_value': p_values, 
             'CI': df_ci
         }
 
