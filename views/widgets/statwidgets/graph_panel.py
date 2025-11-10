@@ -16,6 +16,9 @@ CONF_STEP = 0.01
 DEFAULT_CONF = 0.95
 CONF_PRECISION = 2
 
+PANEL_HEIGHT = 750
+PANEL_WIDTH = 990
+
 
 class GraphPanel(QWidget):
     """
@@ -93,6 +96,7 @@ class GraphPanel(QWidget):
         layout.addWidget(self.tabs)
         layout.addLayout(self.controls_layout)
         layout.addWidget(self.dist_selector)
+        self.setFixedSize(PANEL_WIDTH, PANEL_HEIGHT)
         self.setLayout(layout)
 
     def _connect_signals(self) -> None:
