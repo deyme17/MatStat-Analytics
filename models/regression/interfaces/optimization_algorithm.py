@@ -1,3 +1,4 @@
+from typing import Dict, Any, Optional
 from abc import ABC, abstractmethod
 import numpy as np
 
@@ -25,7 +26,7 @@ class IOptimizationAlgorithm(ABC):
         pass
     
     @abstractmethod
-    def get_params(self) -> dict:
+    def get_params(self) -> Dict:
         """
         Get fitted model parameters.
         Returns:
@@ -34,10 +35,15 @@ class IOptimizationAlgorithm(ABC):
         pass
     
     @abstractmethod
-    def compute_confidence_intervals(self, X: np.ndarray, residuals: np.ndarray, alpha: float = 0.95) -> np.ndarray | None:
+    def compute_confidence_intervals(self, X: np.ndarray, residuals: np.ndarray, alpha: float = 0.95) -> Optional[Dict[str, Any]]:
         """
-        Computes confidance intervals for coefficients (if possible) in format:
-            [coef, std_err, ci_lower, ci_upper] for each coefficient + intercept
+        Returns dictionary with t-value, p-value and confidance intervals for coefficients.
+        Returns: 
+            {
+                't_value': float,
+                'p_value': np.ndarray (`float` for each coefficient + intercept)
+                'CI': np.ndarray ([coef, std_err, ci_lower, ci_upper] for each coefficient + intercept)
+            }
         """
         pass
 

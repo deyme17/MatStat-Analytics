@@ -1,6 +1,7 @@
 import numpy as np
 from scipy import stats
 from ..interfaces import IOptimizationAlgorithm
+from typing import Any, Dict
 
 class OLS(IOptimizationAlgorithm):
     """
@@ -70,20 +71,32 @@ class OLS(IOptimizationAlgorithm):
         if not self.fitted: raise RuntimeError("Model not fitted yet")
         return {"coef": self.coef_, "intercept": self.intercept_}
 
-    def compute_confidence_intervals(self, X: np.ndarray, residuals: np.ndarray, alpha: float = 0.95) -> np.ndarray:
+    def compute_confidence_intervals(self, X: np.ndarray, residuals: np.ndarray, alpha: float = 0.95) -> Dict[str, Any]:
         """
-        Computes and returns confidance intervals for coefficients for OLS in format:
-            [coef, std_err, ci_lower, ci_upper] for each coefficient + intercept
+        Returns dictionary with t-value, p-value and confidance intervals for coefficients.
+        Returns: 
+            {
+                't_value': float,
+                'p_value': np.ndarray (`float` for each coefficient + intercept)
+                'CI': np.ndarray ([coef, std_err, ci_lower, ci_upper] for each coefficient + intercept)
+            }
         """
         if self._std_err_ is None:
             self._compute_std_errors(X, residuals)
         
         t_val = stats.t.ppf((1 + alpha) / 2, self._df_)
+
+        t_stats = self._all_params_ / self._std_err_
+        p_val = 2 * (1 - stats.t.cdf(np.abs(t_stats), self._df_))
         
         ci_lower = self._all_params_ - t_val * self._std_err_
         ci_upper = self._all_params_ + t_val * self._std_err_
         
-        return np.column_stack([self._all_params_, self._std_err_, ci_lower, ci_upper])
+        return {
+            't_value': t_val,
+            'p_value': p_val,
+            'CI': np.column_stack([self._all_params_, self._std_err_, ci_lower, ci_upper])
+        }
 
     def _compute_std_errors(self, X: np.ndarray, residuals: np.ndarray) -> None:
         """

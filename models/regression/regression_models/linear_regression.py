@@ -1,5 +1,5 @@
 from ..interfaces import IRegression, IOptimizationAlgorithm
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 import numpy as np
 
 class LinearRegression(IRegression):
@@ -50,10 +50,15 @@ class LinearRegression(IRegression):
             "residual_std_error": float(np.std(self.residuals_)),
         }
 
-    def confidence_intervals(self, alpha: float = 0.95) -> np.ndarray:
+    def confidence_intervals(self, alpha: float = 0.95) -> Optional[Dict[str, Any]]:
         """
-        Returns confidance intervals for coefficients (if possible) in format:
-            [coef, std_err, ci_lower, ci_upper] for each coefficient + intercept
+        Returns dictionary with t-value, p-value and confidance intervals for coefficients.
+        Returns: 
+            {
+                't_value': float,
+                'p_value': np.ndarray (`float` for each coefficient + intercept)
+                'CI': np.ndarray ([coef, std_err, ci_lower, ci_upper] for each coefficient + intercept)
+            }
         """
         return self.algorithm.compute_confidence_intervals(
             self.X_, self.residuals_, alpha=alpha
