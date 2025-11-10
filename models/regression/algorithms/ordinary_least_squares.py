@@ -87,14 +87,14 @@ class OLS(IOptimizationAlgorithm):
         t_val = stats.t.ppf((1 + alpha) / 2, self._df_)
 
         t_stats = self._all_params_ / self._std_err_
-        p_val = 2 * (1 - stats.t.cdf(np.abs(t_stats), self._df_))
+        p_vala = 2 * (1 - stats.t.cdf(np.abs(t_stats), self._df_))
         
         ci_lower = self._all_params_ - t_val * self._std_err_
         ci_upper = self._all_params_ + t_val * self._std_err_
         
         return {
-            't_value': t_val,
-            'p_value': p_val,
+            't_stats': t_stats,
+            'p_values': p_vala,
             'CI': np.column_stack([self._all_params_, self._std_err_, ci_lower, ci_upper])
         }
 

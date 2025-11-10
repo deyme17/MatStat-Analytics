@@ -52,7 +52,7 @@ class RegressionController:
         Returns: 
             {
                 't_stats': pd.Series,
-                'p_value': pd.Series,
+                'p_values': pd.Series,
                 'CI': pd.DatFrame
             }
         """
@@ -72,7 +72,7 @@ class RegressionController:
 
         return {
             't_stats': t_stats,
-            'p_value': p_values, 
+            'p_values': p_values, 
             'CI': df_ci
         }
 
