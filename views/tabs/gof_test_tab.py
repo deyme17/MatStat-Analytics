@@ -6,7 +6,7 @@ from controllers import GOFController
 from utils import EventBus, EventType, Event, AppContext
 
 ALPHA_MIN, ALPHA_MAX = 0.01, 0.99
-ALPHA_STEP = 0.1
+ALPHA_STEP = 0.01
 ALPHA_PRECISION = 2
 DEFAULT_ALPHA = 0.05
 HEADING_TITLE_SIZE = 16
