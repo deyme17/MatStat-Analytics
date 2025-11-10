@@ -23,7 +23,7 @@ class LinearRegression(IRegression):
         params = self.algorithm.get_params()
         self.coef_ = params.get("coef", None)
         self.intercept_ = params.get("intercept", None)
-        self._evaluate_model(X, y)
+        self._evaluate_model()
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         """Returns prediction for X"""
