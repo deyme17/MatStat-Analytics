@@ -14,6 +14,7 @@ ALPHA_STEP = 0.01
 ALPHA_PRECISION = 2
 DEFAULT_ALPHA = 0.05
 
+MAX_GROUP_HEIGHT = 159
 LIST_WIDGET_HEIGHT = 150
 LIST_WIDGET_WIDTH = 320
 
@@ -118,7 +119,7 @@ class HomogenTab(QWidget):
         layout.addWidget(self.independence_checkbox)
 
         group.setLayout(layout)
-        group.setMaximumHeight(150)
+        group.setMaximumHeight(MAX_GROUP_HEIGHT)
         return group
 
     def _create_test_section(self, title: str, panels: list[BaseHomoTestPanel]) -> QGroupBox:
