@@ -11,7 +11,6 @@ class RegressionController:
     def __init__(self, regression_models: List[IRegression]):
         self._models: Dict[str, IRegression] = {}
         self._current_model: IRegression | None = None
-        self._feature_names: List[str] | None = None
         self._register_models(regression_models)
 
     def _register_models(self, regression_models: List[IRegression]):
@@ -23,12 +22,12 @@ class RegressionController:
         if model_name not in self._models:
             raise ValueError(f"Unknown model: {model_name}")
 
-        self._feature_names = list(X_df.columns)
         self._current_model = self._models[model_name]
 
         X = X_df.to_numpy(dtype=float)
         y = y_series.to_numpy(dtype=float)
 
+        self._current_model.features_ = list(X_df.columns)
         self._current_model.fit(X, y)
 
     def predict(self, X_df: pd.DataFrame) -> pd.Series:
@@ -43,7 +42,6 @@ class RegressionController:
         if not self._current_model:
             return {}
         summary = self._current_model.summary()
-        summary["features"] = self._feature_names
         return summary
 
     def confidence_intervals(self, alpha: float = 0.05) -> Dict[str, Any]:
@@ -58,8 +56,6 @@ class RegressionController:
         """
         if not self._current_model:
             raise RuntimeError("Model not trained yet")
-        if not self._feature_names:
-            raise RuntimeError("No feature names stored")
 
         ci_result = self._current_model.confidence_intervals(alpha)
         if ci_result is None:
@@ -67,8 +63,7 @@ class RegressionController:
         
         t_stats = pd.Series(ci_result['t_stats'])
         p_values = pd.Series(ci_result['p_values'])
-        df_ci = pd.DataFrame(ci_result['CI'], columns=["coef", "std_err", "ci_lower", "ci_upper"])
-        df_ci.insert(0, "variable", self._feature_names + ["intercept"])
+        df_ci = pd.DataFrame(ci_result['CI'], columns=["variable", "coef", "std_err", "ci_lower", "ci_upper"])
 
         return {
             't_stats': t_stats,

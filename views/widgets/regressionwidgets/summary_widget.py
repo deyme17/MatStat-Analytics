@@ -103,8 +103,6 @@ class RegrSummaryWidget(QWidget):
             if ci_result:
                 self._update_coefficients_table(ci_result)
             
-            self.show()
-            
         except Exception as e:
             self.messanger.show_error("Summary error", str(e))
 
@@ -124,12 +122,12 @@ class RegrSummaryWidget(QWidget):
 
         for row_idx in range(n_rows):
             self.result_table.setItem(row_idx, 0, QTableWidgetItem(str(ci_df.loc[row_idx, "variable"])))
-            self.result_table.setItem(row_idx, 1, QTableWidgetItem(f"{ci_df.loc[row_idx, 'coef']:.4f}"))
-            self.result_table.setItem(row_idx, 2, QTableWidgetItem(f"{ci_df.loc[row_idx, 'std_err']:.4f}"))
-            self.result_table.setItem(row_idx, 3, QTableWidgetItem(f"{ci_df.loc[row_idx, 'ci_lower']:.4f}"))
-            self.result_table.setItem(row_idx, 4, QTableWidgetItem(f"{ci_df.loc[row_idx, 'ci_upper']:.4f}"))
-            self.result_table.setItem(row_idx, 5, QTableWidgetItem(f"{t_stats[row_idx]:.4f}"))
-            self.result_table.setItem(row_idx, 6, QTableWidgetItem(f"{p_vals[row_idx]:.4f}"))
+            self.result_table.setItem(row_idx, 1, QTableWidgetItem(f"{float(ci_df.loc[row_idx, 'ci_upper']):.4f}"))
+            self.result_table.setItem(row_idx, 2, QTableWidgetItem(f"{float(ci_df.loc[row_idx, 'coef']):.4f}"))
+            self.result_table.setItem(row_idx, 3, QTableWidgetItem(f"{float(ci_df.loc[row_idx, 'ci_lower']):.4f}"))
+            self.result_table.setItem(row_idx, 4, QTableWidgetItem(f"{float(ci_df.loc[row_idx, 'std_err']):.4f}"))
+            self.result_table.setItem(row_idx, 5, QTableWidgetItem(f"{float(t_stats[row_idx]):.4f}"))
+            self.result_table.setItem(row_idx, 6, QTableWidgetItem(f"{float(p_vals[row_idx]):.4f}"))
 
         self.result_table.resizeColumnsToContents()
 
