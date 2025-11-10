@@ -1,7 +1,8 @@
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QComboBox, QPushButton, 
+    QWidget, QVBoxLayout, QHBoxLayout, QComboBox, QPushButton, QScrollArea,
     QGroupBox, QTextEdit, QLabel, QListWidget, QAbstractItemView
 )
+from PyQt6.QtCore import Qt
 from views.widgets.regressionwidgets import RegrSummaryWidget, RegrPredictionWidget
 from utils import AppContext, EventBus, EventType, Event
 from services import UIMessager
@@ -51,22 +52,32 @@ class RegressionTab(QWidget):
 
     def _init_ui(self) -> None:
         """Initialize and layout all UI components."""
-        self.setStyleSheet(groupStyle + groupMargin)
-        layout = QVBoxLayout()
+        container = QWidget()
+        container.setStyleSheet(groupStyle + groupMargin)
+        container_layout = QVBoxLayout()
         
-        self._init_model_selector(layout)
-        self._init_independent_vars_selector(layout)
-        self._init_dependent_var_selector(layout)
+        self._init_model_selector(container_layout)
+        self._init_independent_vars_selector(container_layout)
+        self._init_dependent_var_selector(container_layout)
         
         self.fit_btn = QPushButton("Fit the model")
         self.fit_btn.clicked.connect(self._fit_model)
-        layout.addWidget(self.fit_btn)
-
-        layout.addWidget(self.summary_widget)
-        layout.addWidget(self.prediction_widget)
+        container_layout.addWidget(self.fit_btn)
         
-        layout.addStretch()
-        self.setLayout(layout)
+        container_layout.addWidget(self.summary_widget)
+        container_layout.addWidget(self.prediction_widget)
+        
+        container_layout.addStretch()
+        container.setLayout(container_layout)
+        
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(container)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(scroll)
+        self.setLayout(main_layout)
 
     def _init_model_selector(self, layout: QVBoxLayout) -> None:
         """Initialize model selection (QComboBox)"""
@@ -214,11 +225,6 @@ class RegressionTab(QWidget):
         if not self.independent_list.selectedItems():
             self.messenger.show_error("Validation error", 
                 "Please select at least one independent variable")
-            return False
-        
-        if self.dependent_combo.currentIndex() == 0:
-            self.messenger.show_error("Validation error", 
-                "Please select a dependent variable")
             return False
         
         x_vars = [item.text() for item in self.independent_list.selectedItems()]

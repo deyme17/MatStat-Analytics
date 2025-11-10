@@ -9,7 +9,7 @@ from controllers import RegressionController
 from utils.ui_styles import groupMargin, groupStyle
 import pandas as pd
 
-HEADING_TITLE_SIZE = 14
+HEADING_TITLE_SIZE = 13
 
 
 class RegrPredictionWidget(QWidget):
@@ -21,7 +21,6 @@ class RegrPredictionWidget(QWidget):
         self.controller: RegressionController = regr_controller
         self.feature_inputs: dict[str, QLineEdit] = {}
         self._init_ui()
-        self.hide()
     
     def _init_ui(self) -> None:
         """Initialize regression prediction UI components."""
