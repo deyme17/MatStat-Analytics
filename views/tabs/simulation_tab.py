@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QComboBox, QScrollArea
 )
+from PyQt6.QtCore import Qt
 from utils.ui_styles import groupMargin, groupStyle
 from controllers import SimulationController, DistributionRegister
 from views.widgets.simulationwidgets import ExperimentWidget, GenerationWidget
@@ -28,6 +29,7 @@ class SimulationTab(QWidget):
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         content_widget = QWidget()
         layout = QVBoxLayout(content_widget)
