@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 from scipy import interpolate
 
-class MissingService:
+class MissingProcessor:
     """
-    Service for detecting and handling missing values in pandas Series.
+    Class for detecting and handling missing values in pandas Series.
     """
     @staticmethod
     def detect_missing(data: pd.Series) -> dict:

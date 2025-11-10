@@ -14,7 +14,7 @@ from .n_samples_tests.kruskal_wallis_H_test import HTest
 
 from .base_homogen_test import BaseHomogenTest
 
-homogens_tests: list[BaseHomogenTest] = [
+homogen_tests: list[type[BaseHomogenTest]] = [
     NormalHomogenTest,
     WilcoxonTest,
     MannWhitneyUTest,

@@ -63,9 +63,25 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
   - Cochran's Q Test
   - Kruskal-Wallis H Test
 
-### **Testing correlation sagnificance**
+### **Correlarion Analysis**
   - Multiple correlation methods supported (Pearson, Spearman, Kendall, Correlation Ratio)
   - Testing result displayed alongside confidence intervals for selected correlation metrics
+
+### **Regression Analysis**
+  - Configuration
+    - Regression model selection (e.g. Linear Regression with OLS)
+    - Dependent variables selection: `y` (target array)
+    - Independent variable selection: `X` (feature matrix)
+    - Fit a model: `fit(X, y)` method trains the model
+  - Summary
+    - `summary()` method returns:
+      - `coefficients`: learned weights for each feature
+      - `intercept`: bias term
+      - `R^2`: coefficient of determination
+      - `residual std error`: standard deviation of residuals
+      - `confidence intervals` computes confidence intervals for coefficients and intercept using the fitted model and residuals
+  - Prediction
+    - `predict(X)` returns predicted values for new data
 
 ### 🎲 **Simulation & Modeling**
 - **Sample Simulation**: Generate synthetic datasets from theoretical distributions (could be multivariate)
@@ -92,6 +108,7 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
 - **Correlation field**:
   - Scatter visualization of two variables with color-coded density
   - Real-time Pearson correlation coefficient displayed on the plot
+  - Optional plotting regression line, calculated using Simple Linear Regression (OLS based)
 - **Correlation Matrix**:
   - Heatmap representation of variable interdependencies
   - Multiple correlation methods supported (Pearson, Spearman, Kendall, Correlation Ratio)
@@ -131,17 +148,22 @@ MatStat-Analytics/
 │   ├── data_controllers/       # Data management
 │   ├── dp_controllers/         # Data preprocessing
 ├── models/              # Core statistical models
-│   ├── gofs/                  # Goodness-of-fit tests
-│   ├── homogens/             # Homogeneity tests
-│   ├── params_estimators/    # Parameter estimation
-│   └── stat_distributions/   # Statistical distributions
+│   ├── gofs/                   # Goodness-of-fit tests
+│   ├── homogens/               # Homogeneity tests
+│   ├── correlarion_coeffs/     # Correltion coefficients
+│   ├── regression/             # Regression algorithms/models
+│   ├── params_estimators/      # Parameter estimation
+│   ├── data_processors/        # Data preprocessing
+│   ├── stat_distributions/     # Statistical distributions
+│   ├── simulation_engine.py    # Generation of data samples
+│   ├── stat_calculator.py      # Statictics calculation
+│   └──data_model.py            # main model of the data 
 ├── services/            # Reusable services
-│   ├── analysis_services/    # Analysis utilities
-│   ├── data_services/        # Data I/O and management
-│   ├── dp_services/          # Data preprocessing
-│   └── ui_services/          # UI rendering and utilities
+│   ├── stat_services/          # Statistics utilities
+│   ├── data_services/          # Data I/O and management
+│   └── ui_services/            # UI rendering and utilities
 ├── views/               # User interface components
-│   ├── tabs/                 # Main application tabs
-│   └── widgets/              # Specialized UI widgets
+│   ├── tabs/                   # Main application tabs
+│   └── widgets/                # Specialized UI widgets
 └── utils/               # Helper utilities and decorators
 ```

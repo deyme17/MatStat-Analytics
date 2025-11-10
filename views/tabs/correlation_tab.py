@@ -3,6 +3,7 @@ from utils import AppContext, EventBus, EventType
 from services import UIMessager
 from views.widgets.coorwidgets import CorrelationTestWidget
 from controllers import CorrelationController
+from utils.ui_styles import groupMargin, groupStyle
 
 
 class CorrelationTab(QWidget):
@@ -28,10 +29,11 @@ class CorrelationTab(QWidget):
 
     def _init_ui(self) -> None:
         """Initialize and layout all UI components."""
+        self.setStyleSheet(groupStyle + groupMargin)
         layout = QVBoxLayout()
 
         self.corr_combo = QComboBox()
-        coeff_names = list(self.controller._tests.keys())
+        coeff_names = list(self.controller.corr_coeffs)
         if not coeff_names:
             coeff_names = ["-"]
 

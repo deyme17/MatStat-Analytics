@@ -5,3 +5,4 @@ from .statwidgets import *
 from .homogenwidgets import *
 from .simulationwidgets import *
 from .coorwidgets import *
+from .regressionwidgets import *

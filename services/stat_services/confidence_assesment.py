@@ -1,14 +1,14 @@
 import pandas as pd
+from models.stat_distributions import StatisticalDistribution
 import numpy as np
-from scipy.stats import norm 
+from scipy.stats import norm
 
-
-class ConfidenceService:
+class ConfidenceAssesment:
     """
-    Service for computing confidence intervals for cumulative distribution function.
+    Class for computing confidence intervals for cumulative distribution function.
     """
     @staticmethod
-    def cdf_variance_ci(data: pd.Series, dist, confidence_level: float = 0.95):
+    def cdf_variance_ci(data: pd.Series, dist: StatisticalDistribution, confidence_level: float = 0.95):
         """
         Compute CDF with variance-based confidence intervals.
         Args:

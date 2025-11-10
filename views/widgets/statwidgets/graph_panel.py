@@ -2,7 +2,6 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QSpinBox, QDoubleSpinBox, QCheckBox, QTabWidget
 )
-from controllers import DistributionRegister
 from typing import Any, Dict
 from utils import AppContext, EventBus, EventType, Event
 from views.tabs.graph_tabs.graph_tab import BaseGraphTab
@@ -16,6 +15,9 @@ MIN_CONF, MAX_CONF = 0.80, 0.99
 CONF_STEP = 0.01
 DEFAULT_CONF = 0.95
 CONF_PRECISION = 2
+
+PANEL_HEIGHT = 750
+PANEL_WIDTH = 990
 
 
 class GraphPanel(QWidget):
@@ -94,6 +96,7 @@ class GraphPanel(QWidget):
         layout.addWidget(self.tabs)
         layout.addLayout(self.controls_layout)
         layout.addWidget(self.dist_selector)
+        self.setFixedSize(PANEL_WIDTH, PANEL_HEIGHT)
         self.setLayout(layout)
 
     def _connect_signals(self) -> None:

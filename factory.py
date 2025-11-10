@@ -1,32 +1,39 @@
 from typing import Any
 from utils import EventBus, EventType, AppContext
 
+# Models
+from models import (
+    stat_distributions, estimation_methods, corr_coeffs, gof_tests, homogen_tests, regression_models,
+    TransformationProcessor, AnomalyProcessor, MissingProcessor,
+    SimulationEngine, StatisticsCalculator,
+    )
+
 # Controllers
 from controllers import (
     AnomalyController, MissingDataController, DataTransformController,
-    ParameterEstimation, SimulationController, StatisticController, GOFController, HomogenController, CorrelationController,
+    ParameterEstimation, SimulationController, StatisticController, GOFController, HomogenController, 
+    CorrelationController, RegressionController,
     DataLoadController, DataVersionController, DistributionRegister
 )
 
 # Services
 from services import (
-    TransformationService, AnomalyService, MissingService,
-    ConfidenceService, TestPerformer, StatisticsService,
+    ConfidenceAssesment, TestPerformer, SimpleLinearRegression,
     UIMessager, MissingInfoDisplayService, StatsRenderer, VarSerRenderer,
     DataVersionManager, DataLoaderService,
-    SimulationService, DataSaver, DataExporter
+    DataSaver, DataExporter
 )
 
 # Views
 from PyQt6.QtWidgets import QTabWidget
 from views import (
     # tabs
-    DataProcessingTab, GOFTestTab, ParamEstimationTab, SimulationTab, StatisticTab, HomogenTab, CorrelationTab,
+    DataProcessingTab, GOFTestTab, ParamEstimationTab, SimulationTab, StatisticTab, HomogenTab, CorrelationTab, RegressionTab,
     # widgets
     WindowWidgets,
     AnomalyWidget, MissingWidget, TransformDataWidget,
-    GenerationWidget, ExperimentWidget, CorrelationTestWidget,
     KolmogorovSmirnovPanel, PearsonChi2Panel, Pearson2DNormalPanel,
+    GenerationWidget, ExperimentWidget, CorrelationTestWidget, RegrSummaryWidget, RegrPredictionWidget,
     NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel, AbbePanel,
     ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel,
     GraphPanel, DistributionSelector
@@ -48,7 +55,7 @@ class ControllersFactory:
         
         controllers['statistic'] = StatisticController(
             context=self.context,
-            statistic_service=StatisticsService()
+            stat_calculator=StatisticsCalculator()
         )
         controllers['data_loader'] = DataLoadController(
             context=self.context,
@@ -57,28 +64,29 @@ class ControllersFactory:
         )
         controllers['simulation'] = SimulationController(
             context=self.context,
-            simulation_service=SimulationService(TestPerformer()),
+            simulation_engine=SimulationEngine(TestPerformer()),
             data_saver=DataSaver(),
             data_exporter=DataExporter
         )
-        controllers['estimation'] = ParameterEstimation()
-        controllers['gof'] = GOFController()
-        controllers['homogen'] = HomogenController()
+        controllers['estimation'] = ParameterEstimation(estimation_methods)
+        controllers['gof'] = GOFController(gof_tests)
+        controllers['homogen'] = HomogenController(homogen_tests)
         controllers['data_version'] = DataVersionController(context=self.context)
         controllers['anomaly_data'] = AnomalyController(
             context=self.context,
-            anomaly_service=AnomalyService(),
+            anomaly_proc=AnomalyProcessor(),
         )
         controllers['data_transform'] = DataTransformController(
             context=self.context,
-            transform_service=TransformationService()
+            transform_proc=TransformationProcessor()
         )
         controllers['missing_data'] = MissingDataController(
             context=self.context,
-            missing_service=MissingService()
+            missing_proc=MissingProcessor()
         )
-        controllers['correlation'] = CorrelationController()
-        controllers['dist_register'] = DistributionRegister()
+        controllers['correlation'] = CorrelationController(corr_coeffs)
+        controllers['regression'] = RegressionController(regression_models)
+        controllers['dist_register'] = DistributionRegister(stat_distributions)
         
         return controllers
 
@@ -97,10 +105,10 @@ class UIFactory:
             dist_selector=DistributionSelector(dist_register=controllers['dist_register']),
             graph_tabs={
                 "Histogram": HistogramTab(self.context),
-                "EDF": EDFTab(self.context, ConfidenceService()),
+                "EDF": EDFTab(self.context, ConfidenceAssesment()),
                 "H-H Plot": HHTab(self.context),
                 "3D Histogram Map": HistogramMapTab(self.context),
-                "Correlation Field": CorrelationFieldTab(self.context),
+                "Correlation Field": CorrelationFieldTab(self.context, SimpleLinearRegression()),
                 "Correlation Matrix": CorrelationMatrixTab(self.context, controllers['correlation'])
             }
         )
@@ -149,6 +157,12 @@ class UIFactory:
             corr_controller=controllers['correlation'],
             corr_test_widget=CorrelationTestWidget
         )
+        regr_tab = RegressionTab(
+            context=self.context,
+            regr_controller=controllers['regression'],
+            summary_widget=RegrSummaryWidget,
+            prediction_widget=RegrPredictionWidget
+        )
 
         self.window.left_tab_widget = QTabWidget()
         self.window.left_tab_widget.addTab(data_tab, "Data Processing")
@@ -158,6 +172,7 @@ class UIFactory:
         self.window.left_tab_widget.addTab(sim_tab, "Simulation")
         self.window.left_tab_widget.addTab(est_tab, "Parameters estimation")
         self.window.left_tab_widget.addTab(corr_tab, "Correlation")
+        self.window.left_tab_widget.addTab(regr_tab, "Regression")
         # add to window attr
         self.window.data_tab = data_tab
         self.window.stat_tab = stat_tab
@@ -166,6 +181,7 @@ class UIFactory:
         self.window.sim_tab = sim_tab
         self.window.est_tab = est_tab
         self.window.corr_tab = corr_tab
+        self.window.regr_tab = regr_tab
 
 class ConnectFactory:
     def __init__(self, window, event_bus: EventBus):

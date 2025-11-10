@@ -6,6 +6,7 @@ from typing import Callable
 from services.ui_services.messager import UIMessager
 from utils import AppContext, EventBus, EventType, Event
 from controllers import CorrelationController
+from utils.ui_styles import groupMargin, groupStyle
 
 HEADING_TITLE_SIZE = 10
 DEFAULT_ALPHA_VAL_LABEL = "0.05"
@@ -26,6 +27,7 @@ class CorrelationTestWidget(QWidget):
     
     def _init_ui(self) -> None:
         """Initialize correlation test UI components."""
+        self.setStyleSheet(groupStyle + groupMargin)
         layout = QVBoxLayout()
         layout.addWidget(QLabel(f"{'=' * HEADING_TITLE_SIZE} Test Correlation Significance {'=' * HEADING_TITLE_SIZE}"))
         self._init_alpha_controls(layout)

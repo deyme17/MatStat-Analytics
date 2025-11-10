@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-class AnomalyService:
+class AnomalyProcessor:
     """
-    Service for detecting anomalies in numeric data using different statistical methods.
+    Class for detecting anomalies in numeric data using different statistical methods.
     """
     @staticmethod
     def detect_sigma_anomalies(data: pd.DataFrame, sigma: float = 3) -> dict:

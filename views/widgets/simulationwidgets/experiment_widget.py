@@ -5,8 +5,10 @@ from PyQt6.QtWidgets import (
 )
 from typing import Optional, Dict, Any, List
 
+from models.stat_distributions import StatisticalDistribution
 from controllers import SimulationController
 from services import UIMessager
+from utils.ui_styles import groupMargin, groupStyle
 
 DEFAULT_SAMPLE_SIZES = [20, 50, 100, 400, 1000, 2000, 5000]
 DEFAULT_ALPHA_VAL_LABEL = "0.05"
@@ -15,6 +17,7 @@ SPIN_WIDTH = 150
 MIN_REPEATS, MAX_REPEATS = 1, 1000
 DEFAULT_REPEATS = 200
 HEADING_TITLE_SIZE = 16
+MIN_PARAM_INPUT_WIDTH = 200
 
 
 class ExperimentWidget(QWidget):
@@ -27,14 +30,28 @@ class ExperimentWidget(QWidget):
     
     def _init_ui(self) -> None:
         """Initialize experiment UI components."""
+        self.setStyleSheet(groupStyle + groupMargin)
         layout = QVBoxLayout()
         
         layout.addWidget(QLabel(f"{HEADING_TITLE_SIZE * '='} Experiment {HEADING_TITLE_SIZE * '='}"))
+        self._init_parameter_controls(layout)
         self._init_alpha_controls(layout)
         self._init_experiment_controls(layout)
         self._init_results_table(layout)
         
         self.setLayout(layout)
+
+    def _init_parameter_controls(self, layout: QVBoxLayout) -> None:
+        """Initialize distribution parameter controls."""
+        param_layout = QHBoxLayout()
+        param_label = QLabel("Distribution Parameters:")
+        self.param_input = QLineEdit()
+        self.param_input.setMinimumWidth(MIN_PARAM_INPUT_WIDTH)
+        self.param_input.setPlaceholderText("x, ...")
+        param_layout.addWidget(param_label)
+        param_layout.addWidget(self.param_input)
+        param_layout.addStretch()
+        layout.addLayout(param_layout)
     
     def _init_alpha_controls(self, layout: QVBoxLayout) -> None:
         """Initialize significance level controls."""
@@ -71,14 +88,46 @@ class ExperimentWidget(QWidget):
             "Params Mean", "Params Var"
         ])
         layout.addWidget(self.result_table)
+
+    def update_param_placeholder(self, placeholder: str) -> None:
+        """Update parameter input placeholder."""
+        self.param_input.setPlaceholderText(placeholder)
+
+    def get_params(self) -> Optional[tuple]:
+        """Parse and validate parameters."""
+        params_str = self.param_input.text().strip()
+        if not params_str:
+            self.messanger.show_error("Invalid Parameters", 
+                "Please enter distribution parameters.")
+            return None
+        try:
+            params = tuple(map(float, params_str.split(',')))
+            return params
+        except:
+            self.messanger.show_error("Invalid Parameters", 
+                "Parameters must be comma-separated numbers.")
+            return None
     
-    def run_experiment(self, dist, true_mean: float) -> None:
+    def run_experiment(self, dist_cls: type[StatisticalDistribution]) -> None:
         """Execute experiment with given distribution."""
         alpha = self._parse_alpha()
         if alpha is None:
             return
+        params = self.get_params()
+        if params is None:
+            return
         
+        dist = dist_cls()
+        dist.params = params
+        
+        if not dist.validate_params():
+            self.messanger.show_error("Invalid Parameters", 
+                f"Could not create Distribution {dist.name} with parameters {params}.")
+            return None
+        
+        true_mean = dist.get_mean()
         repeats = self.repeat_spin.value()
+
         results = self.simulation_controller.run_experiment(
             dist, DEFAULT_SAMPLE_SIZES, repeats, true_mean, alpha
         )
