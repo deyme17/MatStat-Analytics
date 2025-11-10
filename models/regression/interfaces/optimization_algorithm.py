@@ -41,7 +41,7 @@ class IOptimizationAlgorithm(ABC):
         Returns: 
             {
                 't_value': float,
-                'p_value': np.ndarray (`float` for each coefficient + intercept)
+                'p_values': np.ndarray (`float` for each coefficient + intercept)
                 'CI': np.ndarray ([coef, std_err, ci_lower, ci_upper] for each coefficient + intercept)
             }
         """

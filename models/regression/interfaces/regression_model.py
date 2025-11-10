@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 import numpy as np
 
 class IRegression(ABC):
@@ -28,10 +28,15 @@ class IRegression(ABC):
         pass
 
     @abstractmethod
-    def confidence_intervals(self, alpha: float = 0.95) -> np.ndarray:
+    def confidence_intervals(self, alpha: float = 0.95) -> Optional[Dict[str, Any]]:
         """
-        Returns confidance intervals for coefficients (if possible) in format:
-            [coef, std_err, ci_lower, ci_upper] for each coefficient + intercept
+        Returns dictionary with t-value, p-value and confidance intervals for coefficients.
+        Returns: 
+            {
+                't_value': float,
+                'p_values': np.ndarray (`float` for each coefficient + intercept)
+                'CI': np.ndarray ([coef, std_err, ci_lower, ci_upper] for each coefficient + intercept)
+            }
         """
         pass
 

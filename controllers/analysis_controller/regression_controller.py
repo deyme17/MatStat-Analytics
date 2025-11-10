@@ -46,17 +46,36 @@ class RegressionController:
         summary["features"] = self._feature_names
         return summary
 
-    def confidence_intervals(self, alpha: float = 0.05) -> pd.DataFrame:
-        """Returns confidance intervals for coeficients if possible"""
+    def confidence_intervals(self, alpha: float = 0.05) -> Dict[str, Any]:
+        """
+        Returns dictionary with t-value, p-value and confidance intervals for coefficients.
+        Returns: 
+            {
+                't_value': float,
+                'p_value': pd.Series
+                'CI': pd.DatFrame
+            }
+        """
         if not self._current_model:
             raise RuntimeError("Model not trained yet")
         if not self._feature_names:
             raise RuntimeError("No feature names stored")
 
-        ci_matrix = self._current_model.confidence_intervals(alpha)
-        df_ci = pd.DataFrame(ci_matrix, columns=["coef", "std_err", "ci_lower", "ci_upper"])
+        ci_result = self._current_model.confidence_intervals(alpha)
+        if ci_result is None:
+            return
+        
+        t_value = ci_result['t_value']
+        p_values_series = pd.Series(ci_result['p_values'])
+
+        df_ci = pd.DataFrame(ci_result['CI'], columns=["coef", "std_err", "ci_lower", "ci_upper"])
         df_ci.insert(0, "variable", self._feature_names + ["intercept"])
-        return df_ci
+
+        return {
+            't_value': t_value,
+            'p_value': p_values_series, 
+            'CI': df_ci
+        }
 
     @property
     def regression_models(self) -> List[str]:
