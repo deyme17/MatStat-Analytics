@@ -41,8 +41,8 @@ class LinearRegression(IRegression):
             "coefficients": np.ndarray,
             "intercept": float,
             "metrics": {
-                "r_squared": float,
-                "residual_std_error": float
+                "R^2": float,
+                "RSE": float
                 }
         }
         """
@@ -53,8 +53,10 @@ class LinearRegression(IRegression):
             "coefficients": self.coef_,
             "intercept": self.intercept_,
             "metrics": {
-                "r_squared": self.r_squared_,
-                "residual_std_error": float(np.std(self.residuals_))
+                "R^2": self.r_squared_,
+                "Adjusted R^2": self.r_squared_adj_,
+                "MSE": float(np.mean(self.residuals_ ** 2)),
+                "RSE": float(np.std(self.residuals_)),
             }
         }
 
@@ -86,6 +88,13 @@ class LinearRegression(IRegression):
         self.residuals_ = self.y_ - self.y_pred_
 
         # r-squared
-        ss_res = np.sum(self.residuals_ ** 2)
-        ss_tot = np.sum((self.y_ - np.mean(self.y_)) ** 2)
-        self.r_squared_ = 1 - ss_res / ss_tot if ss_tot > 0 else np.nan
+        RSS = np.sum(self.residuals_ ** 2)
+        TSS = np.sum((self.y_ - np.mean(self.y_)) ** 2)
+        self.r_squared_ = 1 - RSS / TSS if TSS > 0 else np.nan
+
+        # adjusted r-squared
+        n, p = self.X_.shape
+        if n > p + 1 and not np.isnan(self.r_squared_):
+            self.r_squared_adj_ = 1 - (1 - self.r_squared_) * (n - 1) / (n - p - 1)
+        else:
+            self.r_squared_adj_ = np.nan
