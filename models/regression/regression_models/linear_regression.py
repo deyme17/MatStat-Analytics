@@ -17,6 +17,7 @@ class LinearRegression(IRegression):
         self.y_pred_: np.ndarray | None = None
         self.residuals_: np.ndarray | None = None
         self.r_squared_: float | None = None
+        self.r_squared_adj_:  float | None = None
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
         """Train model on data"""
