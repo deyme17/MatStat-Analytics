@@ -40,8 +40,10 @@ class LinearRegression(IRegression):
             "features": list[str],
             "coefficients": np.ndarray,
             "intercept": float,
-            "r_squared": float,
-            "residual_std_error": float,
+            "metrics": {
+                "r_squared": float,
+                "residual_std_error": float
+                }
         }
         """
         if self.coef_ is None:
@@ -50,8 +52,10 @@ class LinearRegression(IRegression):
             "features": self.features_,
             "coefficients": self.coef_,
             "intercept": self.intercept_,
-            "r_squared": self.r_squared_,
-            "residual_std_error": float(np.std(self.residuals_)),
+            "metrics": {
+                "r_squared": self.r_squared_,
+                "residual_std_error": float(np.std(self.residuals_))
+            }
         }
 
     def confidence_intervals(self, alpha: float = 0.95) -> Optional[Dict[str, Any]]:

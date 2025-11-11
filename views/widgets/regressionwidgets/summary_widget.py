@@ -80,11 +80,9 @@ class RegrSummaryWidget(QWidget):
         """Initialize metrics section."""
         group = QGroupBox("Model Metrics")
         group_layout = QVBoxLayout()
-        self.r2_label = QLabel("R²: -")
-        for label in [self.r2_label]:
-            label.setStyleSheet("font-weight: bold;")
-            group_layout.addWidget(label)
-        
+        self.metrics = QLabel("-")
+        self.metrics.setStyleSheet("font-weight: bold;")
+        group_layout.addWidget(self.metrics)
         group.setLayout(group_layout)
         layout.addWidget(group)
 
@@ -108,8 +106,10 @@ class RegrSummaryWidget(QWidget):
 
     def _update_metrics(self, summary: dict) -> None:
         """Update metrics labels."""
-        r2 = summary.get('r_squared', None)
-        self.r2_label.setText(f"R²: {r2:.6f}" if r2 is not None else "R²: -")
+        metrics = summary.get('metrics', {})
+        metric_lines = [f"{k} = {v}" for k, v in metrics.items()]
+        metrics_str = "\n".join(metric_lines) + "\n"
+        self.metrics.setText(metrics_str)
 
     def _update_coefficients_table(self, ci_result: dict) -> None:
         """Update coefficients table with CI and t-values."""
@@ -133,5 +133,5 @@ class RegrSummaryWidget(QWidget):
 
     def clear(self) -> None:
         """Clear all summary data."""
-        self.r2_label.setText("R²: -")
+        self.metrics.setText("-")
         self.result_table.setRowCount(0)

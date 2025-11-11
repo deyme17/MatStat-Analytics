@@ -10,7 +10,6 @@ class IRegression(ABC):
 
     y_pred_: np.ndarray | None
     residuals_: np.ndarray | None
-    r_squared_: float | None
 
     @abstractmethod
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
@@ -30,8 +29,7 @@ class IRegression(ABC):
             "features": list[str],
             "coefficients": np.ndarray,
             "intercept": float,
-            "r_squared": float,
-            "residual_std_error": float,
+            "metrics": dict[str, float],
         }
         """
         pass
