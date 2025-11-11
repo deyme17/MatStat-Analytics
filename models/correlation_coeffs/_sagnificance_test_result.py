@@ -16,13 +16,19 @@ class SignificanceTestResult:
     
     def __str__(self) -> str:
         sig = "SIGNIFICANT" if self.is_significant else "NOT SIGNIFICANT"
+        extra_str = ""
         if self.extra:
             extra_lines = [f"{k} = {v}" for k, v in self.extra.items()]
-            extra_str = "\n".join(extra_lines)
+            extra_str = "\n".join(extra_lines) + "\n"
+        ci_str = (
+            f"{self.CI[0]:.3f} <= r={self.r:.3f} <= {self.CI[1]:.3f}"
+            if self.CI
+            else "No interval available"
+        )
         return (
-                f"{self.test_name} (r) = {self.r:.3f}\n"
-                f"statistic={self.statistic:.4f}\n"
-                f"{extra_str}\n" if self.extra else ""
-                f"p-value={self.p_value:.4f} -> {sig} (α={self.alpha})\n"
-                f"{self.CI[0]:.3f} <= r={self.r:.3f} <= {self.CI[1]:.3f}" if self.CI else "No interval available"
-                )
+            f"{self.test_name} (r) = {self.r:.3f}\n"
+            f"statistic={self.statistic:.4f}\n"
+            f"{extra_str}"
+            f"p-value={self.p_value:.4f} -> {sig} (α={self.alpha})\n"
+            f"{ci_str}"
+        )
