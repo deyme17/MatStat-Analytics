@@ -38,6 +38,7 @@ class RegrSummaryWidget(QWidget):
 
         self._init_alpha_controls(layout)
         self._init_result_table(layout)
+        self._init_model_sagn_label(layout)
         self._init_metrics_section(layout)
 
         self.setLayout(layout)
@@ -76,6 +77,16 @@ class RegrSummaryWidget(QWidget):
         group.setFixedHeight(RES_TABLE_GROUP_HEIGHT)
         layout.addWidget(group)
 
+    def _init_model_sagn_label(self, layout: QVBoxLayout) -> None:
+        """Initialize model significance (F-test) section."""
+        group = QGroupBox("Model Significance (F-test)")
+        group_layout = QVBoxLayout()
+        self.model_sagn_label = QLabel("-")
+        self.model_sagn_label.setStyleSheet("font-weight: bold;")
+        group_layout.addWidget(self.model_sagn_label)
+        group.setLayout(group_layout)
+        layout.addWidget(group)
+
     def _init_metrics_section(self, layout: QVBoxLayout) -> None:
         """Initialize metrics section."""
         group = QGroupBox("Model Metrics")
@@ -100,6 +111,7 @@ class RegrSummaryWidget(QWidget):
             ci_result = self.controller.confidence_intervals(alpha=alpha)
             if ci_result:
                 self._update_coefficients_table(ci_result)
+                self._update_model_sagn_label(ci_result["model_sagnificance"])
             
         except Exception as e:
             self.messanger.show_error("Summary error", str(e))
@@ -132,6 +144,23 @@ class RegrSummaryWidget(QWidget):
             self.result_table.setItem(row_idx, 7, QTableWidgetItem(f"{str(sagnificant[row_idx])}"))
 
         self.result_table.resizeColumnsToContents()
+
+    def _update_model_sagn_label(self, model_sagn: dict | None) -> None:
+        """Update model F-test significance label."""
+        if not model_sagn:
+            self.model_sagn_label.setText("No F-test results available")
+            return
+
+        f_stat = model_sagn.get("F_stat", None)
+        p_val = model_sagn.get("p_value", None)
+        sagnificant = model_sagn.get("sagnificant", None)
+
+        if f_stat is None or p_val is None:
+            self.model_sagn_label.setText("Insufficient data for F-test")
+            return
+        
+        f_text = f"F-stat: {float(f_stat):.4f} | p-value: {float(p_val):.4f} | Significant: {str(sagnificant)}"
+        self.model_sagn_label.setText(f_text)
 
     def clear(self) -> None:
         """Clear all summary data."""
