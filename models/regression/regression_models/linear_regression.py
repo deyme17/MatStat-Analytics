@@ -42,6 +42,8 @@ class LinearRegression(IRegression):
             "intercept": float,
             "metrics": {
                 "R^2": float,
+                "Adjusted R^2": float,
+                "MSE": float,
                 "RSE": float
                 }
         }
