@@ -51,6 +51,7 @@ class RegressionController:
             {
                 't_stats': pd.Series,
                 'p_values': pd.Series,
+                'sagnificant': pd.Series,
                 'CI': pd.DatFrame
             }
         """
@@ -68,6 +69,7 @@ class RegressionController:
         return {
             't_stats': t_stats,
             'p_values': p_values, 
+            'sagnificant': p_values < alpha,
             'CI': df_ci
         }
 

@@ -64,9 +64,9 @@ class RegrSummaryWidget(QWidget):
         group_layout = QVBoxLayout()
         
         self.result_table = QTableWidget()
-        self.result_table.setColumnCount(7)
+        self.result_table.setColumnCount(8)
         self.result_table.setHorizontalHeaderLabels([
-            "Var", "CI Upper", "Coeff", "CI Lower", "Std.Error", "t-stat", "p-val"
+            "Var", "CI Upper", "Coeff", "CI Lower", "Std.Error", "t-stat", "p-val", "sagnificant"
         ])
         self.result_table.horizontalHeader().setStretchLastSection(True)
         self.result_table.setAlternatingRowColors(True)
@@ -116,6 +116,7 @@ class RegrSummaryWidget(QWidget):
         ci_df = ci_result['CI']
         t_stats = ci_result['t_stats']
         p_vals = ci_result['p_values']
+        sagnificant = ci_result['sagnificant']
         
         n_rows = len(ci_df)
         self.result_table.setRowCount(n_rows)
@@ -128,6 +129,7 @@ class RegrSummaryWidget(QWidget):
             self.result_table.setItem(row_idx, 4, QTableWidgetItem(f"{float(ci_df.loc[row_idx, 'std_err']):.4f}"))
             self.result_table.setItem(row_idx, 5, QTableWidgetItem(f"{float(t_stats[row_idx]):.4f}"))
             self.result_table.setItem(row_idx, 6, QTableWidgetItem(f"{float(p_vals[row_idx]):.4f}"))
+            self.result_table.setItem(row_idx, 7, QTableWidgetItem(f"{str(sagnificant[row_idx])}"))
 
         self.result_table.resizeColumnsToContents()
 
