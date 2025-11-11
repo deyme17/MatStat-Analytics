@@ -125,11 +125,16 @@ class CorrelationTestWidget(QWidget):
             # calculate coefficient
             r = self.controller.calculate(coeff_name, x, y)
             alpha = float(self.alpha_input.text())
-            conf_level = 1 - alpha
-            interval = self.controller.get_confidence_interval(coeff_name, x, y, conf_level)
+            # test significance
+            sig_result = self.controller.test_significance(coeff_name, x, y, alpha)
             # interpret result
-            signif = "SIGNIFICANT" if abs(r) > 0.1 else "NOT SIGNIFICANT"
-            interval_str = f"{interval[0]:.3f} <= r={r:.3f} <= {interval[1]:.3f}" if interval else "No interval available"
-            self.result_label.setText(f"r = {r:.3f} -> {signif}\nConfidance interval: ({interval_str})")
+            result_text =   f"""
+                                Coefficient: {coeff_name}
+                                r = {r:.4f}
+
+                                {sig_result}
+                            """
+        
+            self.result_label.setText(result_text.strip())
         except Exception as e:
             self.messanger.show_error("Error", f"{e}")

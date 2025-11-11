@@ -1,3 +1,4 @@
+from models.correlation_coeffs._sagnificance_test_result import SignificanceTestResult
 from abc import ABC, abstractmethod
 import numpy as np
 
@@ -15,8 +16,13 @@ class ICorrelationCoefficient(ABC):
     def fit(self, x: np.ndarray, y: np.ndarray) -> float:
         """Compute correlation coefficient."""
         pass
-    
+
     @abstractmethod
-    def interval(self, confidence: float = 0.95) -> tuple[float, float]:
+    def significance_test(self, alpha: float = 0.05) -> SignificanceTestResult:
+        """Test significance of correlation coefficient."""
+        pass
+
+    @abstractmethod
+    def _interval(self, alpha: float = 0.05) -> tuple[float, float]:
         """Compute confidence interval for the correlation."""
         pass

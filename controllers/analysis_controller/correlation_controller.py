@@ -1,5 +1,6 @@
+from models.correlation_coeffs._sagnificance_test_result import SignificanceTestResult
 from models.correlation_coeffs import ICorrelationCoefficient
-from typing import Optional, List, Dict, Tuple
+from typing import  List, Dict
 import pandas as pd
 
 
@@ -26,18 +27,20 @@ class CorrelationController:
         corr = self._corr_coeffs[corr_name]
         x, y = x.to_numpy(), y.to_numpy()
         return corr.fit(x, y)
-        
-    def get_confidence_interval(self, corr_name: str, x: pd.Series, y: pd.Series,
-                                confidence: float = 0.95) -> Optional[Tuple[float, float]]:
+
+    def test_significance(self, corr_name: str, x: pd.Series, y: pd.Series,
+                        alpha: float = 0.05) -> SignificanceTestResult:
         """
-        Compute confidence interval for a given correlation method.
+        Test significance of correlation coefficient and calculate confidance intervals.
+        Returns:
+            SignificanceTestResult
         """
         if corr_name not in self._corr_coeffs:
             raise ValueError(f"Unknown correlation method: {corr_name}")
         corr = self._corr_coeffs[corr_name]
         x, y = x.to_numpy(), y.to_numpy()
         corr.fit(x, y)
-        return corr.interval(confidence)
+        return corr.significance_test(alpha)
     
     @property
     def corr_coeffs(self) -> List[str]:
