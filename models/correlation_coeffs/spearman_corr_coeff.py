@@ -31,7 +31,7 @@ class SpearmanCorrelation(ICorrelationCoefficient):
         
         p_value = self.p_value
         is_significant = p_value < alpha
-        t_crit = stats.t.ppf(1 - alpha/2, df)
+        t_crit = stats.t.ppf(1 - alpha / 2, df)
 
         return SignificanceTestResult(
             r=self.r,

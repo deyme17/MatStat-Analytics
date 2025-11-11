@@ -21,7 +21,7 @@ class PearsonCorrelation(ICorrelationCoefficient):
         t_stat = self.r * np.sqrt(df) / np.sqrt(1 - self.r**2 + self.EPSILON)
         
         p_value = 2 * (1 - stats.t.cdf(abs(t_stat), df))
-        t_crit = stats.t.ppf(1 - alpha/2, df)
+        t_crit = stats.t.ppf(1 - alpha / 2, df)
         is_significant = p_value < alpha
         
         return SignificanceTestResult(

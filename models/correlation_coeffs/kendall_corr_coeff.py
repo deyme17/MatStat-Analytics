@@ -30,7 +30,7 @@ class KendallCorrelation(ICorrelationCoefficient):
         
         p_value = self.p_value
         is_significant = p_value < alpha
-        z_crit = stats.norm.ppf(1 - alpha/2)
+        z_crit = stats.norm.ppf(1 - alpha / 2)
 
         return SignificanceTestResult(
             r=self.r,
