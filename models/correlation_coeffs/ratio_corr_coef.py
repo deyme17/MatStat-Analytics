@@ -56,7 +56,7 @@ class CorrelationRatio(ICorrelationCoefficient):
             p_value=p_value,
             is_significant=is_significant,
             alpha=alpha,
-            test_name=self.name() + " (F-test)",
+            test_name=self.name(),
             critical_value=f_crit,
             CI=self._interval(alpha) if is_significant else None,
             extra={
@@ -93,7 +93,7 @@ class CorrelationRatio(ICorrelationCoefficient):
         return (float(low), float(high))
 
     def name(self) -> str:
-        return "Correlation Ratio (eta)"
+        return "Correlation Ratio (η)"
 
     def _correlation_ratio(self, groups: np.ndarray, values: np.ndarray) -> float:
         """
