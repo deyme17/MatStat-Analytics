@@ -83,8 +83,6 @@ class RegrPredictionWidget(QWidget):
             line_edit.setPlaceholderText(f"Enter value for {feature}")
             self.feature_inputs[feature] = line_edit
             self.form_layout.addRow(f"{feature}:", line_edit)
-        
-        self.show()
 
     def _predict(self) -> None:
         """Execute regression model prediction and show results."""

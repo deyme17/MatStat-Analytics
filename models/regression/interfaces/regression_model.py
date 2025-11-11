@@ -1,9 +1,17 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 import numpy as np
 
 class IRegression(ABC):
     """Base interface for regression models"""
+    features_: List[str] | None
+    coef_: np.ndarray | None
+    intercept_: float | None
+
+    y_pred_: np.ndarray | None
+    residuals_: np.ndarray | None
+    r_squared_: float | None
+
     @abstractmethod
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
         """Train model on data"""
@@ -19,6 +27,7 @@ class IRegression(ABC):
         """
         Returns model's summary (coefficients, intercept, metrics, etc.)
         Example: {
+            "features": list[str],
             "coefficients": np.ndarray,
             "intercept": float,
             "r_squared": float,
@@ -32,10 +41,10 @@ class IRegression(ABC):
         """
         Returns dictionary with t-stat, p-value and confidance intervals for coefficients.
         Returns: 
-            {
+            {   
                 't_stats': np.ndarray (`float` for each coefficient + intercept),
                 'p_values': np.ndarray (`float` for each coefficient + intercept),
-                'CI': np.ndarray ([coef, std_err, ci_lower, ci_upper] for each coefficient + intercept)
+                'CI': np.ndarray ([variable, coef, std_err, ci_lower, ci_upper] for each coefficient + intercept)
             }
         """
         pass

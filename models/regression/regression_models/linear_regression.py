@@ -1,5 +1,5 @@
 from ..interfaces import IRegression, IOptimizationAlgorithm
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 import numpy as np
 
 class LinearRegression(IRegression):
@@ -9,6 +9,8 @@ class LinearRegression(IRegression):
 
         self.X_: np.ndarray | None = None
         self.y_: np.ndarray | None = None
+
+        self.features_: List[str] | None = None
         self.coef_: np.ndarray | None = None
         self.intercept_: float | None = None
 
@@ -35,6 +37,7 @@ class LinearRegression(IRegression):
         """
         Returns model's summary (coefficients, intercept, metrics, etc.)
         Example: {
+            "features": list[str],
             "coefficients": np.ndarray,
             "intercept": float,
             "r_squared": float,
@@ -44,6 +47,7 @@ class LinearRegression(IRegression):
         if self.coef_ is None:
             raise RuntimeError("Model not fitted yet")
         return {
+            "features": self.features_,
             "coefficients": self.coef_,
             "intercept": self.intercept_,
             "r_squared": self.r_squared_,
@@ -54,15 +58,18 @@ class LinearRegression(IRegression):
         """
         Returns dictionary with t-stat, p-value and confidance intervals for coefficients.
         Returns: 
-            {
+            {   
                 't_stats': np.ndarray (`float` for each coefficient + intercept),
                 'p_values': np.ndarray (`float` for each coefficient + intercept),
-                'CI': np.ndarray ([coef, std_err, ci_lower, ci_upper] for each coefficient + intercept)
+                'CI': np.ndarray ([variable, coef, std_err, ci_lower, ci_upper] for each coefficient + intercept)
             }
         """
-        return self.algorithm.compute_confidence_intervals(
+        ci_result = self.algorithm.compute_confidence_intervals(
             self.X_, self.residuals_, alpha=alpha
         )
+        variables = np.array(self.features_ + ["intercept"]).reshape(-1, 1)
+        ci_result["CI"] = np.column_stack([variables, ci_result["CI"]])
+        return ci_result
 
     @property
     def name(self) -> str:
