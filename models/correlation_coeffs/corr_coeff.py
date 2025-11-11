@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 class ICorrelationCoefficient(ABC):
+    EPSILON = 1e-11
     def __init__(self):
         self.r = None
         self.n = None

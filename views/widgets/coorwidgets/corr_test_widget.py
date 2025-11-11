@@ -128,13 +128,7 @@ class CorrelationTestWidget(QWidget):
             # test significance
             sig_result = self.controller.test_significance(coeff_name, x, y, alpha)
             # interpret result
-            result_text =   f"""
-                                Coefficient: {coeff_name}
-                                r = {r:.4f}
-
-                                {sig_result}
-                            """
-        
+            result_text = str(sig_result)
             self.result_label.setText(result_text.strip())
         except Exception as e:
             self.messanger.show_error("Error", f"{e}")
