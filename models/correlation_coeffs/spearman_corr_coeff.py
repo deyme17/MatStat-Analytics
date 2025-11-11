@@ -43,7 +43,10 @@ class SpearmanCorrelation(ICorrelationCoefficient):
             critical_value=t_crit,
             CI=self._interval(alpha) \
                     if is_significant \
-                    else None
+                    else None,
+            extra={
+                "df": df
+            }
         )
     
     def _interval(self, alpha: float = 0.05, n_bootstrap: int = 1000) -> Tuple[float, float]:
