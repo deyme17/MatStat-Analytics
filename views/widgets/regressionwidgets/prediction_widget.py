@@ -42,6 +42,7 @@ class RegrPredictionWidget(QWidget):
         layout.addWidget(self.predict_btn)
         
         self._init_result_section(layout)
+        self._init_intervals_section(layout)
         self.setLayout(layout)
 
     def _init_input_section(self, layout: QVBoxLayout) -> None:
@@ -72,6 +73,30 @@ class RegrPredictionWidget(QWidget):
         self.result_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         group_layout.addWidget(self.result_label)
+        group.setLayout(group_layout)
+        layout.addWidget(group)
+
+    def _init_intervals_section(self, layout: QVBoxLayout) -> None:
+        """Initialize intervals section for confidence and prediction intervals."""
+        group = QGroupBox("Prediction Intervals")
+        group_layout = QVBoxLayout()
+        
+        # ci
+        ci_mean_layout = QHBoxLayout()
+        ci_mean_layout.addWidget(QLabel("Confidence Interval (mean):"))
+        self.ci_mean_label = QLabel("-")
+        ci_mean_layout.addWidget(self.ci_mean_label)
+        ci_mean_layout.addStretch()
+        group_layout.addLayout(ci_mean_layout)
+
+        # pi
+        ci_ind_layout = QHBoxLayout()
+        ci_ind_layout.addWidget(QLabel("Prediction Interval (individual):"))
+        self.ci_ind_label = QLabel("-")
+        ci_ind_layout.addWidget(self.ci_ind_label)
+        ci_ind_layout.addStretch()
+        group_layout.addLayout(ci_ind_layout)
+        
         group.setLayout(group_layout)
         layout.addWidget(group)
 
@@ -116,16 +141,31 @@ class RegrPredictionWidget(QWidget):
             X_df = pd.DataFrame([input_data])
             prediction = self.controller.predict(X_df)
             predicted_value = prediction.iloc[0]
+            intervals = self.controller.predict_intervals(X_df, self.alpha)
             
+            # result
             self.result_label.setText(f"Predicted value: {predicted_value:.6f}")
             self.result_label.setStyleSheet("font-weight: bold; font-size: 14px; color: green;")
+            # intervals
+            self._display_intervals(intervals)
             
         except Exception as e:
             self.messanger.show_error("Prediction error", str(e))
             self.result_label.setText("Prediction failed")
-            self.result_label.setStyleSheet(
-                "font-weight: bold; font-size: 14px; color: red;"
-            )
+            self.result_label.setStyleSheet("font-weight: bold; font-size: 14px; color: red;")
+            self.ci_mean_label.setText("-")
+            self.ci_ind_label.setText("-")
+
+    def _display_intervals(self, intervals: dict[str, tuple[float, float]]) -> None:
+        """Displays Confidance/Predictions intervals for X"""
+        try:
+            ci_lower, ci_upper = intervals['CI_mean']
+            self.ci_mean_label.setText(f"[{ci_lower:.4f}, {ci_upper:.4f}]")
+            pi_lower, pi_upper = intervals['CI_ind']
+            self.ci_ind_label.setText(f"[{pi_lower:.4f}, {pi_upper:.4f}]")
+        except Exception as e:
+            self.ci_mean_label.setText("Not available")
+            self.ci_ind_label.setText("Not available")
 
     def clear(self) -> None:
         """Clear all input fields and results."""
@@ -133,3 +173,6 @@ class RegrPredictionWidget(QWidget):
             line_edit.clear()
         self.result_label.setText("No prediction yet.")
         self.result_label.setStyleSheet("font-weight: bold; font-size: 14px;")
+        # intervals
+        self.ci_mean_label.setText("-")
+        self.ci_ind_label.setText("-")
