@@ -49,10 +49,11 @@ class RegressionController:
         Returns dictionary with t-stat, p-value and confidance intervals for coefficients.
         Returns: 
             {
+                'CI': pd.DatFrame,
                 't_stats': pd.Series,
                 'p_values': pd.Series,
                 'sagnificant': pd.Series,
-                'CI': pd.DatFrame
+                'model_sagnificance': pd.Series
             }
         """
         if not self._current_model:
@@ -62,15 +63,17 @@ class RegressionController:
         if ci_result is None:
             return
         
+        df_ci = pd.DataFrame(ci_result['CI'], columns=["variable", "coef", "std_err", "ci_lower", "ci_upper"])
         t_stats = pd.Series(ci_result['t_stats'])
         p_values = pd.Series(ci_result['p_values'])
-        df_ci = pd.DataFrame(ci_result['CI'], columns=["variable", "coef", "std_err", "ci_lower", "ci_upper"])
+        df_model_sagn = pd.Series(ci_result['model_sagnificance'])
 
         return {
+            'CI': df_ci,
             't_stats': t_stats,
-            'p_values': p_values, 
+            'p_values': p_values,
             'sagnificant': p_values < alpha,
-            'CI': df_ci
+            'model_sagnificance': df_model_sagn
         }
 
     @property
