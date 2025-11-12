@@ -63,7 +63,7 @@ class LinearRegression(IRegression):
             }
         }
 
-    def confidence_intervals(self, alpha: float = 0.95) -> Optional[Dict[str, Any]]:
+    def confidence_intervals(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
         """
         Returns dictionary with t-stat, p-value and confidance intervals for coefficients.
         Returns: 
@@ -79,6 +79,20 @@ class LinearRegression(IRegression):
         variables = np.array(self.features_ + ["intercept"]).reshape(-1, 1)
         ci_result["CI"] = np.column_stack([variables, ci_result["CI"]])
         return ci_result
+    
+    def model_sagnificance(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
+        """
+        Returns dictionary with F-stat, p-value and conclusion of sagnificance for model.
+        Returns: 
+            {
+                'stat': Dict[str, float|str] (contain 'name' and 'val'),
+                'p_value': float,
+                'sagnificant': bool,
+            }
+        """
+        model_sagn = self.algorithm.compute_model_sagnificance(alpha)
+        model_sagn["sagnificant"] = model_sagn["p_value"] < alpha
+        return model_sagn
 
     @property
     def name(self) -> str:

@@ -79,7 +79,7 @@ class RegrSummaryWidget(QWidget):
 
     def _init_model_sagn_label(self, layout: QVBoxLayout) -> None:
         """Initialize model significance (F-test) section."""
-        group = QGroupBox("Model Significance (F-test)")
+        group = QGroupBox("Model Significance")
         group_layout = QVBoxLayout()
         self.model_sagn_label = QLabel("-")
         self.model_sagn_label.setStyleSheet("font-weight: bold;")
@@ -109,9 +109,10 @@ class RegrSummaryWidget(QWidget):
 
             alpha = self.alpha_spinbox.value()
             ci_result = self.controller.confidence_intervals(alpha=alpha)
+            model_sagn = self.controller.model_sagnificance(alpha=alpha)
             if ci_result:
                 self._update_coefficients_table(ci_result)
-                self._update_model_sagn_label(ci_result["model_sagnificance"])
+                self._update_model_sagn_label(model_sagn)
             
         except Exception as e:
             self.messanger.show_error("Summary error", str(e))
@@ -151,15 +152,15 @@ class RegrSummaryWidget(QWidget):
             self.model_sagn_label.setText("No F-test results available")
             return
 
-        f_stat = model_sagn.get("F_stat", None)
+        stat = model_sagn.get("stat", {})
         p_val = model_sagn.get("p_value", None)
         sagnificant = model_sagn.get("sagnificant", None)
 
-        if f_stat is None or p_val is None:
-            self.model_sagn_label.setText("Insufficient data for F-test")
+        if stat is None or p_val is None:
+            self.model_sagn_label.setText("Insufficient data for testing")
             return
         
-        f_text = f"F-stat: {float(f_stat):.4f} | p-value: {float(p_val):.4f} | Significant: {str(sagnificant)}"
+        f_text = f"{stat.get("name", "statistic")}: {float(stat.get("value", "N/A")):.4f} | p-value: {float(p_val):.4f} | Significant: {str(sagnificant)}"
         self.model_sagn_label.setText(f_text)
 
     def clear(self) -> None:

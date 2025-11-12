@@ -53,7 +53,6 @@ class RegressionController:
                 't_stats': pd.Series,
                 'p_values': pd.Series,
                 'sagnificant': pd.Series,
-                'model_sagnificance': pd.Series
             }
         """
         if not self._current_model:
@@ -66,15 +65,32 @@ class RegressionController:
         df_ci = pd.DataFrame(ci_result['CI'], columns=["variable", "coef", "std_err", "ci_lower", "ci_upper"])
         t_stats = pd.Series(ci_result['t_stats'])
         p_values = pd.Series(ci_result['p_values'])
-        df_model_sagn = pd.Series(ci_result['model_sagnificance'])
 
         return {
             'CI': df_ci,
             't_stats': t_stats,
             'p_values': p_values,
             'sagnificant': p_values < alpha,
-            'model_sagnificance': df_model_sagn
         }
+    
+    def model_sagnificance(self, alpha: float = 0.05) -> Dict[str, Any]:
+        """
+        Returns dictionary with F-stat, p-value and conclusion of sagnificance for model.
+        Returns: 
+            {
+                'stat': Dict[str, float|str] (contain 'name' and 'val'),
+                'p_value': float,
+                'sagnificant': bool,
+            }
+        """
+        if not self._current_model:
+            raise RuntimeError("Model not trained yet")
+
+        model_sagn = self._current_model.model_sagnificance(alpha)
+        if model_sagn is None:
+            return
+        
+        return model_sagn
 
     @property
     def regression_models(self) -> List[str]:
