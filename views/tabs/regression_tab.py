@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QComboBox, QPushButton, QScrollArea,
-    QGroupBox, QTextEdit, QLabel, QListWidget, QAbstractItemView
+    QGroupBox, QTextEdit, QLabel, QListWidget, QAbstractItemView, QDoubleSpinBox
 )
 from PyQt6.QtCore import Qt
 from views.widgets.regressionwidgets import RegrSummaryWidget, RegrPredictionWidget
@@ -12,6 +12,11 @@ from utils.ui_styles import groupMargin, groupStyle
 LIST_WIDGET_HEIGHT = 100
 LIST_WIDGET_WIDTH = 330
 MAX_GROUP_HEIGHT = 150
+
+ALPHA_MIN, ALPHA_MAX = 0.01, 0.99
+ALPHA_STEP = 0.01
+ALPHA_PRECISION = 2
+DEFAULT_ALPHA = 0.05
 
 
 class RegressionTab(QWidget):
@@ -64,6 +69,7 @@ class RegressionTab(QWidget):
         self.fit_btn.clicked.connect(self._fit_model)
         container_layout.addWidget(self.fit_btn)
         
+        self._init_alpha_controls(container_layout)
         container_layout.addWidget(self.summary_widget)
         container_layout.addWidget(self.prediction_widget)
         
@@ -78,6 +84,22 @@ class RegressionTab(QWidget):
         main_layout = QVBoxLayout()
         main_layout.addWidget(scroll)
         self.setLayout(main_layout)
+
+    def _init_alpha_controls(self, layout: QVBoxLayout) -> None:
+        """Initialize significance level controls."""
+        self.alpha_spinbox = QDoubleSpinBox()
+        self.alpha_spinbox.setRange(ALPHA_MIN, ALPHA_MAX)
+        self.alpha_spinbox.setSingleStep(ALPHA_STEP)
+        self.alpha_spinbox.setDecimals(ALPHA_PRECISION)
+        self.alpha_spinbox.setValue(DEFAULT_ALPHA)
+        self.alpha_spinbox.valueChanged.connect(self._on_alpha_changed)
+
+        alpha_layout = QHBoxLayout()
+        alpha_layout.addWidget(QLabel("Significance level α:"))
+        alpha_layout.addWidget(self.alpha_spinbox)
+        alpha_layout.addStretch()
+
+        layout.addLayout(alpha_layout)
 
     def _init_model_selector(self, layout: QVBoxLayout) -> None:
         """Initialize model selection (QComboBox)"""
@@ -148,6 +170,12 @@ class RegressionTab(QWidget):
         self.independent_list.itemSelectionChanged.connect(self._update_selected_x_label)
         self.select_all_x_btn.clicked.connect(self._select_all_x)
         self.clear_x_btn.clicked.connect(self.independent_list.clearSelection)
+
+    def _on_alpha_changed(self) -> None:
+        """Calls on alpha spinbox update"""
+        alpha = self.alpha_spinbox.value()
+        self.summary_widget.create_summary(alpha)
+        self.prediction_widget.set_alpha_value(alpha)
 
     def _refresh_data(self) -> None:
         """Refresh available datasets and variables."""

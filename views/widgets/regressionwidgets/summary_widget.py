@@ -8,10 +8,6 @@ from controllers import RegressionController
 from utils.ui_styles import groupMargin, groupStyle
 
 HEADING_TITLE_SIZE = 15
-ALPHA_MIN, ALPHA_MAX = 0.01, 0.99
-ALPHA_STEP = 0.01
-ALPHA_PRECISION = 2
-DEFAULT_ALPHA = 0.05
 HEADING_TITLE_SIZE = 16
 RES_TABLE_GROUP_HEIGHT = 160
 
@@ -25,7 +21,6 @@ class RegrSummaryWidget(QWidget):
         self.controller: RegressionController = regr_controller
         self._init_ui()
 
-
     def _init_ui(self) -> None:
         """Initialize regression summary UI components."""
         self.setStyleSheet(groupStyle + groupMargin)
@@ -36,28 +31,11 @@ class RegrSummaryWidget(QWidget):
         header_layout.addStretch()
         layout.addLayout(header_layout)
 
-        self._init_alpha_controls(layout)
         self._init_result_table(layout)
         self._init_model_sagn_label(layout)
         self._init_metrics_section(layout)
 
         self.setLayout(layout)
-
-    def _init_alpha_controls(self, layout: QVBoxLayout) -> None:
-        """Initialize significance level controls."""
-        self.alpha_spinbox = QDoubleSpinBox()
-        self.alpha_spinbox.setRange(ALPHA_MIN, ALPHA_MAX)
-        self.alpha_spinbox.setSingleStep(ALPHA_STEP)
-        self.alpha_spinbox.setDecimals(ALPHA_PRECISION)
-        self.alpha_spinbox.setValue(DEFAULT_ALPHA)
-        self.alpha_spinbox.valueChanged.connect(self.create_summary)
-
-        alpha_layout = QHBoxLayout()
-        alpha_layout.addWidget(QLabel("Significance level α:"))
-        alpha_layout.addWidget(self.alpha_spinbox)
-        alpha_layout.addStretch()
-
-        layout.addLayout(alpha_layout)
 
     def _init_result_table(self, layout: QVBoxLayout) -> None:
         """Initialize regression result table with coefficients and CI."""
@@ -97,7 +75,7 @@ class RegrSummaryWidget(QWidget):
         group.setLayout(group_layout)
         layout.addWidget(group)
 
-    def create_summary(self) -> None:
+    def create_summary(self, alpha: float = 0.05) -> None:
         """Create and display regression model summary."""
         try:
             summary = self.controller.summary()
@@ -107,7 +85,6 @@ class RegrSummaryWidget(QWidget):
             
             self._update_metrics(summary)
 
-            alpha = self.alpha_spinbox.value()
             ci_result = self.controller.confidence_intervals(alpha=alpha)
             model_sagn = self.controller.model_sagnificance(alpha=alpha)
             if ci_result:

@@ -10,6 +10,8 @@ from utils.ui_styles import groupMargin, groupStyle
 import pandas as pd
 
 HEADING_TITLE_SIZE = 13
+MAX_X_INPUT_SECTION_HEIGHT = 200
+DEFAULT_ALPHA = 0.05
 
 
 class RegrPredictionWidget(QWidget):
@@ -20,6 +22,7 @@ class RegrPredictionWidget(QWidget):
         self.messanger: UIMessager = context.messanger
         self.controller: RegressionController = regr_controller
         self.feature_inputs: dict[str, QLineEdit] = {}
+        self.alpha: float = DEFAULT_ALPHA
         self._init_ui()
     
     def _init_ui(self) -> None:
@@ -52,7 +55,7 @@ class RegrPredictionWidget(QWidget):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setWidget(self.inputs_container)
-        scroll.setMaximumHeight(200)
+        scroll.setMaximumHeight(MAX_X_INPUT_SECTION_HEIGHT)
         
         group_layout = QVBoxLayout()
         group_layout.addWidget(scroll)
@@ -83,6 +86,10 @@ class RegrPredictionWidget(QWidget):
             line_edit.setPlaceholderText(f"Enter value for {feature}")
             self.feature_inputs[feature] = line_edit
             self.form_layout.addRow(f"{feature}:", line_edit)
+
+    def set_alpha_value(self, alpha: float) -> None:
+        """Set a new alpha (sagnificsnce level) value"""
+        self.alpha = alpha
 
     def _predict(self) -> None:
         """Execute regression model prediction and show results."""
