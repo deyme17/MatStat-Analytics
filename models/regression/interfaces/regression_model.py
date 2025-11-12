@@ -1,5 +1,5 @@
+from typing import Dict, Any, Optional, List, Tuple
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional, List
 import numpy as np
 
 class IRegression(ABC):
@@ -43,6 +43,21 @@ class IRegression(ABC):
                 't_stats': np.ndarray (`float` for each coefficient + intercept),
                 'p_values': np.ndarray (`float` for each coefficient + intercept),
                 'CI': np.ndarray ([variable, coef, std_err, ci_lower, ci_upper] for each coefficient + intercept)
+            }
+        """
+        pass
+    
+    @abstractmethod
+    def predict_intervals(self, X_new: np.ndarray, alpha: float = 0.05) -> Dict[str, Tuple[np.ndarray, np.ndarray]]:
+        """
+        Computes Confidence and Prediction Intervals for X_new.
+        Args:
+            X_new (np.ndarray): New feature matrix (x0) of shape (n_samples_new, n_features).
+            alpha (float): Significance level (e.g., 0.05 for 95% interval).
+        Returns:
+            Dict[str, Tuple[np.ndarray, np.ndarray]]: {
+                'CI_mean': (lower_bound, upper_bound) for the Confidence Interval.
+                'CI_ind': (lower_bound, upper_bound) for the Prediction Interval.
             }
         """
         pass

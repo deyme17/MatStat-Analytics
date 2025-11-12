@@ -47,6 +47,21 @@ class IOptimizationAlgorithm(ABC):
         """
         pass
 
+    def compute_prediction_standard_errors(self, X_new: np.ndarray, X: np.ndarray, residuals: np.ndarray) -> Dict[str, np.ndarray]:
+        """
+        Compute standard errors for prediction at X_new.
+        Args:
+            X_new (np.ndarray): New feature matrix (x0) of shape (n_samples_new, n_features).
+            X_train (np.ndarray): Training feature matrix.
+            residuals_train (np.ndarray): Residuals from the training data.
+        Returns:
+            Dict[str, np.ndarray]: {
+                'SE_mean': np.ndarray (Std error for the mean response (Confidence Interval))
+                'SE_ind': np.ndarray (Std error for the individual prediction (Prediction Interval))
+            }
+        """
+        pass
+
     @abstractmethod
     def compute_model_sagnificance(self, X: np.ndarray, y: np.ndarray, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
         """
