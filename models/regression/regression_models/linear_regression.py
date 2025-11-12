@@ -1,5 +1,6 @@
 from ..interfaces import IRegression, IOptimizationAlgorithm
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Tuple
+from scipy import stats
 import numpy as np
 
 class LinearRegression(IRegression):
@@ -22,7 +23,12 @@ class LinearRegression(IRegression):
         self._model_sagn_cache_: Dict[str, Any] | None = None
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
-        """Train model on data"""
+        """
+        Train model on data
+        Args:
+            X (np.ndarray): Feature matrix.
+            y (np.ndarray): Target Vector.
+        """
         self.X_, self.y_ = X, y
         self.algorithm.fit(X, y)
         params = self.algorithm.get_params()
@@ -32,7 +38,13 @@ class LinearRegression(IRegression):
         self._model_sagn_cache_ = None
 
     def predict(self, X: np.ndarray) -> np.ndarray:
-        """Returns prediction for X"""
+        """
+        Returns prediction for X
+        Args:
+            X (np.ndarray): New feature matrix of shape (n_samples_new, n_features).
+        Returns:
+            Prediction for X (np.ndarray)
+        """
         if self.coef_ is None:
             raise RuntimeError("Model not fitted yet")
         return self.algorithm.predict(X)
@@ -69,6 +81,8 @@ class LinearRegression(IRegression):
     def confidence_intervals(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
         """
         Returns dictionary with t-stat, p-value and confidance intervals for coefficients.
+        Args:
+            alpha (float): Significance level (e.g., 0.05 for 95% interval)
         Returns: 
             {   
                 't_stats': np.ndarray (`float` for each coefficient + intercept),
@@ -83,9 +97,51 @@ class LinearRegression(IRegression):
         ci_result["CI"] = np.column_stack([variables, ci_result["CI"]])
         return ci_result
     
+    def predict_intervals(self, X_new: np.ndarray, alpha: float = 0.05) -> Dict[str, Tuple[np.ndarray, np.ndarray]]:
+        """
+        Computes Confidence and Prediction Intervals for X_new.
+        Args:
+            X_new (np.ndarray): New feature matrix.
+            alpha (float): Significance level (e.g., 0.05 for 95% interval).
+        Returns:
+            Dict[str, Tuple[np.ndarray, np.ndarray]]: {
+                'CI_mean': (lower_bound, upper_bound) for the Confidence Interval.
+                'CI_ind': (lower_bound, upper_bound) for the Prediction Interval.
+            }
+        """
+        if self.coef_ is None or self.X_ is None or self.residuals_ is None:
+            raise RuntimeError("Model must be fitted and training data stored to compute intervals.")
+
+        y_hat_new = self.predict(X_new)
+        se_results = self.algorithm.compute_prediction_standard_errors(
+            X_new, self.X_, self.residuals_
+        )
+        SE_mean = se_results['SE_mean']
+        SE_ind = se_results['SE_ind']
+        
+        n_samples, n_features = self.X_.shape
+        df = n_samples - n_features - 1
+        
+        t_val = stats.t.ppf(1 - alpha / 2, df)
+        
+        margin_mean = t_val * SE_mean
+        CI_mean_lower = y_hat_new - margin_mean
+        CI_mean_upper = y_hat_new + margin_mean
+        
+        margin_ind = t_val * SE_ind
+        CI_ind_lower = y_hat_new - margin_ind
+        CI_ind_upper = y_hat_new + margin_ind
+        
+        return {
+            'CI_mean': (CI_mean_lower, CI_mean_upper),
+            'CI_ind': (CI_ind_lower, CI_ind_upper),
+        }
+    
     def model_sagnificance(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
         """
         Returns dictionary with F-stat, p-value and conclusion of sagnificance for model.
+        Args:
+            alpha (float): Significance level (e.g., 0.05 for 95% interval).
         Returns: 
             {
                 'stat': Dict[str, float|str] (contain 'name' and 'val'),

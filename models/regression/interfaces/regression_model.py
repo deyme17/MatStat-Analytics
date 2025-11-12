@@ -13,12 +13,23 @@ class IRegression(ABC):
 
     @abstractmethod
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
-        """Train model on data"""
+        """
+        Train model on data
+        Args:
+            X (np.ndarray): Feature matrix.
+            y (np.ndarray): Target Vector.
+        """
         pass
 
     @abstractmethod
     def predict(self, X: np.ndarray) -> np.ndarray:
-        """Returns prediction for X"""
+        """
+        Returns prediction for X
+        Args:
+            X (np.ndarray): New feature matrix of shape (n_samples_new, n_features).
+        Returns:
+            Prediction for X (np.ndarray)
+        """
         pass
 
     @abstractmethod
