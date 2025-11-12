@@ -38,6 +38,8 @@ class IRegression(ABC):
     def confidence_intervals(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
         """
         Returns dictionary with t-stat, p-value and confidance intervals for coefficients.
+        Args:
+            alpha (float): Significance level (e.g., 0.05 for 95% interval).
         Returns: 
             {   
                 't_stats': np.ndarray (`float` for each coefficient + intercept),
@@ -66,6 +68,8 @@ class IRegression(ABC):
     def model_sagnificance(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
         """
         Returns dictionary with stat, p-value and conclusion of sagnificance for model.
+        Args:
+            alpha (float): Significance level (e.g., 0.05 for 95% interval).
         Returns: 
             {
                 'stat': Dict[str, float|str] (contain 'name' and 'val'),

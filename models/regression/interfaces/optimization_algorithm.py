@@ -38,6 +38,10 @@ class IOptimizationAlgorithm(ABC):
     def compute_confidence_intervals(self, X: np.ndarray, residuals: np.ndarray, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
         """
         Returns dictionary with t-stat, p-value and confidance intervals for coefficients.
+        Args:
+            X (np.ndarray): Feature matrix.
+            residuals (np.ndarray): Residuals from the data.
+            alpha (float): Significance level (e.g., 0.05 for 95% interval).
         Returns: 
             {
                 't_stats': np.ndarray (`float` for each coefficient + intercept),
@@ -52,8 +56,8 @@ class IOptimizationAlgorithm(ABC):
         Compute standard errors for prediction at X_new.
         Args:
             X_new (np.ndarray): New feature matrix (x0) of shape (n_samples_new, n_features).
-            X_train (np.ndarray): Training feature matrix.
-            residuals_train (np.ndarray): Residuals from the training data.
+            X (np.ndarray): Training feature matrix.
+            residuals (np.ndarray): Residuals from the training data.
         Returns:
             Dict[str, np.ndarray]: {
                 'SE_mean': np.ndarray (Std error for the mean response (Confidence Interval))
@@ -66,6 +70,10 @@ class IOptimizationAlgorithm(ABC):
     def compute_model_sagnificance(self, X: np.ndarray, y: np.ndarray, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
         """
         Returns dictionary with stat, p-value and conclusion of sagnificance for model.
+        Args:
+            X (np.ndarray): Feature matrix.
+            y (np.ndarray): Target vector.
+            alpha (float): Significance level (e.g., 0.05 for 95% interval).
         Returns: 
             {
                 'stat': Dict[str, float|str] (contain 'name' and 'val'),
