@@ -35,7 +35,7 @@ class IRegression(ABC):
         pass
 
     @abstractmethod
-    def confidence_intervals(self, alpha: float = 0.95) -> Optional[Dict[str, Any]]:
+    def confidence_intervals(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
         """
         Returns dictionary with t-stat, p-value and confidance intervals for coefficients.
         Returns: 
@@ -43,6 +43,7 @@ class IRegression(ABC):
                 't_stats': np.ndarray (`float` for each coefficient + intercept),
                 'p_values': np.ndarray (`float` for each coefficient + intercept),
                 'CI': np.ndarray ([variable, coef, std_err, ci_lower, ci_upper] for each coefficient + intercept)
+                'model_sagnificance': Tuple[float, float] (F_stat, p_value)
             }
         """
         pass

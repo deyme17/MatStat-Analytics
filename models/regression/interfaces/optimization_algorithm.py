@@ -43,6 +43,7 @@ class IOptimizationAlgorithm(ABC):
                 't_stats': np.ndarray (`float` for each coefficient + intercept),
                 'p_values': np.ndarray (`float` for each coefficient + intercept),
                 'CI': np.ndarray ([coef, std_err, ci_lower, ci_upper] for each coefficient + intercept)
+                'model_sagnificance': Tuple[float, float] (F_stat, p_value)
             }
         """
         pass
