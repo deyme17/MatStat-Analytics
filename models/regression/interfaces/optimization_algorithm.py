@@ -50,7 +50,7 @@ class IOptimizationAlgorithm(ABC):
     @abstractmethod
     def compute_model_sagnificance(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
         """
-        Returns dictionary with F-stat, p-value and conclusion of sagnificance for model.
+        Returns dictionary with stat, p-value and conclusion of sagnificance for model.
         Returns: 
             {
                 'stat': Dict[str, float|str] (contain 'name' and 'val'),
