@@ -14,6 +14,7 @@ class OLS(IOptimizationAlgorithm):
 
         self._std_err_: np.ndarray | None = None
         self._df_: int | None = None
+        self._XtX_inv_: np.ndarray | None = None
         self._all_params_: np.ndarray | None = None
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
@@ -44,6 +45,7 @@ class OLS(IOptimizationAlgorithm):
         self._std_err_ = None
         self._df_ = None
         self._all_params_ = None
+        self._XtX_inv_ = None
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -98,6 +100,45 @@ class OLS(IOptimizationAlgorithm):
             'CI': np.column_stack([self._all_params_, self._std_err_, ci_lower, ci_upper])
         }
     
+    def compute_prediction_standard_errors(self, X_new: np.ndarray, X: np.ndarray, residuals: np.ndarray) -> Dict[str, np.ndarray]:
+        """
+        Compute standard errors for prediction at X_new.
+        Args:
+            X_new (np.ndarray): New feature matrix (x0) of shape (n_samples_new, n_features).
+            X (np.ndarray): Training feature matrix.
+            residuals (np.ndarray): Residuals from the training data.
+        Returns:
+            Dict[str, np.ndarray]: {
+                'SE_mean': np.ndarray (Std error for the mean response (Confidence Interval))
+                'SE_ind': np.ndarray (Std error for the individual prediction (Prediction Interval))
+            }
+        """
+        if not self.fitted:
+            raise RuntimeError("Model not fitted yet")
+        if X.ndim == 1:
+            X = X.reshape(-1, 1)
+        if X_new.ndim == 1:
+            X_new = X_new.reshape(-1, 1)
+        if self._XtX_inv_ is None or self._df_ is None:
+            self._compute_std_errors(X, residuals)
+        
+        MSE = np.sum(residuals ** 2) / self._df_
+        
+        # add intercept
+        X_new_ext = np.column_stack([X_new, np.ones(X_new.shape[0])])
+
+        var_mean = np.array([
+            MSE * (x_ext @ self.XtX_inv @ x_ext.T) for x_ext in X_new_ext
+        ])
+        SE_mean = np.sqrt(var_mean)
+        var_ind = var_mean + MSE
+        SE_ind = np.sqrt(var_ind)
+        
+        return {
+            'SE_mean': SE_mean,
+            'SE_ind': SE_ind,
+        }
+    
     def compute_model_sagnificance(self, X: np.ndarray, y: np.ndarray, alpha: float = 0.05) -> Dict[str, Any]:
         """
         Returns dictionary with F-stat, p-value and conclusion of significance for model.
@@ -149,14 +190,14 @@ class OLS(IOptimizationAlgorithm):
         
         self._df_ = n_samples - n_features - 1
         
-        mse = np.sum(residuals ** 2) / self._df_
+        MSE = np.sum(residuals ** 2) / self._df_
         
         try:
-            XtX_inv = np.linalg.inv(X_ext.T @ X_ext)
+            self.XtX_inv = np.linalg.inv(X_ext.T @ X_ext)
         except np.linalg.LinAlgError:
             raise ValueError("Cannot compute confidence intervals: singular matrix")
         
-        var_coef = np.diag(XtX_inv) * mse
+        var_coef = np.diag(self.XtX_inv) * MSE
         self._std_err_ = np.sqrt(var_coef)
         
         self._all_params_ = np.concatenate([self.coef_, [self.intercept_]])
