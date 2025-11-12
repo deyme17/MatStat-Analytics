@@ -19,6 +19,8 @@ class LinearRegression(IRegression):
         self.r_squared_: float | None = None
         self.r_squared_adj_:  float | None = None
 
+        self._model_sagn_cache_: Dict[str, Any] | None = None
+
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
         """Train model on data"""
         self.X_, self.y_ = X, y
@@ -90,9 +92,10 @@ class LinearRegression(IRegression):
                 'sagnificant': bool,
             }
         """
-        model_sagn = self.algorithm.compute_model_sagnificance(alpha)
-        model_sagn["sagnificant"] = model_sagn["p_value"] < alpha
-        return model_sagn
+        if not self._model_sagn_cache_:
+            self._model_sagn_cache_ = self.algorithm.compute_model_sagnificance(self.X_, self.y_)
+        self._model_sagn_cache_["sagnificant"] = self._model_sagn_cache_["p_value"] < alpha
+        return self._model_sagn_cache_
 
     @property
     def name(self) -> str:

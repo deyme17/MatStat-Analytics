@@ -71,7 +71,7 @@ class OLS(IOptimizationAlgorithm):
         if not self.fitted: raise RuntimeError("Model not fitted yet")
         return {"coef": self.coef_, "intercept": self.intercept_}
 
-    def compute_confidence_intervals(self, X: np.ndarray, residuals: np.ndarray, alpha: float = 0.95) -> Dict[str, Any]:
+    def compute_confidence_intervals(self, X: np.ndarray, residuals: np.ndarray, alpha: float = 0.05) -> Dict[str, Any]:
         """
         Returns dictionary with t-stat, p-value and confidance intervals for coefficients.
         Returns: 
@@ -96,6 +96,46 @@ class OLS(IOptimizationAlgorithm):
             't_stats': t_stats,
             'p_values': p_vala,
             'CI': np.column_stack([self._all_params_, self._std_err_, ci_lower, ci_upper])
+        }
+    
+    def compute_model_sagnificance(self, X: np.ndarray, y: np.ndarray, alpha: float = 0.05) -> Dict[str, Any]:
+        """
+        Returns dictionary with F-stat, p-value and conclusion of significance for model.
+        Returns: 
+            {
+                'stat': {'name': 'F_stat', 'val': float},
+                'p_value': float,
+            }
+        """
+        if not self.fitted:
+            raise RuntimeError("Model not fitted yet")
+        if X.ndim == 1:
+            X = X.reshape(-1, 1)
+        
+        n_samples, n_features = X.shape
+        
+        y_pred = self.predict(X)
+        residuals = y - y_pred
+        df_residual = n_samples - n_features - 1
+        y_mean = np.mean(y)
+
+        SST = np.sum((y - y_mean) ** 2)
+        SSR = np.sum(residuals ** 2)
+        SSE = SST - SSR
+        
+        df_model = n_features
+        
+        MSE_model = SSE / df_model
+        MSE_residual = SSR / df_residual
+        
+        # F-statistic
+        f_stat = MSE_model / MSE_residual
+        # p-value
+        p_value = 1 - stats.f.cdf(f_stat, df_model, df_residual)
+        
+        return {
+            'stat': {'name': 'F_stat', 'val': f_stat},
+            'p_value': p_value,
         }
 
     def _compute_std_errors(self, X: np.ndarray, residuals: np.ndarray) -> None:

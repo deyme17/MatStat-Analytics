@@ -120,7 +120,7 @@ class RegrSummaryWidget(QWidget):
     def _update_metrics(self, summary: dict) -> None:
         """Update metrics labels."""
         metrics = summary.get('metrics', {})
-        metric_lines = [f"{k} = {v}" for k, v in metrics.items()]
+        metric_lines = [f"{k} = {float(v):.4f}" for k, v in metrics.items()]
         metrics_str = "\n".join(metric_lines) + "\n"
         self.metrics.setText(metrics_str)
 
@@ -160,7 +160,7 @@ class RegrSummaryWidget(QWidget):
             self.model_sagn_label.setText("Insufficient data for testing")
             return
         
-        f_text = f"{stat.get("name", "statistic")}: {float(stat.get("value", "N/A")):.4f} | p-value: {float(p_val):.4f} | Significant: {str(sagnificant)}"
+        f_text = f"{stat.get('name', 'statistic')}: {float(stat.get('val', 0)):.4f} | p-value: {float(p_val):.4f} | Significant: {str(sagnificant)}"
         self.model_sagn_label.setText(f_text)
 
     def clear(self) -> None:

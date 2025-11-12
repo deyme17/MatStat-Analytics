@@ -75,7 +75,7 @@ class RegressionController:
     
     def model_sagnificance(self, alpha: float = 0.05) -> Dict[str, Any]:
         """
-        Returns dictionary with F-stat, p-value and conclusion of sagnificance for model.
+        Returns dictionary with stat, p-value and conclusion of sagnificance for model.
         Returns: 
             {
                 'stat': Dict[str, float|str] (contain 'name' and 'val'),
