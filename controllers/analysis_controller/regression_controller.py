@@ -1,5 +1,6 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 import pandas as pd
+import numpy as np
 from models.regression.interfaces import IRegression
 
 
@@ -49,9 +50,10 @@ class RegressionController:
         Returns dictionary with t-stat, p-value and confidance intervals for coefficients.
         Returns: 
             {
+                'CI': pd.DatFrame,
                 't_stats': pd.Series,
                 'p_values': pd.Series,
-                'CI': pd.DatFrame
+                'sagnificant': pd.Series,
             }
         """
         if not self._current_model:
@@ -61,15 +63,52 @@ class RegressionController:
         if ci_result is None:
             return
         
+        df_ci = pd.DataFrame(ci_result['CI'], columns=["variable", "coef", "std_err", "ci_lower", "ci_upper"])
         t_stats = pd.Series(ci_result['t_stats'])
         p_values = pd.Series(ci_result['p_values'])
-        df_ci = pd.DataFrame(ci_result['CI'], columns=["variable", "coef", "std_err", "ci_lower", "ci_upper"])
 
         return {
+            'CI': df_ci,
             't_stats': t_stats,
-            'p_values': p_values, 
-            'CI': df_ci
+            'p_values': p_values,
+            'sagnificant': p_values < alpha,
         }
+    
+    def predict_intervals(self, X_df: pd.DataFrame, alpha: float = 0.05) -> Dict[str, Tuple[float, float]]:
+        """
+        Returns confidence and prediction intervals for X.
+        Returns:
+            Dict[str, Tuple[float, float]]: {
+                'CI_mean': (lower_bound, upper_bound) for the Confidence Interval.
+                'CI_ind': (lower_bound, upper_bound) for the Prediction Interval.}
+        """
+        if not self._current_model:
+            raise RuntimeError("Model not trained yet")
+        X_new = X_df.to_numpy(dtype=float)
+        pred_intrv = self._current_model.predict_intervals(X_new, alpha)
+        return {
+            key: (float(bounds[0]), float(bounds[1]))
+            for key, bounds in pred_intrv.items()
+        }
+    
+    def model_sagnificance(self, alpha: float = 0.05) -> Dict[str, Any]:
+        """
+        Returns dictionary with stat, p-value and conclusion of sagnificance for model.
+        Returns: 
+            {
+                'stat': Dict[str, float|str] (contain 'name' and 'val'),
+                'p_value': float,
+                'sagnificant': bool,
+            }
+        """
+        if not self._current_model:
+            raise RuntimeError("Model not trained yet")
+
+        model_sagn = self._current_model.model_sagnificance(alpha)
+        if model_sagn is None:
+            return
+        
+        return model_sagn
 
     @property
     def regression_models(self) -> List[str]:

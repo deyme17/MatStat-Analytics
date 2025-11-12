@@ -34,7 +34,10 @@ class PearsonCorrelation(ICorrelationCoefficient):
             critical_value=t_crit,
             CI=self._interval(alpha) \
                     if is_significant \
-                    else None
+                    else None,
+            extra={
+                "df": df
+            }
         )
     
     def _interval(self, alpha: float = 0.05) -> tuple[float, float]:

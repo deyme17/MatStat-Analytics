@@ -8,10 +8,6 @@ from controllers import RegressionController
 from utils.ui_styles import groupMargin, groupStyle
 
 HEADING_TITLE_SIZE = 15
-ALPHA_MIN, ALPHA_MAX = 0.01, 0.99
-ALPHA_STEP = 0.01
-ALPHA_PRECISION = 2
-DEFAULT_ALPHA = 0.05
 HEADING_TITLE_SIZE = 16
 RES_TABLE_GROUP_HEIGHT = 160
 
@@ -25,7 +21,6 @@ class RegrSummaryWidget(QWidget):
         self.controller: RegressionController = regr_controller
         self._init_ui()
 
-
     def _init_ui(self) -> None:
         """Initialize regression summary UI components."""
         self.setStyleSheet(groupStyle + groupMargin)
@@ -36,27 +31,11 @@ class RegrSummaryWidget(QWidget):
         header_layout.addStretch()
         layout.addLayout(header_layout)
 
-        self._init_alpha_controls(layout)
         self._init_result_table(layout)
+        self._init_model_sagn_label(layout)
         self._init_metrics_section(layout)
 
         self.setLayout(layout)
-
-    def _init_alpha_controls(self, layout: QVBoxLayout) -> None:
-        """Initialize significance level controls."""
-        self.alpha_spinbox = QDoubleSpinBox()
-        self.alpha_spinbox.setRange(ALPHA_MIN, ALPHA_MAX)
-        self.alpha_spinbox.setSingleStep(ALPHA_STEP)
-        self.alpha_spinbox.setDecimals(ALPHA_PRECISION)
-        self.alpha_spinbox.setValue(DEFAULT_ALPHA)
-        self.alpha_spinbox.valueChanged.connect(self.create_summary)
-
-        alpha_layout = QHBoxLayout()
-        alpha_layout.addWidget(QLabel("Significance level α:"))
-        alpha_layout.addWidget(self.alpha_spinbox)
-        alpha_layout.addStretch()
-
-        layout.addLayout(alpha_layout)
 
     def _init_result_table(self, layout: QVBoxLayout) -> None:
         """Initialize regression result table with coefficients and CI."""
@@ -64,9 +43,9 @@ class RegrSummaryWidget(QWidget):
         group_layout = QVBoxLayout()
         
         self.result_table = QTableWidget()
-        self.result_table.setColumnCount(7)
+        self.result_table.setColumnCount(8)
         self.result_table.setHorizontalHeaderLabels([
-            "Var", "CI Upper", "Coeff", "CI Lower", "Std.Error", "t-stat", "p-val"
+            "Var", "CI Upper", "Coeff", "CI Lower", "Std.Error", "t-stat", "p-val", "sagnificant"
         ])
         self.result_table.horizontalHeader().setStretchLastSection(True)
         self.result_table.setAlternatingRowColors(True)
@@ -76,19 +55,27 @@ class RegrSummaryWidget(QWidget):
         group.setFixedHeight(RES_TABLE_GROUP_HEIGHT)
         layout.addWidget(group)
 
+    def _init_model_sagn_label(self, layout: QVBoxLayout) -> None:
+        """Initialize model significance (F-test) section."""
+        group = QGroupBox("Model Significance")
+        group_layout = QVBoxLayout()
+        self.model_sagn_label = QLabel("-")
+        self.model_sagn_label.setStyleSheet("font-weight: bold;")
+        group_layout.addWidget(self.model_sagn_label)
+        group.setLayout(group_layout)
+        layout.addWidget(group)
+
     def _init_metrics_section(self, layout: QVBoxLayout) -> None:
         """Initialize metrics section."""
         group = QGroupBox("Model Metrics")
         group_layout = QVBoxLayout()
-        self.r2_label = QLabel("R²: -")
-        for label in [self.r2_label]:
-            label.setStyleSheet("font-weight: bold;")
-            group_layout.addWidget(label)
-        
+        self.metrics = QLabel("-")
+        self.metrics.setStyleSheet("font-weight: bold;")
+        group_layout.addWidget(self.metrics)
         group.setLayout(group_layout)
         layout.addWidget(group)
 
-    def create_summary(self) -> None:
+    def create_summary(self, alpha: float = 0.05) -> None:
         """Create and display regression model summary."""
         try:
             summary = self.controller.summary()
@@ -98,24 +85,28 @@ class RegrSummaryWidget(QWidget):
             
             self._update_metrics(summary)
 
-            alpha = self.alpha_spinbox.value()
             ci_result = self.controller.confidence_intervals(alpha=alpha)
+            model_sagn = self.controller.model_sagnificance(alpha=alpha)
             if ci_result:
                 self._update_coefficients_table(ci_result)
+                self._update_model_sagn_label(model_sagn)
             
         except Exception as e:
             self.messanger.show_error("Summary error", str(e))
 
     def _update_metrics(self, summary: dict) -> None:
         """Update metrics labels."""
-        r2 = summary.get('r_squared', None)
-        self.r2_label.setText(f"R²: {r2:.6f}" if r2 is not None else "R²: -")
+        metrics = summary.get('metrics', {})
+        metric_lines = [f"{k} = {float(v):.4f}" for k, v in metrics.items()]
+        metrics_str = "\n".join(metric_lines) + "\n"
+        self.metrics.setText(metrics_str)
 
     def _update_coefficients_table(self, ci_result: dict) -> None:
         """Update coefficients table with CI and t-values."""
         ci_df = ci_result['CI']
         t_stats = ci_result['t_stats']
         p_vals = ci_result['p_values']
+        sagnificant = ci_result['sagnificant']
         
         n_rows = len(ci_df)
         self.result_table.setRowCount(n_rows)
@@ -128,10 +119,28 @@ class RegrSummaryWidget(QWidget):
             self.result_table.setItem(row_idx, 4, QTableWidgetItem(f"{float(ci_df.loc[row_idx, 'std_err']):.4f}"))
             self.result_table.setItem(row_idx, 5, QTableWidgetItem(f"{float(t_stats[row_idx]):.4f}"))
             self.result_table.setItem(row_idx, 6, QTableWidgetItem(f"{float(p_vals[row_idx]):.4f}"))
+            self.result_table.setItem(row_idx, 7, QTableWidgetItem(f"{str(sagnificant[row_idx])}"))
 
         self.result_table.resizeColumnsToContents()
 
+    def _update_model_sagn_label(self, model_sagn: dict | None) -> None:
+        """Update model F-test significance label."""
+        if not model_sagn:
+            self.model_sagn_label.setText("No F-test results available")
+            return
+
+        stat = model_sagn.get("stat", {})
+        p_val = model_sagn.get("p_value", None)
+        sagnificant = model_sagn.get("sagnificant", None)
+
+        if stat is None or p_val is None:
+            self.model_sagn_label.setText("Insufficient data for testing")
+            return
+        
+        f_text = f"{stat.get('name', 'statistic')}: {float(stat.get('val', 0)):.4f} | p-value: {float(p_val):.4f} | Significant: {str(sagnificant)}"
+        self.model_sagn_label.setText(f_text)
+
     def clear(self) -> None:
         """Clear all summary data."""
-        self.r2_label.setText("R²: -")
+        self.metrics.setText("-")
         self.result_table.setRowCount(0)

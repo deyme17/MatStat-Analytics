@@ -35,14 +35,49 @@ class IOptimizationAlgorithm(ABC):
         pass
     
     @abstractmethod
-    def compute_confidence_intervals(self, X: np.ndarray, residuals: np.ndarray, alpha: float = 0.95) -> Optional[Dict[str, Any]]:
+    def compute_confidence_intervals(self, X: np.ndarray, residuals: np.ndarray, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
         """
         Returns dictionary with t-stat, p-value and confidance intervals for coefficients.
+        Args:
+            X (np.ndarray): Feature matrix.
+            residuals (np.ndarray): Residuals from the data.
+            alpha (float): Significance level (e.g., 0.05 for 95% interval).
         Returns: 
             {
                 't_stats': np.ndarray (`float` for each coefficient + intercept),
                 'p_values': np.ndarray (`float` for each coefficient + intercept),
                 'CI': np.ndarray ([coef, std_err, ci_lower, ci_upper] for each coefficient + intercept)
+            }
+        """
+        pass
+
+    def compute_prediction_standard_errors(self, X_new: np.ndarray, X: np.ndarray, residuals: np.ndarray) -> Dict[str, np.ndarray]:
+        """
+        Compute standard errors for prediction at X_new.
+        Args:
+            X_new (np.ndarray): New feature matrix (x0) of shape (n_samples_new, n_features).
+            X (np.ndarray): Training feature matrix.
+            residuals (np.ndarray): Residuals from the training data.
+        Returns:
+            Dict[str, np.ndarray]: {
+                'SE_mean': np.ndarray (Std error for the mean response (Confidence Interval))
+                'SE_ind': np.ndarray (Std error for the individual prediction (Prediction Interval))
+            }
+        """
+        pass
+
+    @abstractmethod
+    def compute_model_sagnificance(self, X: np.ndarray, y: np.ndarray, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
+        """
+        Returns dictionary with stat, p-value and conclusion of sagnificance for model.
+        Args:
+            X (np.ndarray): Feature matrix.
+            y (np.ndarray): Target vector.
+            alpha (float): Significance level (e.g., 0.05 for 95% interval).
+        Returns: 
+            {
+                'stat': Dict[str, float|str] (contain 'name' and 'val'),
+                'p_value': float,
             }
         """
         pass
