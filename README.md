@@ -81,6 +81,8 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
     - `metrics` Calculate metrics for evaluate the trained model (e.g. R^2, Adjusted R^2, MSE, RSE)
   - Prediction
     - `predict(X)` returns predicted values for new data
+    - `Confident interval for mean` Claculate confident interval for mean value
+    - `Prediction interval` Claculate prediction interval for an individual observation (X)
 
 ### 🎲 **Simulation & Modeling**
 - **Sample Simulation**: Generate synthetic datasets from theoretical distributions (could be multivariate)
