@@ -66,10 +66,12 @@ class LinearRegression(IRegression):
         """
         if self.coef_ is None:
             raise RuntimeError("Model not fitted yet")
+        equation = self._generate_equation()
         return {
             "features": self.features_,
             "coefficients": self.coef_,
             "intercept": self.intercept_,
+            "equation": equation,
             "metrics": {
                 "R^2": self.r_squared_,
                 "Adjusted R^2": self.r_squared_adj_,
@@ -175,3 +177,13 @@ class LinearRegression(IRegression):
             self.r_squared_adj_ = 1 - (1 - self.r_squared_) * (n - 1) / (n - p - 1)
         else:
             self.r_squared_adj_ = np.nan
+
+    def _generate_equation(self) -> str:
+        """Generate the string representation of the model equation"""
+        equation = "y = "
+        if self.features_:
+            terms = [f"{coef:.4f}·{feat}" for coef, feat in zip(self.coef_, self.features_)]
+            equation += " + ".join(terms)
+        if self.intercept_ is not None:
+            equation += f" + {self.intercept_:.4f}"
+        return equation

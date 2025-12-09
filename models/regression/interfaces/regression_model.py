@@ -39,6 +39,7 @@ class IRegression(ABC):
         Example: {
             "features": list[str],
             "coefficients": np.ndarray,
+            "equation": str
             "intercept": float,
             "metrics": dict[str, float],
         }
