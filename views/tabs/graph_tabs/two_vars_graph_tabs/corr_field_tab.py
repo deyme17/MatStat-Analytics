@@ -14,22 +14,22 @@ class CorrelationFieldTab(Base2VarGraphTab):
         self.slr: SimpleLinearRegression = slr
 
     def _add_regression_line_checkbox(self):
-        """Add regression line checkbox to the second column selector row"""
+        """Add trendline checkbox to the second column selector row"""
         # get the selector widget from parent (last widget in layout)
         main_layout = self.layout()
         selector_widget = main_layout.itemAt(main_layout.count() - 1).widget()
         selector_layout = selector_widget.layout()
         
-        # add regression line checkbox to the same row
-        self.regression_checkbox = QCheckBox("Regression line")
-        self.regression_checkbox.setChecked(False)
-        self.regression_checkbox.stateChanged.connect(self._on_regression_line_toggled)
+        # trend line
+        self.trendline_checkbox = QCheckBox("Trendline")
+        self.trendline_checkbox.setChecked(False)
+        self.trendline_checkbox.stateChanged.connect(self._on_regression_line_toggled)
         
         selector_layout.addSpacing(20)
-        selector_layout.addWidget(self.regression_checkbox)
+        selector_layout.addWidget(self.trendline_checkbox)
     
     def _on_regression_line_toggled(self):
-        """Handle regression line checkbox changing"""
+        """Handle trendline checkbox changing"""
         if self.panel:
             self.draw()
 
@@ -47,9 +47,9 @@ class CorrelationFieldTab(Base2VarGraphTab):
             if not col1 or not col2:
                 return
             
-            # regression line
+            # trendline
             regression_coeffs = None
-            if self.regression_checkbox.isChecked():
+            if self.trendline_checkbox.isChecked():
                 regression_coeffs = self._calculate_regression_coeffs(data_model.dataframe, col1, col2)
             
             renderer = RENDERERS['correlation_field']
