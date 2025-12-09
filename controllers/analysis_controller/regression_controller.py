@@ -39,7 +39,7 @@ class RegressionController:
         return pd.Series(preds, name="prediction")
 
     def summary(self) -> Dict[str, Any]:
-        """Returns model's summary (coefficients, intercept, metrics, etc.)"""
+        """Returns model's summary (coefficients, intercept, equation, metrics, etc.)"""
         if not self._current_model:
             return {}
         summary = self._current_model.summary()

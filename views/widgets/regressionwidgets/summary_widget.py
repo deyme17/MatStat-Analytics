@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QDoubleSpinBox,
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QTableWidget, QGroupBox, QTableWidgetItem
 )
 from services.ui_services.messager import UIMessager
@@ -32,6 +32,7 @@ class RegrSummaryWidget(QWidget):
         layout.addLayout(header_layout)
 
         self._init_result_table(layout)
+        self._init_equation_label(layout)
         self._init_model_sagn_label(layout)
         self._init_metrics_section(layout)
 
@@ -55,12 +56,20 @@ class RegrSummaryWidget(QWidget):
         group.setFixedHeight(RES_TABLE_GROUP_HEIGHT)
         layout.addWidget(group)
 
+    def _init_equation_label(self, layout: QVBoxLayout) -> None:
+        """Initialize model equation label (e.g. y = ax + b)."""
+        group = QGroupBox("Model equation")
+        group_layout = QVBoxLayout()
+        self.model_equation_label = QLabel("-")
+        group_layout.addWidget(self.model_equation_label)
+        group.setLayout(group_layout)
+        layout.addWidget(group)
+
     def _init_model_sagn_label(self, layout: QVBoxLayout) -> None:
         """Initialize model significance (F-test) section."""
         group = QGroupBox("Model Significance")
         group_layout = QVBoxLayout()
         self.model_sagn_label = QLabel("-")
-        self.model_sagn_label.setStyleSheet("font-weight: bold;")
         group_layout.addWidget(self.model_sagn_label)
         group.setLayout(group_layout)
         layout.addWidget(group)
@@ -70,7 +79,6 @@ class RegrSummaryWidget(QWidget):
         group = QGroupBox("Model Metrics")
         group_layout = QVBoxLayout()
         self.metrics = QLabel("-")
-        self.metrics.setStyleSheet("font-weight: bold;")
         group_layout.addWidget(self.metrics)
         group.setLayout(group_layout)
         layout.addWidget(group)
@@ -84,6 +92,7 @@ class RegrSummaryWidget(QWidget):
                 return
             
             self._update_metrics(summary)
+            self._update_equation_label(summary.get('equation', None))
 
             ci_result = self.controller.confidence_intervals(alpha=alpha)
             model_sagn = self.controller.model_sagnificance(alpha=alpha)
@@ -123,6 +132,13 @@ class RegrSummaryWidget(QWidget):
 
         self.result_table.resizeColumnsToContents()
 
+    def _update_equation_label(self, equation: str | None) -> None:
+        """Update model equation label."""
+        if not equation:
+            self.model_equation_label.setText("-")
+            return
+        self.model_equation_label.setText(equation)
+        
     def _update_model_sagn_label(self, model_sagn: dict | None) -> None:
         """Update model F-test significance label."""
         if not model_sagn:
