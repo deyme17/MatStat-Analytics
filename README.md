@@ -77,7 +77,7 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
     - `coefficients`: learned weights for each feature
     - `intercept`: bias term
     - `confidence intervals` confidence intervals for coefficients and intercept
-    - `sagnificance testing` Test each coefficient, intercept and model at all on sagnificance
+    - `significance testing` Test each coefficient, intercept and model at all on significance
     - `metrics` Calculate metrics for evaluate the trained model (e.g. R^2, Adjusted R^2, MSE, RSE)
   - Prediction
     - `predict(X)` returns predicted values for new data

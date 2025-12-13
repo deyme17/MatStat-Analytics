@@ -95,7 +95,7 @@ class RegrSummaryWidget(QWidget):
             self._update_equation_label(summary.get('equation', None))
 
             ci_result = self.controller.confidence_intervals(alpha=alpha)
-            model_sagn = self.controller.model_sagnificance(alpha=alpha)
+            model_sagn = self.controller.model_significance(alpha=alpha)
             if ci_result:
                 self._update_coefficients_table(ci_result)
                 self._update_model_sagn_label(model_sagn)

@@ -91,9 +91,9 @@ class RegressionController:
             for key, bounds in pred_intrv.items()
         }
     
-    def model_sagnificance(self, alpha: float = 0.05) -> Dict[str, Any]:
+    def model_significance(self, alpha: float = 0.05) -> Dict[str, Any]:
         """
-        Returns dictionary with stat, p-value and conclusion of sagnificance for model.
+        Returns dictionary with stat, p-value and conclusion of significance for model.
         Returns: 
             {
                 'stat': Dict[str, float|str] (contain 'name' and 'val'),
@@ -104,7 +104,7 @@ class RegressionController:
         if not self._current_model:
             raise RuntimeError("Model not trained yet")
 
-        model_sagn = self._current_model.model_sagnificance(alpha)
+        model_sagn = self._current_model.model_significance(alpha)
         if model_sagn is None:
             return
         

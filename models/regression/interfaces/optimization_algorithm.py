@@ -67,9 +67,9 @@ class IOptimizationAlgorithm(ABC):
         pass
 
     @abstractmethod
-    def compute_model_sagnificance(self, X: np.ndarray, y: np.ndarray, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
+    def compute_model_significance(self, X: np.ndarray, y: np.ndarray, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
         """
-        Returns dictionary with stat, p-value and conclusion of sagnificance for model.
+        Returns dictionary with stat, p-value and conclusion of significance for model.
         Args:
             X (np.ndarray): Feature matrix.
             y (np.ndarray): Target vector.

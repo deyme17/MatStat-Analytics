@@ -139,9 +139,9 @@ class LinearRegression(IRegression):
             'CI_ind': (CI_ind_lower, CI_ind_upper),
         }
     
-    def model_sagnificance(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
+    def model_significance(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
         """
-        Returns dictionary with F-stat, p-value and conclusion of sagnificance for model.
+        Returns dictionary with F-stat, p-value and conclusion of significance for model.
         Args:
             alpha (float): Significance level (e.g., 0.05 for 95% interval).
         Returns: 
@@ -152,7 +152,7 @@ class LinearRegression(IRegression):
             }
         """
         if not self._model_sagn_cache_:
-            self._model_sagn_cache_ = self.algorithm.compute_model_sagnificance(self.X_, self.y_)
+            self._model_sagn_cache_ = self.algorithm.compute_model_significance(self.X_, self.y_)
         self._model_sagn_cache_["sagnificant"] = self._model_sagn_cache_["p_value"] < alpha
         return self._model_sagn_cache_
 
