@@ -77,16 +77,16 @@ class IRegression(ABC):
         pass
     
     @abstractmethod
-    def model_sagnificance(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
+    def model_significance(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
         """
-        Returns dictionary with stat, p-value and conclusion of sagnificance for model.
+        Returns dictionary with stat, p-value and conclusion of significance for model.
         Args:
             alpha (float): Significance level (e.g., 0.05 for 95% interval).
         Returns: 
             {
                 'stat': Dict[str, float|str] (contain 'name' and 'val'),
                 'p_value': float,
-                'sagnificant': bool,
+                'significant': bool,
             }
         """
         pass

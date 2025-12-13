@@ -86,17 +86,17 @@ class OLS(IOptimizationAlgorithm):
         if self._std_err_ is None:
             self._compute_std_errors(X, residuals)
         
-        t_val = stats.t.ppf((1 + alpha) / 2, self._df_)
+        t_val = stats.t.ppf(1 - alpha / 2, self._df_)
 
         t_stats = self._all_params_ / self._std_err_
-        p_vala = 2 * (1 - stats.t.cdf(np.abs(t_stats), self._df_))
+        p_vals = 2 * (1 - stats.t.cdf(np.abs(t_stats), self._df_))
         
         ci_lower = self._all_params_ - t_val * self._std_err_
         ci_upper = self._all_params_ + t_val * self._std_err_
         
         return {
             't_stats': t_stats,
-            'p_values': p_vala,
+            'p_values': p_vals,
             'CI': np.column_stack([self._all_params_, self._std_err_, ci_lower, ci_upper])
         }
     
@@ -128,7 +128,7 @@ class OLS(IOptimizationAlgorithm):
         X_new_ext = np.column_stack([X_new, np.ones(X_new.shape[0])])
 
         var_mean = np.array([
-            MSE * (x_ext @ self.XtX_inv @ x_ext.T) for x_ext in X_new_ext
+            MSE * (x_ext @ self._XtX_inv_ @ x_ext.T) for x_ext in X_new_ext
         ])
         SE_mean = np.sqrt(var_mean)
         var_ind = var_mean + MSE
@@ -139,7 +139,7 @@ class OLS(IOptimizationAlgorithm):
             'SE_ind': SE_ind,
         }
     
-    def compute_model_sagnificance(self, X: np.ndarray, y: np.ndarray, alpha: float = 0.05) -> Dict[str, Any]:
+    def compute_model_significance(self, X: np.ndarray, y: np.ndarray, alpha: float = 0.05) -> Dict[str, Any]:
         """
         Returns dictionary with F-stat, p-value and conclusion of significance for model.
         Returns: 
@@ -193,11 +193,11 @@ class OLS(IOptimizationAlgorithm):
         MSE = np.sum(residuals ** 2) / self._df_
         
         try:
-            self.XtX_inv = np.linalg.inv(X_ext.T @ X_ext)
+            self._XtX_inv_ = np.linalg.inv(X_ext.T @ X_ext)
         except np.linalg.LinAlgError:
             raise ValueError("Cannot compute confidence intervals: singular matrix")
         
-        var_coef = np.diag(self.XtX_inv) * MSE
+        var_coef = np.diag(self._XtX_inv_) * MSE
         self._std_err_ = np.sqrt(var_coef)
         
         self._all_params_ = np.concatenate([self.coef_, [self.intercept_]])

@@ -1,4 +1,4 @@
-from models.correlation_coeffs._sagnificance_test_result import SignificanceTestResult
+from models.correlation_coeffs._significance_test_result import SignificanceTestResult
 from .corr_coeff import ICorrelationCoefficient
 from scipy import stats
 import numpy as np

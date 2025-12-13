@@ -1,5 +1,5 @@
 from .corr_coeff import ICorrelationCoefficient
-from models.correlation_coeffs._sagnificance_test_result import SignificanceTestResult
+from models.correlation_coeffs._significance_test_result import SignificanceTestResult
 import numpy as np
 from scipy import stats
 from typing import Tuple
