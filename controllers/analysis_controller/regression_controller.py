@@ -53,7 +53,7 @@ class RegressionController:
                 'CI': pd.DatFrame,
                 't_stats': pd.Series,
                 'p_values': pd.Series,
-                'sagnificant': pd.Series,
+                'significant': pd.Series,
             }
         """
         if not self._current_model:
@@ -71,7 +71,7 @@ class RegressionController:
             'CI': df_ci,
             't_stats': t_stats,
             'p_values': p_values,
-            'sagnificant': p_values < alpha,
+            'significant': p_values < alpha,
         }
     
     def predict_intervals(self, X_df: pd.DataFrame, alpha: float = 0.05) -> Dict[str, Tuple[float, float]]:
@@ -98,7 +98,7 @@ class RegressionController:
             {
                 'stat': Dict[str, float|str] (contain 'name' and 'val'),
                 'p_value': float,
-                'sagnificant': bool,
+                'significant': bool,
             }
         """
         if not self._current_model:

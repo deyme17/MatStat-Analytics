@@ -148,12 +148,12 @@ class LinearRegression(IRegression):
             {
                 'stat': Dict[str, float|str] (contain 'name' and 'val'),
                 'p_value': float,
-                'sagnificant': bool,
+                'significant': bool,
             }
         """
         if not self._model_sagn_cache_:
             self._model_sagn_cache_ = self.algorithm.compute_model_significance(self.X_, self.y_)
-        self._model_sagn_cache_["sagnificant"] = self._model_sagn_cache_["p_value"] < alpha
+        self._model_sagn_cache_["significant"] = self._model_sagn_cache_["p_value"] < alpha
         return self._model_sagn_cache_
 
     @property

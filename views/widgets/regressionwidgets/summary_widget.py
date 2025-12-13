@@ -1,7 +1,8 @@
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QScrollArea,
     QTableWidget, QGroupBox, QTableWidgetItem
 )
+from PyQt6.QtCore import Qt
 from services.ui_services.messager import UIMessager
 from utils import AppContext
 from controllers import RegressionController
@@ -10,6 +11,7 @@ from utils.ui_styles import groupMargin, groupStyle
 HEADING_TITLE_SIZE = 15
 HEADING_TITLE_SIZE = 16
 RES_TABLE_GROUP_HEIGHT = 160
+EQUATION_GROUP_HEIGHT = 80
 
 
 class RegrSummaryWidget(QWidget):
@@ -46,7 +48,7 @@ class RegrSummaryWidget(QWidget):
         self.result_table = QTableWidget()
         self.result_table.setColumnCount(8)
         self.result_table.setHorizontalHeaderLabels([
-            "Var", "CI Upper", "Coeff", "CI Lower", "Std.Error", "t-stat", "p-val", "sagnificant"
+            "Var", "CI Upper", "Coeff", "CI Lower", "Std.Error", "t-stat", "p-val", "significant"
         ])
         self.result_table.horizontalHeader().setStretchLastSection(True)
         self.result_table.setAlternatingRowColors(True)
@@ -60,9 +62,15 @@ class RegrSummaryWidget(QWidget):
         """Initialize model equation label (e.g. y = ax + b)."""
         group = QGroupBox("Model equation")
         group_layout = QVBoxLayout()
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.model_equation_label = QLabel("-")
-        group_layout.addWidget(self.model_equation_label)
+        scroll_area.setWidget(self.model_equation_label)
+        group_layout.addWidget(scroll_area)
         group.setLayout(group_layout)
+        group.setFixedHeight(EQUATION_GROUP_HEIGHT)
         layout.addWidget(group)
 
     def _init_model_sagn_label(self, layout: QVBoxLayout) -> None:
@@ -115,7 +123,7 @@ class RegrSummaryWidget(QWidget):
         ci_df = ci_result['CI']
         t_stats = ci_result['t_stats']
         p_vals = ci_result['p_values']
-        sagnificant = ci_result['sagnificant']
+        significant = ci_result['significant']
         
         n_rows = len(ci_df)
         self.result_table.setRowCount(n_rows)
@@ -128,7 +136,7 @@ class RegrSummaryWidget(QWidget):
             self.result_table.setItem(row_idx, 4, QTableWidgetItem(f"{float(ci_df.loc[row_idx, 'std_err']):.4f}"))
             self.result_table.setItem(row_idx, 5, QTableWidgetItem(f"{float(t_stats[row_idx]):.4f}"))
             self.result_table.setItem(row_idx, 6, QTableWidgetItem(f"{float(p_vals[row_idx]):.4f}"))
-            self.result_table.setItem(row_idx, 7, QTableWidgetItem(f"{str(sagnificant[row_idx])}"))
+            self.result_table.setItem(row_idx, 7, QTableWidgetItem(f"{str(significant[row_idx])}"))
 
         self.result_table.resizeColumnsToContents()
 
@@ -147,13 +155,13 @@ class RegrSummaryWidget(QWidget):
 
         stat = model_sagn.get("stat", {})
         p_val = model_sagn.get("p_value", None)
-        sagnificant = model_sagn.get("sagnificant", None)
+        significant = model_sagn.get("significant", False)
 
         if stat is None or p_val is None:
             self.model_sagn_label.setText("Insufficient data for testing")
             return
         
-        f_text = f"{stat.get('name', 'statistic')}: {float(stat.get('val', 0)):.4f} | p-value: {float(p_val):.4f} | Significant: {str(sagnificant)}"
+        f_text = f"{stat.get('name', 'statistic')}: {float(stat.get('val', 0)):.4f} | p-value: {float(p_val):.4f} | Significant: {str(significant)}"
         self.model_sagn_label.setText(f_text)
 
     def clear(self) -> None:

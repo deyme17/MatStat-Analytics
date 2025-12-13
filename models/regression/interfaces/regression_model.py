@@ -86,7 +86,7 @@ class IRegression(ABC):
             {
                 'stat': Dict[str, float|str] (contain 'name' and 'val'),
                 'p_value': float,
-                'sagnificant': bool,
+                'significant': bool,
             }
         """
         pass
