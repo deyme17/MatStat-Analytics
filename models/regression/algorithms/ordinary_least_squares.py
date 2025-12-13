@@ -86,17 +86,17 @@ class OLS(IOptimizationAlgorithm):
         if self._std_err_ is None:
             self._compute_std_errors(X, residuals)
         
-        t_val = stats.t.ppf((1 + alpha) / 2, self._df_)
+        t_val = stats.t.ppf(1 - alpha / 2, self._df_)
 
         t_stats = self._all_params_ / self._std_err_
-        p_vala = 2 * (1 - stats.t.cdf(np.abs(t_stats), self._df_))
+        p_vals = 2 * (1 - stats.t.cdf(np.abs(t_stats), self._df_))
         
         ci_lower = self._all_params_ - t_val * self._std_err_
         ci_upper = self._all_params_ + t_val * self._std_err_
         
         return {
             't_stats': t_stats,
-            'p_values': p_vala,
+            'p_values': p_vals,
             'CI': np.column_stack([self._all_params_, self._std_err_, ci_lower, ci_upper])
         }
     
