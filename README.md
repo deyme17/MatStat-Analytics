@@ -69,7 +69,9 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
 
 ### **Regression Analysis**
   - Configuration
-    - Regression model selection (e.g. Linear Regression with OLS)
+    - Regression model selection:
+        * Linear Regression with OLS
+        * Polinomial Regression with OLS (degree=2/3)
     - Dependent variables selection: `y` (target array)
     - Independent variable selection: `X` (feature matrix)
     - Fit a model: `fit(X, y)` method trains the model
@@ -79,6 +81,7 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
     - `confidence intervals` confidence intervals for coefficients and intercept
     - `significance testing` Test each coefficient, intercept and model at all on significance
     - `metrics` Calculate metrics for evaluate the trained model (e.g. R^2, Adjusted R^2, MSE, RSE)
+    - `equation` Create text representation of model equation
   - Prediction
     - `predict(X)` returns predicted values for new data
     - `Confident interval for mean` Claculate confident interval for mean value
