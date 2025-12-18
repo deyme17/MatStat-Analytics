@@ -45,7 +45,7 @@ class DataLoadController:
         data = self.loader_service.load_data(path)
 
         if data is None or data.empty:
-            self.messanger.show_info(f"Failed to load file {path} or file is empty")
+            self.messanger.show_info("DataLoadController ERROR", f"Failed to load file {path} or file is empty")
             return
 
         # Create new data model and update context
