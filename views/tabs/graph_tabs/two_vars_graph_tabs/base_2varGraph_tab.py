@@ -82,8 +82,14 @@ class Base2VarGraphTab(BaseGraphTab):
         data_model = self.get_data_model()
         if data_model is None or data_model.dataframe is None:
             return None
+        
+        available_columns = list(data_model.dataframe.columns)
         first_col = self.context.version_manager.get_current_column_name()
         second_col = self.second_column_selector.currentText()
-        if not first_col or not second_col:
-            return None
+
+        if not first_col or not second_col or \
+            first_col not in available_columns or \
+            second_col not in available_columns:
+            return
+            
         return first_col, second_col
