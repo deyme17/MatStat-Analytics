@@ -1,6 +1,6 @@
 from typing import List, Dict, Any, Tuple
 import pandas as pd
-import numpy as np
+from utils.helpers import validate_feature_names
 from models.regression.interfaces import IRegression
 
 
@@ -27,8 +27,12 @@ class RegressionController:
 
         X = X_df.to_numpy(dtype=float)
         y = y_series.to_numpy(dtype=float)
+        
+        # add feature names if its valid
+        feature_names = list(X_df.columns)
+        if validate_feature_names(feature_names):
+            self._current_model.features_ = list(feature_names)
 
-        self._current_model.features_ = list(X_df.columns)
         self._current_model.fit(X, y)
 
     def predict(self, X_df: pd.DataFrame) -> pd.Series:
