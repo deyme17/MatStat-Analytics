@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from models.data_model import DataModel
-from utils.def_bins import get_default_bin_count
+from utils.helpers import get_default_bin_count
 
 
 class DataSaver:

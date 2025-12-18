@@ -1,6 +1,6 @@
 import os
 from typing import Callable
-from utils.def_bins import get_default_bin_count
+from utils.helpers import get_default_bin_count
 
 from utils import AppContext, EventType, EventBus
 from services import DataLoaderService, UIMessager, DataVersionManager
