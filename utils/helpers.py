@@ -27,5 +27,5 @@ def validate_feature_names(feature_names: List[str]) -> bool:
                 raise Exception(f"Invalid feature name format: {name}")
         return True
     except Exception as e:
-        print(f"[ValidationError in `validate_feature_names`]: {e}")
+        # print(f"[ValidationError in `validate_feature_names`]: {e}")
         return False

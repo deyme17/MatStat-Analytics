@@ -1,5 +1,6 @@
 import os
 from services.data_services.data_loader import loaders
+from utils.helpers import validate_feature_names
 from typing import Optional
 import pandas as pd
 
@@ -58,26 +59,23 @@ class DataLoaderService:
             return None
         
     @staticmethod
-    def process_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    def process_dataframe(df: pd.DataFrame) -> pd.DataFrame:       
         df = df.apply(pd.to_numeric, errors='coerce')
         df = df.dropna(axis=1, how='all')
         if df.empty:
             raise ValueError("No valid numerical data found")
-
+        
         df = df.reset_index(drop=True)
-
-        if df.columns.isnull().any() or df.columns.astype(str).str.startswith("Unnamed").any():
+        if df.columns.isnull().any() or not validate_feature_names(list(df.columns)):
             if df.shape[1] == 1:
                 df.columns = ["x"]
             else:
                 new_names = []
                 for i in range(df.shape[1]):
-                    new_names.append(f"col{i+1}")
+                    new_names.append(f"x{i+1}")
                 df.columns = new_names
-        df.columns = df.columns.astype(str)
 
         return df
-
 
     @staticmethod
     def select_file(parent=None) -> Optional[str]:
