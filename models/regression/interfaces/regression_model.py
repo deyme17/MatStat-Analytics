@@ -96,3 +96,18 @@ class IRegression(ABC):
     def name(self) -> str:
         """Returns a name of regression type"""
         pass
+
+    @abstractmethod
+    def _generate_feature_names(self, n_original_features: int) -> None:
+        """Generate names for model features"""
+        pass
+    
+    def _generate_equation(self) -> str:
+        """Generate the string representation of the model equation"""
+        equation = "y = "
+        if self.features_ and self.coef_.size > 0:
+            terms = [f"{coef:.4f}·{feat}" for coef, feat in zip(self.coef_, self.features_)]
+            equation += " + ".join(terms)
+        if self.intercept_ is not None:
+            equation += f" + {self.intercept_:.4f}"
+        return equation
