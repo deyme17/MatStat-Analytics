@@ -37,6 +37,9 @@ class PolynomialRegression(IRegression):
         self.X_ = X
         self.y_ = y
         
+        # feature names
+        self._generate_feature_names(X.shape[1])
+
         # create polynomial features
         self.X_poly_ = self._transform(X)
         
@@ -45,9 +48,6 @@ class PolynomialRegression(IRegression):
         params = self.algorithm.get_params()
         self.coef_ = params.get("coef", None)
         self.intercept_ = params.get("intercept", None)
-        
-        # feature names
-        self._generate_feature_names(X.shape[1])
         
         self._evaluate_model()
         self._model_signif_cache_ = None
@@ -178,21 +178,6 @@ class PolynomialRegression(IRegression):
         
         return np.column_stack(features)
     
-    def _generate_feature_names(self, n_original_features: int) -> None:
-        """Generate names for polynomial features"""
-        if n_original_features == 1:
-            self.features_ = [f"x^{i}" for i in range(1, self.degree + 1)]
-        else:
-            # multivariate with interactions
-            self.features_ = []
-            for d in range(1, self.degree + 1):
-                for combo in combinations_with_replacement(range(n_original_features), d):
-                    if len(combo) == 1:
-                        self.features_.append(f"x{combo[0]}")
-                    else:
-                        term = "*".join([f"x{i}" for i in combo])
-                        self.features_.append(term)
-    
     def _evaluate_model(self) -> None:
         """Evaluates model and saves statistic and metrics"""
         self.y_pred_ = self.algorithm.predict(self.X_poly_)
@@ -210,12 +195,19 @@ class PolynomialRegression(IRegression):
         else:
             self.r_squared_adj_ = np.nan
 
-    def _generate_equation(self) -> str:
-        """Generate the string representation of the model equation"""
-        equation = "y = "
-        if self.features_:
-            terms = [f"{coef:.4f}·{feat}" for coef, feat in zip(self.coef_, self.features_)]
-            equation += " + ".join(terms)
-        if self.intercept_ is not None:
-            equation += f" + {self.intercept_:.4f}"
-        return equation
+    def _generate_feature_names(self, n_original_features: int) -> None:
+        """Generate names for polynomial features and handle string-int errors."""
+        if self.features_ is None:
+            base_names = [f"x{i}" for i in range(n_original_features)]
+        else:
+            base_names = self.features_
+        # polynomial names list
+        poly_names = []
+        for d in range(1, self.degree + 1):
+            for combo in combinations_with_replacement(base_names, d):
+                if len(combo) == 1:
+                    name = combo[0]
+                    poly_names.append(f"{name}^{d}" if n_original_features == 1 and d > 1 else name)
+                else:
+                    poly_names.append("*".join(combo))
+        self.features_ = poly_names
