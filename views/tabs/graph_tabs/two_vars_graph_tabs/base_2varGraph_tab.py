@@ -25,9 +25,11 @@ class Base2VarGraphTab(BaseGraphTab):
         """Subscribe to data change events"""
         self.event_bus.subscribe(EventType.DATA_LOADED, self._on_dataset_changed)
         self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_dataset_changed)
+        self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_dataset_changed)
 
     def _on_dataset_changed(self, event: Event) -> None:
         self.update_column_list()
+        self.draw()
     
     def _add_column_selector(self) -> None:
         """Add second column selector at the very bottom with fixed height & width"""
@@ -72,7 +74,6 @@ class Base2VarGraphTab(BaseGraphTab):
             self.second_column_selector.setCurrentIndex(0)
         
         self.second_column_selector.blockSignals(False)
-        self.draw()
     
     def get_current_column_names(self) -> Optional[Tuple[str, str]]:
         """
