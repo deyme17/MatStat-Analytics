@@ -29,11 +29,18 @@ class LinearRegression(IRegression):
             X (np.ndarray): Feature matrix.
             y (np.ndarray): Target Vector.
         """
+        # fit
         self.X_, self.y_ = X, y
         self.algorithm.fit(X, y)
         params = self.algorithm.get_params()
         self.coef_ = params.get("coef", None)
         self.intercept_ = params.get("intercept", None)
+
+        # feature names
+        if self.features_ is None:
+            self._generate_feature_names(X.shape[1])
+
+        # evaluate
         self._evaluate_model()
         self._model_sagn_cache_ = None
 
@@ -178,12 +185,6 @@ class LinearRegression(IRegression):
         else:
             self.r_squared_adj_ = np.nan
 
-    def _generate_equation(self) -> str:
-        """Generate the string representation of the model equation"""
-        equation = "y = "
-        if self.features_:
-            terms = [f"{coef:.4f}·{feat}" for coef, feat in zip(self.coef_, self.features_)]
-            equation += " + ".join(terms)
-        if self.intercept_ is not None:
-            equation += f" + {self.intercept_:.4f}"
-        return equation
+    def _generate_feature_names(self, n_original_features: int) -> None:
+        """Generate names for linear regression features"""
+        self.features_ = [f"x{i}" for i in range(n_original_features)]
