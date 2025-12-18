@@ -23,7 +23,7 @@ class DataSaver:
         if data.ndim == 1:
             df = pd.DataFrame(data, columns=['value'])
         elif data.ndim == 2:
-            df = pd.DataFrame(data, columns=[f"col{i+1}" for i in range(data.shape[1])])
+            df = pd.DataFrame(data, columns=[f"x{i+1}" for i in range(data.shape[1])])
         else:
             raise ValueError(f"Unsupported data dimensionality: {data.ndim}D")
         

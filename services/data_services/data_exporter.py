@@ -43,7 +43,7 @@ class DataExporter:
                 df = pd.DataFrame(data, columns=['value'])
                 n_cols = 1
             elif data.ndim == 2:
-                df = pd.DataFrame(data, columns=[f'col{i+1}' for i in range(data.shape[1])])
+                df = pd.DataFrame(data, columns=[f'x{i+1}' for i in range(data.shape[1])])
                 n_cols = data.shape[1]
             else:
                 raise ValueError(f"Unsupported array dimensionality: {data.ndim}D. Only 1D and 2D arrays are supported.")
