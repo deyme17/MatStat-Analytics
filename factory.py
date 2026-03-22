@@ -3,7 +3,8 @@ from utils import EventBus, EventType, AppContext
 
 # Models
 from models import (
-    stat_distributions, estimation_methods, corr_coeffs, gof_tests, homogen_tests, regression_models,
+    stat_distributions, estimation_methods, gof_tests, homogen_tests, regression_models,
+    corr_coeffs, MultipleCorrelation, PartialCorrelation,
     TransformationProcessor, AnomalyProcessor, MissingProcessor,
     SimulationEngine, StatisticsCalculator,
     )
@@ -85,7 +86,11 @@ class ControllersFactory:
             context=self.context,
             missing_proc=MissingProcessor()
         )
-        controllers['correlation'] = CorrelationController(corr_coeffs)
+        controllers['correlation'] = CorrelationController(
+            corr_coeffs, 
+            partial_corr_cls=PartialCorrelation, 
+            multiple_corr_cls=MultipleCorrelation
+        )
         controllers['regression'] = RegressionController(regression_models)
         controllers['dist_register'] = DistributionRegister(stat_distributions)
         
