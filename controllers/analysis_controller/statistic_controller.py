@@ -15,6 +15,7 @@ class StatisticController:
         stat_calculator: StatisticsCalculator,
         stats_renderer: Optional[TableRenderer] = None,
         var_renderer: Optional[TableRenderer] = None,
+        multi_renderer: Optional[TableRenderer] = None,
         get_bins_value: Optional[Callable[[], int]] = None, 
         get_precision_value: Optional[Callable[[], int]] = None,
         get_confidence_value: Optional[Callable[[], float]] = None
@@ -24,6 +25,7 @@ class StatisticController:
             context: Shared application context (version_manager, event_bus, messager)
             stat_calculator: Class for statistics handling
             stats_renderer: Responsible for drawing statistics in table
+            multi_renderer: Responsible for drawing multivariable statistics in table
             var_renderer: Responsible for drawing variation series in table
             get_bins_value: Function for getting bin count configuration
             get_precision_value: Function for getting precision configuration
@@ -34,6 +36,7 @@ class StatisticController:
         self.stat_calculator: StatisticsCalculator = stat_calculator
         self.stats_renderer: TableRenderer = stats_renderer
         self.var_renderer: TableRenderer = var_renderer
+        self.multi_renderer: TableRenderer = multi_renderer
         self.get_bins_value = get_bins_value             
         self.get_precision_value = get_precision_value        
         self.get_confidence_value = get_confidence_value
@@ -72,6 +75,7 @@ class StatisticController:
         
         self._update_statistic_table(model)
         self._update_var_series_table(model)
+        self._update_multi_var_table(model)
 
     def _update_statistic_table(self, model: DataModel) -> None:
         """
@@ -100,6 +104,15 @@ class StatisticController:
         data = self.stat_calculator.get_var_series(model.hist)
         self.var_renderer.render(data.to_dict())
 
+    def _update_multi_var_table(self, model: DataModel) -> None:
+        """
+        Recalculate multivariable statistics and update the UI tables.
+        Args:
+            model: DataModel
+        """
+        data = self.stat_calculator.get_multi_var_stats(model.dataframe)
+        self.multi_renderer.render(data, precision=self.get_precision_value())
+
     def clear_tables(self) -> None:
         """
         Clear the contents of tables via renderer.
@@ -108,23 +121,26 @@ class StatisticController:
             return
         self.stats_renderer._setup_headers()
         self.var_renderer._setup_headers()
+        self.multi_renderer._setup_headers()
 
     def connect_ui(
         self,
         stats_renderer: TableRenderer,
         var_renderer: TableRenderer,
+        multi_renderer: TableRenderer,
         get_bins_value: Callable[[], int], 
         get_precision_value: Callable[[], int],
         get_confidence_value: Callable[[], float]
     ) -> None:
         self.stats_renderer = stats_renderer
         self.var_renderer = var_renderer
+        self.multi_renderer = multi_renderer
         self.get_bins_value = get_bins_value             
         self.get_precision_value = get_precision_value        
         self.get_confidence_value = get_confidence_value
 
     def _check_ui_connected(self) -> bool:
         return bool(
-            self.stats_renderer and self.var_renderer and self.get_bins_value 
-            and self.get_precision_value and self.get_confidence_value
+            self.stats_renderer and self.var_renderer and self.multi_renderer 
+            and self.get_bins_value and self.get_precision_value and self.get_confidence_value
         )

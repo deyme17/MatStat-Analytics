@@ -19,7 +19,8 @@ from controllers import (
 # Services
 from services import (
     ConfidenceAssesment, TestPerformer, SimpleLinearRegression,
-    UIMessager, MissingInfoDisplayService, StatsRenderer, VarSerRenderer,
+    UIMessager, MissingInfoDisplayService, 
+    StatsRenderer, VarSerRenderer, MultiVarRenderer,
     DataVersionManager, DataLoaderService,
     DataSaver, DataExporter
 )
@@ -124,7 +125,9 @@ class UIFactory:
                 ("missing_widget", MissingWidget, controllers['missing_data'])
             ]
         )
-        stat_tab = StatisticTab(stat_renderer_cls=StatsRenderer, var_rendere_cls=VarSerRenderer)
+        stat_tab = StatisticTab(stat_renderer_cls=StatsRenderer, 
+                                var_renderer_cls=VarSerRenderer, 
+                                multi_renderer_cls=MultiVarRenderer)
         gof_tab = GOFTestTab(
             context=self.context,
             get_dist_func=lambda: self.window.graph_panel.get_selected_distribution(),
@@ -195,6 +198,7 @@ class ConnectFactory:
         controllers['statistic'].connect_ui(
             stats_renderer=self.window.stat_tab.stat_renderer,
             var_renderer=self.window.stat_tab.var_renderer,
+            multi_renderer=self.window.stat_tab.multi_renderer,
             get_bins_value=self.window.graph_panel.bins_spinbox.value,     
             get_confidence_value=self.window.graph_panel.confidence_spinbox.value,         
             get_precision_value=self.window.widgets.precision_spinbox.value

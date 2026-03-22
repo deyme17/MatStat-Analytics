@@ -57,6 +57,28 @@ class StatisticsCalculator:
             'MED': round(stats['median'], 2),
             'MAD': mad
         })
+    
+    @staticmethod
+    def get_multi_var_stats(df: pd.DataFrame) -> dict[str, dict]:
+        """
+        Compute descriptive statistics for all numeric columns.
+        Args:
+            df: input DataFrame with multiple columns
+        Returns:
+            {col_name: {stat_name: value, ...}, ...}
+        """
+        result = {}
+        for col in df.select_dtypes(include='number').columns:
+            stats = StatisticsCalculator._common_stats(df[col].dropna())
+            result[col] = {
+                'Mean':             round(stats['mean'], 2),
+                'RMS deviation':    round(stats['std_dev'], 2),
+                'Variance':         round(stats['variance'], 2),
+                'MED':              round(stats['median'], 2),
+                'Assymetry coeff.': round(stats['skewness'], 2),
+                'Excess':           round(stats['excess'], 2),
+            }
+        return result
 
     @staticmethod
     def get_var_series(hist) -> pd.Series:

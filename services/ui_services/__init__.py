@@ -1,4 +1,3 @@
 from .messager import UIMessager
 from .missing_info_display import MissingInfoDisplayService
-from .renderers.table_renderers.stats_renderer import StatsRenderer
-from .renderers.table_renderers.var_series_renderer import VarSerRenderer
+from .renderers.table_renderers import StatsRenderer, VarSerRenderer, MultiVarRenderer

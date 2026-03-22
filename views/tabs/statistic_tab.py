@@ -9,7 +9,10 @@ class StatisticTab(QWidget):
     A QWidget tab displaying a table of confidence intervals
     for statistical summaries and variation series.
     """
-    def __init__(self, stat_renderer_cls: TableRenderer, var_rendere_cls: TableRenderer, parent=None):
+    def __init__(self, stat_renderer_cls: type[TableRenderer], 
+                       var_renderer_cls: type[TableRenderer],
+                       multi_renderer_cls: type[TableRenderer],    
+                       parent=None):
         super().__init__(parent)
         self._layout = QVBoxLayout(self)
 
@@ -25,4 +28,11 @@ class StatisticTab(QWidget):
         self.var_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
         self._layout.addWidget(self.var_label)
         self._layout.addWidget(self.var_table)
-        self.var_renderer = var_rendere_cls(self.var_table)
+        self.var_renderer = var_renderer_cls(self.var_table)
+
+        self.multi_label = QLabel("Multivariable Table")
+        self.multi_table = QTableWidget()
+        self.multi_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        self._layout.addWidget(self.multi_label)
+        self._layout.addWidget(self.multi_table)
+        self.multi_renderer = multi_renderer_cls(self.multi_table)
