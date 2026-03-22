@@ -10,7 +10,6 @@ class MultiVarRenderer(TableRenderer):
     def render(self, data: dict[str, dict[str, float]], precision: int = 2) -> None:
         """
         Renders a multi-variable statistics table.
-
         Args:
             data: {variable_name: {stat_name: value, ...}, ...}
             precision: number of decimal places for float values
