@@ -34,8 +34,8 @@ from views import (
     # widgets
     WindowWidgets,
     AnomalyWidget, MissingWidget, TransformDataWidget,
-    KolmogorovSmirnovPanel, PearsonChi2Panel, Pearson2DNormalPanel,
-    GenerationWidget, ExperimentWidget, CorrelationTestWidget, RegrSummaryWidget, RegrPredictionWidget,
+    KolmogorovSmirnovPanel, PearsonChi2Panel, Pearson2DNormalPanel, RegrSummaryWidget, RegrPredictionWidget,
+    GenerationWidget, ExperimentWidget, CorrelationTestWidget, PartialCorrWidget, MultiCorrWidget,
     NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel, AbbePanel,
     ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel,
     GraphPanel, DistributionSelector
@@ -163,7 +163,9 @@ class UIFactory:
         corr_tab = CorrelationTab(
             context=self.context,
             corr_controller=controllers['correlation'],
-            corr_test_widget=CorrelationTestWidget
+            corr_test_widget=CorrelationTestWidget,
+            partial_corr_widget=PartialCorrWidget,
+            multi_corr_widget=MultiCorrWidget
         )
         regr_tab = RegressionTab(
             context=self.context,
