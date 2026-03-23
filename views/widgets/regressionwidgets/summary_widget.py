@@ -1,9 +1,10 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QScrollArea,
-    QTableWidget, QGroupBox, QTableWidgetItem
+    QTableWidget, QGroupBox, QTableWidgetItem, QPushButton
 )
 from PyQt6.QtCore import Qt
 from services.ui_services.messager import UIMessager
+from services.ui_services.renderers.graph_renderers import RegressionPlotDialog
 from utils import AppContext
 from controllers import RegressionController
 from utils.ui_styles import groupMargin, groupStyle
@@ -27,7 +28,7 @@ class RegrSummaryWidget(QWidget):
         """Initialize regression summary UI components."""
         self.setStyleSheet(groupStyle + groupMargin)
         layout = QVBoxLayout()
-        
+
         header_layout = QHBoxLayout()
         header_layout.addWidget(QLabel(f"{'=' * HEADING_TITLE_SIZE} Summary {'=' * HEADING_TITLE_SIZE}"))
         header_layout.addStretch()
@@ -37,6 +38,11 @@ class RegrSummaryWidget(QWidget):
         self._init_equation_label(layout)
         self._init_model_sagn_label(layout)
         self._init_metrics_section(layout)
+
+        self.visualize_btn = QPushButton("Visualize")
+        self.visualize_btn.setVisible(False)
+        self.visualize_btn.clicked.connect(self._on_visualize)
+        layout.addWidget(self.visualize_btn)
 
         self.setLayout(layout)
 
@@ -107,7 +113,10 @@ class RegrSummaryWidget(QWidget):
             if ci_result:
                 self._update_coefficients_table(ci_result)
                 self._update_model_sagn_label(model_sagn)
-            
+
+            n_features = len(self.controller.current_features)
+            self.visualize_btn.setVisible(1 <= n_features <= 2)
+
         except Exception as e:
             self.messanger.show_error("Summary error", str(e))
 
@@ -164,7 +173,39 @@ class RegrSummaryWidget(QWidget):
         f_text = f"{stat.get('name', 'statistic')}: {float(stat.get('val', 0)):.4f} | p-value: {float(p_val):.4f} | Significant: {str(significant)}"
         self.model_sagn_label.setText(f_text)
 
+    def _on_visualize(self) -> None:
+        """Open regression plot dialog."""
+        try:
+            data_model = self.context.data_model
+            if data_model is None or data_model.dataframe is None:
+                return
+
+            features = self.controller.current_features
+            target = self.controller.current_target
+            df = data_model.dataframe
+
+            missing = [c for c in features + [target] if c not in df.columns]
+            if missing:
+                self.messanger.show_error("Visualize error",
+                    f"Columns not found in dataframe: {', '.join(missing)}")
+                return
+
+            X_df = df[features]
+            y_series = df[target]
+
+            dialog = RegressionPlotDialog(
+                X_df=X_df,
+                y_series=y_series,
+                predict_fn=self.controller.predict,
+                parent=self,
+            )
+            dialog.exec()
+
+        except Exception as e:
+            self.messanger.show_error("Visualize error", str(e))
+
     def clear(self) -> None:
         """Clear all summary data."""
         self.metrics.setText("-")
         self.result_table.setRowCount(0)
+        self.visualize_btn.setVisible(False)
