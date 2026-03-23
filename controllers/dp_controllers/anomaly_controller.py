@@ -30,21 +30,21 @@ class AnomalyController:
         self.anomaly_proc: AnomalyProcessor = anomaly_proc
         self.get_gamma_value = get_gamma_value
 
-    @require_one_dimensional_dataframe
+    # @require_one_dimensional_dataframe
     def remove_sigma_anomalies(self, *args, **kwargs) -> None:
         """
         Detect and remove anomalies using the standard deviation threshold method (3 sigma).
         """
         self._remove_anomalies(self.anomaly_proc.detect_sigma_anomalies, "Sigma Filtered")
 
-    @require_one_dimensional_dataframe
+    # @require_one_dimensional_dataframe
     def remove_asymmetry_anomalies(self, *args, **kwargs) -> None:
         """
         Detect and remove anomalies based on skewness and kurtosis adjustments.
         """
         self._remove_anomalies(self.anomaly_proc.detect_asymmetry_anomalies, "Asymmetry Filtered")
 
-    @require_one_dimensional_dataframe
+    # @require_one_dimensional_dataframe
     def remove_conf_anomalies(self, *args, **kwargs):
         """
         Detect and remove anomalies using confidence interval bounds.
