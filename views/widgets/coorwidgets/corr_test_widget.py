@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QPushButton, QComboBox, 
+    QWidget, QVBoxLayout, QLabel, QPushButton, QComboBox,
     QHBoxLayout, QLineEdit
 )
 from typing import Callable
@@ -34,6 +34,7 @@ class CorrelationTestWidget(QWidget):
         self._init_column_selectors(layout)
         self._init_action_buttons(layout)
         self._init_result_section(layout)
+        layout.addStretch()
         self.setLayout(layout)
 
     def _subscribe_to_events(self) -> None:
@@ -44,26 +45,24 @@ class CorrelationTestWidget(QWidget):
     def _init_alpha_controls(self, layout: QVBoxLayout) -> None:
         """Initialize significance level controls."""
         alpha_layout = QHBoxLayout()
-        alpha_label = QLabel("Significance Level α:")
-        self.alpha_input = QLineEdit()
-        self.alpha_input.setText(DEFAULT_ALPHA_VAL_LABEL)
+        alpha_layout.addWidget(QLabel("Significance Level α:"))
+        self.alpha_input = QLineEdit(DEFAULT_ALPHA_VAL_LABEL)
         self.alpha_input.setMaximumWidth(MAX_ALPHA_INPUT_WIDTH)
-        alpha_layout.addWidget(alpha_label)
         alpha_layout.addWidget(self.alpha_input)
         alpha_layout.addStretch()
         layout.addLayout(alpha_layout)
 
     def _init_column_selectors(self, layout: QVBoxLayout) -> None:
         """Initialize column selectors for testing."""
-        cols_layout = QHBoxLayout()
+        xy_layout = QHBoxLayout()
         self.x_col_combo = QComboBox()
         self.y_col_combo = QComboBox()
-        cols_layout.addWidget(QLabel("X:"))
-        cols_layout.addWidget(self.x_col_combo)
-        cols_layout.addWidget(QLabel("Y:"))
-        cols_layout.addWidget(self.y_col_combo)
-        cols_layout.addStretch()
-        layout.addLayout(cols_layout)
+        xy_layout.addWidget(QLabel("X:"))
+        xy_layout.addWidget(self.x_col_combo)
+        xy_layout.addWidget(QLabel("Y:"))
+        xy_layout.addWidget(self.y_col_combo)
+        xy_layout.addStretch()
+        layout.addLayout(xy_layout)
 
     def _init_action_buttons(self, layout: QVBoxLayout) -> None:
         """Add 'Run Test' button."""
@@ -71,6 +70,7 @@ class CorrelationTestWidget(QWidget):
         self.run_btn = QPushButton("Run Test")
         self.run_btn.clicked.connect(self._run_test)
         btn_layout.addWidget(self.run_btn)
+        btn_layout.addStretch()
         layout.addLayout(btn_layout)
 
     def _init_result_section(self, layout: QVBoxLayout) -> None:
@@ -98,8 +98,7 @@ class CorrelationTestWidget(QWidget):
             self.y_col_combo.addItems(cols)
 
     def _run_test(self) -> None:
-        """Execute correlation test and show results."""
-        if not self.get_coeff_name: ValueError("get_coeff_name not connected")
+        if not self.get_coeff_name: raise ValueError("get_coeff_name not connected")
 
         data_model = self.context.data_model
         if data_model is None:
