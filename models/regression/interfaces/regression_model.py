@@ -5,6 +5,7 @@ import numpy as np
 class IRegression(ABC):
     """Base interface for regression models"""
     features_: List[str] | None
+    target_: str | None = None
     coef_: np.ndarray | None
     intercept_: float | None
 

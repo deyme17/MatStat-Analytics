@@ -32,6 +32,7 @@ class RegressionController:
         feature_names = list(X_df.columns)
         if validate_feature_names(feature_names):
             self._current_model.features_ = list(feature_names)
+        self._current_model.target_ = y_series.name
 
         self._current_model.fit(X, y)
 
@@ -117,3 +118,17 @@ class RegressionController:
     @property
     def regression_models(self) -> List[str]:
         return list(self._models.keys())
+
+    @property
+    def current_features(self) -> list[str]:
+        """Return feature names of the currently fitted model."""
+        if not self._current_model:
+            return []
+        return list(getattr(self._current_model, 'features_', []))
+
+    @property
+    def current_target(self) -> str | None:
+        """Return target column name of the currently fitted model."""
+        if not self._current_model:
+            return None
+        return getattr(self._current_model, 'target_', None)

@@ -12,6 +12,7 @@ class LinearRegression(IRegression):
         self.y_: np.ndarray | None = None
 
         self.features_: List[str] | None = None
+        self.target_: str | None = None
         self.coef_: np.ndarray | None = None
         self.intercept_: float | None = None
 
