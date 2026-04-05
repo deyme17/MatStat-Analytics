@@ -1,8 +1,9 @@
 from PyQt6.QtWidgets import QGroupBox, QLabel, QVBoxLayout
 from abc import ABC, abstractmethod
-from utils.decorators import check_samples, check_independent
+from utils.decorators import check_samples, check_independent, support_multivariate
 import pandas as pd
 from utils.ui_styles import groupStyle, groupMargin
+from PyQt6.QtWidgets import QMessageBox
 
 
 class Meta(type(QGroupBox), type(ABC)):
@@ -14,8 +15,8 @@ class BaseHomoTestPanel(QGroupBox, ABC, metaclass=Meta):
     Abstract base class for homogeneity test panels.
     Accepts a dynamic list of statistics for flexible test panels.
     """
-    def __init__(self, homogen_controller, stats_config: list[dict], 
-                 n_datasets: int, require_independent: bool|None = None) -> None:
+    def __init__(self, homogen_controller, stats_config: list[dict], n_datasets: int,
+                 require_independent: bool = False, support_multivariate: bool = False) -> None:
         """
         Initialize the panel with given stats configuration.
         Args:
@@ -26,11 +27,13 @@ class BaseHomoTestPanel(QGroupBox, ABC, metaclass=Meta):
             n_datasets: number of datasets for testing
             require_independent: Does test require dependent or independent samples
                 (None if test is applied for both independent and dependent samples)
+            support_multivariate: Does test support multivariate data (True) or only univariate (False)
         """
         super().__init__()
         self.homogen_controller = homogen_controller
         self.n_datasets = n_datasets
         self.require_independent = require_independent
+        self.support_multivariate = support_multivariate
 
         self.setCheckable(False)
         self.setStyleSheet(groupStyle + groupMargin)
@@ -66,6 +69,12 @@ class BaseHomoTestPanel(QGroupBox, ABC, metaclass=Meta):
         if "decision" in result:
             self.update_result(result["decision"])
 
+    def show_info(self, title: str, message: str) -> None:
+        """
+        Show informational message using the messanger service.
+        """
+        QMessageBox.information(self, title, message)
+
     def update_result(self, passed: bool) -> None:
         """
         Update hypothesis decision.
@@ -85,11 +94,12 @@ class BaseHomoTestPanel(QGroupBox, ABC, metaclass=Meta):
 
     @check_samples
     @check_independent
-    def evaluate(self, samples: list[pd.Series], alpha: float, is_independent: bool) -> None:
+    @support_multivariate
+    def evaluate(self, samples: list[pd.Series|pd.DataFrame], alpha: float, is_independent: bool) -> None:
         """
         Evaluate the test.
         Args:
-            samples (list[pd.Series]): List of samples to test (should contain exactly 2 samples).
+            samples (list[pd.Series|pd.DataFrame]): List of samples to test.
             alpha (float): Significance level.
             is_independent (bool): True if samples are independent, False if paired.
         """
