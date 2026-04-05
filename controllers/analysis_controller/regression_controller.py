@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 import pandas as pd
 from utils.helpers import validate_feature_names
 from models.regression.interfaces import IRegression
@@ -17,6 +17,24 @@ class RegressionController:
     def _register_models(self, regression_models: List[IRegression]):
         for regression in regression_models:
             self._models[regression.name] = regression
+
+    @property
+    def regression_models(self) -> List[str]:
+        return list(self._models.keys())
+
+    @property
+    def current_features(self) -> list[str]:
+        """Return feature names of the currently fitted model."""
+        if not self._current_model:
+            return []
+        return list(getattr(self._current_model, 'features_', []))
+
+    @property
+    def current_target(self) -> str | None:
+        """Return target column name of the currently fitted model."""
+        if not self._current_model:
+            return None
+        return getattr(self._current_model, 'target_', None)
 
     def fit(self, model_name: str, X_df: pd.DataFrame, y_series: pd.Series) -> None:
         """Train selected model on DataFrame."""
@@ -114,21 +132,12 @@ class RegressionController:
             return
         
         return model_sagn
-
-    @property
-    def regression_models(self) -> List[str]:
-        return list(self._models.keys())
-
-    @property
-    def current_features(self) -> list[str]:
-        """Return feature names of the currently fitted model."""
+    
+    def standardized_coefficients(self) -> Optional[Dict[str, Any]]:
+        """
+        Returns standardized (beta) coefficients for the current model.
+        Returns None if model doesn't support standardization.
+        """
         if not self._current_model:
-            return []
-        return list(getattr(self._current_model, 'features_', []))
-
-    @property
-    def current_target(self) -> str | None:
-        """Return target column name of the currently fitted model."""
-        if not self._current_model:
-            return None
-        return getattr(self._current_model, 'target_', None)
+            raise RuntimeError("Model not trained yet")
+        return self._current_model.standardized_coefficients()
