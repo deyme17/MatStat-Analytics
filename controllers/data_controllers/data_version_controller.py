@@ -175,13 +175,6 @@ class DataVersionController:
         if self.context.data_model and self.set_bins_value:
             self.set_bins_value(self.context.data_model.bins)
 
-    def has_transformation_history(self) -> bool:
-        """
-        Check if current dataset has any transformations applied.
-        """
-        return (self.context.data_model and 
-                len(self.context.data_model.history) > 0)
-
     def get_current_transformation_info(self) -> str:
         """
         Get description of current transformation state.

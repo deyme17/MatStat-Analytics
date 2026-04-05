@@ -70,14 +70,6 @@ class DataTransformController:
             'series': new_model.series,
             'label': label
         })
-
-    def is_transformed(self) -> bool:
-        """
-        Check whether the current dataset has transformation history.
-        Return:
-            True if transformations applied, False otherwise
-        """
-        return len(self.context.data_model.history) > 0
     
     def connect_ui(self, get_shift_value: Callable[[], int]) -> None:
         self.get_shift_value = get_shift_value
