@@ -218,8 +218,6 @@ class ConnectFactory:
             columns_combo_control=build_combo_callbacks(data_tab.dataframe_cols_combo),
             set_bins_value=lambda bins: self.window.graph_panel.bins_spinbox.setValue(bins)
         )
-        controllers['anomaly_data'].connect_ui(data_tab.anomaly_widget.anomaly_gamma_spinbox.value)
-        controllers['data_transform'].connect_ui(data_tab.transform_widget.shift_spinbox.value)
         controllers['missing_data'].connect_ui(
             MissingInfoDisplayService(
                 set_count_label=lambda text: data_tab.missing_widget.missing_count_label.setText(text),

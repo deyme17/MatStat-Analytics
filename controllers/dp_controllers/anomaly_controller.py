@@ -15,20 +15,17 @@ class AnomalyController:
         self, 
         context: AppContext, 
         anomaly_proc: AnomalyProcessor, 
-        get_gamma_value: Optional[Callable[[], float]] = None
     ):
         """    
         Args:
             context: Application context container
             anomaly_proc: Class for anomaly detection operations
-            get_gamma_value: Function for getting gamma configuration
         """
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
         self.version_manager: DataVersionManager = context.version_manager
         self.messanger: UIMessager = context.messanger
         self.anomaly_proc: AnomalyProcessor = anomaly_proc
-        self.get_gamma_value = get_gamma_value
 
     # @require_one_dimensional_dataframe
     def remove_sigma_anomalies(self, *args, **kwargs) -> None:
@@ -45,14 +42,11 @@ class AnomalyController:
         self._remove_anomalies(self.anomaly_proc.detect_asymmetry_anomalies, "Asymmetry Filtered")
 
     # @require_one_dimensional_dataframe
-    def remove_conf_anomalies(self, *args, **kwargs):
+    def remove_conf_anomalies(self, gamma: float = 0.95, *args, **kwargs):
         """
         Detect and remove anomalies using confidence interval bounds.
         Confidence level is selected via the gamma spinbox.
         """
-        if not self.get_gamma_value:
-            raise RuntimeError("No get_gamma_value function provided in AnomalyController")
-        gamma = self.get_gamma_value()
         func = lambda data: self.anomaly_proc.detect_conf_anomalies(data, gamma)
         self._remove_anomalies(func, f"Conf. Filtered γ={gamma}")
 
@@ -103,6 +97,3 @@ class AnomalyController:
             f"Removed {len(anomalies)} anomalies.\n"
             f"Lower: {result['lower_limit']:.4f}, Upper: {result['upper_limit']:.4f}"
         )
-
-    def connect_ui(self, get_gamma_value: Callable[[], float]) -> None:
-        self.get_gamma_value = get_gamma_value

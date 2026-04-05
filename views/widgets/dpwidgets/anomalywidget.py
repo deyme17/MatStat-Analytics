@@ -18,7 +18,7 @@ class AnomalyWidget(BaseDataWidget):
             ("asymmetry_anomaly_button", "Remove asymmetry anomalies", 
              controller.remove_asymmetry_anomalies),
             ("confidence_anomaly_button", "Remove Anomalies by γ", 
-             controller.remove_conf_anomalies)
+             lambda: controller.remove_conf_anomalies(self.anomaly_gamma_spinbox.value()))
         ]
         super().__init__("Anomaly Detection", controller, event_bus, buttons_config)
         # gamma controls
@@ -40,7 +40,7 @@ class AnomalyWidget(BaseDataWidget):
         self.anomaly_gamma_spinbox.setSingleStep(GAMMA_STEP)
         self.anomaly_gamma_spinbox.setValue(DEFAULT_GAMMA)
         self.anomaly_gamma_spinbox.setDecimals(GAMMA_PRECISION)
-        self.anomaly_gamma_spinbox.setEnabled(False)
+        self.anomaly_gamma_spinbox.setEnabled(True)
         
         gamma_layout.addWidget(self.anomaly_gamma_label)
         gamma_layout.addWidget(self.anomaly_gamma_spinbox)
