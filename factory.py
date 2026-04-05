@@ -20,8 +20,7 @@ from controllers import (
 # Services
 from services import (
     ConfidenceAssesment, TestPerformer, SimpleLinearRegression,
-    UIMessager, MissingInfoDisplayService, 
-    StatsRenderer, VarSerRenderer, MultiVarRenderer,
+    UIMessager, StatsRenderer, VarSerRenderer, MultiVarRenderer,
     DataVersionManager, DataLoaderService,
     DataSaver, DataExporter
 )
