@@ -42,6 +42,7 @@ class StandardizeDialog(QDialog):
         self._list = QListWidget()
         self._list.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
         self._populate_list()
+        self._list.selectAll()
         layout.addWidget(self._list)
 
         if self._std_params:
