@@ -142,46 +142,12 @@ class DataVersionController:
 
         self.columns_combo_control.block_signals(False)
 
-    def update_dataset_selection(self) -> None:
-        """
-        Sync the dropdown selection with the currently active dataset.
-        """
-        if not self.version_combo_controls:
-            return
-            
-        dataset_names = self.version_manager.get_all_dataset_names()
-        current_name = self.version_manager.get_current_dataset_name()
-
-        self.version_combo_controls.block_signals(True)
-        if current_name in dataset_names:
-            self.version_combo_controls.set_current_index(dataset_names.index(current_name))
-        self.version_combo_controls.block_signals(False)
-        
-        self.event_bus.emit_type(EventType.DATASET_CHANGED, {
-            'model': self.context.data_model,
-            'series': self.context.data_model.series if self.context.data_model else None
-        })
-
-    def get_all_datasets(self) -> dict:
-        """
-        Returns a dictionary of all loaded datasets {name: DataModel}
-        """
-        return self.version_manager.datasets
-
     def _set_bins_for_new_data(self) -> None:
         """
         Internal helper to refresh bins after switching dataset.
         """
         if self.context.data_model and self.set_bins_value:
             self.set_bins_value(self.context.data_model.bins)
-
-    def get_current_transformation_info(self) -> str:
-        """
-        Get description of current transformation state.
-        """
-        if self.context.data_model:
-            return self.context.data_model.current_transformation
-        return "No Data"
 
     def connect_ui(self, 
                    version_combo_controls: ComboUICallbacks,
