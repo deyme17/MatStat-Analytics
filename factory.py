@@ -218,12 +218,6 @@ class ConnectFactory:
             columns_combo_control=build_combo_callbacks(data_tab.dataframe_cols_combo),
             set_bins_value=lambda bins: self.window.graph_panel.bins_spinbox.setValue(bins)
         )
-        controllers['missing_data'].connect_ui(
-            MissingInfoDisplayService(
-                set_count_label=lambda text: data_tab.missing_widget.missing_count_label.setText(text),
-                set_percent_label=lambda text: data_tab.missing_widget.missing_percentage_label.setText(text)
-            )
-        )
 
 
 class Factory:

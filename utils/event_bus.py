@@ -19,6 +19,7 @@ class EventType(Enum):
     PRECISION_CHANGED = auto()
     DISTRIBUTION_CHANGED = auto()
     ADDITIONAL_GRAPH_TOGGLED = auto()
+    MISSING_VALUES_INFO = auto()
     
     # State events
     MISSING_VALUES_DETECTED = auto()
@@ -48,13 +49,15 @@ class EventBus:
             self._subscribers[event_type].remove(callback)
     
     def emit(self, event: Event) -> None:
-        """Calls all subscribed events"""
         if event.type in self._subscribers:
             for callback in self._subscribers[event.type]:
                 try:
                     callback(event)
                 except Exception as e:
                     print(f"Error in event handler for {event.type}: {e}")
+                    print(f"  callback: {callback}")  # <-- додай це
+                    import traceback
+                    traceback.print_exc()             # <-- і це
     
     def emit_type(self, event_type: EventType, data: Any = None) -> None:
         """Fast call of all the subscribed events"""
