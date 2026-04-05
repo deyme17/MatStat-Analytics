@@ -23,6 +23,11 @@ class LinearRegression(IRegression):
 
         self._model_sagn_cache_: Dict[str, Any] | None = None
 
+    @property
+    def name(self) -> str:
+        """Returns a name of regression type"""
+        return f"Linear Regression ({self.algorithm.name})"
+
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
         """
         Train model on data
@@ -163,11 +168,27 @@ class LinearRegression(IRegression):
             self._model_sagn_cache_ = self.algorithm.compute_model_significance(self.X_, self.y_)
         self._model_sagn_cache_["significant"] = self._model_sagn_cache_["p_value"] < alpha
         return self._model_sagn_cache_
+    
+    def standardized_coefficients(self) -> Optional[Dict[str, Any]]:
+        """
+        Returns standardized (beta) coefficients.
+        Beta_i = coef_i * (std(X_i) / std(y))
+        """
+        if self.coef_ is None or self.X_ is None or self.y_ is None:
+            raise RuntimeError("Model not fitted yet")
 
-    @property
-    def name(self) -> str:
-        """Returns a name of regression type"""
-        return f"Linear Regression ({self.algorithm.name})"
+        std_X = np.std(self.X_, axis=0, ddof=1)
+        std_y = np.std(self.y_, ddof=1)
+        if std_y == 0:
+            raise ValueError("Target variable has zero variance, cannot standardize")
+        
+        with np.errstate(invalid='ignore', divide='ignore'):
+            beta = np.where(std_X == 0, 0.0, self.coef_ * (std_X / std_y))
+
+        return {
+            'features': self.features_,
+            'beta_coef': beta,
+        }
     
     def _evaluate_model(self) -> None:
         """Evaluates model and saves statistic and metrics"""

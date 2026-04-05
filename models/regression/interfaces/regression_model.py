@@ -102,7 +102,21 @@ class IRegression(ABC):
     def _generate_feature_names(self, n_original_features: int) -> None:
         """Generate names for model features"""
         pass
-    
+
+    def standardized_coefficients(self) -> Optional[Dict[str, Any]]:
+        """
+        Returns standardized (beta) coefficients.
+        Beta_i = coef_i * (std(X_i) / std(y))
+        Not all models support this (e.g. Polynomial).
+        Returns None by default.
+        Returns:
+            Optional[Dict]: {
+                'features': List[str],
+                'beta_coef': np.ndarray,
+            }
+        """
+        return None
+        
     def _generate_equation(self) -> str:
         """Generate the string representation of the model equation"""
         equation = "y = "

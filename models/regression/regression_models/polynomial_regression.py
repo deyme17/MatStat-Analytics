@@ -26,6 +26,11 @@ class PolynomialRegression(IRegression):
 
         self._model_signif_cache_: Dict[str, Any] | None = None
 
+    @property
+    def name(self) -> str:
+        """Returns a name of regression type"""
+        return f"Polynomial Regression (degree={self.degree}, {self.algorithm.name})"
+
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
         """
         Train model on data
@@ -144,11 +149,6 @@ class PolynomialRegression(IRegression):
             self._model_signif_cache_ = self.algorithm.compute_model_significance(self.X_poly_, self.y_)
         self._model_signif_cache_["significant"] = self._model_signif_cache_["p_value"] < alpha
         return self._model_signif_cache_
-
-    @property
-    def name(self) -> str:
-        """Returns a name of regression type"""
-        return f"Polynomial Regression (degree={self.degree}, {self.algorithm.name})"
     
     def _transform(self, X: np.ndarray) -> np.ndarray:
         """
