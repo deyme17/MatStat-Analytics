@@ -61,18 +61,19 @@ class Base2VarGraphTab(BaseGraphTab):
                 self.second_column_selector.clear()
                 return
             columns = list(data_model.dataframe.columns)
-        
-        current = self.second_column_selector.currentText()
+                
+        current = self.second_column_selector.currentText().strip()
+        first_col = self.context.version_manager.get_current_column_name()
+        columns = [col for col in columns if col != first_col]
+
         self.second_column_selector.blockSignals(True)
         self.second_column_selector.clear()
         self.second_column_selector.addItems(columns)
-        
-        if current in columns:
-            self.second_column_selector.setCurrentText(current)
-        elif columns:
-            # select first column if current is not available
-            self.second_column_selector.setCurrentIndex(0)
-        
+
+        index = self.second_column_selector.findText(current)
+        if index >= 0:
+            self.second_column_selector.setCurrentIndex(index)
+
         self.second_column_selector.blockSignals(False)
     
     def get_current_column_names(self) -> Optional[Tuple[str, str]]:
