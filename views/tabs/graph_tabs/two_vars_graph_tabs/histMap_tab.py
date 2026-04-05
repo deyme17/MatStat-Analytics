@@ -49,6 +49,8 @@ class HistogramMapTab(Base2VarGraphTab):
             if columns is None:
                 return
             col1, col2 = columns
+            if col1 == col2:
+                return
             
             renderer = RENDERERS['histogram_map']
             renderer.render(

@@ -2,7 +2,8 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QSpinBox, QDoubleSpinBox, QCheckBox, QTabWidget
 )
-from typing import Any, Dict
+from PyQt6.QtCore import QTimer
+from typing import Any, Dict, Optional
 from utils import AppContext, EventBus, EventType, Event
 from views.tabs.graph_tabs.graph_tab import BaseGraphTab
 from .stat_dist_selector import DistributionSelector
@@ -19,29 +20,25 @@ CONF_PRECISION = 2
 PANEL_HEIGHT = 750
 PANEL_WIDTH = 990
 
+RENDER_DELAY_MS = 250 
+
 
 class GraphPanel(QWidget):
     """
     Visualization panel hosting graph tabs and controls.
-    Uses EventBus for communication.
     """
-    def __init__(
-        self,
-        context: AppContext,
-        dist_selector: DistributionSelector,
-        graph_tabs: Dict[str, BaseGraphTab]
-    ):
-        """
-        Args:
-            context: Application context with event_bus and data_model
-            dist_selector: Distribution selector widget
-            graph_tabs: Dictionary of {tab_name: tab_widget_instance}
-        """
+    def __init__(self, context: AppContext, dist_selector: DistributionSelector, 
+                 graph_tabs: Dict[str, BaseGraphTab]):
         super().__init__()
         self.dist_selector = dist_selector
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
         self.graph_tabs: Dict[str, BaseGraphTab] = graph_tabs
+
+        # debounce timer
+        self.render_timer = QTimer()
+        self.render_timer.setSingleShot(True)
+        self.render_timer.timeout.connect(self.refresh_all)
 
         self._init_controls()
         self._init_tabs()
@@ -101,6 +98,8 @@ class GraphPanel(QWidget):
 
     def _connect_signals(self) -> None:
         """Connect control signals to event emissions."""
+        self.tabs.currentChanged.connect(self._on_tab_changed)
+
         self.bins_spinbox.valueChanged.connect(
             lambda value: self.event_bus.emit_type(EventType.BINS_CHANGED, value)
         )
@@ -126,9 +125,19 @@ class GraphPanel(QWidget):
         self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_data_changed)
         self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_data_changed)
         self.event_bus.subscribe(EventType.BINS_CHANGED, self._on_bins_changed)
-        self.event_bus.subscribe(EventType.CONFIDENCE_CHANGED, self._on_render_params_changed)
-        self.event_bus.subscribe(EventType.DISTRIBUTION_CHANGED, self._on_render_params_changed)
-        self.event_bus.subscribe(EventType.ADDITIONAL_GRAPH_TOGGLED, self._on_render_params_changed)
+        self.event_bus.subscribe(EventType.CONFIDENCE_CHANGED, self._request_render)
+        self.event_bus.subscribe(EventType.DISTRIBUTION_CHANGED, self._request_render)
+        self.event_bus.subscribe(EventType.ADDITIONAL_GRAPH_TOGGLED, self._request_render)
+
+    def _on_tab_changed(self, index: int) -> None:
+        """Draw the active tab."""
+        active_tab = self.tabs.widget(index)
+        if active_tab:
+            self.refresh_all()
+
+    def _request_render(self, event: Optional[Event] = None) -> None:
+        """Request a render operation."""
+        self.render_timer.start(RENDER_DELAY_MS)
 
     def _on_data_changed(self, event: Event) -> None:
         """Handle data changes."""
@@ -150,29 +159,24 @@ class GraphPanel(QWidget):
         data_model = self.context.data_model
         if data_model:
             data_model.update_bins(bins)
-        self.refresh_all()
-
-    def _on_render_params_changed(self, event: Event) -> None:
-        """Handle rendering parameter changes."""
-        self.refresh_all()
+        self._request_render()
 
     def _on_missings(self, event: Event) -> None:
         self.clear()
 
     def refresh_all(self) -> None:
-        """Redraw all graphs with current data."""
+        """Redraw ONLY the currently active tab."""
         data_model = self.context.data_model
         if data_model is None:
             return
         series = data_model.series
-        if series is None or series.empty:
+        if (series is None or series.empty
+            or data_model.dataframe.isna().any().any()):
             return
-        clean_data = series.dropna()
-        if clean_data.empty:
-            return
-
-        for tab in self.graph_tabs.values():
-            tab.draw()
+        
+        active_tab = self.tabs.currentWidget()
+        if active_tab and hasattr(active_tab, 'draw'):
+            active_tab.draw()
 
     def clear(self) -> None:
         """Clear all graph tabs."""

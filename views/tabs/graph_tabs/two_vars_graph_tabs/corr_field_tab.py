@@ -44,6 +44,8 @@ class CorrelationFieldTab(Base2VarGraphTab):
             if columns is None:
                 return
             col1, col2 = columns
+            if col1 == col2:
+                return
             
             # trendline
             regression_coeffs = None
