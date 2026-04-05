@@ -29,7 +29,8 @@ class CochranQTest(BaseHomogenTest):
             }
         """
         k = len(samples)
-        if k < 3: return {}
+        if k < 3:
+            raise ValueError(f"Сochran's Q test requires at least 3 samples, but {k} were provided.")
 
         for i, sample in enumerate(samples):
             if not np.all(np.isin(sample, [0, 1])):
