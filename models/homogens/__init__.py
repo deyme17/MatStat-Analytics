@@ -11,6 +11,7 @@ from .n_samples_tests.bartlett_test import BartlettTest
 from .n_samples_tests.anova_test import ANOVATest
 from .n_samples_tests.cochran_Q_test import CochranQTest
 from .n_samples_tests.kruskal_wallis_H_test import HTest
+from .n_samples_tests.multivariate_normal_test import MultiNormalTest
 
 from .base_homogen_test import BaseHomogenTest
 
@@ -26,6 +27,7 @@ homogen_tests: list[type[BaseHomogenTest]] = [
     ANOVATest,
     CochranQTest,
     HTest,
+    MultiNormalTest,
 
     AbbeTest
 ]

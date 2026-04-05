@@ -17,12 +17,12 @@ class HomogenController:
             test_instance = homogen_test()
             self._tests[test_instance.name()] = test_instance
 
-    def run_test(self, test_name: str, samples: List[pd.Series], alpha: float = 0.05, is_independent: bool = False) -> Optional[Dict]:
+    def run_test(self, test_name: str, samples: List[pd.Series|pd.DataFrame], alpha: float = 0.05, is_independent: bool = False) -> Optional[Dict]:
         """
         Run a homogeneity test for samples.
         Args:
             test_name: The name of the homogeneity test to run (must be registered in `_tests`).
-            samples: Ssamples to test. Can be pandas Series or numpy arrays.
+            samples: Ssamples to test. Can be pandas Series, pandas DataFrame, or numpy arrays.
             alpha: Significance level for the statistical test.
             is_independent: True if the two samples are independent, False if paired/dependent.
         Returns:
@@ -40,4 +40,4 @@ class HomogenController:
 
             return self._tests[test_name].run(clean_samples, alpha, is_independent)
         except Exception as e:
-           raise ValueError(e)
+           raise ValueError(f"Error occurred while running Homogeneity test '{test_name}': {e}")

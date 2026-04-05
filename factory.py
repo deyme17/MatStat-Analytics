@@ -36,7 +36,7 @@ from views import (
     KolmogorovSmirnovPanel, PearsonChi2Panel, Pearson2DNormalPanel, RegrSummaryWidget, RegrPredictionWidget,
     GenerationWidget, ExperimentWidget, CorrelationTestWidget, PartialCorrWidget, MultiCorrWidget,
     NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel, AbbePanel,
-    ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel,
+    ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel, MultiNormalPanel,
     GraphPanel, DistributionSelector
 )
 from views.tabs.graph_tabs import EDFTab, HistogramTab, HHTab, HistogramMapTab, CorrelationFieldTab, CorrelationMatrixTab
@@ -144,7 +144,7 @@ class UIFactory:
             context=self.context,
             homogen_2samples_panels=[NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, 
                                      RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel],
-            homogen_Nsamples_panels=[ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel],
+            homogen_Nsamples_panels=[ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel, MultiNormalPanel],
             hamogen_1sample_panels=[AbbePanel]
         )
         sim_tab = SimulationTab(

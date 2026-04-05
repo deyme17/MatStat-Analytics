@@ -182,8 +182,14 @@ class HomogenTab(QWidget):
                 pnl.hide()
             panel = group.panels[idx]
             try:
+                support_multivariate = getattr(panel, "support_multivariate", False)
+                if support_multivariate:
+                    samples = [datasets[name].dataframe for name in self.selected_models]
+                else:
+                    samples = [datasets[name].series for name in self.selected_models]
+                    
                 panel.evaluate(
-                    samples=[datasets[dataset_name].series for dataset_name in self.selected_models],
+                    samples=samples,
                     alpha=self.alpha_spinbox.value(),
                     is_independent=self.independence_checkbox.isChecked()
                 )

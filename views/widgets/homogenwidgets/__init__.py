@@ -9,5 +9,6 @@ from .n_samples_panels.bartlett_panel import BurtlettPanel
 from .n_samples_panels.anova_panel import ANOVAPanel
 from .n_samples_panels.cochran_Q_panel import CochranQPanel
 from .n_samples_panels.kruskal_wallis_H_panel import HPanel
+from .n_samples_panels.multivariate_normal_panel import MultiNormalPanel
 
 from .one_sample_panels.abbe_panel import AbbePanel
