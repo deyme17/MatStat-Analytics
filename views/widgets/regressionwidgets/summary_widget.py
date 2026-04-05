@@ -9,10 +9,10 @@ from utils import AppContext
 from controllers import RegressionController
 from utils.ui_styles import groupMargin, groupStyle
 
-HEADING_TITLE_SIZE = 15
 HEADING_TITLE_SIZE = 16
 RES_TABLE_GROUP_HEIGHT = 160
 EQUATION_GROUP_HEIGHT = 80
+BETA_TABLE_GROUP_HEIGHT = 130
 
 
 class RegrSummaryWidget(QWidget):
@@ -35,6 +35,7 @@ class RegrSummaryWidget(QWidget):
         layout.addLayout(header_layout)
 
         self._init_result_table(layout)
+        self._init_beta_table(layout)
         self._init_equation_label(layout)
         self._init_model_sagn_label(layout)
         self._init_metrics_section(layout)
@@ -63,6 +64,23 @@ class RegrSummaryWidget(QWidget):
         group.setLayout(group_layout)
         group.setFixedHeight(RES_TABLE_GROUP_HEIGHT)
         layout.addWidget(group)
+
+    def _init_beta_table(self, layout: QVBoxLayout) -> None:
+        """Initialize standardized (beta) coefficients table."""
+        self.beta_group = QGroupBox("Standardized (Beta) Coefficients")
+        group_layout = QVBoxLayout()
+
+        self.beta_table = QTableWidget()
+        self.beta_table.setColumnCount(2)
+        self.beta_table.setHorizontalHeaderLabels(["Variable", "Beta coef"])
+        self.beta_table.horizontalHeader().setStretchLastSection(True)
+        self.beta_table.setAlternatingRowColors(True)
+
+        group_layout.addWidget(self.beta_table)
+        self.beta_group.setLayout(group_layout)
+        self.beta_group.setFixedHeight(BETA_TABLE_GROUP_HEIGHT)
+        self.beta_group.setVisible(False)
+        layout.addWidget(self.beta_group)
 
     def _init_equation_label(self, layout: QVBoxLayout) -> None:
         """Initialize model equation label (e.g. y = ax + b)."""
@@ -114,6 +132,8 @@ class RegrSummaryWidget(QWidget):
                 self._update_coefficients_table(ci_result)
                 self._update_model_sagn_label(model_sagn)
 
+            self._update_beta_table()
+
             n_features = len(self.controller.current_features)
             self.visualize_btn.setVisible(1 <= n_features <= 2)
 
@@ -149,6 +169,24 @@ class RegrSummaryWidget(QWidget):
 
         self.result_table.resizeColumnsToContents()
 
+    def _update_beta_table(self) -> None:
+        """Update standardized beta coefficients table, or hide it if not supported."""
+        std_result = self.controller.standardized_coefficients()
+        if std_result is None:
+            self.beta_group.setVisible(False)
+            return
+
+        features: list = std_result['features']
+        betas = std_result['beta_coef']
+
+        self.beta_table.setRowCount(len(features))
+        for i, (feat, beta) in enumerate(zip(features, betas)):
+            self.beta_table.setItem(i, 0, QTableWidgetItem(str(feat)))
+            self.beta_table.setItem(i, 1, QTableWidgetItem(f"{float(beta):.4f}"))
+
+        self.beta_table.resizeColumnsToContents()
+        self.beta_group.setVisible(True)
+
     def _update_equation_label(self, equation: str | None) -> None:
         """Update model equation label."""
         if not equation:
@@ -169,8 +207,12 @@ class RegrSummaryWidget(QWidget):
         if stat is None or p_val is None:
             self.model_sagn_label.setText("Insufficient data for testing")
             return
-        
-        f_text = f"{stat.get('name', 'statistic')}: {float(stat.get('val', 0)):.4f} | p-value: {float(p_val):.4f} | Significant: {str(significant)}"
+
+        f_text = (
+            f"{stat.get('name', 'statistic')}: {float(stat.get('val', 0)):.4f} | "
+            f"p-value: {float(p_val):.4f} | "
+            f"Significant: {str(significant)}"
+        )
         self.model_sagn_label.setText(f_text)
 
     def _on_visualize(self) -> None:
@@ -208,4 +250,6 @@ class RegrSummaryWidget(QWidget):
         """Clear all summary data."""
         self.metrics.setText("-")
         self.result_table.setRowCount(0)
+        self.beta_table.setRowCount(0)
+        self.beta_group.setVisible(False)
         self.visualize_btn.setVisible(False)
