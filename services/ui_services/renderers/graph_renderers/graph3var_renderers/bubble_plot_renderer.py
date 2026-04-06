@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from services.ui_services.renderers.graph_renderers.graph_renderer import Renderer
 
 
-class BoublePlotRenderer(Renderer):
+class BubblePlotRenderer(Renderer):
     """
     Renderer for drawing bubble plot (scatter plot with variable point sizes) for 3-variable data.
     """

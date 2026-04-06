@@ -8,6 +8,7 @@ from .resfitted_plot_renderer import ResidualsFittedPlot
 
 from .graph2var_renderers.corr_field_renderer import CorrelationFieldRenderer
 from .graph2var_renderers.histMap_renderer import HistogramMapRenderer
+from .graph3var_renderers.bubble_plot_renderer import BubblePlotRenderer
 from .graphMultivar_renderers.corr_matrix_renderer import CorrMatrixRenderer
 
 from .graph_renderer import Renderer
@@ -17,8 +18,9 @@ RENDERERS: dict[str, type[Renderer]] = {
     'edf': EDFRenderer,
     'distribution': DistributionRenderer,
     'hh_plot': HHRenderer,
-    'correlation_matrix': CorrMatrixRenderer,
 
     'correlation_field': CorrelationFieldRenderer,
-    'histogram_map': HistogramMapRenderer
+    'histogram_map': HistogramMapRenderer,
+    'bubble_plot': BubblePlotRenderer,
+    'correlation_matrix': CorrMatrixRenderer,
 }
