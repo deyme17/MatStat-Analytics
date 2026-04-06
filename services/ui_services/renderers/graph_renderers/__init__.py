@@ -8,6 +8,7 @@ from .graph2var_renderers.histMap_renderer import HistogramMapRenderer
 from .graph3var_renderers.bubble_plot_renderer import BubblePlotRenderer
 
 from .graphMultivar_renderers.corr_matrix_renderer import CorrMatrixRenderer
+from .graphMultivar_renderers.scatter_matrix_renderer import ScatterMatrixRenderer
 from .graphMultivar_renderers.heatmap_renderer import HeatMapRenderer
 from .graphMultivar_renderers.parallel_coord_renderer import ParallelCoordsRenderer
 
@@ -27,6 +28,7 @@ RENDERERS: dict[str, type[Renderer]] = {
     'bubble_plot': BubblePlotRenderer,
     
     'correlation_matrix': CorrMatrixRenderer,
+    'scatter_matrix': ScatterMatrixRenderer,
     'heatmap': HeatMapRenderer,
     'parallel_coordinates': ParallelCoordsRenderer,
 }
