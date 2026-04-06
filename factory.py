@@ -39,7 +39,13 @@ from views import (
     ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel, MultiNormalPanel,
     GraphPanel, DistributionSelector
 )
-from views.tabs.graph_tabs import EDFTab, HistogramTab, HHTab, HistogramMapTab, CorrelationFieldTab, CorrelationMatrixTab
+from views.tabs.graph_tabs import (
+    EDFTab, HistogramTab, HHTab, 
+    CorrelationFieldTab, HistogramMapTab,
+    BubblePlotTab,
+    CorrelationMatrixTab, ScatterMatrixTab, 
+    HeatMapTab, ParallelCoordsTab
+)
 
 # Callbacks
 from utils.combo_callbacks import build_combo_callbacks
@@ -114,7 +120,11 @@ class UIFactory:
                 "H-H Plot": HHTab(self.context),
                 "3D Histogram Map": HistogramMapTab(self.context),
                 "Correlation Field": CorrelationFieldTab(self.context, SimpleLinearRegression()),
-                "Correlation Matrix": CorrelationMatrixTab(self.context, controllers['correlation'])
+                "Correlation Matrix": CorrelationMatrixTab(self.context, controllers['correlation']),
+                "Heatmap": HeatMapTab(self.context),
+                "Scatter Matrix": ScatterMatrixTab(self.context),
+                "Parallel Coordinates": ParallelCoordsTab(self.context),
+                "Bubble Plot": BubblePlotTab(self.context)
             }
         )
 
