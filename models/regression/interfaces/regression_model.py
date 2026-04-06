@@ -116,7 +116,12 @@ class IRegression(ABC):
             }
         """
         return None
-        
+
+    @property
+    def residuals(self) -> Optional[np.ndarray]:
+        """Returns residuals of the fitted model."""
+        return self.residuals_
+    
     def _generate_equation(self) -> str:
         """Generate the string representation of the model equation"""
         equation = "y = "

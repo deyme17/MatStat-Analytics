@@ -1,5 +1,6 @@
 from typing import List, Dict, Any, Tuple, Optional
 import pandas as pd
+import numpy as np
 from utils.helpers import validate_feature_names
 from models.regression.interfaces import IRegression
 
@@ -35,6 +36,20 @@ class RegressionController:
         if not self._current_model:
             return None
         return getattr(self._current_model, 'target_', None)
+    
+    @property
+    def current_residuals(self) -> np.ndarray:
+        """Return residuals of the currently fitted model."""
+        if not self._current_model or self._current_model.residuals_ is None:
+            return np.array([])
+        return self._current_model.residuals_
+
+    @property
+    def current_fitted_values(self) -> np.ndarray:
+        """Return fitted values of the currently fitted model."""
+        if not self._current_model or self._current_model.y_pred_ is None:
+            return np.array([])
+        return self._current_model.y_pred_
 
     def fit(self, model_name: str, X_df: pd.DataFrame, y_series: pd.Series) -> None:
         """Train selected model on DataFrame."""
