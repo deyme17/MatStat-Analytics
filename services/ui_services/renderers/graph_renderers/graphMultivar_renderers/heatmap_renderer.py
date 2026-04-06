@@ -23,8 +23,8 @@ class HeatMapRenderer(Renderer):
         ax.clear()
 
         data_numeric = data.select_dtypes(include=[np.number])
-
-        if len(data_numeric) > max_rows:
+        # for large datasets, sample a subset of rows to avoid performance issues with heatmap rendering
+        if data_numeric.shape[0] > max_rows:
             ax.set_title(f"Heatmap (Normalized - Sampled {max_rows} rows)")
             data_numeric = data_numeric.sample(n=max_rows, random_state=seed)
         else:
@@ -37,6 +37,5 @@ class HeatMapRenderer(Renderer):
             cbar=True,
             ax=ax
         )
-        ax.set_title("Heatmap (normalized)")
         ax.set_xlabel("Features")
         ax.set_ylabel("Observations")
