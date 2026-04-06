@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QCheckBox
-from .base_2varGraph_tab import Base2VarGraphTab
+from .base_bivariate_tab import Base2VarGraphTab
 from services import SimpleLinearRegression
 from services.ui_services.renderers.graph_renderers import RENDERERS
 from utils import AppContext

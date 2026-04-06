@@ -1,4 +1,4 @@
-from .base_3varGraph_tab import Base3VarGraphTab
+from .base_trivariate_tab import Base3VarGraphTab
 from services.ui_services.renderers.graph_renderers import RENDERERS
 from utils import AppContext
 
