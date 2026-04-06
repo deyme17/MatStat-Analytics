@@ -94,7 +94,7 @@ class Base3VarGraphTab(BaseGraphTab):
         if current1 and current1 in columns1:
             self.second_column_selector.setCurrentText(current1)
         else:
-            self.second_column_selector.setCurrentIndex(1)  # default
+            self.second_column_selector.setCurrentIndex(0)  # default
         self.second_column_selector.blockSignals(False)
 
         # update third selector
@@ -104,7 +104,7 @@ class Base3VarGraphTab(BaseGraphTab):
         if current2 and current2 in columns2:
             self.third_column_selector.setCurrentText(current2)
         else:
-            self.third_column_selector.setCurrentIndex(2)  # default
+            self.third_column_selector.setCurrentIndex(1)  # default
         self.third_column_selector.blockSignals(False)
 
     def get_current_column_names(self) -> Optional[Tuple[str, str, str]]:

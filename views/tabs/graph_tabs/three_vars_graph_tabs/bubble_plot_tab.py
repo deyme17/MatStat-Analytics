@@ -26,7 +26,7 @@ class BubblePlotTab(Base3VarGraphTab):
                 data_model.dataframe,
                 col1,
                 col2,
-                size_col=col3
+                col3
             )
             self.apply_default_style(self.ax, col1, col2)
             self.canvas.draw()
