@@ -4,7 +4,9 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 from services.ui_services.messager import UIMessager
-from services.ui_services.renderers.graph_renderers import RegressionPlotDialog
+from services.ui_services.renderers.graph_renderers import (
+    RegressionPlotDialog, ResidualsFittedPlot
+)
 from utils import AppContext
 from controllers import RegressionController
 from utils.ui_styles import groupMargin, groupStyle
@@ -40,10 +42,17 @@ class RegrSummaryWidget(QWidget):
         self._init_model_sagn_label(layout)
         self._init_metrics_section(layout)
 
+        # visualize regression
         self.visualize_btn = QPushButton("Visualize")
         self.visualize_btn.setVisible(False)
         self.visualize_btn.clicked.connect(self._on_visualize)
         layout.addWidget(self.visualize_btn)
+
+        # show diagnostics plot
+        self.show_diagnos_diag_btn = QPushButton("Show Diagnostics")
+        self.show_diagnos_diag_btn.setVisible(False)
+        self.show_diagnos_diag_btn.clicked.connect(self._on_show_diagnostics)
+        layout.addWidget(self.show_diagnos_diag_btn)
 
         self.setLayout(layout)
 
@@ -136,6 +145,7 @@ class RegrSummaryWidget(QWidget):
 
             n_features = len(self.controller.current_features)
             self.visualize_btn.setVisible(1 <= n_features <= 2)
+            self.show_diagnos_diag_btn.setVisible(True)
 
         except Exception as e:
             self.messanger.show_error("Summary error", str(e))
@@ -246,6 +256,25 @@ class RegrSummaryWidget(QWidget):
         except Exception as e:
             self.messanger.show_error("Visualize error", str(e))
 
+    def _on_show_diagnostics(self) -> None:
+        """Show regression diagnostics plots."""
+        try:
+            residuals = self.controller.current_residuals
+            fitted = self.controller.current_fitted_values
+            
+            if residuals.size == 0 or fitted.size == 0:
+                self.messanger.show_error("Warning", "No data for diagnostics. Fit the model first.")
+                return
+
+            dialog = ResidualsFittedPlot(
+                residuals=residuals,
+                fitted=fitted,
+                parent=self
+            )
+            dialog.exec()
+        except Exception as e:
+            self.messanger.show_error("Diagnostics error", str(e))
+
     def clear(self) -> None:
         """Clear all summary data."""
         self.metrics.setText("-")
@@ -253,3 +282,4 @@ class RegrSummaryWidget(QWidget):
         self.beta_table.setRowCount(0)
         self.beta_group.setVisible(False)
         self.visualize_btn.setVisible(False)
+        self.show_diagnos_diag_btn.setVisible(False)
