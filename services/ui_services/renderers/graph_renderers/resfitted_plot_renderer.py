@@ -23,7 +23,7 @@ class ResidualsFittedPlot(QDialog):
         """
         super().__init__(parent)
 
-        self.setWindowTitle("Residuals vs Fitted plot")
+        self.setWindowTitle("Residuals vs Fitted plot for regression diagnostics")
         self.setFixedSize(DIALOG_WIDTH, DIALOG_HEIGHT)
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
 
@@ -51,7 +51,6 @@ class ResidualsFittedPlot(QDialog):
         ax = self.figure.add_subplot(111)
         ax.clear()
         ax.scatter(residuals, fitted, alpha=0.7)
-        ax.axhline(0, color='red', linestyle='--', linewidth=1)
         ax.set_xlabel("Residuals")
         ax.set_ylabel("Fitted Values")
         ax.set_title("Residuals vs Fitted Values")
