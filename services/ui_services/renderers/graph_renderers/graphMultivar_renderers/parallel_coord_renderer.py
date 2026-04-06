@@ -37,8 +37,17 @@ class ParallelCoordsRenderer(Renderer):
             data_plot,
             class_column="__dummy__",
             ax=ax,
-            color=["blue"],
-            alpha=0.4
+            color=["#4C72B0"],
+            alpha=0.5,
+            linewidth=1.0,
+            axvlines=True,
+            axvlines_kwds={
+                'linewidth': 0.8,
+                'color': 'gray',
+                'linestyle': '--',
+                'alpha': 0.5,
+            },
+            sort_labels=False,
         )
         ax.get_legend().remove()
         ax.set_ylabel("Normalized values")
