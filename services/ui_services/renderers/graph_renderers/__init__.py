@@ -10,6 +10,7 @@ from .graph2var_renderers.corr_field_renderer import CorrelationFieldRenderer
 from .graph2var_renderers.histMap_renderer import HistogramMapRenderer
 from .graph3var_renderers.bubble_plot_renderer import BubblePlotRenderer
 from .graphMultivar_renderers.corr_matrix_renderer import CorrMatrixRenderer
+from .graphMultivar_renderers.heatmap_renderer import HeatMapRenderer
 
 from .graph_renderer import Renderer
 
@@ -23,4 +24,5 @@ RENDERERS: dict[str, type[Renderer]] = {
     'histogram_map': HistogramMapRenderer,
     'bubble_plot': BubblePlotRenderer,
     'correlation_matrix': CorrMatrixRenderer,
+    'heatmap': HeatMapRenderer,
 }
