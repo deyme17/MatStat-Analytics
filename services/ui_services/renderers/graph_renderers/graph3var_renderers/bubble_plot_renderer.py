@@ -39,7 +39,8 @@ class BubblePlotRenderer(Renderer):
             c=size,
             alpha=0.6,
             edgecolors='w',
-            linewidth=0.5
+            linewidth=0.5,
+            label=f"{col_x} vs {col_y}"
         )
 
         ax.set_xlabel(col_x)
