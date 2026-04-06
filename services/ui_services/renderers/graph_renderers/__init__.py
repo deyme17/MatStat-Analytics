@@ -2,13 +2,13 @@ from .hist_renderer import HistRenderer
 from .edf_renderer import EDFRenderer
 from .dist_renderer import DistributionRenderer
 from .hh_renderer import HHRenderer
-from .corr_matrix_renderer import CorrMatrixRenderer
 
 from .reg_plot_dialog_renderer import RegressionPlotDialog
 from .resfitted_plot_renderer import ResidualsFittedPlot
 
 from .graph2var_renderers.corr_field_renderer import CorrelationFieldRenderer
 from .graph2var_renderers.histMap_renderer import HistogramMapRenderer
+from .graphMultivar_renderers.corr_matrix_renderer import CorrMatrixRenderer
 
 from .graph_renderer import Renderer
 
