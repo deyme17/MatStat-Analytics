@@ -41,6 +41,5 @@ class ParallelCoordsRenderer(Renderer):
             alpha=0.4
         )
         ax.get_legend().remove()
-        ax.set_title("Parallel Coordinates Plot")
         ax.set_ylabel("Normalized values")
         ax.grid(True, linestyle='--', alpha=0.5)
