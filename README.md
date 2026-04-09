@@ -1,6 +1,6 @@
 # MatStat-Analytics
 
-A comprehensive Python application for statistical analysis, data processing, and visualization with support for multidimensional datasets and advanced statistical testing. Built as a unified automated system covering Labs 1–5 of the statistical analysis curriculum.
+A comprehensive Python application for statistical analysis, data processing, and visualization with support for multidimensional datasets and advanced statistical testing.
 
 ## Overview
 
@@ -158,7 +158,7 @@ python main.py
 ```
 MatStat-Analytics/
 ├── controllers/
-│   ├── analysis_controller/      # Correlation, estimation, GOF, homogeneity, regression, simulation, statistics
+│   ├── analysis_controllers/      # Correlation, estimation, GOF, homogeneity, regression, simulation, statistics
 │   ├── data_controllers/         # Data loading and versioning
 │   └── dp_controllers/           # Anomaly detection, transformation, missing data
 ├── models/
