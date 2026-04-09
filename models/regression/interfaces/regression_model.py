@@ -84,7 +84,7 @@ class IRegression(ABC):
         Args:
             alpha (float): Significance level (e.g., 0.05 for 95% interval).
         Returns:
-            Dict[str, Tuple[np.ndarray, np.ndarray]]: {
+            Dict[str, Any]: {
                 "var": (float) variance estimation.
                 'CI': (lower_bound, upper_bound) for the tolerance bounds.
             }

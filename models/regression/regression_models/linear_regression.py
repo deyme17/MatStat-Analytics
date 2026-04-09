@@ -154,14 +154,13 @@ class LinearRegression(IRegression):
     
     def predict_tolerance(self, alpha: float = 0.05) -> Dict[str, Tuple[float, Tuple[float, float]]]:
         """
-        Returns dictionary with stat, p-value and conclusion of significance for model.
+        Computes variance estimation and its tolerance bounds.
         Args:
             alpha (float): Significance level (e.g., 0.05 for 95% interval).
-        Returns: 
-            {
-                'stat': Dict[str, float|str] (contain 'name' and 'val'),
-                'p_value': float,
-                'significant': bool,
+        Returns:
+            Dict[str, Any]: {
+                "var": (float) variance estimation.
+                'CI': (lower_bound, upper_bound) for the tolerance bounds.
             }
         """
         if self.residuals_ is None or self.X_ is None:
