@@ -128,6 +128,24 @@ class RegressionController:
             key: (float(bounds[0]), float(bounds[1]))
             for key, bounds in pred_intrv.items()
         }
+    
+    def confidence_band(self, X_df: pd.DataFrame, alpha: float = 0.05) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Returns CI_mean lower/upper bounds for each row in X_df.
+        Used for drawing confidence band on regression plot.
+        """
+        if not self._current_model:
+            raise RuntimeError("Model not trained yet")
+        lowers, uppers = [], []
+        X_arr = X_df.to_numpy(dtype=float)
+        for row in X_arr:
+            result = self._current_model.predict_intervals(row.reshape(1, -1), alpha)
+            ci = result.get('CI_mean', (np.nan, np.nan))
+            lower = np.asarray(ci[0]).ravel()[0]
+            upper = np.asarray(ci[1]).ravel()[0]
+            lowers.append(lower)
+            uppers.append(upper)
+        return np.array(lowers), np.array(uppers)
 
     def predict_tolerance(self, alpha: float = 0.05) -> Dict[str, Any]:
         """

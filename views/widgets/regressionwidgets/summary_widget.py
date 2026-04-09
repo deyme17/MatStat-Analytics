@@ -271,6 +271,7 @@ class RegrSummaryWidget(QWidget):
                 X_df=X_df,
                 y_series=y_series,
                 predict_fn=self.controller.predict,
+                interval_fn=lambda df: self.controller.confidence_band(df),
                 parent=self,
             )
             dialog.exec()

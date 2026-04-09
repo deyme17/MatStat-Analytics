@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
 from PyQt6.QtCore import Qt
+from typing import Callable
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import numpy as np
@@ -15,18 +16,22 @@ class RegressionPlotDialog(QDialog):
     Shows 2D scatter + line for 1 predictor, 3D scatter + plane for 2 predictors.
     """
     def __init__(self, X_df: pd.DataFrame, y_series: pd.Series,
-                 predict_fn, parent=None):
+                 predict_fn: Callable[[pd.DataFrame], pd.Series], 
+                 interval_fn: Callable[[pd.DataFrame], pd.Series], 
+                 parent=None):
         """
         Args:
             X_df:       Feature dataframe (1 or 2 columns only).
             y_series:   Target series.
-            predict_fn: Callable(pd.DataFrame) → pd.Series from controller.
+            predict_fn: Callable(pd.DataFrame) -> pd.Series from controller.
+            inyterval_fn: Callable(pd.DataFrame) -> pd.Series from controller.
             parent:     Parent widget.
         """
         super().__init__(parent)
         self.X_ = X_df
         self.y_ = y_series
         self.predict_fn = predict_fn
+        self.interval_fn = interval_fn
         self.n_features = X_df.shape[1]
 
         self.setWindowTitle("Regression Visualization")
@@ -74,13 +79,22 @@ class RegressionPlotDialog(QDialog):
 
         # scatter
         ax.scatter(x_vals, y_vals, alpha=0.6, edgecolors="k",
-                   linewidths=0.4, label="Data", zorder=3)
+                linewidths=0.4, label="Data", zorder=3)
 
         # regression line
         x_line = np.linspace(x_vals.min(), x_vals.max(), 300)
         X_line_df = pd.DataFrame({x_col: x_line})
         y_line = self.predict_fn(X_line_df).to_numpy()
         ax.plot(x_line, y_line, color="crimson", linewidth=2, label="Regression line")
+
+        if self.interval_fn is not None:
+            y_lower, y_upper = self.interval_fn(X_line_df)
+            ax.fill_between(x_line, y_lower, y_upper,
+                            alpha=0.10, color="red")
+            ax.plot(x_line, y_lower, color="red", linewidth=1,
+                    linestyle="--", alpha=0.6, label="95% CI (mean)")
+            ax.plot(x_line, y_upper, color="red", linewidth=1,
+                    linestyle="--", alpha=0.6)
 
         ax.set_xlabel(x_col)
         ax.set_ylabel(self.y_.name or "y")
