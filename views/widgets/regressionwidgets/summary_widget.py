@@ -41,6 +41,7 @@ class RegrSummaryWidget(QWidget):
         self._init_equation_label(layout)
         self._init_model_sagn_label(layout)
         self._init_metrics_section(layout)
+        self._init_tolerance_bounds(layout)
 
         # visualize regression
         self.visualize_btn = QPushButton("Visualize")
@@ -124,6 +125,15 @@ class RegrSummaryWidget(QWidget):
         group.setLayout(group_layout)
         layout.addWidget(group)
 
+    def _init_tolerance_bounds(self, layout: QVBoxLayout) -> None:
+        """Initialize tolerance bounds section for residual variance"""
+        group = QGroupBox("Tolerance bounds")
+        group_layout = QVBoxLayout()
+        self.tolerance = QLabel("-")
+        group_layout.addWidget(self.tolerance)
+        group.setLayout(group_layout)
+        layout.addWidget(group)
+
     def create_summary(self, alpha: float = 0.05) -> None:
         """Create and display regression model summary."""
         try:
@@ -136,10 +146,13 @@ class RegrSummaryWidget(QWidget):
             self._update_equation_label(summary.get('equation', None))
 
             ci_result = self.controller.confidence_intervals(alpha=alpha)
+            tol_result = self.controller.predict_tolerance(alpha=alpha)
             model_sagn = self.controller.model_significance(alpha=alpha)
             if ci_result:
                 self._update_coefficients_table(ci_result)
                 self._update_model_sagn_label(model_sagn)
+            if tol_result:
+                self.update_tolerance_label(tol_result)
 
             self._update_beta_table()
 
@@ -225,6 +238,15 @@ class RegrSummaryWidget(QWidget):
         )
         self.model_sagn_label.setText(f_text)
 
+    def update_tolerance_label(self, tolerance: dict | None) -> None:
+        """Updates tolerance bounds label"""
+        if tolerance is None:
+            return
+        sigma_hat = tolerance.get("var", "-")
+        lower, upper = tolerance.get("CI", ("-", "-"))
+        text = f"{lower:.3f} <= {sigma_hat:.3f} <= {upper:.3f}"
+        self.tolerance.setText(text)
+
     def _on_visualize(self) -> None:
         """Open regression plot dialog."""
         try:
@@ -278,6 +300,7 @@ class RegrSummaryWidget(QWidget):
     def clear(self) -> None:
         """Clear all summary data."""
         self.metrics.setText("-")
+        self.tolerance.setText("-")
         self.result_table.setRowCount(0)
         self.beta_table.setRowCount(0)
         self.beta_group.setVisible(False)
