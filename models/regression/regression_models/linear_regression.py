@@ -152,6 +152,39 @@ class LinearRegression(IRegression):
             'CI_ind': (CI_ind_lower, CI_ind_upper),
         }
     
+    def predict_tolerance(self, alpha: float = 0.05) -> Dict[str, Tuple[float, Tuple[float, float]]]:
+        """
+        Returns dictionary with stat, p-value and conclusion of significance for model.
+        Args:
+            alpha (float): Significance level (e.g., 0.05 for 95% interval).
+        Returns: 
+            {
+                'stat': Dict[str, float|str] (contain 'name' and 'val'),
+                'p_value': float,
+                'significant': bool,
+            }
+        """
+        if self.residuals_ is None or self.X_ is None:
+            raise RuntimeError("Model must be fitted")
+
+        residuals = self.residuals_
+        n = len(residuals)
+        p = self.X_.shape[1]
+        df = n - p - 1
+
+        sigma2_hat = np.sum(residuals ** 2) / df
+
+        chi2_lower = stats.chi2.ppf(alpha / 2, df)
+        chi2_upper = stats.chi2.ppf(1 - alpha / 2, df)
+
+        lower = df * sigma2_hat / chi2_upper
+        upper = df * sigma2_hat / chi2_lower
+
+        return {
+            "var": sigma2_hat,
+            "CI": (lower, upper)
+        }
+    
     def model_significance(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
         """
         Returns dictionary with F-stat, p-value and conclusion of significance for model.

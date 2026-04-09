@@ -78,6 +78,20 @@ class IRegression(ABC):
         pass
     
     @abstractmethod
+    def predict_tolerance(alpha: float = 0.05) -> Dict[str, Tuple[np.ndarray, np.ndarray]]:
+        """
+        Computes variance estimation and its tolerance bounds.
+        Args:
+            alpha (float): Significance level (e.g., 0.05 for 95% interval).
+        Returns:
+            Dict[str, Tuple[np.ndarray, np.ndarray]]: {
+                "var": (float) variance estimation.
+                'CI': (lower_bound, upper_bound) for the tolerance bounds.
+            }
+        """
+        pass
+    
+    @abstractmethod
     def model_significance(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
         """
         Returns dictionary with stat, p-value and conclusion of significance for model.

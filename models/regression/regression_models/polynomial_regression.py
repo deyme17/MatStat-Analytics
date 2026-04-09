@@ -141,6 +141,42 @@ class PolynomialRegression(IRegression):
             'CI_ind': (CI_ind_lower, CI_ind_upper),
         }
     
+    def predict_tolerance(self, alpha: float = 0.05) -> Dict[str, Tuple[float, Tuple[float, float]]]:
+        """
+        Computes residual variance estimation and its confidence (tolerance) bounds.
+        Args:
+            alpha (float): Significance level (e.g., 0.05 for 95% interval).
+        Returns:
+            {
+                "var": float,
+                "CI": (lower_bound: float, upper_bound: float)
+            }
+        """
+        if self.residuals_ is None or self.X_poly_ is None:
+            raise RuntimeError("Model must be fitted")
+
+        residuals = self.residuals_
+        n = len(residuals)
+        p = self.X_poly_.shape[1]
+
+        df = n - p - 1
+        if df <= 0:
+            raise ValueError("Not enough degrees of freedom")
+
+        RSS = np.sum(residuals ** 2)
+        sigma2_hat = RSS / df
+
+        chi2_lower = stats.chi2.ppf(alpha / 2, df)
+        chi2_upper = stats.chi2.ppf(1 - alpha / 2, df)
+
+        lower = df * sigma2_hat / chi2_upper
+        upper = df * sigma2_hat / chi2_lower
+
+        return {
+            "var": float(sigma2_hat),
+            "CI": (float(lower), float(upper))
+        }
+    
     def model_significance(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
         """
         Returns dictionary with F-stat, p-value and conclusion of significance for model.
