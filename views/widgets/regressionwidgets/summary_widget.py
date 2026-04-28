@@ -7,14 +7,16 @@ from services.ui_services.messager import UIMessager
 from services.ui_services.renderers.graph_renderers import (
     RegressionPlot, ResidualsFittedPlot
 )
-from utils import AppContext
 from controllers import RegressionController
+from utils import AppContext
 from utils.ui_styles import groupMargin, groupStyle
+from utils.helpers import create_section_header
 
-HEADING_TITLE_SIZE = 16
+
 RES_TABLE_GROUP_HEIGHT = 160
 EQUATION_GROUP_HEIGHT = 80
 BETA_TABLE_GROUP_HEIGHT = 130
+
 
 
 class RegrSummaryWidget(QWidget):
@@ -32,7 +34,7 @@ class RegrSummaryWidget(QWidget):
         layout = QVBoxLayout()
 
         header_layout = QHBoxLayout()
-        header_layout.addWidget(QLabel(f"{'=' * HEADING_TITLE_SIZE} Summary {'=' * HEADING_TITLE_SIZE}"))
+        layout.addLayout(create_section_header("Summary"))
         header_layout.addStretch()
         layout.addLayout(header_layout)
 

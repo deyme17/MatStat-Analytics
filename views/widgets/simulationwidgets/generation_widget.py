@@ -8,15 +8,17 @@ from models.stat_distributions import StatisticalDistribution
 from controllers import SimulationController
 from services import UIMessager
 from utils.ui_styles import groupMargin, groupStyle
+from utils.helpers import create_section_header
+
 
 MIN_DS_SIZE, MAX_DS_SIZE = 10, 10000
 DEFAULT_DS_SIZE = 1000
 SPIN_WIDTH = 150
-HEADING_TITLE_SIZE = 16
 MAX_FEATURES = 9
 CORR_AREA_SCROLL_SIZE = 500
 CORR_LINE_EDIT_SIZE = 100
 MIN_PARAM_INPUT_WIDTH = 200
+
 
 
 class GenerationWidget(QWidget):
@@ -34,8 +36,8 @@ class GenerationWidget(QWidget):
         """Initialize generation UI components."""
         self.setStyleSheet(groupStyle + groupMargin)
         layout = QVBoxLayout()
-        
-        layout.addWidget(QLabel(f"{HEADING_TITLE_SIZE * '='} Generation {HEADING_TITLE_SIZE * '='}"))
+     
+        layout.addLayout(create_section_header("Generation"))
         self._init_generation_controls(layout)
         self._init_controls(layout)
         self._init_save_layout(layout)
@@ -76,7 +78,7 @@ class GenerationWidget(QWidget):
         parameters_main_layout.addWidget(QLabel("Feature-specific Parameters:"))
         self.feature_params_layout = QVBoxLayout()
         parameters_main_layout.addLayout(self.feature_params_layout)
-        parameters_main_layout.addWidget(QLabel("-" * (HEADING_TITLE_SIZE * 2)))
+        parameters_main_layout.addLayout(create_section_header(""))
         
         # correlation section
         parameters_main_layout.addWidget(QLabel("Correlation Coefficients:"))

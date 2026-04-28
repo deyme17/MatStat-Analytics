@@ -9,6 +9,8 @@ from models.stat_distributions import StatisticalDistribution
 from controllers import SimulationController
 from services import UIMessager
 from utils.ui_styles import groupMargin, groupStyle
+from utils.helpers import create_section_header
+
 
 DEFAULT_SAMPLE_SIZES = [20, 50, 100, 400, 1000, 2000, 5000]
 DEFAULT_ALPHA_VAL_LABEL = "0.05"
@@ -16,8 +18,8 @@ MAX_ALPHA_INPUT_WIDTH = 100
 SPIN_WIDTH = 150
 MIN_REPEATS, MAX_REPEATS = 1, 1000
 DEFAULT_REPEATS = 200
-HEADING_TITLE_SIZE = 16
 MIN_PARAM_INPUT_WIDTH = 200
+
 
 
 class ExperimentWidget(QWidget):
@@ -33,7 +35,7 @@ class ExperimentWidget(QWidget):
         self.setStyleSheet(groupStyle + groupMargin)
         layout = QVBoxLayout()
         
-        layout.addWidget(QLabel(f"{HEADING_TITLE_SIZE * '='} Experiment {HEADING_TITLE_SIZE * '='}"))
+        layout.addLayout(create_section_header("Experiment"))
         self._init_parameter_controls(layout)
         self._init_alpha_controls(layout)
         self._init_experiment_controls(layout)

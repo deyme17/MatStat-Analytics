@@ -5,13 +5,13 @@ from views.widgets.gofwidgets.gof_test_panel import BaseTestPanel
 from typing import Callable
 from controllers import GOFController
 from utils import EventBus, EventType, Event, AppContext
+from utils.helpers import create_section_header
 
 
 ALPHA_MIN, ALPHA_MAX = 0.01, 0.99
 ALPHA_STEP = 0.01
 ALPHA_PRECISION = 2
 DEFAULT_ALPHA = 0.05
-HEADING_TITLE_SIZE = 16
 
 
 
@@ -58,11 +58,12 @@ class GOFTestTab(QWidget):
         layout = QVBoxLayout()
         layout.addLayout(controls_layout)
 
-        layout.addWidget(QLabel(f"{HEADING_TITLE_SIZE * '='} Simple tests {HEADING_TITLE_SIZE * '='}"))
+        # simple tests
+        layout.addLayout(create_section_header("Simple tests"))
         for panel in self.test_panels:
             layout.addWidget(panel)
-
-        layout.addWidget(QLabel(f"{HEADING_TITLE_SIZE * '='} Multivariate tests {HEADING_TITLE_SIZE * '='}"))
+        # multivariate tests
+        layout.addLayout(create_section_header("Multivariate tests"))
         for panel in self.multi_test_panels:
             layout.addWidget(panel)
 

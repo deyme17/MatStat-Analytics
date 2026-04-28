@@ -4,14 +4,16 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 from services.ui_services.messager import UIMessager
-from utils import AppContext
 from controllers import RegressionController
+from utils import AppContext
 from utils.ui_styles import groupMargin, groupStyle
+from utils.helpers import create_section_header
 import pandas as pd
 
-HEADING_TITLE_SIZE = 13
+
 MAX_X_INPUT_SECTION_HEIGHT = 200
 DEFAULT_ALPHA = 0.05
+
 
 
 class RegrPredictionWidget(QWidget):
@@ -31,7 +33,7 @@ class RegrPredictionWidget(QWidget):
         layout = QVBoxLayout()
         
         header_layout = QHBoxLayout()
-        header_layout.addWidget(QLabel(f"{'=' * HEADING_TITLE_SIZE} Prediction Section {'=' * HEADING_TITLE_SIZE}"))
+        layout.addLayout(create_section_header("Prediction Section"))
         header_layout.addStretch()
         layout.addLayout(header_layout)
         

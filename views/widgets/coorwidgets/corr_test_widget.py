@@ -4,13 +4,15 @@ from PyQt6.QtWidgets import (
 )
 from typing import Callable
 from services.ui_services.messager import UIMessager
-from utils import AppContext, EventBus, EventType, Event
 from controllers import CorrelationController
+from utils import AppContext, EventBus, EventType, Event
 from utils.ui_styles import groupMargin, groupStyle
+from utils.helpers import create_section_header
 
-HEADING_TITLE_SIZE = 10
+
 DEFAULT_ALPHA_VAL_LABEL = "0.05"
 MAX_ALPHA_INPUT_WIDTH = 100
+
 
 
 class CorrelationTestWidget(QWidget):
@@ -29,7 +31,7 @@ class CorrelationTestWidget(QWidget):
         """Initialize correlation test UI components."""
         self.setStyleSheet(groupStyle + groupMargin)
         layout = QVBoxLayout()
-        layout.addWidget(QLabel(f"{'=' * HEADING_TITLE_SIZE} Test Correlation Significance {'=' * HEADING_TITLE_SIZE}"))
+        layout.addLayout(create_section_header("Test Correlation Significance"))
         self._init_alpha_controls(layout)
         self._init_column_selectors(layout)
         self._init_action_buttons(layout)
@@ -75,7 +77,7 @@ class CorrelationTestWidget(QWidget):
 
     def _init_result_section(self, layout: QVBoxLayout) -> None:
         """Initialize result section."""
-        layout.addWidget(QLabel(f"{'=' * (HEADING_TITLE_SIZE + 4)} Testing Results {'=' * (HEADING_TITLE_SIZE + 4)}"))
+        layout.addLayout(create_section_header("Testing Results"))
         self.result_label = QLabel("No results yet.")
         self.result_label.setStyleSheet("font-weight: bold;")
         layout.addWidget(self.result_label)

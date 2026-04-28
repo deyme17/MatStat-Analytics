@@ -4,13 +4,15 @@ from PyQt6.QtWidgets import (
     QAbstractItemView
 )
 from services.ui_services.messager import UIMessager
-from utils import AppContext, EventBus, EventType, Event
 from controllers import CorrelationController
+from utils import AppContext, EventBus, EventType, Event
 from utils.ui_styles import groupMargin, groupStyle
+from utils.helpers import create_section_header
 
-HEADING_TITLE_SIZE = 10
+
 DEFAULT_ALPHA_VAL_LABEL = "0.05"
 MAX_ALPHA_INPUT_WIDTH = 100
+
 
 
 class MultiCorrWidget(QWidget):
@@ -30,7 +32,7 @@ class MultiCorrWidget(QWidget):
     def _init_ui(self) -> None:
         self.setStyleSheet(groupStyle + groupMargin)
         layout = QVBoxLayout()
-        layout.addWidget(QLabel(f"{'=' * HEADING_TITLE_SIZE} Multiple Correlation {'=' * HEADING_TITLE_SIZE}"))
+        layout.addLayout(create_section_header("Multiple Correlation"))
 
         # alpha
         alpha_layout = QHBoxLayout()
@@ -65,7 +67,7 @@ class MultiCorrWidget(QWidget):
         layout.addLayout(btn_layout)
 
         # result
-        layout.addWidget(QLabel(f"{'=' * (HEADING_TITLE_SIZE + 4)} Testing Results {'=' * (HEADING_TITLE_SIZE + 4)}"))
+        layout.addLayout(create_section_header("Testing Results"))
         self.result_label = QLabel("No results yet.")
         self.result_label.setStyleSheet("font-weight: bold;")
         layout.addWidget(self.result_label)
