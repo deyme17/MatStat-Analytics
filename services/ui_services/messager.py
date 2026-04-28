@@ -9,3 +9,6 @@ class UIMessager:
 
     def show_error(self, title: str, message: str):
         QMessageBox.critical(self.parent, title, message)
+
+    def show_warning(self, title: str, message: str):
+        QMessageBox.warning(self.parent, title, message)
