@@ -6,14 +6,14 @@ from models import (
     stat_distributions, estimation_methods, gof_tests, homogen_tests, regression_models,
     corr_coeffs, MultipleCorrelation, PartialCorrelation,
     TransformationProcessor, AnomalyProcessor, MissingProcessor,
-    SimulationEngine, StatisticsCalculator,
+    SimulationEngine, StatisticsCalculator, PCA,
     )
 
 # Controllers
 from controllers import (
     AnomalyController, MissingDataController, DataTransformController,
     ParameterEstimation, SimulationController, StatisticController, GOFController, HomogenController, 
-    CorrelationController, RegressionController,
+    CorrelationController, RegressionController, ComponentController,
     DataLoadController, DataVersionController, DistributionRegister
 )
 
@@ -34,7 +34,7 @@ from views import (
     WindowWidgets,
     AnomalyWidget, MissingWidget, TransformDataWidget,
     KolmogorovSmirnovPanel, PearsonChi2Panel, Pearson2DNormalPanel, RegrSummaryWidget, RegrPredictionWidget,
-    GenerationWidget, ExperimentWidget, CorrelationTestWidget, PartialCorrWidget, MultiCorrWidget,
+    GenerationWidget, ExperimentWidget, CorrelationTestWidget, PartialCorrWidget, MultiCorrWidget, ComponentAnalysisTab,
     NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel, AbbePanel,
     ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel, MultiNormalPanel,
     GraphPanel, DistributionSelector
@@ -98,6 +98,7 @@ class ControllersFactory:
         )
         controllers['regression'] = RegressionController(regression_models)
         controllers['dist_register'] = DistributionRegister(stat_distributions)
+        controllers['component'] = ComponentController(PCA())
         
         return controllers
 
@@ -182,7 +183,10 @@ class UIFactory:
             summary_widget=RegrSummaryWidget,
             prediction_widget=RegrPredictionWidget
         )
-
+        comp_tab = ComponentAnalysisTab(
+            context=self.context, 
+            component_controller=controllers['component']
+        )
         self.window.left_tab_widget = QTabWidget()
         self.window.left_tab_widget.addTab(data_tab, "Data Processing")
         self.window.left_tab_widget.addTab(stat_tab, "Statistic")
@@ -192,6 +196,7 @@ class UIFactory:
         self.window.left_tab_widget.addTab(est_tab, "Parameters estimation")
         self.window.left_tab_widget.addTab(corr_tab, "Correlation")
         self.window.left_tab_widget.addTab(regr_tab, "Regression")
+        self.window.left_tab_widget.addTab(comp_tab, "Component Analysis")
         # add to window attr
         self.window.data_tab = data_tab
         self.window.stat_tab = stat_tab
@@ -201,6 +206,7 @@ class UIFactory:
         self.window.est_tab = est_tab
         self.window.corr_tab = corr_tab
         self.window.regr_tab = regr_tab
+        self.window.comp_tab = comp_tab
 
 class ConnectFactory:
     def __init__(self, window, event_bus: EventBus):
