@@ -16,14 +16,19 @@ class CorrelationTab(QWidget):
       - Partial: partial correlation controlling for one or more variables
       - Multiple: multiple correlation R with F-test
     """
-    def __init__(
-        self,
-        context: AppContext,
-        corr_controller: CorrelationController,
-        corr_test_widget: type[CorrelationTestWidget],
-        partial_corr_widget: type[PartialCorrWidget],
-        multi_corr_widget: type[MultiCorrWidget]
-    ):
+    def __init__(self, context: AppContext, 
+                 corr_controller: CorrelationController,
+                 corr_test_widget: type[CorrelationTestWidget], 
+                 partial_corr_widget: type[PartialCorrWidget],
+                 multi_corr_widget: type[MultiCorrWidget]):
+        """
+        Args:
+            context: Shared application context (data_model, event_bus, messager).
+            corr_controller: Controller for performing correlation calculations.
+            corr_test_widget: Widget for pairwise correlation.
+            partial_corr_widget: Widget for partial correlation.
+            multi_corr_widget: Widget for multivariate correlation.
+        """
         super().__init__()
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
@@ -53,7 +58,7 @@ class CorrelationTab(QWidget):
 
         # sub-tabs
         self.tabs = QTabWidget()
-        self.tabs.addTab(self.test_widget,    "Bivariate")
+        self.tabs.addTab(self.test_widget, "Bivariate")
         self.tabs.addTab(self.partial_widget, "Partial")
         self.tabs.addTab(self.multiple_widget,"Multiple")
         layout.addWidget(self.tabs)

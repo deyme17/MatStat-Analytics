@@ -19,6 +19,7 @@ LIST_WIDGET_HEIGHT = 150
 LIST_WIDGET_WIDTH = 320
 
 
+
 class HomogenTab(QWidget):
     """Tab widget for homogeneity tests."""
     def __init__(self, context: AppContext, homogen_controller: HomogenController,

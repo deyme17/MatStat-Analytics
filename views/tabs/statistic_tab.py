@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (
 from services.ui_services.renderers.table_renderers.table_renderer import TableRenderer
 
 
+
 class StatisticTab(QWidget):
     """
     A QWidget tab displaying a table of confidence intervals
@@ -13,6 +14,13 @@ class StatisticTab(QWidget):
                        var_renderer_cls: type[TableRenderer],
                        multi_renderer_cls: type[TableRenderer],    
                        parent=None):
+        """
+        Args:
+            stat_renderer_cls: Class for rendering statistic table.
+            var_renderer_cls: Class for rendering variation series.
+            multi_renderer_cls: Class for rendering multivariate table.
+            parent: Parent widget.
+        """
         super().__init__(parent)
         self._layout = QVBoxLayout(self)
 

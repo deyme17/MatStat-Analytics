@@ -8,11 +8,22 @@ from views.widgets.simulationwidgets import ExperimentWidget, GenerationWidget
 from services import UIMessager
 
 
+
 class SimulationTab(QWidget):
     """Main tab that combines experiment and generation widgets."""
-    def __init__(self, messanger: UIMessager, simulation_controller: SimulationController, 
-                 dist_register: DistributionRegister, experiment_widget: type[ExperimentWidget], 
+    def __init__(self, messanger: UIMessager, 
+                 simulation_controller: SimulationController, 
+                 dist_register: DistributionRegister, 
+                 experiment_widget: type[ExperimentWidget], 
                  generation_widget: type[GenerationWidget]):
+        """
+        Args:
+            messanger: Service class used for message sending.
+            simulation_controller: Controller for simulation performing.
+            dist_register: Controller for selected distribution access.
+            experiment_widget: Widget for experiments launch.
+            generation_widget: Widget for samples generating.
+        """
         super().__init__()
         self.messanger: UIMessager = messanger
         self.simulation_controller: SimulationController = simulation_controller

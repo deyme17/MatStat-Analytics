@@ -8,6 +8,7 @@ from controllers import ParameterEstimation, DistributionRegister
 from models.stat_distributions import StatisticalDistribution
 
 
+
 class ParamEstimationTab(QWidget):
     """
     Tab widget for estimating distribution parameters using different methods.

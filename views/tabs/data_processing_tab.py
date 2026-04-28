@@ -20,10 +20,11 @@ class DataProcessingTab(QWidget):
                  widget_data: list[tuple[str, QGroupBox, Any]]) -> None: 
         """
         Args:
-            context: Shared application context (version_manager, event_bus, messager)
-            data_version_controller: Controller for handling data version changes
-            data_exporter: Class for exporting data
-            widget_data (list[tuple[str, QGroupBox, Any]]): Widget classes for data processing operations with it's controllers
+            context: Shared application context (data_model, event_bus, messager).
+            data_version_controller: Controller for handling data version changes.
+            data_exporter: Class for exporting data.
+            widget_data (list[tuple[str, QGroupBox, Any]]): Widget classes for data 
+                                        processing operations with it's controllers.
         """
         super().__init__()
         self.context: AppContext = context

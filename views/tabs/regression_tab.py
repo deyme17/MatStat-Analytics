@@ -9,6 +9,7 @@ from services import UIMessager
 from controllers import RegressionController
 from utils.ui_styles import groupMargin, groupStyle
 
+
 LIST_WIDGET_HEIGHT = 100
 LIST_WIDGET_WIDTH = 330
 MAX_GROUP_HEIGHT = 150
@@ -17,6 +18,7 @@ ALPHA_MIN, ALPHA_MAX = 0.01, 0.99
 ALPHA_STEP = 0.01
 ALPHA_PRECISION = 2
 DEFAULT_ALPHA = 0.05
+
 
 
 class RegressionTab(QWidget):
