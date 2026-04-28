@@ -14,6 +14,7 @@ from .multivariate.parallel_coord_renderer import ParallelCoordsRenderer
 
 from .regression_plot_renderer import RegressionPlot
 from .resfitted_plot_renderer import ResidualsFittedPlot
+from .scree_evr_plot import ScreeEVRPlot
 
 from .graph_renderer import Renderer
 
