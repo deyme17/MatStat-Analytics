@@ -1,9 +1,8 @@
-from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
+from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QPushButton
 from PyQt6.QtCore import Qt
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import numpy as np
-import pandas as pd
 
 DIALOG_WIDTH = 700
 DIALOG_HEIGHT = 600
@@ -17,9 +16,9 @@ class ResidualsFittedPlot(QDialog):
     def __init__(self, residuals: np.ndarray, fitted: np.ndarray, parent=None):
         """
         Args:
-            residuals:  Residuals from regression model.    
-            fitted:     Fitted values from regression model.
-            parent:     Parent widget.
+            residuals: Residuals from regression model.    
+            fitted: Fitted values from regression model.
+            parent: Parent widget.
         """
         super().__init__(parent)
 

@@ -21,11 +21,11 @@ class RegressionPlot(QDialog):
                  parent=None):
         """
         Args:
-            X_df:       Feature dataframe (1 or 2 columns only).
-            y_series:   Target series.
+            X_df: Feature dataframe (1 or 2 columns only).
+            y_series: Target series.
             predict_fn: Callable(pd.DataFrame) -> pd.Series from controller.
             inyterval_fn: Callable(pd.DataFrame) -> pd.Series from controller.
-            parent:     Parent widget.
+            parent: Parent widget.
         """
         super().__init__(parent)
         self.X_ = X_df
