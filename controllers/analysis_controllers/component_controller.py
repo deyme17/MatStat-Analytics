@@ -9,7 +9,7 @@ class ComponentController:
     """
     def __init__(self, pca: PCA):
         self.pca: PCA = pca
-        self.orig_X_df_ = Optional[pd.DataFrame] = None
+        self.orig_X_df_: Optional[pd.DataFrame] = None
         self.pca_labels: Optional[List[str]] = None
 
     def fit(self, X_df: pd.DataFrame) -> None:
