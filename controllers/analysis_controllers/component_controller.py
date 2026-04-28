@@ -1,14 +1,14 @@
 from typing import Optional, Tuple, List
 import pandas as pd
-from models.component_analysis import PrincipalComponentAnalysis
+from models.component_analysis import PCA
 
 
 class ComponentAnalysisController:
     """
     Main controller class for component analysis.
     """
-    def __init__(self, pca: PrincipalComponentAnalysis):
-        self.pca: PrincipalComponentAnalysis = pca
+    def __init__(self, pca: PCA):
+        self.pca: PCA = pca
         self.orig_X_df_ = Optional[pd.DataFrame] = None
         self.pca_labels: Optional[List[str]] = None
 

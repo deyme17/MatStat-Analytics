@@ -1,1 +1,1 @@
-from .pca import PrincipalComponentAnalysis
+from .pca import PCA

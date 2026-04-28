@@ -4,7 +4,7 @@ import numpy as np
 
 
 
-class PrincipalComponentAnalysis:
+class PCA:
     """Principal Component Analysis model."""
     def __init__(self):
         self.eigenvalues: Optional[np.ndarray] = None
