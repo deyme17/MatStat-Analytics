@@ -10,7 +10,7 @@ DIALOG_WIDTH = 700
 DIALOG_HEIGHT = 600
 
 
-class RegressionPlotDialog(QDialog):
+class RegressionPlot(QDialog):
     """
     Modal dialog for visualizing regression results.
     Shows 2D scatter + line for 1 predictor, 3D scatter + plane for 2 predictors.

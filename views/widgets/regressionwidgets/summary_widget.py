@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt
 from services.ui_services.messager import UIMessager
 from services.ui_services.renderers.graph_renderers import (
-    RegressionPlotDialog, ResidualsFittedPlot
+    RegressionPlot, ResidualsFittedPlot
 )
 from utils import AppContext
 from controllers import RegressionController
@@ -267,7 +267,7 @@ class RegrSummaryWidget(QWidget):
             X_df = df[features]
             y_series = df[target]
 
-            dialog = RegressionPlotDialog(
+            dialog = RegressionPlot(
                 X_df=X_df,
                 y_series=y_series,
                 predict_fn=self.controller.predict,
