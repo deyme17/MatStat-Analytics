@@ -175,7 +175,7 @@ class ComponentAnalysisTab(QWidget):
         if X_df is None:
             return
 
-        fit = self.refit_check.isChecked() or not self._is_fitted
+        fit = self.refit_check.isChecked()
         n_components, ev_threshold = self._get_params()
 
         try:
