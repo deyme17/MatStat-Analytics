@@ -14,7 +14,7 @@ from controllers import (
     AnomalyController, MissingDataController, DataTransformController,
     ParameterEstimation, SimulationController, StatisticController, GOFController, HomogenController, 
     CorrelationController, RegressionController, ComponentController,
-    DataLoadController, DataVersionController, DistributionRegister
+    DataLoadController, DatasetController, DistributionRegister
 )
 
 # Services
@@ -78,7 +78,7 @@ class ControllersFactory:
         controllers['estimation'] = ParameterEstimation(estimation_methods)
         controllers['gof'] = GOFController(gof_tests)
         controllers['homogen'] = HomogenController(homogen_tests)
-        controllers['data_version'] = DataVersionController(context=self.context)
+        controllers['data_version'] = DatasetController(context=self.context)
         controllers['anomaly_data'] = AnomalyController(
             context=self.context,
             anomaly_proc=AnomalyProcessor(),
@@ -134,7 +134,7 @@ class UIFactory:
         # LEFT TABS
         data_tab = DataProcessingTab(
             context=self.context,
-            data_version_controller=controllers['data_version'],
+            dataset_controller=controllers['data_version'],
             data_exporter=DataExporter,
             widget_data=[
                 ("transform_widget", TransformDataWidget, controllers['data_transform']),

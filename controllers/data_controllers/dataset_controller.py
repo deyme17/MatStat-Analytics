@@ -4,7 +4,7 @@ from utils.combo_callbacks import ComboUICallbacks
 from typing import Callable, Optional
 
 
-class DataVersionController:
+class DatasetController:
     """
     Controller for managing dataset selection (switching between different loaded files).
     Each dataset maintains its own transformation history via DataModel.
@@ -33,15 +33,12 @@ class DataVersionController:
         self._subscribe_to_events()
 
     def _subscribe_to_events(self):
-        self.event_bus.subscribe(EventType.DATA_LOADED, self._on_data_loaded)
-        self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_dataset_changed)
-        self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_dataset_changed)
+        self.event_bus.subscribe(EventType.DATA_LOADED, self._on_dataset_update)
+        self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_dataset_update)
+        self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_dataset_update)
 
-    def _on_data_loaded(self, event: Event):
+    def _on_dataset_update(self, event: Event):
         self.update_dataset_list()
-
-    def _on_dataset_changed(self, event: Event):
-        self.update_columns_list()
 
     def on_dataset_selection_changed(self, index: int) -> None:
         """

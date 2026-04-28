@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QHBoxLayout, QGroupBox, QCheckBox
 from typing import Any
 from utils import EventBus, EventType, Event, AppContext
-from controllers import DataVersionController
+from controllers import DatasetController
 from services import DataExporter, UIMessager, DataVersionManager
 
 BUTTON_WIDTH, BUTTON_HEIGHT = 111, 30
@@ -16,12 +16,12 @@ class DataProcessingTab(QWidget):
     - Missing data handling
     - Original data restoration
     """
-    def __init__(self, context: AppContext, data_exporter: DataExporter, data_version_controller: DataVersionController, 
+    def __init__(self, context: AppContext, data_exporter: DataExporter, dataset_controller: DatasetController, 
                  widget_data: list[tuple[str, QGroupBox, Any]]) -> None: 
         """
         Args:
             context: Shared application context (data_model, event_bus, messager).
-            data_version_controller: Controller for handling data version changes.
+            dataset_controller: Controller for handling dataset changes.
             data_exporter: Class for exporting data.
             widget_data (list[tuple[str, QGroupBox, Any]]): Widget classes for data 
                                         processing operations with it's controllers.
@@ -32,7 +32,7 @@ class DataProcessingTab(QWidget):
         self.messanger: UIMessager = context.messanger
         self.version_manager: DataVersionManager = context.version_manager
         self.exporter: DataExporter = data_exporter
-        self.data_version_controller: DataVersionController = data_version_controller
+        self.dataset_controller: DatasetController = dataset_controller
         self.widget_data = widget_data
 
         self._init_ui()
@@ -68,13 +68,13 @@ class DataProcessingTab(QWidget):
         """Initialize UI components."""
         self.data_version_label = self._make_label("Select loaded dataset:")
         self.data_version_combo = self._make_combo(
-            on_change=self.data_version_controller.on_dataset_selection_changed
+            on_change=self.dataset_controller.on_dataset_selection_changed
         )
         self.transformation_label = self._make_label("Current state: Original")
 
         self.current_col_label = self._make_label("Select column to apply operation to:")
         self.dataframe_cols_combo = self._make_combo(
-            on_change=self.data_version_controller.on_current_col_changed
+            on_change=self.dataset_controller.on_current_col_changed
         )
         self.whole_dataset_checkbox = self._make_checkbox(
             "Whole dataset", checked=False, callback=self._on_checkbox_toggled
@@ -148,7 +148,7 @@ class DataProcessingTab(QWidget):
     def _on_original_button_clicked(self) -> None:
         """Callback for original button"""
         whole_dataset = self.whole_dataset_checkbox.isChecked()
-        self.data_version_controller.revert_to_original(whole_dataset)
+        self.dataset_controller.revert_to_original(whole_dataset)
 
     def _update_transformation_label(self) -> None:
         """Updates transformation_label"""
