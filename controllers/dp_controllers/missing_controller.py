@@ -24,10 +24,10 @@ class MissingDataController:
         self._subscribe_to_events()
 
     def _subscribe_to_events(self) -> None:
-        self.event_bus.subscribe(EventType.DATA_LOADED,     self._on_data_changed)
-        self.event_bus.subscribe(EventType.DATA_REVERTED,   self._on_data_changed)
+        self.event_bus.subscribe(EventType.DATA_LOADED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_data_changed)
         self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_data_changed)
-        self.event_bus.subscribe(EventType.COLUMN_CHANGED,  self._on_data_changed)
+        self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_data_changed)
 
     def _on_data_changed(self, event) -> None:
         series = self.context.data_model.series
@@ -43,7 +43,6 @@ class MissingDataController:
             return
 
         info = self.missing_proc.detect_missing(self.data)
-        
         self.event_bus.emit_type(EventType.MISSING_VALUES_INFO, info)
         if info['total_missing'] > 0:
             self.event_bus.emit_type(EventType.MISSING_VALUES_DETECTED)
@@ -83,14 +82,8 @@ class MissingDataController:
         new_model = self.context.data_model.add_version(new_df, label)
         self.context.data_model = new_model
         self.data = new_model.series
-
         self.version_manager.update_current_dataset(new_model)
-
         self.event_bus.emit_type(EventType.MISSING_VALUES_HANDLED)
-        self.event_bus.emit_type(EventType.DATA_TRANSFORMED, {
-            'model': new_model,
-            'series': new_model.series,
-            'label': label
-        })
+        self.event_bus.emit_type(EventType.DATA_TRANSFORMED)
         self.update_missing_values_info()
         self.messanger.show_info("Success", message)

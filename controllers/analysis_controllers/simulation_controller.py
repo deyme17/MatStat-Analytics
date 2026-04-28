@@ -67,7 +67,7 @@ class SimulationController:
                 data_model = self.data_saver.save_data(distribution.name, simulated_data)
                 self.version_manager.add_dataset(data_model.label, data_model)
                 self.context.data_model = data_model
-                self.event_bus.emit_type(EventType.DATA_LOADED, data_model.series)
+                self.event_bus.emit_type(EventType.DATA_LOADED)
                 self.messanger.show_info(
                     "Data Saved", 
                     f"Simulated data saved as '{data_model.label}' with {len(simulated_data)} samples."

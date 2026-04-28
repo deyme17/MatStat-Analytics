@@ -34,7 +34,7 @@ class DataTransformController:
         name = self.version_manager.get_current_dataset_name()
         self._std_params.pop(name, None)
 
-    # ── transformation methods ──────────────────────────────────────────────────
+    #  transformation methods
     def standardize_data(self, columns: list[str] | None = None) -> None:
         """
         Standardize selected columns or current series.
@@ -57,7 +57,7 @@ class DataTransformController:
             model.add_version_from_series(transformed, label)
 
         self._save_std_params(params)
-        self._emit(label, model)
+        self._emit()
 
     def unstandardize_data(self) -> None:
         """Reverse standardization using stored params for current dataset."""
@@ -78,7 +78,7 @@ class DataTransformController:
             model.add_version_from_series(restored, label)
 
         self._clear_std_params()
-        self._emit(label, model)
+        self._emit()
 
     def log_transform_data(self, kind: str = "ln") -> None:
         if self.context.data_model:
@@ -102,9 +102,5 @@ class DataTransformController:
         self.version_manager.update_current_dataset(model)
         self._emit(label, model)
 
-    def _emit(self, label: str, model) -> None:
-        self.event_bus.emit_type(EventType.DATA_TRANSFORMED, {
-            'model': model,
-            'series': model.series,
-            'label': label
-        })
+    def _emit(self) -> None:
+        self.event_bus.emit_type(EventType.DATA_TRANSFORMED)

@@ -50,15 +50,9 @@ class DatasetController:
             dataset_name = dataset_names[index]
             self.version_manager.switch_to_dataset(dataset_name)
             self.context.data_model = self.version_manager.get_current_data_model()
-
             self.update_columns_list()
             self._set_bins_for_new_data()
-            
-            self.event_bus.emit_type(EventType.DATASET_CHANGED, {
-                'model': self.context.data_model,
-                'series': self.context.data_model.series,
-                'from_combo': True
-            })
+            self.event_bus.emit_type(EventType.DATASET_CHANGED)
 
     def on_current_col_changed(self, index: int) -> None:
         """
@@ -73,14 +67,7 @@ class DatasetController:
             col_idx = self.context.data_model.dataframe.columns.get_loc(col_name)
             self.context.data_model.select_column(col_idx)
             assert self.context.data_model.current_col_idx == col_idx
-            
-            self.event_bus.emit_type(EventType.COLUMN_CHANGED, {
-                'model': self.context.data_model,
-                'series': self.context.data_model.series,
-                'col_name': col_name,
-                'col_idx': col_idx,
-                'from_combo': True
-            })
+            self.event_bus.emit_type(EventType.COLUMN_CHANGED)
 
     def revert_to_original(self, whole_dataset: bool = False) -> None:
         """
@@ -90,13 +77,7 @@ class DatasetController:
             original = self.context.data_model.revert_to_original(whole_dataset)
             self.version_manager.update_current_dataset(original)
             self.context.data_model = original
-            
-            self.event_bus.emit_type(EventType.DATA_REVERTED, {
-                'model': original,
-                'series': original.series,
-                'whole_dataset': whole_dataset,
-                'completed': True
-            })
+            self.event_bus.emit_type(EventType.DATA_REVERTED)
 
     def update_dataset_list(self) -> None:
         """

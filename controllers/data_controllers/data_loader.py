@@ -53,7 +53,7 @@ class DataLoadController:
         model = self.data_model_class(data, bins=bin_count, label="Original")
         self.version_manager.add_dataset(filename, model)
         self.context.data_model = model
-        self.event_bus.emit_type(EventType.DATA_LOADED, model.series)
+        self.event_bus.emit_type(EventType.DATA_LOADED)
 
     def _build_filename(self, filename_ext: str) -> str:
         """
