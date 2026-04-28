@@ -116,13 +116,15 @@ class PCA:
     
     def get_explained_variance(self) -> Tuple[float, np.ndarray]:
         """Return: (Explained Variance, Explained Variance ratio for each component)."""
-        if self.components_ is None:
-            raise Exception("[ERROR] Principal components is not defined yet.")
         total_variance = np.sum(self.eigenvalues)
         evr = self.eigenvalues / total_variance
-        k = self.components_.shape[1]
-        explained_variance = np.sum(self.eigenvalues[:k])
-        return explained_variance, evr[:k]
+        if self.components_ is not None:
+            k = self.components_.shape[1]
+            explained_variance = np.sum(self.eigenvalues[:k])
+            return explained_variance, evr[:k]
+        else:
+            explained_variance = np.sum(self.eigenvalues)
+            return explained_variance, evr
     
     def clear_state(self) -> None:
         """Clear PCA model state."""
