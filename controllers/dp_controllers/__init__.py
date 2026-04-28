@@ -1,3 +1,4 @@
 from .anomaly_controller import AnomalyController
 from .missing_controller import MissingDataController
 from .data_transform_controller import DataTransformController
+from .component_controller import ComponentController

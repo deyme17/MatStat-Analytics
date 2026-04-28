@@ -11,11 +11,7 @@ class AnomalyController:
     """
     Controller for detecting and removing statistical anomalies from the dataset.
     """
-    def __init__(
-        self, 
-        context: AppContext, 
-        anomaly_proc: AnomalyProcessor, 
-    ):
+    def __init__(self, context: AppContext, anomaly_proc: AnomalyProcessor):
         """    
         Args:
             context: Application context container
