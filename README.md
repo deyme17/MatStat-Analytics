@@ -77,7 +77,7 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
 - Correlation Ratio with significance testing
 - Multiple and partial correlation coefficients
 
-#### Regression
+#### 📉 Regression
 - **Models**: Simple Linear Regression, Polynomial Regression (degree 2 & 3) — all fitted via OLS
 - **Summary**: Coefficients, intercept, confidence intervals for all parameters, per-coefficient and overall F-significance, R², Adjusted R², MSE, RSE, regression equation as text
 - **Diagnostics**: Residuals-vs-fitted plot, tolerance bounds for residual variance
@@ -91,6 +91,15 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
 - **Multivariate Linear Regression**: Standardised and unstandardised coefficient estimates, significance and precision analysis, R², tolerance bounds for residual variance, regression line confidence intervals, F-test for overall model significance, residuals-vs-fitted diagnostic diagram
 
 ---
+### 🧩 Component Analysis
+
+* **Principal Component Analysis**: Implements dimensionality reduction by transforming correlated variables into a set of linearly uncorrelated principal components.
+* **Scree Plot**: Visualizes the eigenvalue for each principal component to help identify the "elbow" point where adding more components provides diminishing returns in explained variance.
+* **Principal Components Selection**: Supports two automated modes for selection:
+    * **Fixed Count**: Manually specify the exact number of components ($n$) to retain.
+    * **Variance Threshold**: Automatically selects the minimum number of components required to meet a target percentage (e.g., 90%) of total explained variance.
+* **Inverse Transformation**: Allows for data reconstruction from the reduced feature space back to the original coordinate system for verification and analysis.
+* **Dynamic Visualization**: Integrated status reporting and real-time calculation of explained variance ratios for each component.
 
 ### 📉 Visualization
 
