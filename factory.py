@@ -98,8 +98,10 @@ class ControllersFactory:
         )
         controllers['regression'] = RegressionController(regression_models)
         controllers['dist_register'] = DistributionRegister(stat_distributions)
-        controllers['component'] = ComponentController(PCA())
-        
+        controllers['component'] = ComponentController(
+            context=self.context, 
+            pca=PCA()
+        ) 
         return controllers
 
 class UIFactory:
