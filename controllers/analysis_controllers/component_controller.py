@@ -3,7 +3,7 @@ import pandas as pd
 from models.component_analysis import PCA
 
 
-class ComponentAnalysisController:
+class ComponentController:
     """
     Main controller class for component analysis.
     """
