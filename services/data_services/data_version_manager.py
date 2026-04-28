@@ -62,6 +62,23 @@ class DataVersionManager:
         if self.current_dataset_name:
             self.datasets[self.current_dataset_name] = new_model
 
+    def sync_columns(self, model) -> None:
+        """
+        Sync column registry to match the model's current
+        DataFrame columns, then reset the active column to index 0.\n
+        This must be called after any operation that changes the column schema
+        (e.g. PCA transform -> PC_N columns).
+        """
+        dataset_name = self.get_current_dataset_name()
+        if not dataset_name:
+            return
+        new_col_names = list(model.dataframe.columns)
+        self.columns[dataset_name] = new_col_names
+        # reset active column to the first one to avoid a stale index/name
+        if new_col_names:
+            self.current_col_name = new_col_names[0]
+            model.select_column(0)
+
     def get_all_dataset_names(self) -> list[str]:
         """
         Return all names of stored datasets.
