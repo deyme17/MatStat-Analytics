@@ -167,9 +167,9 @@ python main.py
 ```
 MatStat-Analytics/
 ├── controllers/
-│   ├── analysis_controllers/      # Correlation, estimation, GOF, homogeneity, regression, simulation, statistics
-│   ├── data_controllers/         # Data loading and versioning
-│   └── dp_controllers/           # Anomaly detection, transformation, missing data
+│   ├── analysis_controllers/     # Correlation, estimation, GOF, homogeneity, regression, simulation, statistics
+│   ├── data_controllers/         # Data loading and dataset selection
+│   └── dp_controllers/           # Anomaly detection, transformation, missing data, pca
 ├── models/
 │   ├── correlation_coeffs/       # Pearson, Spearman, Kendall, Ratio, Multiple, Partial
 │   ├── data_processors/          # Anomaly, missing, transformation processors
