@@ -32,7 +32,7 @@ from views import (
     DataProcessingTab, GOFTestTab, ParamEstimationTab, SimulationTab, StatisticTab, HomogenTab, CorrelationTab, RegressionTab,
     # widgets
     WindowWidgets,
-    AnomalyWidget, MissingWidget, TransformDataWidget,
+    AnomalyWidget, MissingWidget, TransformDataWidget, PCAResultWidget,
     KolmogorovSmirnovPanel, PearsonChi2Panel, Pearson2DNormalPanel, RegrSummaryWidget, RegrPredictionWidget,
     GenerationWidget, ExperimentWidget, CorrelationTestWidget, PartialCorrWidget, MultiCorrWidget, ComponentAnalysisTab,
     NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel, AbbePanel,
@@ -187,7 +187,8 @@ class UIFactory:
         )
         comp_tab = ComponentAnalysisTab(
             context=self.context, 
-            component_controller=controllers['component']
+            component_controller=controllers['component'],
+            pca_result_widget=PCAResultWidget
         )
         self.window.left_tab_widget = QTabWidget()
         self.window.left_tab_widget.addTab(data_tab, "Data Processing")
