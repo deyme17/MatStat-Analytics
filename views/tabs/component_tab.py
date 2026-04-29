@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
     QRadioButton, QButtonGroup, QGroupBox, QScrollArea,
 )
 from PyQt6.QtCore import Qt
-from views.widgets import PCAResultWidget
+from views.widgets.componentwidgets import PCAResultWidget
 
 from services import UIMessager
 from utils import AppContext, EventBus, Event, EventType
@@ -69,7 +69,7 @@ class ComponentAnalysisTab(QWidget):
         self.status_label = self._build_status_label()
         layout.addWidget(self.status_label)
 
-        main_layout.addWidget(self.pca_result_widget)
+        layout.addWidget(self.pca_result_widget)
         layout.addStretch()
 
         scroll.setWidget(container)
@@ -83,7 +83,7 @@ class ComponentAnalysisTab(QWidget):
         # selection mode
         radio_row = QHBoxLayout()
         self.radio_n = QRadioButton("Number of Components")
-        self.radio_ev = QRadioButton("Explained Variance Threshold")
+        self.radio_ev = QRadioButton("Variance Threshold")
         self.radio_n.setChecked(True)
         
         self._radio_group = QButtonGroup(self)
@@ -173,7 +173,7 @@ class ComponentAnalysisTab(QWidget):
             return
         try:
             self.controller.fit(X_df)
-            self.pca_result_widget.refresh()
+            self.pca_result_widget.create_results()
             self._refresh_buttons()
             self._set_status("Model fitted successfully", ok=True)
         except Exception as e:
@@ -191,7 +191,7 @@ class ComponentAnalysisTab(QWidget):
                       self.controller.fitted_ds_name != current_dataset)
         try:
             self.controller.transform(X_df, fit_needed, n_components, ev_threshold)
-            self.pca_result_widget.refresh()
+            self.pca_result_widget.create_results()
             self._refresh_buttons()
             self._set_status(
                 f"Transformed to {n_components or 'auto'} components", ok=True,
