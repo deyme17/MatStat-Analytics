@@ -3,15 +3,16 @@ import pandas as pd
 
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-    QSpinBox, QDoubleSpinBox, QPushButton, QCheckBox,
+    QSpinBox, QDoubleSpinBox, QPushButton,
     QRadioButton, QButtonGroup, QGroupBox, QScrollArea,
 )
 from PyQt6.QtCore import Qt
 
 from services import UIMessager
-from utils import AppContext, EventBus, EventType, Event
+from utils import AppContext, EventBus, Event, EventType
 from services.ui_services.renderers.graph_renderers import ScreeEVRPlot
 from controllers import ComponentController
+from controllers.dp_controllers.component_controller import PCAState
 from utils.ui_styles import groupMargin, groupStyle
 
 
@@ -22,11 +23,25 @@ class ComponentAnalysisTab(QWidget):
     Consistent with the styling of Regression and Correlation tabs.
     """
     def __init__(self, context: AppContext, component_controller: ComponentController):
+        """
+        Args:
+            context: Shared application context (data_model, event_bus, messager).
+            component_controller: Controller for performing component analysis.
+        """
         super().__init__()
         self.context: AppContext = context
+        self.event_bus: EventBus = context.event_bus
         self.messenger: UIMessager = context.messanger
         self.controller: ComponentController = component_controller
         self._init_ui()
+        self._subscribe_to_events()
+
+    def _subscribe_to_events(self) -> None:
+        self.event_bus.subscribe(EventType.DATA_LOADED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_data_changed)
+
+    def _on_data_changed(self, event: Event) -> None:
+        self._refresh_buttons()
 
     def _init_ui(self) -> None:
         main_layout = QVBoxLayout(self)
@@ -53,6 +68,7 @@ class ComponentAnalysisTab(QWidget):
 
         scroll.setWidget(container)
         main_layout.addWidget(scroll)
+        self._refresh_buttons()
 
     def _build_params_group(self) -> QGroupBox:
         box = QGroupBox("Component Selection Mode")
@@ -107,15 +123,11 @@ class ComponentAnalysisTab(QWidget):
         box = QGroupBox("Actions")
         layout = QVBoxLayout()
 
-        # fit section
         self.fit_btn = QPushButton("Fit Model")
         self.fit_btn.clicked.connect(self._on_fit)
 
         self.transform_btn = QPushButton("Transform Data")
         self.transform_btn.clicked.connect(self._on_transform)
-
-        self.refit_check = QCheckBox("+fit")
-        self.refit_check.setChecked(False)
 
         self.scree_btn = QPushButton("Show Scree Plot")
         self.scree_btn.clicked.connect(self._on_scree_plot)
@@ -139,7 +151,7 @@ class ComponentAnalysisTab(QWidget):
         label.setAlignment(Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
         label.setFixedHeight(30)
         label.setStyleSheet(
-            "background:#fff8e1; border:1px solid #ffe082; padding: 0 8px; border-radius:4px;"
+            "background:#ffffff; border:1px solid #ffffff; padding: 0 8px; border-radius:4px;"
         )
         return label
 
@@ -166,6 +178,7 @@ class ComponentAnalysisTab(QWidget):
         try:
             self.controller.fit(X_df)
             self._refresh_ev_display()
+            self._refresh_buttons()
             self._set_status("Model fitted successfully", ok=True)
         except Exception as e:
             self.messenger.show_error("Fit failed", str(e))
@@ -175,17 +188,17 @@ class ComponentAnalysisTab(QWidget):
         if X_df is None:
             return
 
-        fit = self.refit_check.isChecked()
         n_components, ev_threshold = self._get_params()
-
+        state = self.controller.current_state
+        current_dataset = self.context.version_manager.get_current_dataset_name()
+        fit_needed = (state == PCAState.IDLE or 
+                      self.controller.fitted_ds_name != current_dataset)
         try:
-            self.controller.transform(
-                X_df, fit=fit, n_components=n_components, ev_threshold=ev_threshold
-            )
+            self.controller.transform(X_df, fit_needed, n_components, ev_threshold)
             self._refresh_ev_display()
+            self._refresh_buttons()
             self._set_status(
-                f"Transformed to {n_components} components",
-                ok=True,
+                f"Transformed to {n_components or 'auto'} components", ok=True,
             )
         except Exception as e:
             self.messenger.show_error("Transform failed", str(e))
@@ -204,6 +217,7 @@ class ComponentAnalysisTab(QWidget):
             return
         try:
             self.controller.inverse_transform(df)
+            self._refresh_buttons()
             self._set_status("Data inverse-transformed", ok=True)
         except Exception as e:
             self.messenger.show_error("Inverse transform failed", str(e))
@@ -211,7 +225,8 @@ class ComponentAnalysisTab(QWidget):
     def _on_to_original(self) -> None:
         try:
             self.controller.to_original()
-            self._is_fitted = False
+            self._refresh_ev_display()
+            self._refresh_buttons()
             self._set_status("Restored original data", ok=True)
         except Exception as e:
             self.messenger.show_error("Restore failed", str(e))
@@ -233,6 +248,18 @@ class ComponentAnalysisTab(QWidget):
         if self.radio_n.isChecked():
             return self.n_spinbox.value(), None
         return None, self.ev_spinbox.value()
+
+    def _refresh_buttons(self) -> None:
+        """Enable/disable buttons based on current PCA state and active dataset."""
+        state = self.controller.current_state
+        current_dataset = self.context.version_manager.get_current_dataset_name()
+        fitted_here = self.controller.fitted_ds_name == current_dataset
+        self.fit_btn.setEnabled(state != PCAState.TRANSFORMED or not fitted_here)
+        self.transform_btn.setEnabled(state != PCAState.TRANSFORMED or not fitted_here)
+        self.scree_btn.setEnabled(state in (PCAState.FITTED, PCAState.TRANSFORMED) and fitted_here)
+        self.original_btn.setEnabled(state == PCAState.TRANSFORMED and fitted_here)
+        self.inverse_btn.setEnabled(state == PCAState.TRANSFORMED and fitted_here and 
+                                    state != PCAState.INVERSE_TRANSFORMED)
 
     def _refresh_ev_display(self) -> None:
         try:

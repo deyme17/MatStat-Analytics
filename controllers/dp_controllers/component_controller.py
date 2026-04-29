@@ -1,9 +1,17 @@
 from typing import Optional, Tuple, List
+from enum import Enum, auto
 import pandas as pd
 from models.component_analysis import PCA
 from services import DataVersionManager
 from utils import AppContext, EventBus, EventType
 
+
+
+class PCAState(Enum):
+    IDLE = auto()                   # no fit yet
+    FITTED = auto()                 # fit done, not transformed
+    TRANSFORMED = auto()            # transform done
+    INVERSE_TRANSFORMED = auto()    # inverse transform done
 
 
 class ComponentController:
@@ -17,6 +25,8 @@ class ComponentController:
         self.version_manager: DataVersionManager = context.version_manager
         self.orig_X_df_: Optional[pd.DataFrame] = None
         self.pca_labels: Optional[List[str]] = None
+        self._state: PCAState = PCAState.IDLE
+        self._fitted_ds_name: Optional[str] = None
 
     def fit(self, X_df: pd.DataFrame) -> None:
         """
@@ -26,6 +36,8 @@ class ComponentController:
         """
         X = X_df.to_numpy(dtype=float)
         self.pca.fit(X)
+        self._state = PCAState.FITTED
+        self._fitted_ds_name = self.version_manager.get_current_dataset_name()
 
     def transform(self, X_df: pd.DataFrame,
                  fit: bool = True,
@@ -45,6 +57,7 @@ class ComponentController:
         X_transformed = None
         if fit:
             X_transformed = self.pca.fit_transform(X, n_components, ev_threshold)
+            self._fitted_ds_name = self.version_manager.get_current_dataset_name()
         else:
             X_transformed = self.pca.transform(X, n_components, ev_threshold)
 
@@ -55,6 +68,7 @@ class ComponentController:
         new_model = self.context.data_model.add_version(new_df, "PCA Transformed")
 
         self.version_manager.sync_columns(new_model)
+        self._state = PCAState.TRANSFORMED
         self._emit()
     
     def inverse_transform(self, X_df: pd.DataFrame):
@@ -70,6 +84,7 @@ class ComponentController:
         new_model = self.context.data_model.add_version(new_df, "PCA Inv-Transformed")
 
         self.version_manager.sync_columns(new_model)
+        self._state = PCAState.INVERSE_TRANSFORMED
         self._emit()
     
     def to_original(self) -> None:
@@ -78,6 +93,8 @@ class ComponentController:
         orig_model = self.context.data_model.add_version(self.orig_X_df_, "Reverted to pre-PCA")
 
         self.version_manager.sync_columns(orig_model)
+        self._state = PCAState.IDLE
+        self._fitted_ds_name = None
         self._emit()
 
     def get_explained_variance(self) -> Tuple[float, List[float]]:
@@ -87,3 +104,11 @@ class ComponentController:
 
     def _emit(self) -> None:
         self.event_bus.emit_type(EventType.DATASET_CHANGED)
+
+    @property
+    def current_state(self) -> PCAState:
+        return self._state
+    
+    @property
+    def fitted_ds_name(self) -> str:
+        return self._fitted_ds_name
