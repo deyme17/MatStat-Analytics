@@ -7,12 +7,24 @@ import numpy as np
 class PCA:
     """Principal Component Analysis model."""
     def __init__(self):
-        self.eigenvalues: Optional[np.ndarray] = None
-        self.eigenvectors: Optional[np.ndarray] = None
+        self.eigenvalues_: Optional[np.ndarray] = None
+        self.eigenvectors_: Optional[np.ndarray] = None
         self.components_: Optional[np.ndarray] = None
         self.evr_: Optional[np.ndarray] = None
         self.mean_: Optional[np.ndarray] = None
         self.fitted: bool = False
+
+    @property
+    def principal_components(self) -> Optional[np.ndarray]:
+        return self.components_
+    
+    @property
+    def eigenvalues(self) -> Optional[np.ndarray]:
+        return self.eigenvalues_
+    
+    @property
+    def eigenvectors(self) -> Optional[np.ndarray]:
+        return self.eigenvectors_
 
     def fit(self, X: np.ndarray) -> None:
         """
@@ -36,15 +48,15 @@ class PCA:
         # cov matrix
         cov_matrix = np.cov(X_norm, rowvar=False)
         # eigendecomposition
-        self.eigenvalues, self.eigenvectors = linalg.eigh(cov_matrix)
+        self.eigenvalues_, self.eigenvectors_ = linalg.eigh(cov_matrix)
 
     def _sort_pc(self) -> None:
         """Sort eigenvectors by its eigenvalues"""
-        if self.eigenvalues is None or self.eigenvectors is None:
+        if self.eigenvalues_ is None or self.eigenvectors_ is None:
             raise Exception("[ERROR] Eigendecomposition is not performed.")
-        sort_idx = np.argsort(self.eigenvalues, axis=0)[::-1]
-        self.eigenvalues = self.eigenvalues[sort_idx]
-        self.eigenvectors = self.eigenvectors[:, sort_idx]
+        sort_idx = np.argsort(self.eigenvalues_, axis=0)[::-1]
+        self.eigenvalues_ = self.eigenvalues_[sort_idx]
+        self.eigenvectors_ = self.eigenvectors_[:, sort_idx]
 
     def transform(self, X: np.ndarray,
                   n_components: Optional[int] = None,
@@ -70,9 +82,9 @@ class PCA:
         elif ev_threshold is not None:
             k = self._select_n_components_by_ev(ev_threshold)
         else:
-            k = self.eigenvectors.shape[1]
+            k = self.eigenvectors_.shape[1]
 
-        self.components_ = self.eigenvectors[:, :k]
+        self.components_ = self.eigenvectors_[:, :k]
         return (X - self.mean_) @ self.components_
 
     def inverse_transform(self, X: np.ndarray) -> np.ndarray:
@@ -105,31 +117,31 @@ class PCA:
     
     def _select_n_components_by_ev(self, threshold: float = 0.90) -> int:
         """Select n_components by Explained Variance threshold."""
-        if self.eigenvalues is None:
+        if self.eigenvalues_ is None:
             raise Exception("[ERROR] Eigendecomposition is not performed.")
-        total_variance = np.sum(self.eigenvalues)
+        total_variance = np.sum(self.eigenvalues_)
         explained_variance = 0.0
-        for i, eig_val in enumerate(self.eigenvalues):
+        for i, eig_val in enumerate(self.eigenvalues_):
             explained_variance += eig_val / total_variance
             if explained_variance >= threshold:
                 return i + 1
     
     def get_explained_variance(self) -> Tuple[float, np.ndarray]:
         """Return: (Explained Variance, Explained Variance ratio for each component)."""
-        total_variance = np.sum(self.eigenvalues)
-        evr = self.eigenvalues / total_variance
+        total_variance = np.sum(self.eigenvalues_)
+        evr = self.eigenvalues_ / total_variance
         if self.components_ is not None:
             k = self.components_.shape[1]
-            explained_variance = np.sum(self.eigenvalues[:k])
+            explained_variance = np.sum(self.eigenvalues_[:k])
             return explained_variance, evr[:k]
         else:
-            explained_variance = np.sum(self.eigenvalues)
+            explained_variance = np.sum(self.eigenvalues_)
             return explained_variance, evr
     
     def clear_state(self) -> None:
         """Clear PCA model state."""
-        self.eigenvalues = None
-        self.eigenvectors = None
+        self.eigenvalues_ = None
+        self.eigenvectors_ = None
         self.components_ = None
         self.evr_ = None
         self.mean_ = None

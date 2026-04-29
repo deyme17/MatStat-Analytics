@@ -1,6 +1,7 @@
 from typing import Optional, Tuple, List
 from enum import Enum, auto
 import pandas as pd
+import numpy as np
 from models.component_analysis import PCA
 from services import DataVersionManager
 from utils import AppContext, EventBus, EventType
@@ -104,6 +105,15 @@ class ComponentController:
 
     def _emit(self) -> None:
         self.event_bus.emit_type(EventType.DATASET_CHANGED)
+
+    def get_principal_components(self) -> Optional[np.ndarray]:
+        return self.pca.principal_components
+    
+    def get_eigenvalues(self) -> Optional[np.ndarray]:
+        return self.pca.eigenvalues
+    
+    def get_eigenvectors(self) -> Optional[np.ndarray]:
+        return self.pca.eigenvectors
 
     @property
     def current_state(self) -> PCAState:
