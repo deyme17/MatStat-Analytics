@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import (
     QRadioButton, QButtonGroup, QGroupBox, QScrollArea,
 )
 from PyQt6.QtCore import Qt
+from views.widgets import PCAResultWidget
 
 from services import UIMessager
 from utils import AppContext, EventBus, Event, EventType
@@ -22,17 +23,22 @@ class ComponentAnalysisTab(QWidget):
     Component analysis tab that implements Principal Component Analysis.
     Consistent with the styling of Regression and Correlation tabs.
     """
-    def __init__(self, context: AppContext, component_controller: ComponentController):
+    def __init__(self, context: AppContext, 
+                 component_controller: ComponentController,
+                 pca_result_widget: type[PCAResultWidget]):
         """
         Args:
             context: Shared application context (data_model, event_bus, messager).
             component_controller: Controller for performing component analysis.
+            pca_result_widget: Widget for displaying PCA result.
         """
         super().__init__()
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
         self.messenger: UIMessager = context.messanger
         self.controller: ComponentController = component_controller
+        self.pca_result_widget: PCAResultWidget = pca_result_widget(self.context, 
+                                                                    self.controller)
         self._init_ui()
         self._subscribe_to_events()
 
@@ -62,8 +68,8 @@ class ComponentAnalysisTab(QWidget):
         
         self.status_label = self._build_status_label()
         layout.addWidget(self.status_label)
-        
-        layout.addWidget(self._build_ev_group())
+
+        main_layout.addWidget(self.pca_result_widget)
         layout.addStretch()
 
         scroll.setWidget(container)
@@ -154,16 +160,6 @@ class ComponentAnalysisTab(QWidget):
             "background:#ffffff; border:1px solid #ffffff; padding: 0 8px; border-radius:4px;"
         )
         return label
-
-    def _build_ev_group(self) -> QGroupBox:
-        box = QGroupBox("Explained Variance Results")
-        layout = QVBoxLayout()
-        self.ev_label = QLabel("—")
-        self.ev_label.setWordWrap(True)
-        self.ev_label.setAlignment(Qt.AlignmentFlag.AlignTop|Qt.AlignmentFlag.AlignLeft)
-        layout.addWidget(self.ev_label)
-        box.setLayout(layout)
-        return box
     
     # --- callbacks ---
     def _on_mode_toggled(self) -> None:
@@ -177,7 +173,7 @@ class ComponentAnalysisTab(QWidget):
             return
         try:
             self.controller.fit(X_df)
-            self._refresh_ev_display()
+            self.pca_result_widget.refresh()
             self._refresh_buttons()
             self._set_status("Model fitted successfully", ok=True)
         except Exception as e:
@@ -195,7 +191,7 @@ class ComponentAnalysisTab(QWidget):
                       self.controller.fitted_ds_name != current_dataset)
         try:
             self.controller.transform(X_df, fit_needed, n_components, ev_threshold)
-            self._refresh_ev_display()
+            self.pca_result_widget.refresh()
             self._refresh_buttons()
             self._set_status(
                 f"Transformed to {n_components or 'auto'} components", ok=True,
@@ -225,7 +221,7 @@ class ComponentAnalysisTab(QWidget):
     def _on_to_original(self) -> None:
         try:
             self.controller.to_original()
-            self._refresh_ev_display()
+            self.pca_result_widget.refresh()
             self._refresh_buttons()
             self._set_status("Restored original data", ok=True)
         except Exception as e:
@@ -260,16 +256,6 @@ class ComponentAnalysisTab(QWidget):
         self.original_btn.setEnabled(state == PCAState.TRANSFORMED and fitted_here)
         self.inverse_btn.setEnabled(state == PCAState.TRANSFORMED and fitted_here and 
                                     state != PCAState.INVERSE_TRANSFORMED)
-
-    def _refresh_ev_display(self) -> None:
-        try:
-            total_ev, evr = self.controller.get_explained_variance()
-            lines = [f"Total explained variance: <b>{total_ev:.4f}</b>", ""]
-            for i, v in enumerate(evr, start=1):
-                lines.append(f"PC_{i}: {v:.4f} ({v*100:.1f}%)")
-            self.ev_label.setText("<br>".join(lines))
-        except Exception:
-            self.ev_label.setText("—")
 
     def _set_status(self, msg: str, ok: bool = True) -> None:
         color = "#e8f5e9" if ok else "#ffebee"
