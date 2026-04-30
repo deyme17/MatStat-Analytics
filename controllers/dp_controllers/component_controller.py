@@ -129,6 +129,8 @@ class ComponentController:
         """Revert to the full dataframe as it was before PCA and clear model state."""
         self.pca.clear_state()
         restore_df = self._orig_full_df_ if self._orig_full_df_ is not None else self.orig_X_df_
+        if restore_df is None:
+            raise ValueError("Original dataframe doesn't exist.")
         orig_model = self.context.data_model.add_version(restore_df, "Reverted to pre-PCA")
         self.version_manager.sync_columns(orig_model)
         self._state = PCAState.IDLE
