@@ -96,6 +96,7 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
 * **Principal Component Analysis**: Implements dimensionality reduction by transforming correlated variables into a set of linearly uncorrelated principal components.
 * **Scree Plot**: Visualizes the eigenvalue for each principal component to help identify the "elbow" point where adding more components provides diminishing returns in explained variance.
 * **Component Matrix**: Displays a table of loadings that quantify the relationship between original variables and principal components, highlighting the weight of each feature in the new coordinate system.
+* **Feature selection**: Selection of features to pass it to PCA algorithm in Group list of dataset variables.
 * **Principal Components Selection**: Supports two automated modes for selection:
     * **Fixed Count**: Manually specify the exact number of components ($n$) to retain.
     * **Variance Threshold**: Automatically selects the minimum number of components required to meet a target percentage (e.g., 90%) of total explained variance.

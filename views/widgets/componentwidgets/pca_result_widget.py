@@ -30,10 +30,6 @@ class PCAResultWidget(QWidget):
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
 
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-
         container = QWidget()
         container.setStyleSheet(groupStyle + groupMargin)
         container.setMaximumWidth(350)
@@ -46,8 +42,7 @@ class PCAResultWidget(QWidget):
         layout.addWidget(self._build_loadings_group())
         layout.addStretch()
 
-        scroll.setWidget(container)
-        main_layout.addWidget(scroll)
+        main_layout.addWidget(container)
 
     def _build_ev_group(self) -> QGroupBox:
         box = QGroupBox("Explained Variance")

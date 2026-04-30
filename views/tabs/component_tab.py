@@ -1,10 +1,11 @@
-from typing import Optional
+from typing import Optional, List, Tuple
 import pandas as pd
 
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QSpinBox, QDoubleSpinBox, QPushButton,
     QRadioButton, QButtonGroup, QGroupBox, QScrollArea,
+    QListWidget, QAbstractItemView,
 )
 from PyQt6.QtCore import Qt
 from views.widgets.componentwidgets import PCAResultWidget
@@ -15,14 +16,17 @@ from services.ui_services.renderers.graph_renderers import ScreeEVRPlot
 from controllers import ComponentController
 from controllers.dp_controllers.component_controller import PCAState
 from utils.ui_styles import groupMargin, groupStyle
+from utils.helpers import create_section_header
+
+
+MIN_FEATURES = 2
+FEATURE_LIST_HEIGHT = 110
+FEATURE_LIST_WIDTH = 310
 
 
 
 class ComponentAnalysisTab(QWidget):
-    """
-    Component analysis tab that implements Principal Component Analysis.
-    Consistent with the styling of Regression and Correlation tabs.
-    """
+    """Component analysis tab that implements Principal Component Analysis."""
     def __init__(self, context: AppContext, 
                  component_controller: ComponentController,
                  pca_result_widget: type[PCAResultWidget]):
@@ -47,6 +51,8 @@ class ComponentAnalysisTab(QWidget):
         self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_data_changed)
 
     def _on_data_changed(self, event: Event) -> None:
+        """Refresh feature list and button states whenever data changes."""
+        self._refresh_feature_list()
         self._refresh_buttons()
 
     def _init_ui(self) -> None:
@@ -62,7 +68,9 @@ class ComponentAnalysisTab(QWidget):
         layout = QVBoxLayout(container)
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        # Build sections
+        # build sections
+        layout.addLayout(create_section_header("PCA Config"))
+        layout.addWidget(self._build_feature_selector_group())
         layout.addWidget(self._build_params_group())
         layout.addWidget(self._build_actions_group())
         
@@ -75,6 +83,34 @@ class ComponentAnalysisTab(QWidget):
         scroll.setWidget(container)
         main_layout.addWidget(scroll)
         self._refresh_buttons()
+
+    def _build_feature_selector_group(self) -> QGroupBox:
+        """Build group box with multi-select list for PCA feature selection."""
+        box = QGroupBox("Features (X)")
+        layout = QVBoxLayout()
+
+        self.feature_list = QListWidget()
+        self.feature_list.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
+        self.feature_list.setMaximumHeight(FEATURE_LIST_HEIGHT)
+        self.feature_list.setMaximumWidth(FEATURE_LIST_WIDTH)
+        self.feature_list.itemSelectionChanged.connect(self._on_feature_selection_changed)
+
+        # btns
+        btn_row = QHBoxLayout()
+        self.select_all_btn = QPushButton("Select ALL")
+        self.clear_sel_btn = QPushButton("Clear selection")
+        self.select_all_btn.clicked.connect(self._select_all_features)
+        self.clear_sel_btn.clicked.connect(self.feature_list.clearSelection)
+        btn_row.addWidget(self.select_all_btn)
+        btn_row.addWidget(self.clear_sel_btn)
+
+        self.selected_features_label = QLabel("Selected: 0 features")
+
+        layout.addWidget(self.feature_list)
+        layout.addLayout(btn_row)
+        layout.addWidget(self.selected_features_label)
+        box.setLayout(layout)
+        return box
 
     def _build_params_group(self) -> QGroupBox:
         box = QGroupBox("Component Selection Mode")
@@ -167,12 +203,20 @@ class ComponentAnalysisTab(QWidget):
         self.n_spinbox.setEnabled(n_mode)
         self.ev_spinbox.setEnabled(not n_mode)
 
+    def _on_feature_selection_changed(self) -> None:
+        """Update label and cap n_spinbox maximum to number of selected features."""
+        selected = self._get_selected_features()
+        count = len(selected)
+        self.selected_features_label.setText(f"Selected: {count} features")
+        if count >= MIN_FEATURES:
+            self.n_spinbox.setMaximum(count)
+
     def _on_fit(self) -> None:
-        X_df = self._get_data()
-        if X_df is None:
+        df, selected_cols = self._get_data()
+        if df is None:
             return
         try:
-            self.controller.fit(X_df)
+            self.controller.fit(df[selected_cols])
             self.pca_result_widget.create_results()
             self._refresh_buttons()
             self._set_status("Model fitted successfully", ok=True)
@@ -180,8 +224,8 @@ class ComponentAnalysisTab(QWidget):
             self.messenger.show_error("Fit failed", str(e))
 
     def _on_transform(self) -> None:
-        X_df = self._get_data()
-        if X_df is None:
+        df, selected_cols = self._get_data()
+        if df is None:
             return
 
         n_components, ev_threshold = self._get_params()
@@ -190,7 +234,7 @@ class ComponentAnalysisTab(QWidget):
         fit_needed = (state == PCAState.IDLE or 
                       self.controller.fitted_ds_name != current_dataset)
         try:
-            self.controller.transform(X_df, fit_needed, n_components, ev_threshold)
+            self.controller.transform(df[selected_cols], df, fit_needed, n_components, ev_threshold)
             self.pca_result_widget.create_results()
             self._refresh_buttons()
             self._set_status(
@@ -228,14 +272,66 @@ class ComponentAnalysisTab(QWidget):
             self.messenger.show_error("Restore failed", str(e))
 
     # --- helpers ---
-    def _get_data(self) -> Optional[pd.DataFrame]:
+    def _refresh_feature_list(self) -> None:
+        """
+        Repopulate QListWidget from VersionManager's current column registry.
+        Rules:
+        - After PCA transform columns are PC_N - the list is disabled.
+        - After dataset changed, the list is enabled and all columns are selected.
+        """
+        dataset_name = self.context.version_manager.get_current_dataset_name()
+        columns = self.context.version_manager.get_all_columns_names(dataset_name)
+        self.feature_list.blockSignals(True)
+        self.feature_list.clear()
+
+        is_pca_space = bool(columns) and all(c.startswith("PC_") for c in columns)
+        if not is_pca_space:
+            for col in columns:
+                self.feature_list.addItem(col)
+            self.feature_list.selectAll()
+
+        self.feature_list.setEnabled(not is_pca_space)
+        self.select_all_btn.setEnabled(not is_pca_space)
+        self.clear_sel_btn.setEnabled(not is_pca_space)
+
+        self.feature_list.blockSignals(False)
+        self._on_feature_selection_changed()
+
+    def _get_selected_features(self) -> list[str]:
+        """Return list of currently selected feature names."""
+        return [item.text() for item in self.feature_list.selectedItems()]
+
+    def _select_all_features(self) -> None:
+        self.feature_list.selectAll()
+
+    def _get_data(self) -> Optional[Tuple[pd.DataFrame, List[str]]]:
+        """Return a DataFrame and user-selected features."""
         try:
             df = self.context.data_model.dataframe
             if df is None or df.empty:
                 self.messenger.show_error("Data Error", "No data loaded.")
                 return None
-            self.n_spinbox.setMaximum(df.shape[1])
-            return df
+
+            selected = self._get_selected_features()
+
+            if len(selected) < MIN_FEATURES:
+                self.messenger.show_error(
+                    "Selection Error",
+                    f"Please select at least {MIN_FEATURES} features for PCA."
+                )
+                return None
+
+            missing = [c for c in selected if c not in df.columns]
+            if missing:
+                self.messenger.show_error(
+                    "Selection Error",
+                    f"Columns not found in current data: {', '.join(missing)}"
+                )
+                return None
+
+            self.n_spinbox.setMaximum(len(selected))
+            return df, selected
+
         except Exception as e:
             self.messenger.show_error("Data Read Error", str(e))
             return None
@@ -250,8 +346,10 @@ class ComponentAnalysisTab(QWidget):
         state = self.controller.current_state
         current_dataset = self.context.version_manager.get_current_dataset_name()
         fitted_here = self.controller.fitted_ds_name == current_dataset
-        self.fit_btn.setEnabled(state != PCAState.TRANSFORMED or not fitted_here)
-        self.transform_btn.setEnabled(state != PCAState.TRANSFORMED or not fitted_here)
+        has_enough_features = len(self._get_selected_features()) >= MIN_FEATURES
+
+        self.fit_btn.setEnabled(has_enough_features and (state != PCAState.TRANSFORMED or not fitted_here))
+        self.transform_btn.setEnabled(has_enough_features and (state != PCAState.TRANSFORMED or not fitted_here))
         self.scree_btn.setEnabled(state in (PCAState.FITTED, PCAState.TRANSFORMED) and fitted_here)
         self.original_btn.setEnabled(state == PCAState.TRANSFORMED and fitted_here)
         self.inverse_btn.setEnabled(state == PCAState.TRANSFORMED and fitted_here and 
