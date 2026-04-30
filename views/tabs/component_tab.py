@@ -212,9 +212,11 @@ class ComponentAnalysisTab(QWidget):
             self.n_spinbox.setMaximum(count)
 
     def _on_fit(self) -> None:
-        df, selected_cols = self._get_data()
-        if df is None:
-            return
+        data = self._get_data()
+        if data is None: return
+        df, selected_cols = data
+        if df is None: return
+        
         try:
             self.controller.fit(df[selected_cols])
             self.pca_result_widget.create_results()
@@ -224,9 +226,10 @@ class ComponentAnalysisTab(QWidget):
             self.messenger.show_error("Fit failed", str(e))
 
     def _on_transform(self) -> None:
-        df, selected_cols = self._get_data()
-        if df is None:
-            return
+        data = self._get_data()
+        if data is None: return
+        df, selected_cols = data
+        if df is None: return
 
         n_components, ev_threshold = self._get_params()
         state = self.controller.current_state
