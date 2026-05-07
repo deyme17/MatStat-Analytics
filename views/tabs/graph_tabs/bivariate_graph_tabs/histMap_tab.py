@@ -58,7 +58,7 @@ class HistogramMapTab(Base2VarGraphTab):
                 data_model.dataframe,
                 col1,
                 col2,
-                bins1=data_model.bins,
+                bins1=self.bins_spinbox.value(),
                 bins2=self.bins_spinbox.value()
             )
             self.apply_default_style(self.ax, col1, col2)
