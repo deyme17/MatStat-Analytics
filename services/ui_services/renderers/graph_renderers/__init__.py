@@ -12,9 +12,9 @@ from .multivariate.scatter_matrix_renderer import ScatterMatrixRenderer
 from .multivariate.heatmap_renderer import HeatMapRenderer
 from .multivariate.parallel_coord_renderer import ParallelCoordsRenderer
 
-from .regression_plot_renderer import RegressionPlot
-from .resfitted_plot_renderer import ResidualsFittedPlot
-from .scree_evr_plot import ScreeEVRPlot
+from .bivariate.regression_plot_renderer import RegressionPlot
+from .bivariate.resfitted_plot_renderer import ResidualsFittedPlot
+from .univariate.scree_evr_plot import ScreeEVRPlot
 
 from .graph_renderer import Renderer
 
