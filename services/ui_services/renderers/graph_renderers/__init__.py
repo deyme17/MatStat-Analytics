@@ -6,6 +6,7 @@ from .univariate.hh_renderer import HHRenderer
 from .bivariate.corr_field_renderer import CorrelationFieldRenderer
 from .bivariate.histMap_renderer import HistogramMapRenderer
 from .trivariate.bubble_plot_renderer import BubblePlotRenderer
+from .trivariate.corr_field_3d_renderer import CorrField3dRenderer
 
 from .multivariate.corr_matrix_renderer import CorrMatrixRenderer
 from .multivariate.scatter_matrix_renderer import ScatterMatrixRenderer

@@ -1,18 +1,18 @@
 import pandas as pd
-import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 from services.ui_services.renderers.graph_renderers.graph_renderer import Renderer
 
 
 class CorrField3dRenderer(Renderer):
     """
-    Renderer for drawing correletion field plot for 3-variable data.
+    Renderer for drawing correlation field plot for 3-variable data.
     """
     @staticmethod
-    def render(ax: plt.Axes, df: pd.DataFrame, col_x: str, col_y: str, col_z: str):
+    def render(ax: Axes3D, df: pd.DataFrame, col_x: str, col_y: str, col_z: str):
         """
-        Render correletion field plot 3D on the given Matplotlib axis.
+        Render correlation field plot 3D on the given Matplotlib axis.
         Args:
-            ax: Matplotlib axis
+            ax: Matplotlib 3D axis
             df: DataFrame with numeric columns
             col_x: first column name
             col_y: second column name
@@ -29,6 +29,7 @@ class CorrField3dRenderer(Renderer):
 
         ax.scatter(
             x, y, z,
+            c=z,
             alpha=0.6,
             edgecolors='w',
             linewidth=0.5,
@@ -39,6 +40,6 @@ class CorrField3dRenderer(Renderer):
         ax.set_xlabel(col_x)
         ax.set_ylabel(col_y)
         ax.set_zlabel(col_z)
-        ax.set_title('Correletion field 3D')
+        ax.set_title('Correlation field 3D')
 
         ax.grid(True, linestyle='--', alpha=0.5)
