@@ -5,6 +5,7 @@ from .univariate_graph_tabs.hh_tab import HHTab
 from .bivariate_graph_tabs.corr_field_tab import CorrelationFieldTab
 from .bivariate_graph_tabs.histMap_tab import HistogramMapTab
 from .trivariate_graph_tabs.bubble_plot_tab import BubblePlotTab
+from .trivariate_graph_tabs.corr_field_3d import CorreletionField3dTab
 
 from .multivariate_graph_tabs.corr_matrix_tab import CorrelationMatrixTab
 from .multivariate_graph_tabs.heatmap_tab import HeatMapTab

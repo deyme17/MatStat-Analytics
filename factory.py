@@ -42,7 +42,7 @@ from views import (
 from views.tabs.graph_tabs import (
     EDFTab, HistogramTab, HHTab, 
     CorrelationFieldTab, HistogramMapTab,
-    BubblePlotTab,
+    BubblePlotTab, CorreletionField3dTab,
     CorrelationMatrixTab, ScatterMatrixTab, 
     HeatMapTab, ParallelCoordsTab
 )
@@ -127,7 +127,8 @@ class UIFactory:
                 "Heatmap": HeatMapTab(self.context),
                 "Scatter Matrix": ScatterMatrixTab(self.context),
                 "Parallel Coordinates": ParallelCoordsTab(self.context),
-                "Bubble Plot": BubblePlotTab(self.context)
+                "Bubble Plot": BubblePlotTab(self.context),
+                "Correletion Field 3D": CorreletionField3dTab(self.context),
             }
         )
 

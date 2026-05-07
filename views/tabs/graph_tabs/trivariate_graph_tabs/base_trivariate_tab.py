@@ -9,10 +9,15 @@ CONTROLS_WIDTH = 300
 
 class Base3VarGraphTab(BaseGraphTab):
     """Base class for graph tabs that work with three variables"""    
-    def __init__(self, name: str, context: AppContext):
+    def __init__(self, name: str, context: AppContext, axis3d: bool = False):
         super().__init__(name=name, context=context)
         self.event_bus: EventBus = context.event_bus
-        
+        self.axis3d: bool = axis3d
+
+        if axis3d:
+            self.figure.clear()
+            self.ax = self.figure.add_subplot(111, projection='3d')
+
         self.second_column_selector: QComboBox = None
         self.third_column_selector: QComboBox = None
         
@@ -127,3 +132,10 @@ class Base3VarGraphTab(BaseGraphTab):
             return None
         
         return first_col, second_col, third_col
+    
+    def clear(self) -> None:
+        """Clear the canvas, preserving the axis dimensionality"""
+        self.figure.clear()
+        self.ax = self.figure.add_subplot(111, projection='3d' if self.axis3d else None)
+        self.colorbar = None
+        self.canvas.draw()

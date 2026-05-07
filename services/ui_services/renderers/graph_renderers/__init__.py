@@ -31,6 +31,7 @@ RENDERERS: dict[str, type[Renderer]] = {
     
     'correlation_matrix': CorrMatrixRenderer,
     'scatter_matrix': ScatterMatrixRenderer,
+    'correlation_field_3d': CorrField3dRenderer,
     'heatmap': HeatMapRenderer,
     'parallel_coordinates': ParallelCoordsRenderer,
 }
