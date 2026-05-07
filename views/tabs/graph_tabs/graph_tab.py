@@ -56,7 +56,7 @@ class BaseGraphTab(QWidget):
         """Get current data model from context"""
         return self.context.data_model
 
-    def apply_default_style(self, ax: plt.Axes, x_label: str, y_label: str) -> None:
+    def apply_default_style(self, ax: plt.Axes, x_label: str, y_label: str, *args) -> None:
         """Apply default styling to axes"""
         ax.set_facecolor(FIG_COLOR)
         ax.grid(color=GRID_COLOR, linestyle='--', alpha=GRID_ALPHA)

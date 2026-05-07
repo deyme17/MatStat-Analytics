@@ -28,7 +28,6 @@ class CorreletionField3dTab(Base3VarGraphTab):
                 col2,
                 col3
             )
-            self.apply_default_style(self.ax, col1, col2, col3)
             self.canvas.draw()
         except Exception as e:
             print(f"[CorreletionField3dTab] Error while rendering: {e}")
