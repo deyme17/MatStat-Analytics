@@ -13,7 +13,7 @@ class CorrMatrixRenderer(Renderer):
     """
     @staticmethod
     def render(ax: plt.Axes, data: pd.DataFrame, corr_callable: Callable[[str, pd.Series, pd.Series], float], 
-               corr_name: str, annot: bool = True, cmap: str = "viridis", 
+               corr_name: str, annot: bool = True, cmap: str = "Blues", 
                significance_callable: Optional[Callable[[str, pd.Series, pd.Series, float], SignificanceTestResult]] = None, 
                alpha: float = 0.05,):
         """

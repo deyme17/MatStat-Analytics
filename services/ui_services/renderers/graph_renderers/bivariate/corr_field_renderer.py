@@ -29,7 +29,7 @@ class CorrelationFieldRenderer(Renderer):
 
         # correlation field
         ax.scatter(x, y,
-            c=y, cmap='viridis', s=40,
+            c=y, cmap='winter', s=40,
             alpha=0.7, edgecolors='w', linewidth=0.5
         )
         corr = df[col_x].corr(df[col_y])

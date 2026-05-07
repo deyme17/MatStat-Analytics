@@ -40,7 +40,8 @@ class BubblePlotRenderer(Renderer):
             alpha=0.6,
             edgecolors='w',
             linewidth=0.5,
-            label=f"{col_x} vs {col_y}"
+            label=f"{col_x} vs {col_y}",
+            cmap="winter"
         )
 
         ax.set_xlabel(col_x)

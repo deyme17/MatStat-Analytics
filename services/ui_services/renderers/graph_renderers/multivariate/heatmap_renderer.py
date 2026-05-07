@@ -33,7 +33,7 @@ class HeatMapRenderer(Renderer):
         data_norm = (data_numeric - data_numeric.min()) / (data_numeric.max() - data_numeric.min())
         sns.heatmap(
             data_norm,
-            cmap="viridis",
+            cmap="Blues",
             cbar=True,
             ax=ax
         )
