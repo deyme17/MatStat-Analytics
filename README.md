@@ -123,6 +123,7 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
 | Plot | Details |
 |---|---|
 | Bubble Plot | Third variable encoded as bubble size |
+| Correletion field 3D | Third variable scatter plot |
 
 #### Multivariate
 | Plot | Details |
