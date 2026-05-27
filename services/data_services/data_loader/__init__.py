@@ -1,11 +1,11 @@
-from .load_strategy import TextLoader, CSVLoader, ExcelLoader
+from .load_strategy import FileLoader, TextLoader, CSVLoader, ExcelLoader
+from typing import Dict
 
-loaders = {
+loaders: Dict[str, FileLoader] = {
     '.txt': TextLoader(),
-    '.csv': CSVLoader(),  # Тепер з покращеною логікою
+    '.csv': CSVLoader(),
     '.xlsx': ExcelLoader(),
     '.xls': ExcelLoader(),
-    # Можете додати інші розширення які теж мають оброблятися як текст
     '.dat': TextLoader(),
     '.data': TextLoader(),
 }

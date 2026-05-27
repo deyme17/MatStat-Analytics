@@ -4,6 +4,7 @@ from utils.helpers import validate_feature_names
 from typing import Optional
 import pandas as pd
 
+
 class DataLoaderService:
     """
     Service for loading and processing data files.
@@ -40,7 +41,8 @@ class DataLoaderService:
                 raise ValueError(f"Unsupported file type: {file_extension}")
             
             loader = self._loaders[file_extension]
-            df = loader.load(path)
+            header = 0 if self._detect_header(path) else None
+            df = loader.load(path, header=header)
 
             df = self.process_dataframe(df)
             return df
@@ -57,23 +59,44 @@ class DataLoaderService:
         except Exception as e:
             print(f"Unexpected error loading file: {str(e)}")
             return None
-        
+
+    @staticmethod
+    def _detect_header(path: str) -> bool:
+        """Returns True if the first line looks like a header (contains non-numeric tokens)."""
+        try:
+            with open(path, 'r', encoding='utf-8', errors='replace') as f:
+                first_line = f.readline().strip()
+            if not first_line:
+                return False
+            tokens = first_line.replace(';', ',').replace('\t', ',').split(',')
+            tokens = [t.strip() for t in tokens if t.strip()]
+
+            def is_numeric(v: str) -> bool:
+                try:
+                    float(v.replace(',', '.'))
+                    return True
+                except ValueError:
+                    return False
+
+            return any(not is_numeric(t) for t in tokens)
+        except Exception:
+            return False
+
     @staticmethod
     def process_dataframe(df: pd.DataFrame) -> pd.DataFrame:       
+        named_cols = [c for c in df.columns if isinstance(c, str)
+                      and not c.lstrip('-').replace('.', '', 1).isdigit()]
+
         df = df.apply(pd.to_numeric, errors='coerce')
         df = df.dropna(axis=1, how='all')
         if df.empty:
             raise ValueError("No valid numerical data found")
         
         df = df.reset_index(drop=True)
-        if df.columns.isnull().any() or not validate_feature_names(list(df.columns)):
-            if df.shape[1] == 1:
-                df.columns = ["x"]
-            else:
-                new_names = []
-                for i in range(df.shape[1]):
-                    new_names.append(f"x{i+1}")
-                df.columns = new_names
+        if named_cols and len(named_cols) == df.shape[1]:
+            df.columns = named_cols
+        elif df.columns.isnull().any() or not validate_feature_names(list(df.columns)):
+            df.columns = ["x"] if df.shape[1] == 1 else [f"x{i+1}" for i in range(df.shape[1])]
 
         return df
 
