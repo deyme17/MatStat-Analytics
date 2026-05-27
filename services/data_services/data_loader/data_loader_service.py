@@ -68,7 +68,14 @@ class DataLoaderService:
                 first_line = f.readline().strip()
             if not first_line:
                 return False
-            tokens = first_line.replace(';', ',').replace('\t', ',').split(',')
+
+            for sep in [',', ';', '\t']:
+                if sep in first_line:
+                    tokens = first_line.split(sep)
+                    break
+            else:
+                tokens = first_line.split()
+            
             tokens = [t.strip() for t in tokens if t.strip()]
 
             def is_numeric(v: str) -> bool:
@@ -83,16 +90,16 @@ class DataLoaderService:
             return False
 
     @staticmethod
-    def process_dataframe(df: pd.DataFrame) -> pd.DataFrame:       
-        named_cols = [c for c in df.columns if isinstance(c, str)
-                      and not c.lstrip('-').replace('.', '', 1).isdigit()]
-
+    def process_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         df = df.apply(pd.to_numeric, errors='coerce')
         df = df.dropna(axis=1, how='all')
         if df.empty:
             raise ValueError("No valid numerical data found")
         
         df = df.reset_index(drop=True)
+        named_cols = [c for c in df.columns if isinstance(c, str)
+                    and not c.lstrip('-').replace('.', '', 1).isdigit()]
+
         if named_cols and len(named_cols) == df.shape[1]:
             df.columns = named_cols
         elif df.columns.isnull().any() or not validate_feature_names(list(df.columns)):
@@ -110,7 +117,6 @@ class DataLoaderService:
             path to selected file or None if cancelled
         """
         from PyQt6.QtWidgets import QFileDialog
-        
         path, _ = QFileDialog.getOpenFileName(
             parent,
             'Select the File',
