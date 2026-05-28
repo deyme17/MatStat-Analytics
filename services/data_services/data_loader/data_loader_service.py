@@ -111,7 +111,6 @@ class DataLoaderService:
     def select_file(parent=None) -> Optional[str]:
         """
         Open file dialog and let user select a data file.
-
             parent: parent Qt widget (optional)
         Return:
             path to selected file or None if cancelled
