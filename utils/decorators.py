@@ -41,7 +41,7 @@ def check_samples(method):
                 raise ValueError(f"{self.get_test_name()} requires exactly {n} datasets, but {count} were selected.")
         else:
             if count < 2:
-                raise ValueError(f"{self.get_test_name()} requires at least 2 datasets, but {count} were selected.")
+                raise ValueError(f"{self.get_test_name()} requires more datasets, but {count} were selected.")
         return method(self, samples, *args, **kwargs)
     return wrapper
 
