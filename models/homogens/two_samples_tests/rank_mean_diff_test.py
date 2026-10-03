@@ -27,7 +27,9 @@ class RankMeanDiffTest(BaseHomogenTest):
                 "decision": decision
             }
         """
-        if len(samples) != 2: return {}
+        k = len(samples)
+        if k != 2:
+            raise ValueError(f"Rank Mean Difference test requires exactly 2 samples, got {k}.")
         if not is_independent:
             raise ValueError("Rank Mean Difference test is used only for independent samples")
 

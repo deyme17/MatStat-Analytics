@@ -33,7 +33,8 @@ class ANOVATest(BaseHomogenTest):
             }
         """
         k = len(samples)
-        if k < 3: return {}
+        if k < 3:
+            raise ValueError(f"ANOVA requires at least 3 samples, got {k}.")
 
         N = sum([len(s) for s in samples])
 

@@ -29,7 +29,8 @@ class BartlettTest(BaseHomogenTest):
             }
         """
         k = len(samples)
-        if k < 3: return {}
+        if k < 3:
+            raise ValueError(f"ANOVA requires at least 3 samples, got {k}.")
 
         Ni = np.array([len(s) for s in samples])
         Si2 = np.array([np.var(s, ddof=1) for s in samples])

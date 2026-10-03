@@ -36,11 +36,23 @@ class MultiNormalTest(BaseHomogenTest):
                 "decision": bool,
             }
         """
-        if len(samples) < 2 or not is_independent: return {}
-        samples = [np.atleast_2d(s) if s.ndim == 1 else s for s in samples]
+        if len(samples) < 2:
+            raise ValueError("Multivariate Normality Test requires at least 2 samples.")
+        if not is_independent:
+            raise ValueError("Multivariate Normality Test requires independent samples (tick 'Samples are independent').")
 
+        samples = [s.reshape(-1, 1) if s.ndim == 1 else s for s in samples]
+
+        dims = {s.shape[1] for s in samples}
+        if len(dims) != 1:
+            raise ValueError(f"All samples must have the same number of columns, got {sorted(dims)}.")
+        
         k = len(samples)
-        n = samples[0].shape[1]
+        n = dims.pop()
+
+        for i, s in enumerate(samples, 1):
+            if s.shape[0] <= n:
+                raise ValueError(f"Sample {i} has {s.shape[0]} rows; need more than {n}.")
         
         # perform covariance equality test
         cov_result = self._test_covariance_equality(samples, k, n, alpha)
@@ -78,12 +90,11 @@ class MultiNormalTest(BaseHomogenTest):
         N_d = np.array([s.shape[0] for s in samples])
         N = N_d.sum()
 
-        S_d = [np.cov(s, rowvar=False) for s in samples]                # covariance matrices
-        S = 1 / (N - k) * sum((N_d[d] -1) * S_d[d] for d in range(k))   # pooled covariance matrix
-        ln_S = np.log(np.linalg.det(S) + 1e-10)
-
-        V = sum(((N_d[d] - 1) / 2) * (np.log(ln_S / np.linalg.det(S_d[d]) + 1e-10))
-                                                                 for d in range(k))
+        S_d = [self._cov(s) for s in samples]                           # covariance matrices
+        S = sum((N_d[d] - 1) * S_d[d] for d in range(k)) / (N - k)      # pooled covariance matrix
+        V = sum(((N_d[d] - 1) / 2) * (self._logdet(S) - self._logdet(S_d[d]))
+                
+        for d in range(k))
         df = n * (n + 1) * (k - 1) // 2
         chi2_crit = stats.chi2.ppf(1 - alpha, df)
         p_value = float(1 - stats.chi2.cdf(V, df))
@@ -104,7 +115,7 @@ class MultiNormalTest(BaseHomogenTest):
         N_d = np.array([s.shape[0] for s in samples])
 
         x_bar_d = [s.mean(axis=0) for s in samples]                     # mean vectors
-        S_d = [np.cov(s, rowvar=False) for i, s in enumerate(samples)]  # covariance matrices
+        S_d = [self._cov(s) for s in samples]                           # covariance matrices
         S_d_inv = [np.linalg.inv(S) for S in S_d]                       # inverse covariance matrices
 
         A = sum(N_d[d] * S_d_inv[d] for d in range(k))
@@ -135,11 +146,11 @@ class MultiNormalTest(BaseHomogenTest):
 
         S0 = self._compute_s0(x, y, N1, N2, n)
         S1 = self._compute_s1(x, y, N1, N2, n)
-        V = -(N1 + N2 - 2 - n/2) * np.log(np.linalg.det(S1) / (np.linalg.det(S0) + 1e-10))
+        V = -(N1 + N2 - 2 - n/2) * (self._logdet(S1) - self._logdet(S0))
 
-        df = n * (n + 1) // 2
+        df = n
         chi2_crit = stats.chi2.ppf(1 - alpha, df)
-        p_value = 1 - stats.chi2.cdf(V, df)
+        p_value = stats.chi2.sf(V, df)
         decision = V <= chi2_crit
 
         return {
@@ -147,7 +158,7 @@ class MultiNormalTest(BaseHomogenTest):
             "chi2_critical": float(chi2_crit),
             "df": df,
             "p_value": float(p_value),
-            "decision": decision
+            "decision": bool(decision)
         }
 
     def _compute_s0(self, x: np.ndarray, y: np.ndarray, N1: int, N2: int, n: int) -> np.ndarray:
@@ -177,3 +188,14 @@ class MultiNormalTest(BaseHomogenTest):
                          y[:, i].sum() * y[:, j].sum() / N2)
                 S1[i, j] = (xx - cross) / denom
         return S1
+
+    @staticmethod
+    def _cov(s: np.ndarray) -> np.ndarray:
+        return np.atleast_2d(np.cov(s, rowvar=False))
+
+    @staticmethod
+    def _logdet(M: np.ndarray) -> float:
+        sign, logdet = np.linalg.slogdet(M)
+        if sign <= 0:
+            raise ValueError("Covariance matrix is singular (constant or linearly dependent columns).")
+        return float(logdet)

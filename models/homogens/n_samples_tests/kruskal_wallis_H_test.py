@@ -29,7 +29,8 @@ class HTest(BaseHomogenTest):
             }
         """
         k = len(samples)
-        if k < 3: return {}
+        if k < 3:
+            raise ValueError(f"ANOVA requires at least 3 samples, got {k}.")
 
         all_data = np.concatenate(samples)
         ranks = rankdata(all_data)

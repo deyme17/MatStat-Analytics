@@ -25,7 +25,9 @@ class SmirnovKolmogorovTest(BaseHomogenTest):
                 "decision": decision
             }
         """
-        if len(samples) != 2: return {}
+        k = len(samples)
+        if k != 2:
+            raise ValueError(f"Smirnov-Kolmogorov test requires exactly 2 samples, got {k}.")
         if not is_independent:
             raise ValueError("Smirnov-Kolmogorov test is used only for independent samples")
 

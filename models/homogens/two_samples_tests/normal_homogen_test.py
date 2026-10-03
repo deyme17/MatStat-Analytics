@@ -22,9 +22,11 @@ class NormalHomogenTest(BaseHomogenTest):
             is_independent: True if samples is independent else False
         Returns:
             dictionary with test results {f_statistic or None, var_consistent or None, p_value_var or None, 
-                                        t_statistic, mean_consistent, p_value_mean, decision, independent}
+                                          t_statistic, mean_consistent, p_value_mean, decision, independent}
         """
-        if len(samples) != 2: return {}
+        k = len(samples)
+        if k != 2:
+            raise ValueError(f"Normal requires exactly 2 samples, got {k}.")
 
         # stats
         f_stat, p_value_var, is_var_consident = None, None, None

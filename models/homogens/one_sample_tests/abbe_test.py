@@ -30,7 +30,9 @@ class AbbeTest(BaseHomogenTest):
                 "decision": bool
             }
         """
-        if len(samples) != 1: return {}
+        k = len(samples)
+        if k != 1:
+            raise ValueError(f"Abbe Test requires exactly 1 sample, got {k}.")
 
         x = samples[0]
         N = len(x)

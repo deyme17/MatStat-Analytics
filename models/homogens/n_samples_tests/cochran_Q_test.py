@@ -55,7 +55,8 @@ class CochranQTest(BaseHomogenTest):
         numerator = k * (k - 1) * np.sum((T_j - T_mean) ** 2)
         denominator = k * np.sum(u_i) - sum_u_i_squared
         
-        if denominator == 0: return {}
+        if denominator == 0:
+            raise ValueError("Cochran's Q statistic is undefined.")
         
         Q_statistic = numerator / denominator
         

@@ -30,7 +30,9 @@ class WilcoxonTest(BaseHomogenTest):
                 "decision": bool
             }
         """
-        if len(samples) != 2: return {}
+        k = len(samples)
+        if k != 2:
+            raise ValueError(f"Wilcoxon Test requires exactly 2 samples, got {k}.")
         if not is_independent:
             raise ValueError("Wilcoxon test is used only for independent samples")
 

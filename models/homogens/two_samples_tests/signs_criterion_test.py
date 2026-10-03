@@ -27,7 +27,9 @@ class SignsCriterionTest(BaseHomogenTest):
                 "decision": bool
             }
         """
-        if len(samples) != 2: return {}
+        k = len(samples)
+        if k != 2:
+            raise ValueError(f"Signs criterion test requires exactly 2 samples, got {k}.")
         if is_independent:
             raise ValueError("Signs criterion test is used only for dependent samples")
 
