@@ -33,7 +33,7 @@ class HistogramMapRenderer(Renderer):
         hist_rel = hist / hist.sum()
 
         mesh = ax.pcolormesh(xedges, yedges, hist_rel.T, shading='auto', cmap='Blues')
-        cbar = plt.colorbar(mesh, ax=ax)
+        cbar = ax.figure.colorbar(mesh, ax=ax)
         cbar.set_label('Relative Frequency')
 
         ax.set_xlabel(col_x)
