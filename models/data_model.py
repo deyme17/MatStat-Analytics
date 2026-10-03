@@ -12,13 +12,13 @@ class Hist:
         else:
             self.data = data[~np.isnan(data)]
 
-        self.bins = bins                        
+        self.bins = bins            
         self.n = len(self.data)                     
-        self.min = np.nanmin(self.data)              
-        self.max = np.nanmax(self.data)             
-
         if self.n == 0:
             raise ValueError("No valid data points after removing NaN values")
+        
+        self.min = np.nanmin(self.data)              
+        self.max = np.nanmax(self.data)             
 
         try:
             self.bin_edges = np.linspace(self.min, self.max, self.bins + 1) 
@@ -83,7 +83,7 @@ class DataModel:
 
     def add_version_from_series(self, new_series: pd.Series, label: str) -> 'DataModel':
         """Apply series to current column in-place and return self."""
-        self._df.iloc[:, self.current_col_idx] = new_series.values
+        self._df.isetitem(self.current_col_idx, new_series.to_numpy())
         self.label = label
         self._recompute_cache()
         return self
@@ -107,7 +107,7 @@ class DataModel:
         """
         if to_series:
             transformed = func(self._df.iloc[:, self.current_col_idx])
-            self._df.iloc[:, self.current_col_idx] = transformed
+            self._df.isetitem(self.current_col_idx, np.asarray(transformed))
         else:
             self._df = func(self._df).reset_index(drop=True)
         self.label = label or "Transformed"
@@ -125,8 +125,9 @@ class DataModel:
         if whole_dataset:
             self._df = self._original_df.copy()
         else:
-            self._df.iloc[:, self.current_col_idx] = (
-                self._original_df.iloc[:, self.current_col_idx].copy()
+            self._df.isetitem(
+                self.current_col_idx,
+                self._original_df.iloc[:, self.current_col_idx].to_numpy().copy()
             )
         self.label = "Original"
         self.anomalies_removed = False
