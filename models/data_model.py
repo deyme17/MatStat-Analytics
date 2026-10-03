@@ -92,6 +92,7 @@ class DataModel:
         """Apply dataframe in-place and return self."""
         self._df = new_df.reset_index(drop=True)
         self.label = label
+        self.current_col_idx = min(self.current_col_idx, self._df.shape[1] - 1)
         self._recompute_cache()
         return self
 

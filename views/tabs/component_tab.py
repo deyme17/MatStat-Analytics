@@ -49,11 +49,17 @@ class ComponentAnalysisTab(QWidget):
     def _subscribe_to_events(self) -> None:
         self.event_bus.subscribe(EventType.DATA_LOADED, self._on_data_changed)
         self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_data_reverted)
 
     def _on_data_changed(self, event: Event) -> None:
         """Refresh feature list and button states whenever data changes."""
         self._refresh_feature_list()
         self._refresh_buttons()
+
+    def _on_data_reverted(self, event: Event) -> None:
+        self.pca_result_widget.clear()
+        self._on_data_changed(event)
+        self._set_status("Data reverted to original", ok=True)
 
     def _init_ui(self) -> None:
         main_layout = QVBoxLayout(self)

@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from models.component_analysis import PCA
 from services import DataVersionManager
-from utils import AppContext, EventBus, EventType
+from utils import AppContext, EventBus, EventType, Event
 
 
 
@@ -32,6 +32,20 @@ class ComponentController:
         self.pca_labels: Optional[List[str]] = None
         self._state: PCAState = PCAState.IDLE
         self._fitted_ds_name: Optional[str] = None
+        self._snapshot_ds_name: Optional[str] = None
+
+        self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_data_reverted)
+
+    def _on_data_reverted(self, event: Event) -> None:
+        if self._state in (PCAState.TRANSFORMED, PCAState.INVERSE_TRANSFORMED):
+            self.pca.clear_state()
+            self._state = PCAState.IDLE
+            self._fitted_ds_name = None
+            self._snapshot_ds_name = None
+            self._orig_full_df_ = None
+            self.orig_X_df_ = None
+            self._bystander_df_ = None
+            self.pca_labels = None
 
     def fit(self, X_df: pd.DataFrame) -> None:
         """
@@ -60,18 +74,28 @@ class ComponentController:
             n_components: Number of principal components to keep.
             ev_threshold: Explained-variance threshold for component selection.
         """
+        current_ds = self.version_manager.get_current_dataset_name()
+        if self._orig_full_df_ is not None and self._snapshot_ds_name == current_ds:
+            X_df = self._orig_full_df_[list(X_df.columns)]
+            full_df = self._orig_full_df_
         X = X_df.to_numpy(dtype=float)
+
+        pre_pca = (self._state in (PCAState.IDLE, PCAState.FITTED) or 
+                   self._snapshot_ds_name != current_ds or 
+                   self._orig_full_df_ is None)
+        if pre_pca:
+            self.orig_X_df_ = X_df.copy()
+            self._orig_full_df_ = full_df.copy()
+            self._snapshot_ds_name = current_ds
+
         if fit:
             X_transformed = self.pca.fit_transform(X, n_components, ev_threshold)
-            self._fitted_ds_name = self.version_manager.get_current_dataset_name()
+            self._fitted_ds_name = current_ds
         else:
             X_transformed = self.pca.transform(X, n_components, ev_threshold)
 
-        self.orig_X_df_ = X_df
-        self._orig_full_df_ = full_df
         self.pca_labels = [f"PC_{i+1}" for i in range(X_transformed.shape[1])]
-        pc_df = pd.DataFrame(X_transformed, columns=self.pca_labels,
-                             index=full_df.index)
+        pc_df = pd.DataFrame(X_transformed, columns=self.pca_labels, index=full_df.index)
 
         # add non-selected columns
         non_selected = [c for c in full_df.columns if c not in X_df.columns]
@@ -135,6 +159,7 @@ class ComponentController:
         self.version_manager.sync_columns(orig_model)
         self._state = PCAState.IDLE
         self._fitted_ds_name = None
+        self._snapshot_ds_name = None
         self._emit()
 
     def get_explained_variance(self) -> Tuple[float, List[float]]:

@@ -57,14 +57,19 @@ class DatasetController:
     def on_current_col_changed(self, index: int) -> None:
         """
         Called when the user changes a different column from the dropdown.
-        """
+        """        
         dataset_name = self.version_manager.get_current_dataset_name()
         col_names = self.version_manager.get_all_columns_names(dataset_name)
         
         if 0 <= index < len(col_names):
             col_name = col_names[index]
             self.version_manager.change_column(col_name)
-            col_idx = self.context.data_model.dataframe.columns.get_loc(col_name)
+            df = self.context.data_model.dataframe
+            if col_name not in df.columns:
+                self.version_manager.sync_columns(self.context.data_model)
+                self.update_columns_list()
+                return
+            col_idx = df.columns.get_loc(col_name)
             self.context.data_model.select_column(col_idx)
             assert self.context.data_model.current_col_idx == col_idx
             self.event_bus.emit_type(EventType.COLUMN_CHANGED)
@@ -73,11 +78,18 @@ class DatasetController:
         """
         Revert current dataset to its original version.
         """
-        if self.context.data_model:
-            original = self.context.data_model.revert_to_original(whole_dataset)
-            self.version_manager.update_current_dataset(original)
-            self.context.data_model = original
-            self.event_bus.emit_type(EventType.DATA_REVERTED)
+        model = self.context.data_model
+        if not model: return
+
+        if list(model.dataframe.columns) != list(model.original.columns):
+            whole_dataset = True
+
+        original = model.revert_to_original(whole_dataset)
+        self.version_manager.update_current_dataset(original)
+        if whole_dataset:
+            self.version_manager.sync_columns(original)
+        self.context.data_model = original
+        self.event_bus.emit_type(EventType.DATA_REVERTED)
 
     def update_dataset_list(self) -> None:
         """
