@@ -40,7 +40,7 @@ class ScatterMatrixRenderer(Renderer):
             marker='o',
             alpha=0.6,
             color='steelblue',
-            edgecolor='white',
+            edgecolors='white',
             linewidth=0.4,
             s=18,
             hist_kwds={
