@@ -7,13 +7,13 @@ import pandas as pd
 
 class StandardizeDialog(QDialog):
     """
-    Dialog for selecting columns to normalize/unnormalize.
+    Dialog for selecting columns to standardize/unstandardize.
     """
     def __init__(self, dataframe: pd.DataFrame, std_params: dict | None = None, parent=None):
         """
         Args:
             dataframe: current DataFrame to pick columns from
-            std_params: existing params for current dataset — if set, shows hint and enables Unnormalize
+            std_params: existing params for current dataset — if set, shows hint and enables Unstandardize
             parent: parent widget
         """
         super().__init__(parent)
@@ -23,7 +23,7 @@ class StandardizeDialog(QDialog):
         self._df = dataframe
         self._std_params = std_params
         self._result_columns: list[str] | None = None
-        self._action: str | None = None  # 'normalize' | 'unnormalize'
+        self._action: str | None = None  # 'standardize' | 'unstandardize'
 
         self._init_ui()
 
@@ -47,20 +47,20 @@ class StandardizeDialog(QDialog):
 
         if self._std_params:
             cols = ", ".join(self._std_params.keys()) if 'mean' not in self._std_params else "current column"
-            hint = QLabel(f"Currently normalized: {cols}")
+            hint = QLabel(f"Currently standardized: {cols}")
             hint.setStyleSheet("color: gray; font-size: 11px;")
             layout.addWidget(hint)
 
         btn_layout = QHBoxLayout()
 
-        self._normalize_btn = QPushButton("Normalize")
-        self._normalize_btn.clicked.connect(self._on_normalize)
-        btn_layout.addWidget(self._normalize_btn)
+        self._standardize_btn = QPushButton("Standardize")
+        self._standardize_btn.clicked.connect(self._on_standardize)
+        btn_layout.addWidget(self._standardize_btn)
 
-        self._unnormalize_btn = QPushButton("Unnormalize")
-        self._unnormalize_btn.setEnabled(self._std_params is not None)
-        self._unnormalize_btn.clicked.connect(self._on_unnormalize)
-        btn_layout.addWidget(self._unnormalize_btn)
+        self._unstandardize_btn = QPushButton("Unstandardize")
+        self._unstandardize_btn.setEnabled(self._std_params is not None)
+        self._unstandardize_btn.clicked.connect(self._on_unstandardize)
+        btn_layout.addWidget(self._unstandardize_btn)
 
         cancel_btn = QPushButton("Cancel")
         cancel_btn.clicked.connect(self.reject)
@@ -73,14 +73,14 @@ class StandardizeDialog(QDialog):
         for col in self._df.select_dtypes(include='number').columns:
             self._list.addItem(QListWidgetItem(col))
 
-    def _on_normalize(self) -> None:
+    def _on_standardize(self) -> None:
         cols = [item.text() for item in self._list.selectedItems()]
         if not cols:
             return
         self._result_columns = cols
-        self._action = 'normalize'
+        self._action = 'standardize'
         self.accept()
 
-    def _on_unnormalize(self) -> None:
-        self._action = 'unnormalize'
+    def _on_unstandardize(self) -> None:
+        self._action = 'unstandardize'
         self.accept()

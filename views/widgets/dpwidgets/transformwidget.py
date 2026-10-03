@@ -54,9 +54,9 @@ class TransformDataWidget(BaseDataWidget):
         if dlg.exec() != dlg.DialogCode.Accepted:
             return
 
-        if dlg.action == "normalize":
+        if dlg.action == "standardize":
             self.controller.standardize_data(columns=dlg.selected_columns)
-        elif dlg.action == "unnormalize":
+        elif dlg.action == "unstandardize":
             self.controller.unstandardize_data()
 
     def _on_log_transform(self) -> None:
