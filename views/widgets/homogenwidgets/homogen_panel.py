@@ -109,10 +109,6 @@ class BaseHomoTestPanel(QGroupBox, ABC, metaclass=Meta):
             alpha=alpha,
             is_independent=is_independent
         )
-        if not result:
-            self.clear()
-            return
-
         self.update_stats(result)
 
     @abstractmethod

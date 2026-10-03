@@ -63,23 +63,15 @@ def check_independent(method):
 
 
 def support_multivariate(method):
-    """
-    Decorator to check if multivariate data is supported.
-    If self.support_multivariate is False, samples must be univariate.
-    """
+    """Raise if a univariate-only test receives a multi-column DataFrame."""
     @functools.wraps(method)
     def wrapper(self, samples, alpha, is_independent, *args, **kwargs):
-        support = getattr(self, "support_multivariate", None)
-        if support is False:
-            for sample in samples:
-                if isinstance(sample, pd.Series):
-                    show_info = getattr(self, "show_info", None)
-                    if show_info is not None:
-                        show_info(
-                            "Multivariate Not Supported",
-                            f"{self.get_test_name()} does not support multivariate data.\
-                               Only single column from its dataframe is used."
-                        )
-                        break
+        if getattr(self, "support_multivariate", False) is False:
+            for i, sample in enumerate(samples, 1):
+                if isinstance(sample, pd.DataFrame) and sample.shape[1] > 1:
+                    raise ValueError(
+                        f"{self.get_test_name()} does not support multivariate data "
+                        f"(sample {i} has {sample.shape[1]} columns)."
+                    )
         return method(self, samples, alpha, is_independent, *args, **kwargs)
     return wrapper

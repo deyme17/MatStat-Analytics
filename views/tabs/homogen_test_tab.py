@@ -196,6 +196,7 @@ class HomogenTab(QWidget):
                 )
                 panel.show()
             except Exception as e:
+                panel.clear()
                 self.messanger.show_error("Test running error", str(e))
 
     def _validate_test_run(self) -> bool:

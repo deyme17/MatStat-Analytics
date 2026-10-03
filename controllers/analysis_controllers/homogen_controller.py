@@ -29,15 +29,21 @@ class HomogenController:
             Dictionary with test results (statistic, p-value, decision), 
             or None if inputs are invalid or an error occurred.
         """
-        if test_name not in self._tests: raise ValueError(f"Unknown test '{test_name}'. Available: {list(self._tests)}")
-        try:
-            clean_samples = []
-            for data in samples:
-                data = data.dropna().to_numpy()
-                if len(data) == 0:
-                    return None
-                clean_samples.append(data)
+        if test_name not in self._tests:
+            raise ValueError(f"Unknown test '{test_name}'. Available: {list(self._tests)}")
 
-            return self._tests[test_name].run(clean_samples, alpha, is_independent)
+        clean_samples = []
+        for i, data in enumerate(samples, 1):
+            arr = data.dropna().to_numpy()
+            if len(arr) == 0:
+                raise ValueError(f"Sample {i} has no valid rows after removing NaN.")
+            clean_samples.append(arr)
+
+        try:
+            result = self._tests[test_name].run(clean_samples, alpha, is_independent)
         except Exception as e:
-           raise ValueError(f"Error occurred while running Homogeneity test '{test_name}': {e}")
+            raise ValueError(f"'{test_name}' failed: {e}") from e
+
+        if not result:
+            raise ValueError(f"'{test_name}' returned no result.")
+        return result

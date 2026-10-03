@@ -97,7 +97,7 @@ class GOFTestTab(QWidget):
 
     def evaluate_tests(self, multi: bool = True) -> None:
         """Run all GOF tests. Called by the Run button."""
-        dist  = self.get_dist_func()
+        dist = self.get_dist_func()
         model = self.context.data_model
         if model is None:
             return
