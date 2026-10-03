@@ -100,7 +100,7 @@ class DataTransformController:
         model = self.context.data_model
         model.add_version_from_series(new_series, label)
         self.version_manager.update_current_dataset(model)
-        self._emit(label, model)
+        self._emit()
 
     def _emit(self) -> None:
         self.event_bus.emit_type(EventType.DATA_TRANSFORMED)
