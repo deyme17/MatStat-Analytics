@@ -120,8 +120,8 @@ class DataLoaderService:
             parent,
             'Select the File',
             '',
-            'All Supported Files (*.txt *.csv *.xlsx *.xls);;'
-            'Text Files (*.txt);;CSV Files (*.csv);;'
+            'All Supported Files (*.txt *.csv *.xlsx *.xls *.dat *.data);;'
+            'Text Files (*.txt *.dat *.data);;CSV Files (*.csv);;'
             'Excel Files (*.xlsx *.xls);;All Files (*)'
         )
         return path if path else None

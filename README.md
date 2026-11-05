@@ -11,7 +11,7 @@ MatStat-Analytics is a full-featured statistical analysis tool built with PyQt t
 ## Key Features
 
 ### 📂 Data Management & Processing
-- **Multi-format Support**: Load data from `.txt`, `.csv`, `.xls`, `.xlsx` files
+- **Multi-format Support**: Load data from `.txt`, `.csv`, `.xls`, `.xlsx` `.DAT` files
 - **Multidimensional Data**: Full support for datasets with multiple columns/variables
 - **Column Selection**: Choose specific columns for analysis operations
 - **Data Versioning**: Track changes with rollback capabilities to original data
