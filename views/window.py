@@ -5,8 +5,10 @@ from utils.ui_styles import appStyle
 from utils.app_context import AppContext
 from factory import Factory
 
+WINDOW_WIDTH, WINDOW_HEIGHT = 1400, 700
 WINDOW_PALETTE_RED, WINDOW_PALETTE_BLUE, WINDOW_PALETTE_GREEN = 240, 248, 255
 BASE_PALETTE_RED, BASE_PALETTE_BLUE, BASE_PALETTE_GREEN = 245, 250, 255
+
 
 class Window(QMainWindow):
     """
@@ -16,7 +18,7 @@ class Window(QMainWindow):
         super().__init__()
         self.setWindowTitle('MatStat Analytics')
         self.setWindowIcon(QIcon("resources/MatStat.jpeg"))
-        self.resize(1400, 800)
+        self.resize(WINDOW_WIDTH, WINDOW_HEIGHT)
 
         self._init_palette()
         self.setStyleSheet(appStyle)
