@@ -183,10 +183,6 @@ class GraphPanel(QWidget):
         for tab in self.graph_tabs.values():
             tab.clear()
 
-    def get_selected_distribution(self) -> Any:
-        """Get currently selected distribution."""
-        return self.dist_selector.get_selected_distribution()
-
     def get_render_params(self) -> dict[str, Any]:
         """
         Get current visualization parameters.
@@ -198,5 +194,5 @@ class GraphPanel(QWidget):
             "kde": self.show_kde_checkbox.isChecked(),
             "line": self.show_line_checkbox.isChecked(),
             "confidence": self.confidence_spinbox.value(),
-            "distribution": self.get_selected_distribution()
+            "distribution": self.dist_selector.get_selected_distribution()
         }
