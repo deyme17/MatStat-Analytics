@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QDoubleSpinBox, QHBoxLayout, QPushButton
 from models.stat_distributions import StatisticalDistribution
 from models import DataModel
-from views.widgets.gofwidgets.gof_test_panel import BaseTestPanel
+from .gof_panels.gof_test_panel import BaseTestPanel
 from typing import Callable
 from controllers import GOFController
 from utils import EventBus, EventType, Event, AppContext
@@ -14,24 +14,13 @@ ALPHA_PRECISION = 2
 DEFAULT_ALPHA = 0.05
 
 
-
-class GOFTestTab(QWidget):
-    """
-    A tab widget for evaluating Goodness-of-Fit (GOF) tests.
-    """
+class GOFTestWidget(QWidget):
+    """A widget for evaluating Goodness-of-Fit (GOF) tests."""
     def __init__(self, context: AppContext,
-                 get_dist_func: Callable[[None], StatisticalDistribution],
                  gof_controller: GOFController,
-                 test_panels: list[BaseTestPanel],
-                 multi_test_panels: list[BaseTestPanel]) -> None:
-        """
-        Args:
-            context: Shared application context (data_model, event_bus, messager).
-            get_dist_func: Function for access to selected distribution.
-            gof_controller: Controller for performing goodness-of-fit tests.
-            test_panels: List of goodness-of-fit test pabels (univariate).
-            multi_test_panels: List of goodness-of-fit test pabels (multivariate).
-        """
+                 test_panels: list[type[BaseTestPanel]],
+                 multi_test_panels: list[type[BaseTestPanel]],
+                 get_dist_func: Callable[[], StatisticalDistribution | None] | None = None) -> None:
         super().__init__()
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
@@ -47,7 +36,7 @@ class GOFTestTab(QWidget):
 
         self.run_button = QPushButton("Run Tests")
         self.run_button.setEnabled(False)
-        self.run_button.clicked.connect(self.evaluate_tests)
+        self.run_button.clicked.connect(lambda: self.evaluate_tests(multi=True))
 
         controls_layout = QHBoxLayout()
         controls_layout.addWidget(QLabel("Significance level α:"))
@@ -55,8 +44,10 @@ class GOFTestTab(QWidget):
         controls_layout.addWidget(self.run_button)
         controls_layout.addStretch()
 
-        layout = QVBoxLayout()
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.addLayout(controls_layout)
+        layout.addWidget(self.run_button)
 
         # simple tests
         layout.addLayout(create_section_header("Simple tests"))
@@ -97,17 +88,17 @@ class GOFTestTab(QWidget):
 
     def evaluate_tests(self, multi: bool = True) -> None:
         """Run all GOF tests. Called by the Run button."""
+        if self.get_dist_func is None:
+            raise RuntimeError("No distribution access. Call `set_distribution_access` first.")
         dist = self.get_dist_func()
         model = self.context.data_model
-        if model is None:
-            return
+        if model is None: return
 
         alpha = self.alpha_spinbox.value()
-
         if dist is not None:
             self._evaluate_simple_tests(model, dist, alpha)
-        if multi:
-            self._evaluate_multi_tests(model, dist, alpha)
+            if multi:
+                self._evaluate_multi_tests(model, dist, alpha)
 
     def _evaluate_simple_tests(self, model: DataModel, dist: StatisticalDistribution, alpha: float) -> None:
         series = model.series.dropna()
@@ -126,3 +117,6 @@ class GOFTestTab(QWidget):
     def clear_panels(self) -> None:
         for test in [*self.test_panels, *self.multi_test_panels]:
             test.clear()
+
+    def set_distribution_access(self, get_dist_func: Callable[[], StatisticalDistribution]) -> None:
+        self.get_dist_func = get_dist_func
