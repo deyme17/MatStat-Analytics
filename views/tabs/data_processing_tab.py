@@ -16,7 +16,9 @@ class DataProcessingTab(QWidget):
     - Missing data handling
     - Original data restoration
     """
-    def __init__(self, context: AppContext, data_exporter: DataExporter, dataset_controller: DatasetController, 
+    def __init__(self, context: AppContext, 
+                 data_exporter: DataExporter, 
+                 dataset_controller: DatasetController, 
                  widget_data: list[tuple[str, QGroupBox, Any]]) -> None: 
         """
         Args:

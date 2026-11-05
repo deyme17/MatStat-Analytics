@@ -25,8 +25,10 @@ class RegressionTab(QWidget):
     """
     Tab for conducting regression analysis.
     """
-    def __init__(self, context: AppContext, regr_controller: RegressionController,
-                 summary_widget: type[RegrSummaryWidget], prediction_widget: type[RegrPredictionWidget]):
+    def __init__(self, context: AppContext, 
+                 regr_controller: RegressionController,
+                 summary_widget: type[RegrSummaryWidget], 
+                 prediction_widget: type[RegrPredictionWidget]):
         """
         Args:
             context: AppContext with data_model, event_bus and messenger
