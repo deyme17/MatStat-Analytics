@@ -1,6 +1,6 @@
 from .controllers_factory import Controllers
 from utils import EventBus, EventType
-from utils.combo_callbacks import build_combo_callbacks
+from utils.callbacks import build_combo_callbacks
 
 
 class ConnectFactory:

@@ -1,6 +1,6 @@
 from utils import AppContext, EventType, EventBus, Event
 from services.data_services.data_version_manager import DataVersionManager
-from utils.combo_callbacks import ComboUICallbacks
+from utils.callbacks import ComboUICallbacks
 from typing import Callable, Optional
 
 
