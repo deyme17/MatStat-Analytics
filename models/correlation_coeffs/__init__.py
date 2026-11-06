@@ -7,9 +7,9 @@ from .ratio_corr_coef import CorrelationRatio
 from .partial_corr_coeff import PartialCorrelation
 from .multiple_corr_coeff import MultipleCorrelation
 
-corr_coeffs: list[type[ICorrelationCoefficient]] = [
-    PearsonCorrelation,
-    SpearmanCorrelation,
-    KendallCorrelation,
-    CorrelationRatio
+corr_coeffs: list[ICorrelationCoefficient] = [
+    PearsonCorrelation(),
+    SpearmanCorrelation(),
+    KendallCorrelation(),
+    CorrelationRatio(),
 ]

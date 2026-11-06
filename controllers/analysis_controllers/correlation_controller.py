@@ -1,5 +1,7 @@
 from models.correlation_coeffs._significance_test_result import SignificanceTestResult
-from models.correlation_coeffs import ICorrelationCoefficient
+from models.correlation_coeffs import (
+    ICorrelationCoefficient, MultipleCorrelation, PartialCorrelation
+)
 from typing import  List, Dict
 import pandas as pd
 
@@ -8,19 +10,18 @@ class CorrelationController:
     """
     Controller for calculating correlation coeficients and its confidance intervals.
     """
-    def __init__(self, corr_coeffs: List[type[ICorrelationCoefficient]],
-                 partial_corr_cls: type[ICorrelationCoefficient],
-                 multiple_corr_cls: type[ICorrelationCoefficient]):
+    def __init__(self, corr_coeffs: List[ICorrelationCoefficient],
+                 partial_corr: PartialCorrelation,
+                 multiple_corr: MultipleCorrelation):
         self._corr_coeffs: Dict[str, ICorrelationCoefficient] = {}
         self._register_corr_coeffs(corr_coeffs)
-        self._partial_corr = partial_corr_cls()
-        self._multiple_corr = multiple_corr_cls()
+        self._partial_corr = partial_corr
+        self._multiple_corr = multiple_corr
 
-    def _register_corr_coeffs(self, corr_coeffs: List[type[ICorrelationCoefficient]]):
+    def _register_corr_coeffs(self, corr_coeffs: List[ICorrelationCoefficient]):
         """Register all available bivariate correlation coefficient tests."""
         for corr_coeff in corr_coeffs:
-            coeff_instance = corr_coeff()
-            self._corr_coeffs[coeff_instance.name()] = coeff_instance
+            self._corr_coeffs[corr_coeff.name()] = corr_coeff
 
     def calculate(self, corr_name: str, x: pd.Series, y: pd.Series) -> float:
         """
