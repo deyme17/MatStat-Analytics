@@ -19,7 +19,7 @@ from models import (
 # Controllers
 from controllers import (
     AnomalyController, MissingDataController, DataTransformController, StatisticController, 
-    ParameterEstimation, GOFController, HomogenController, SimulationController,
+    EstimationController, GOFController, HomogenController, SimulationController,
     CorrelationController, RegressionController, ComponentController,
     DataLoadController, DatasetController, DistributionRegister,
 )
@@ -30,7 +30,7 @@ class Controllers:
     statistic: StatisticController
     data_loader: DataLoadController
     simulation: SimulationController
-    estimation: ParameterEstimation
+    estimation: EstimationController
     gof: GOFController
     homogen: HomogenController
     data_version: DatasetController
@@ -67,7 +67,7 @@ class ControllersFactory:
                 data_saver=DataSaver(),
                 data_exporter=DataExporter,
             ),
-            estimation=ParameterEstimation(estimation_methods),
+            estimation=EstimationController(estimation_methods),
             gof=GOFController(gof_tests),
             homogen=HomogenController(homogen_tests),
             data_version=DatasetController(context=self.context),

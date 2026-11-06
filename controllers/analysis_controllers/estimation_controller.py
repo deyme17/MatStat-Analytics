@@ -4,7 +4,7 @@ from typing import Optional, List, Tuple, Dict
 import pandas as pd
 
 
-class ParameterEstimation:
+class EstimationController:
     """
     Main controller class for parameter estimation operations.
     Provides a unified interface for estimating distribution parameters

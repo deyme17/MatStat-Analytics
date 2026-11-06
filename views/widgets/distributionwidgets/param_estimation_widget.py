@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (
 )
 from utils import AppContext
 from services import UIMessager
-from controllers import ParameterEstimation
+from controllers import EstimationController
 from models.stat_distributions import StatisticalDistribution
 
 MIN_TABLE_HEIGHT = 100
@@ -14,7 +14,7 @@ MIN_TABLE_HEIGHT = 100
 class ParamEstimationWidget(QWidget):
     """Estimates distribution parameters using the selected method."""
     def __init__(self, context: AppContext, 
-                 estimator: ParameterEstimation,
+                 estimator: EstimationController,
                  get_dist_func: Callable[[], StatisticalDistribution | None] | None = None) -> None:
         super().__init__()
         self.context = context
