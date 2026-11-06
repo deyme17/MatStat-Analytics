@@ -5,7 +5,7 @@ from models.data_model import DataModel
 from utils import EventBus, EventType, Event, AppContext
 
 
-class StatisticController:
+class StatisticsController:
     """
     Controller for managing the display of statistical characteristics in the UI.
     """
@@ -73,11 +73,11 @@ class StatisticController:
         bins = self.get_bins_value()
         model.update_bins(bins)
         
-        self._update_statistic_table(model)
+        self._update_statistics_table(model)
         self._update_var_series_table(model)
         self._update_multi_var_table(model)
 
-    def _update_statistic_table(self, model: DataModel) -> None:
+    def _update_statistics_table(self, model: DataModel) -> None:
         """
         Recalculate statistics and update the UI tables.
         Args:

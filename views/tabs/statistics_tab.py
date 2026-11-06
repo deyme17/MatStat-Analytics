@@ -5,7 +5,7 @@ from services.ui_services.renderers.table_renderers.table_renderer import TableR
 
 
 
-class StatisticTab(QWidget):
+class StatisticsTab(QWidget):
     """
     A QWidget tab displaying a table of confidence intervals
     for statistical summaries and variation series.
@@ -16,7 +16,7 @@ class StatisticTab(QWidget):
                        parent=None):
         """
         Args:
-            stat_renderer_cls: Class for rendering statistic table.
+            stat_renderer_cls: Class for rendering statistics table.
             var_renderer_cls: Class for rendering variation series.
             multi_renderer_cls: Class for rendering multivariate table.
             parent: Parent widget.

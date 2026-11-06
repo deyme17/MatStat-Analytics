@@ -18,7 +18,7 @@ from models import (
 
 # Controllers
 from controllers import (
-    AnomalyController, MissingDataController, DataTransformController, StatisticController, 
+    AnomalyController, MissingDataController, DataTransformController, StatisticsController, 
     EstimationController, GOFController, HomogenController, SimulationController,
     CorrelationController, RegressionController, ComponentController,
     DataLoadController, DatasetController, DistributionRegister,
@@ -27,7 +27,7 @@ from controllers import (
 
 @dataclass
 class Controllers:
-    statistic: StatisticController
+    statistics: StatisticsController
     data_loader: DataLoadController
     simulation: SimulationController
     estimation: EstimationController
@@ -52,7 +52,7 @@ class ControllersFactory:
     def create(self) -> Controllers:
         """Initialize all controllers with no UI dependencies."""
         return Controllers(
-            statistic=StatisticController(
+            statistics=StatisticsController(
                 context=self.context,
                 stat_calculator=StatisticsCalculator(),
             ),

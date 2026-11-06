@@ -13,7 +13,7 @@ class ConnectFactory:
         self.win.widgets.load_button.clicked.connect(lambda: self.ctrl.data_loader.load_data_file())
         self.win.widgets.precision_spinbox.valueChanged.connect(self._on_precision_changed)
 
-        self.ctrl.statistic.connect_ui(
+        self.ctrl.statistics.connect_ui(
             stats_renderer=self.win.stat_tab.stat_renderer,
             var_renderer=self.win.stat_tab.var_renderer,
             multi_renderer=self.win.stat_tab.multi_renderer,

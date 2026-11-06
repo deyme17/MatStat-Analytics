@@ -6,7 +6,7 @@ from PyQt6.QtCore import QTimer
 from typing import Any, Dict, Optional
 from utils import AppContext, EventBus, EventType, Event
 from views.tabs.graph_tabs.graph_tab import BaseGraphTab
-from .stat_dist_selector import DistributionSelector
+from .dist_selector import DistributionSelector
 
 MIN_BINS, MAX_BINS = 1, 999
 DEFAULT_BINS = 10

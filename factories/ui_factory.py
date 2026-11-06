@@ -14,7 +14,7 @@ from services import (
 from PyQt6.QtWidgets import QTabWidget, QWidget
 from views import (
     # tabs
-    DataProcessingTab, DistributionTab, SimulationTab, StatisticTab, HomogenTab, CorrelationTab, RegressionTab,
+    DataProcessingTab, DistributionTab, SimulationTab, StatisticsTab, HomogenTab, CorrelationTab, RegressionTab,
     # widgets
     WindowWidgets,
     AnomalyWidget, MissingWidget, TransformDataWidget, PCAResultWidget, RegrSummaryWidget, RegrPredictionWidget,
@@ -107,8 +107,8 @@ class UIFactory:
             ],
         )
 
-    def _build_stat_tab(self) -> StatisticTab:
-        return StatisticTab(
+    def _build_stat_tab(self) -> StatisticsTab:
+        return StatisticsTab(
             stat_renderer_cls=StatsRenderer,
             var_renderer_cls=VarSerRenderer,
             multi_renderer_cls=MultiVarRenderer,

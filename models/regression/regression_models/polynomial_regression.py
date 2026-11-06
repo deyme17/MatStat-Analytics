@@ -216,7 +216,7 @@ class PolynomialRegression(IRegression):
         return np.column_stack(features)
     
     def _evaluate_model(self) -> None:
-        """Evaluates model and saves statistic and metrics"""
+        """Evaluates model and saves statistics and metrics"""
         self.y_pred_ = self.algorithm.predict(self.X_poly_)
         self.residuals_ = self.y_ - self.y_pred_
 
