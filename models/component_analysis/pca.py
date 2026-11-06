@@ -7,6 +7,7 @@ import numpy as np
 class PCA:
     """Principal Component Analysis model."""
     def __init__(self):
+        self.X_orig_: Optional[np.ndarray] = None
         self.eigenvalues_: Optional[np.ndarray] = None
         self.eigenvectors_: Optional[np.ndarray] = None
         self.components_: Optional[np.ndarray] = None
@@ -140,6 +141,7 @@ class PCA:
     
     def clear_state(self) -> None:
         """Clear PCA model state."""
+        self.X_orig_ = None
         self.eigenvalues_ = None
         self.eigenvectors_ = None
         self.components_ = None
