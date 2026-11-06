@@ -15,19 +15,19 @@ from .n_samples_tests.multivariate_normal_test import MultiNormalTest
 
 from .base_homogen_test import BaseHomogenTest
 
-homogen_tests: list[type[BaseHomogenTest]] = [
-    NormalHomogenTest,
-    WilcoxonTest,
-    MannWhitneyUTest,
-    RankMeanDiffTest,
-    SmirnovKolmogorovTest,
-    SignsCriterionTest,
+homogen_tests: list[BaseHomogenTest] = [
+    NormalHomogenTest(),
+    WilcoxonTest(),
+    MannWhitneyUTest(),
+    RankMeanDiffTest(),
+    SmirnovKolmogorovTest(),
+    SignsCriterionTest(),
 
-    BartlettTest,
-    ANOVATest,
-    CochranQTest,
-    HTest,
-    MultiNormalTest,
+    BartlettTest(),
+    ANOVATest(),
+    CochranQTest(),
+    HTest(),
+    MultiNormalTest(),
 
-    AbbeTest
+    AbbeTest(),
 ]

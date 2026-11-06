@@ -7,15 +7,14 @@ class HomogenController:
     """
     Controller for managing and executing homogeneity tests.
     """
-    def __init__(self, homogen_tests: List[type[BaseHomogenTest]]):
+    def __init__(self, homogen_tests: List[BaseHomogenTest]):
         self._tests: Dict[str, BaseHomogenTest] = {}
         self._register_tests(homogen_tests)
 
-    def _register_tests(self, homogen_tests: List[type[BaseHomogenTest]]):
+    def _register_tests(self, homogen_tests: List[BaseHomogenTest]):
         """Register all available homogeneity tests."""
         for homogen_test in homogen_tests:
-            test_instance = homogen_test()
-            self._tests[test_instance.name()] = test_instance
+            self._tests[homogen_test.name()] = homogen_test
 
     def run_test(self, test_name: str, samples: List[pd.Series|pd.DataFrame], alpha: float = 0.05, is_independent: bool = False) -> Optional[Dict]:
         """
