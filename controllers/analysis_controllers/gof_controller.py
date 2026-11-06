@@ -8,15 +8,14 @@ class GOFController:
     """
     Controller for managing and executing goodness-of-fit (GOF) tests.
     """
-    def __init__(self, gof_tests: List[type[BaseGOFTest]]):
+    def __init__(self, gof_tests: List[BaseGOFTest]):
         self._tests: Dict[str, BaseGOFTest] = {}
         self._register_tests(gof_tests)
 
-    def _register_tests(self, gof_tests: List[type[BaseGOFTest]]):
+    def _register_tests(self, gof_tests: List[BaseGOFTest]):
         """Register all available GOF tests."""
         for gof_test in gof_tests:
-            test_instance = gof_test()
-            self._tests[test_instance.name()] = test_instance
+            self._tests[gof_test.name()] = gof_test
 
     def run_test(self, test_name: str, data: pd.Series|pd.DataFrame, dist: StatisticalDistribution, alpha: float) -> Optional[Dict]:
         """
