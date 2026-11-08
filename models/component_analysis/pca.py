@@ -1,4 +1,3 @@
-from typing import Tuple, Optional
 from scipy import linalg
 import numpy as np
 
@@ -7,24 +6,18 @@ import numpy as np
 class PCA:
     """Principal Component Analysis model."""
     def __init__(self):
-        self.X_orig_: Optional[np.ndarray] = None
-        self.eigenvalues_: Optional[np.ndarray] = None
-        self.eigenvectors_: Optional[np.ndarray] = None
-        self.components_: Optional[np.ndarray] = None
-        self.evr_: Optional[np.ndarray] = None
-        self.mean_: Optional[np.ndarray] = None
-        self.fitted: bool = False
+        self.clear_state()
 
     @property
-    def principal_components(self) -> Optional[np.ndarray]:
+    def principal_components(self) -> np.ndarray | None:
         return self.components_
     
     @property
-    def eigenvalues(self) -> Optional[np.ndarray]:
+    def eigenvalues(self) -> np.ndarray | None:
         return self.eigenvalues_
     
     @property
-    def eigenvectors(self) -> Optional[np.ndarray]:
+    def eigenvectors(self) -> np.ndarray | None:
         return self.eigenvectors_
 
     def fit(self, X: np.ndarray) -> None:
@@ -59,9 +52,10 @@ class PCA:
         self.eigenvalues_ = self.eigenvalues_[sort_idx]
         self.eigenvectors_ = self.eigenvectors_[:, sort_idx]
 
-    def transform(self, X: np.ndarray,
-                  n_components: Optional[int] = None,
-                  ev_threshold: Optional[float] = None) -> np.ndarray:
+    def transform(self, 
+                  X: np.ndarray,
+                  n_components: int | None = None,
+                  ev_threshold: float | None = None) -> np.ndarray:
         """
         Tranform data using PCA model.
         Args:
@@ -100,9 +94,10 @@ class PCA:
             raise Exception("[ERROR] PCA model is not fitted yet.")
         return X @ self.components_.T + self.mean_
 
-    def fit_transform(self, X: np.ndarray,
-                      n_components: Optional[int] = None,
-                      ev_threshold: Optional[float] = None) -> np.ndarray:
+    def fit_transform(self, 
+                      X: np.ndarray,
+                      n_components: int | None = None,
+                      ev_threshold: float | None = None) -> np.ndarray:
         """
         Tranform data using PCA model.
         Args:
@@ -127,7 +122,7 @@ class PCA:
             if explained_variance >= threshold:
                 return i + 1
     
-    def get_explained_variance(self) -> Tuple[float, np.ndarray]:
+    def get_explained_variance(self) -> tuple[float, np.ndarray]:
         """Return: (Explained Variance, Explained Variance ratio for each component)."""
         total_variance = np.sum(self.eigenvalues_)
         evr = self.eigenvalues_ / total_variance
@@ -141,10 +136,10 @@ class PCA:
     
     def clear_state(self) -> None:
         """Clear PCA model state."""
-        self.X_orig_ = None
-        self.eigenvalues_ = None
-        self.eigenvectors_ = None
-        self.components_ = None
-        self.evr_ = None
-        self.mean_ = None
-        self.fitted = False
+        self.X_orig_: np.ndarray | None = None
+        self.eigenvalues_: np.ndarray | None = None
+        self.eigenvectors_: np.ndarray | None = None
+        self.components_: np.ndarray | None = None
+        self.evr_: np.ndarray | None = None
+        self.mean_: np.ndarray | None = None
+        self.fitted: bool = False
