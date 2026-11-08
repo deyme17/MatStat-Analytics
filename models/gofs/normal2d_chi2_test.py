@@ -1,6 +1,6 @@
 import numpy as np
 from typing import Optional
-from models.gofs.base_gof_test import BaseGOFTest
+from models.gofs.base import BaseGOFTest
 from models.stat_distributions.stat_distribution import StatisticalDistribution
 from scipy.stats import chi2, multivariate_normal
 
