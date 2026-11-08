@@ -1,10 +1,10 @@
 from models.correlation_coeffs._significance_test_result import SignificanceTestResult
-from .corr_coeff import ICorrelationCoefficient
+from .base import BaseCorrelationCoefficient
 from scipy import stats
 import numpy as np
 from typing import Tuple
 
-class SpearmanCorrelation(ICorrelationCoefficient):
+class SpearmanCorrelation(BaseCorrelationCoefficient):
     """
     Implements Spearman's Rho rank correlation coefficient.
     Uses the asymptotic t-test for significance and bootstrap for CI.

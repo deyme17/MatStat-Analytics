@@ -1,10 +1,10 @@
-from .corr_coeff import ICorrelationCoefficient
+from .base import BaseCorrelationCoefficient
 from models.correlation_coeffs._significance_test_result import SignificanceTestResult
 import numpy as np
 from scipy import stats
 from typing import Tuple
 
-class CorrelationRatio(ICorrelationCoefficient):
+class CorrelationRatio(BaseCorrelationCoefficient):
     """
     Implements the Correlation Ratio (eta) for quantitative variables.
     Measures non-linear association by grouping X into bins.

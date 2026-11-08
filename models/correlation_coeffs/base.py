@@ -2,7 +2,7 @@ from models.correlation_coeffs._significance_test_result import SignificanceTest
 from abc import ABC, abstractmethod
 import numpy as np
 
-class ICorrelationCoefficient(ABC):
+class BaseCorrelationCoefficient(ABC):
     EPSILON = 1e-11
     def __init__(self):
         self.r = None

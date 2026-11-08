@@ -1,9 +1,9 @@
 from models.correlation_coeffs._significance_test_result import SignificanceTestResult
-from .corr_coeff import ICorrelationCoefficient
+from .base import BaseCorrelationCoefficient
 from scipy import stats
 import numpy as np
 
-class PearsonCorrelation(ICorrelationCoefficient):
+class PearsonCorrelation(BaseCorrelationCoefficient):
     def fit(self, x: np.ndarray, y: np.ndarray) -> float:
         if len(x) != len(y): raise ValueError("x and y must have the same length")
         self.r, _ = stats.pearsonr(x, y)

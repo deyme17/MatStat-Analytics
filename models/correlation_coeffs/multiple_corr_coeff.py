@@ -1,11 +1,11 @@
 from models.correlation_coeffs._significance_test_result import SignificanceTestResult
 from typing import List
-from .corr_coeff import ICorrelationCoefficient
+from .base import BaseCorrelationCoefficient
 from scipy import stats
 import numpy as np
 
 
-class MultipleCorrelation(ICorrelationCoefficient):
+class MultipleCorrelation(BaseCorrelationCoefficient):
     """
     Implements Multiple correlation coefficient (R) for one dependent variable and multiple independent variables.
     Uses the F-test for significance and confidence intervals based on Fisher's z-transform.

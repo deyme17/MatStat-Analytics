@@ -1,6 +1,6 @@
 from models.correlation_coeffs._significance_test_result import SignificanceTestResult
 from models.correlation_coeffs import (
-    ICorrelationCoefficient, MultipleCorrelation, PartialCorrelation
+    BaseCorrelationCoefficient, MultipleCorrelation, PartialCorrelation
 )
 from typing import  List, Dict
 import pandas as pd
@@ -10,15 +10,15 @@ class CorrelationController:
     """
     Controller for calculating correlation coeficients and its confidance intervals.
     """
-    def __init__(self, corr_coeffs: List[ICorrelationCoefficient],
+    def __init__(self, corr_coeffs: List[BaseCorrelationCoefficient],
                  partial_corr: PartialCorrelation,
                  multiple_corr: MultipleCorrelation):
-        self._corr_coeffs: Dict[str, ICorrelationCoefficient] = {}
+        self._corr_coeffs: Dict[str, BaseCorrelationCoefficient] = {}
         self._register_corr_coeffs(corr_coeffs)
         self._partial_corr = partial_corr
         self._multiple_corr = multiple_corr
 
-    def _register_corr_coeffs(self, corr_coeffs: List[ICorrelationCoefficient]):
+    def _register_corr_coeffs(self, corr_coeffs: List[BaseCorrelationCoefficient]):
         """Register all available bivariate correlation coefficient tests."""
         for corr_coeff in corr_coeffs:
             self._corr_coeffs[corr_coeff.name()] = corr_coeff

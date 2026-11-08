@@ -1,11 +1,11 @@
 from models.correlation_coeffs._significance_test_result import SignificanceTestResult
 from typing import List
-from .corr_coeff import ICorrelationCoefficient
+from .base import BaseCorrelationCoefficient
 from scipy import stats
 import numpy as np
 
 
-class PartialCorrelation(ICorrelationCoefficient):
+class PartialCorrelation(BaseCorrelationCoefficient):
     """
     Implements Partial correlation coefficient (r) for two variables controlling for multiple control variables.
     Uses the t-test for significance and confidence intervals based on Fisher's z-transform.

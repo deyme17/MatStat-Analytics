@@ -1,10 +1,10 @@
-from .corr_coeff import ICorrelationCoefficient
+from .base import BaseCorrelationCoefficient
 from models.correlation_coeffs._significance_test_result import SignificanceTestResult
 from scipy import stats
 import numpy as np
 from typing import Tuple
 
-class KendallCorrelation(ICorrelationCoefficient):
+class KendallCorrelation(BaseCorrelationCoefficient):
     """
     Implements Kendall's Tau correlation coefficient.
     Uses the normal approximation (Z-test) for significance and CI.
