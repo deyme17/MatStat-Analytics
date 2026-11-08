@@ -1,6 +1,6 @@
-from models.params_estimators.base_method import EstimationMethod
+from models.params_estimators.base import BaseEstimationMethod
 
-class MethodOfMoments(EstimationMethod):
+class MethodOfMoments(BaseEstimationMethod):
     """
     Implements method of moments estimation for statistical distributions.
     This estimator matches sample moments to distribution moments

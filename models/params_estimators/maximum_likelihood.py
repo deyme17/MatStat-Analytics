@@ -1,8 +1,8 @@
-from models.params_estimators.base_method import EstimationMethod
+from models.params_estimators.base import BaseEstimationMethod
 from scipy.optimize import minimize
 import numpy as np
 
-class MaximumLikelihoodMethod(EstimationMethod):
+class MaximumLikelihoodMethod(BaseEstimationMethod):
     """
     Implements maximum likelihood estimation for statistical distributions.
     This estimator finds parameters that maximize the likelihood function

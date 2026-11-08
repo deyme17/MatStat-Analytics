@@ -1,4 +1,4 @@
-from models.params_estimators.base_method import EstimationMethod
+from models.params_estimators.base import BaseEstimationMethod
 from models.stat_distributions import StatisticalDistribution
 from typing import Optional, List, Tuple, Dict
 import pandas as pd
@@ -10,11 +10,11 @@ class EstimationController:
     Provides a unified interface for estimating distribution parameters
     using different estimation methods.
     """
-    def __init__(self, estimation_methods: List[EstimationMethod]):
-        self._methods: Dict[str, EstimationMethod] = {}
+    def __init__(self, estimation_methods: List[BaseEstimationMethod]):
+        self._methods: Dict[str, BaseEstimationMethod] = {}
         self._register_methods(estimation_methods)
 
-    def _register_methods(self, estimation_methods: List[EstimationMethod]):
+    def _register_methods(self, estimation_methods: List[BaseEstimationMethod]):
         """Register all available GOF tests."""
         for method in estimation_methods:
             self._methods[method.name] = method
