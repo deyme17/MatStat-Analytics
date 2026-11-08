@@ -3,7 +3,7 @@ import numpy as np
 from typing import Any
 import pandas as pd
 
-class StatisticalDistribution(ABC):
+class BaseDistribution(ABC):
     """Abstract base class for statistical distributions."""
     def __init__(self):
         self.params = None                     # parameters of the distribution

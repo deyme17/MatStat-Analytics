@@ -4,7 +4,7 @@ import pandas as pd
 
 from utils.ui_styles import groupStyle, groupMargin
 from controllers import GOFController
-from models.stat_distributions.stat_distribution import StatisticalDistribution
+from models.stat_distributions.base import BaseDistribution
 
 
 class Meta(type(QGroupBox), type(ABC)):
@@ -62,12 +62,12 @@ class BaseTestPanel(QGroupBox, ABC, metaclass=Meta):
         )
 
     @abstractmethod
-    def evaluate(self, data: pd.Series | pd.DataFrame, dist: StatisticalDistribution, alpha: float) -> None:
+    def evaluate(self, data: pd.Series | pd.DataFrame, dist: BaseDistribution, alpha: float) -> None:
         """
         Abstract method to evaluate the test with the given data and distribution.
         Args:
             data (pd.Series or pd.DataFrame): Sample data to evaluate.
-            dist (StatisticalDistribution): Fitted distribution to compare against.
+            dist (BaseStatDistribution): Fitted distribution to compare against.
             alpha (float): Significance level.
         """
         pass

@@ -1,10 +1,10 @@
-from models.stat_distributions.stat_distribution import StatisticalDistribution
+from models.stat_distributions.base import BaseDistribution
 from typing import Any
 import numpy as np
 from scipy import stats
 import pandas as pd
 
-class NormalDistribution(StatisticalDistribution):
+class NormalDistribution(BaseDistribution):
     """Normal (Gaussian) distribution."""
     def __init__(self, mu=None, sigma=None):
         """

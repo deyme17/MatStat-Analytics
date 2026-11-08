@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from services.ui_services.renderers.graph_renderers.graph_renderer import Renderer
-from models.stat_distributions import StatisticalDistribution
+from models.stat_distributions import BaseDistribution
 
 
 class DistributionRenderer(Renderer):
@@ -10,13 +10,13 @@ class DistributionRenderer(Renderer):
     Renderer for drawing theoretical distribution PDF curves on Matplotlib axes.
     """
     @staticmethod
-    def render(ax: plt.Axes, data: pd.Series, dist: StatisticalDistribution, bins: int, color: str = None, label: str = None) -> bool:
+    def render(ax: plt.Axes, data: pd.Series, dist: BaseDistribution, bins: int, color: str = None, label: str = None) -> bool:
         """
         Plot a fitted PDF curve of the given distribution on the provided axis.
         Args:
             ax: Matplotlib axis to draw on
             data: pandas Series with input data
-            dist: StatisticalDistribution instance to fit and render
+            dist: BaseStatDistribution instance to fit and render
             bins: number of classes for PDF scaling
             color: optional color override
             label: optional label for legend

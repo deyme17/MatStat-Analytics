@@ -1,17 +1,17 @@
-from models.stat_distributions.stat_distribution import StatisticalDistribution
+from models.stat_distributions.base import BaseDistribution
 from typing import Any
 import numpy as np
 from scipy import stats
 from scipy.special import gamma
 import pandas as pd
 
-class WeibullDistribution(StatisticalDistribution):
+class WeibullDistribution(BaseDistribution):
     """Weibull distribution."""
     def __init__(self, shape=None, scale=None):
         """
         Args:
-            shape: shape parameter (β)
-            scale: scale parameter (α)
+            shape: shape parameter (beta)
+            scale: scale parameter (alpha)
         """
         super().__init__()
         self.color = 'orange'

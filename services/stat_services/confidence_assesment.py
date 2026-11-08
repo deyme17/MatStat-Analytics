@@ -1,5 +1,5 @@
 import pandas as pd
-from models.stat_distributions import StatisticalDistribution
+from models.stat_distributions import BaseDistribution
 import numpy as np
 from scipy.stats import norm
 
@@ -8,12 +8,12 @@ class ConfidenceAssesment:
     Class for computing confidence intervals for cumulative distribution function.
     """
     @staticmethod
-    def cdf_variance_ci(data: pd.Series, dist: StatisticalDistribution, confidence_level: float = 0.95):
+    def cdf_variance_ci(data: pd.Series, dist: BaseDistribution, confidence_level: float = 0.95):
         """
         Compute CDF with variance-based confidence intervals.
         Args:
             data: input data series
-            dist: StatisticalDistribution instance
+            dist: BaseStatDistribution instance
             confidence_level: confidence level (default: 0.95)
         Return:
             tuple (x, CDF, lower CI, upper CI) or None if failed

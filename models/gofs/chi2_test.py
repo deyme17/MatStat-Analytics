@@ -1,7 +1,7 @@
 from scipy.stats import chi2
 import numpy as np
 from models.gofs.base import BaseGOFTest
-from models.stat_distributions.stat_distribution import StatisticalDistribution
+from models.stat_distributions.base import BaseDistribution
 
 class ChiSquaredGOFTest(BaseGOFTest):
     """Chi-squared goodness-of-fit test."""
@@ -12,12 +12,12 @@ class ChiSquaredGOFTest(BaseGOFTest):
         """
         return "chi2"
 
-    def run(self, data: np.ndarray, dist: StatisticalDistribution, bins: int = 10, alpha: float = 0.05) -> dict:
+    def run(self, data: np.ndarray, dist: BaseDistribution, bins: int = 10, alpha: float = 0.05) -> dict:
         """
         Perform the chi-squared goodness-of-fit test.
         Args:
             data: input data array
-            dist: fitted StatisticalDistribution object
+            dist: fitted BaseStatDistribution object
             bins: number of histogram bins
             alpha: significance level
         Returns:

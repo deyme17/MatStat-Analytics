@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (
 )
 from typing import Optional, List, Tuple
 
-from models.stat_distributions import StatisticalDistribution
+from models.stat_distributions import BaseDistribution
 from controllers import SimulationController
 from services import UIMessager
 from utils.ui_styles import groupMargin, groupStyle
@@ -205,7 +205,7 @@ class GenerationWidget(QWidget):
         
         return params_list
     
-    def save_generated_data(self, dist_cls:  type[StatisticalDistribution]) -> None:
+    def save_generated_data(self, dist_cls:  type[BaseDistribution]) -> None:
         """Generate and save data from distribution."""
         n_features = self.n_features_spin.value()
         sample_size = self.size_spin.value()

@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Optional
 from models.gofs.base import BaseGOFTest
-from models.stat_distributions.stat_distribution import StatisticalDistribution
+from models.stat_distributions.base import BaseDistribution
 from scipy.stats import chi2, multivariate_normal
 
 class Normal2DChi2GOFTest(BaseGOFTest):
@@ -10,7 +10,7 @@ class Normal2DChi2GOFTest(BaseGOFTest):
     def name(self) -> str:
         return "norm2d_chi2"
 
-    def run(self, data: np.ndarray, dist: StatisticalDistribution, bins: int = 6, alpha: float = 0.05) -> Optional[dict]:
+    def run(self, data: np.ndarray, dist: BaseDistribution, bins: int = 6, alpha: float = 0.05) -> Optional[dict]:
         """
         Perform a 2D chi-squared goodness-of-fit test for normality.
         Args:

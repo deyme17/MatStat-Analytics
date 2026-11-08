@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QLabel
 import pandas as pd
 from views.widgets.distributionwidgets.gof_panels.gof_test_panel import BaseTestPanel
-from models.stat_distributions.stat_distribution import StatisticalDistribution
+from models.stat_distributions.base import BaseDistribution
 
 
 class PearsonChi2Panel(BaseTestPanel):
@@ -23,12 +23,12 @@ class PearsonChi2Panel(BaseTestPanel):
 
         self.finalize_layout()
 
-    def evaluate(self, data: pd.Series, dist: StatisticalDistribution, alpha: float) -> None:
+    def evaluate(self, data: pd.Series, dist: BaseDistribution, alpha: float) -> None:
         """
         Evaluate the Pearson chi-squared test.
         Args:
             data (pd.Series): Observed data sample.
-            dist (StatisticalDistribution): Theoretical distribution to test against.
+            dist (BaseStatDistribution): Theoretical distribution to test against.
             alpha (float): Significance level.
         """
         result = self.gof_controller.run_test('chi2', data, dist, alpha)

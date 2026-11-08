@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QLabel
 import pandas as pd
 from views.widgets.distributionwidgets.gof_panels.gof_test_panel import BaseTestPanel
-from models.stat_distributions.stat_distribution import StatisticalDistribution
+from models.stat_distributions.base import BaseDistribution
 
 
 class KolmogorovSmirnovPanel(BaseTestPanel):
@@ -23,12 +23,12 @@ class KolmogorovSmirnovPanel(BaseTestPanel):
 
         self.finalize_layout()
 
-    def evaluate(self, data: pd.Series, dist: StatisticalDistribution, alpha: float) -> None:
+    def evaluate(self, data: pd.Series, dist: BaseDistribution, alpha: float) -> None:
         """
         Perform Kolmogorov–Smirnov test and update panel.
         Args:
             data (pd.Series): Sample data to test.
-            dist (StatisticalDistribution): Fitted distribution.
+            dist (BaseStatDistribution): Fitted distribution.
             alpha (float): Significance level.
         """
         result = self.gof_controller.run_test('ks', data, dist, alpha)

@@ -1,5 +1,5 @@
 from models.params_estimators.base import BaseEstimationMethod
-from models.stat_distributions import StatisticalDistribution
+from models.stat_distributions import BaseDistribution
 from typing import Optional, List, Tuple, Dict
 import pandas as pd
 
@@ -19,11 +19,11 @@ class EstimationController:
         for method in estimation_methods:
             self._methods[method.name] = method
 
-    def estimate(self, dist: StatisticalDistribution, method_name: str, data: pd.Series) -> Optional[Tuple]:
+    def estimate(self, dist: BaseDistribution, method_name: str, data: pd.Series) -> Optional[Tuple]:
         """
         Estimate parameters for a specified distribution using a chosen method.
         Args:
-            dist: StatisticalDistribution to estimate (instance)
+            dist: BaseStatDistribution to estimate (instance)
             method_name: Name of the estimation method to use
             data: Input data for parameter estimation
         Rerurn:

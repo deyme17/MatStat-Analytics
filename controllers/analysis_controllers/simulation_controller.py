@@ -1,6 +1,6 @@
 from services import DataSaver, DataExporter, DataVersionManager, UIMessager
 from models import SimulationEngine
-from models.stat_distributions.stat_distribution import StatisticalDistribution
+from models.stat_distributions.base import BaseDistribution
 from utils import AppContext, EventType, EventBus
 from typing import Optional, List, Tuple
 
@@ -24,7 +24,7 @@ class SimulationController:
         self.event_bus: EventBus = context.event_bus
         self.messanger: UIMessager = context.messanger
     
-    def run_experiment(self, dist: StatisticalDistribution, sizes: List[int], repeats: int, true_mean: float, alpha: float):
+    def run_experiment(self, dist: BaseDistribution, sizes: List[int], repeats: int, true_mean: float, alpha: float):
         """
         Run statistical experiment with optional data saving.
         Args:
@@ -44,13 +44,13 @@ class SimulationController:
             self.messanger.show_info("Simulation error", f"{str(e)}")
             return []
         
-    def generate_data(self, distribution: StatisticalDistribution, n_features: int,
+    def generate_data(self, distribution: BaseDistribution, n_features: int,
                       params_list: List[Tuple], coor_coeffs: Optional[List[List[float]]],
                       sample_size: int, export_data: bool = False) -> None:
         """
         Generate simulated data from statistical distribution with optional export.
         Args:
-            distribution: instance of StatisticalDistribution
+            distribution: instance of BaseStatDistribution
             params_list: List of parameters for each feature
             n_features: Number of features/dimensions in the generated dataset
             coor_coeffs: Correlation coefficients matrix defining feature relationships

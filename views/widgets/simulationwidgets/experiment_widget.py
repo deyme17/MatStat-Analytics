@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (
 )
 from typing import Optional, Dict, Any, List
 
-from models.stat_distributions import StatisticalDistribution
+from models.stat_distributions import BaseDistribution
 from controllers import SimulationController
 from services import UIMessager
 from utils.ui_styles import groupMargin, groupStyle
@@ -110,7 +110,7 @@ class ExperimentWidget(QWidget):
                 "Parameters must be comma-separated numbers.")
             return None
     
-    def run_experiment(self, dist_cls: type[StatisticalDistribution]) -> None:
+    def run_experiment(self, dist_cls: type[BaseDistribution]) -> None:
         """Execute experiment with given distribution."""
         alpha = self._parse_alpha()
         if alpha is None:

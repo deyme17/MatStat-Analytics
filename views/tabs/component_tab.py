@@ -14,7 +14,7 @@ from services import UIMessager
 from utils import AppContext, EventBus, Event, EventType
 from services.ui_services.renderers.graph_renderers import ScreeEVRPlot
 from controllers import ComponentController
-from controllers.dp_controllers.component_controller import PCAState
+from controllers.analysis_controllers.component_controller import PCAState
 from utils.ui_styles import groupMargin, groupStyle
 from utils.helpers import create_section_header
 

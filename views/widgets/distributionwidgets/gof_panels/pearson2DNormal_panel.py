@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QLabel
 import pandas as pd
 from views.widgets.distributionwidgets.gof_panels.gof_test_panel import BaseTestPanel
-from models.stat_distributions.stat_distribution import StatisticalDistribution
+from models.stat_distributions.base import BaseDistribution
 
 
 class Pearson2DNormalPanel(BaseTestPanel):
@@ -24,12 +24,12 @@ class Pearson2DNormalPanel(BaseTestPanel):
 
         self.finalize_layout()
 
-    def evaluate(self, data: pd.DataFrame, dist: StatisticalDistribution, alpha: float) -> None:
+    def evaluate(self, data: pd.DataFrame, dist: BaseDistribution, alpha: float) -> None:
         """
         Evaluate the 2D Normal chi-squared test.
         Args:
             data (pd.DataFrame): Observed 2D data sample (must have 2 columns).
-            dist (StatisticalDistribution): Not used for this test (parameters estimated from data).
+            dist (BaseStatDistribution): Not used for this test (parameters estimated from data).
             alpha (float): Significance level.
         """
         result = self.gof_controller.run_test('norm2d_chi2', data, dist, alpha)

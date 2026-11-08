@@ -1,7 +1,7 @@
 from scipy.stats import kstwobign
 import numpy as np
 from models.gofs.base import BaseGOFTest
-from models.stat_distributions.stat_distribution import StatisticalDistribution
+from models.stat_distributions.base import BaseDistribution
 
 class KolmogorovSmirnovGOFTest(BaseGOFTest):
     """Kolmogorov-Smirnov goodness-of-fit test (refined)."""
@@ -12,12 +12,12 @@ class KolmogorovSmirnovGOFTest(BaseGOFTest):
         """
         return "ks"
 
-    def run(self, data: np.ndarray, dist: StatisticalDistribution, alpha: float = 0.05) -> dict:
+    def run(self, data: np.ndarray, dist: BaseDistribution, alpha: float = 0.05) -> dict:
         """
         Perform the Kolmogorov-Smirnov goodness-of-fit test.
         Args:
             data: input data array
-            dist: fitted StatisticalDistribution object
+            dist: fitted BaseStatDistribution object
             alpha: significance level
         Returns:
             dictionary with test results (statistic, p-value, decision, extra info)

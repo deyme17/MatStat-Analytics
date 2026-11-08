@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QGroupBox, QGridLayout, QRadioButton, QButtonGroup
 from typing import Callable, Optional
 from utils.ui_styles import groupStyle, groupMargin
-from models.stat_distributions.stat_distribution import StatisticalDistribution
+from models.stat_distributions.base import BaseDistribution
 from controllers import DistributionRegister
 
 DIST_IN_ROW = 3
@@ -53,11 +53,11 @@ class DistributionSelector(QGroupBox):
             layout.addWidget(btn, (index + 1) // DIST_IN_ROW, (index + 1) % DIST_IN_ROW)
             btn.toggled.connect(self._handle_change)
 
-    def get_selected_distribution(self) -> Optional[StatisticalDistribution]:
+    def get_selected_distribution(self) -> Optional[BaseDistribution]:
         """
         Get an instance of the currently selected distribution.
         Returns:
-            StatisticalDistribution or None
+            BaseStatDistribution or None
         """
         btn = self.button_group.checkedButton()
         if btn and btn.text() != "None":

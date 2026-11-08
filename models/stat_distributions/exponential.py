@@ -1,10 +1,10 @@
-from models.stat_distributions.stat_distribution import StatisticalDistribution
+from models.stat_distributions.base import BaseDistribution
 import numpy as np
 from typing import Any
 from scipy import stats
 import pandas as pd
 
-class ExponentialDistribution(StatisticalDistribution):
+class ExponentialDistribution(BaseDistribution):
     """Exponential distribution."""
     def __init__(self, lam=None):
         """

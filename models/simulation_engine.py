@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from typing import List, Optional, Dict
 from scipy.stats import t
-from models.stat_distributions.stat_distribution import StatisticalDistribution
+from models.stat_distributions.base import BaseDistribution
 from services.stat_services.test_performer import TestPerformer
 
 class SimulationEngine:
@@ -17,11 +17,11 @@ class SimulationEngine:
         """
         self.test_performer: TestPerformer = test_performer
 
-    def generate_sample(self, distribution: StatisticalDistribution, size: int, params: Dict) -> np.ndarray:
+    def generate_sample(self, distribution: BaseDistribution, size: int, params: Dict) -> np.ndarray:
         """
         Generate a random sample from a distribution using the inverse CDF method.
         Args:
-            distribution: instance of StatisticalDistribution
+            distribution: instance of BaseStatDistribution
             size: number of values to generate
             params: distribution parameters
         Return:
@@ -36,12 +36,12 @@ class SimulationEngine:
             print(f"[SimulationEngine] Error in generate_sample: {e}")
             return None
 
-    def run_experiment(self, distribution: StatisticalDistribution, sizes: List[int], n_repeat: int,
+    def run_experiment(self, distribution: BaseDistribution, sizes: List[int], n_repeat: int,
                        true_mean: float, alpha: float = 0.05) -> List[Dict]:
         """
         Run repeated T-tests on simulated samples of varying sizes.
         Args:
-            distribution: instance of StatisticalDistribution
+            distribution: instance of BaseStatDistribution
             sizes: list of sample sizes to test
             n_repeat: number of repetitions per sample size
             true_mean: theoretical mean to test against
@@ -84,13 +84,13 @@ class SimulationEngine:
 
         return results
     
-    def generate_data(self, distribution: StatisticalDistribution, n_features: int,
+    def generate_data(self, distribution: BaseDistribution, n_features: int,
                       params_list: list[tuple[float]], corr_coeffs: Optional[List[List[float]]], 
                       size: int) -> np.ndarray:
         """
         Generate multivariate correlated data from specified statistical distribution.
             Args:
-                distribution: instance of StatisticalDistribution
+                distribution: instance of BaseStatDistribution
                 n_features: number of dimensions to generate
                 params_list: list of parameter tuples for each feature
                 corr_coeffs: correlation matrix or None

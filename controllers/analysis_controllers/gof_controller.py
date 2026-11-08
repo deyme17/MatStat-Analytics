@@ -1,6 +1,6 @@
 import pandas as pd
 from typing import Optional, Dict, List
-from models.stat_distributions.stat_distribution import StatisticalDistribution
+from models.stat_distributions.base import BaseDistribution
 from models.gofs import BaseGOFTest
 
 
@@ -17,7 +17,7 @@ class GOFController:
         for gof_test in gof_tests:
             self._tests[gof_test.name()] = gof_test
 
-    def run_test(self, test_name: str, data: pd.Series|pd.DataFrame, dist: StatisticalDistribution, alpha: float) -> Optional[Dict]:
+    def run_test(self, test_name: str, data: pd.Series|pd.DataFrame, dist: BaseDistribution, alpha: float) -> Optional[Dict]:
         """
         Run specific test by name and return result.
         Args:

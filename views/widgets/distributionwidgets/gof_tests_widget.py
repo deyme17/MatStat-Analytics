@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QDoubleSpinBox, QHBoxLayout, QPushButton
-from models.stat_distributions import StatisticalDistribution
+from models.stat_distributions import BaseDistribution
 from models import DataModel
 from .gof_panels.gof_test_panel import BaseTestPanel
 from typing import Callable
@@ -20,7 +20,7 @@ class GOFTestWidget(QWidget):
                  gof_controller: GOFController,
                  test_panels: list[type[BaseTestPanel]],
                  multi_test_panels: list[type[BaseTestPanel]],
-                 get_dist_func: Callable[[], StatisticalDistribution | None] | None = None) -> None:
+                 get_dist_func: Callable[[], BaseDistribution | None] | None = None) -> None:
         super().__init__()
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
@@ -100,14 +100,14 @@ class GOFTestWidget(QWidget):
             if multi:
                 self._evaluate_multi_tests(model, dist, alpha)
 
-    def _evaluate_simple_tests(self, model: DataModel, dist: StatisticalDistribution, alpha: float) -> None:
+    def _evaluate_simple_tests(self, model: DataModel, dist: BaseDistribution, alpha: float) -> None:
         series = model.series.dropna()
         if series.empty:
             return
         for test in self.test_panels:
             test.evaluate(series, dist, alpha)
 
-    def _evaluate_multi_tests(self, model: DataModel, dist: StatisticalDistribution, alpha: float) -> None:
+    def _evaluate_multi_tests(self, model: DataModel, dist: BaseDistribution, alpha: float) -> None:
         df = model.dataframe.dropna()
         if df.empty or df.shape[1] < 2:
             return
@@ -118,5 +118,5 @@ class GOFTestWidget(QWidget):
         for test in [*self.test_panels, *self.multi_test_panels]:
             test.clear()
 
-    def set_distribution_access(self, get_dist_func: Callable[[], StatisticalDistribution]) -> None:
+    def set_distribution_access(self, get_dist_func: Callable[[], BaseDistribution]) -> None:
         self.get_dist_func = get_dist_func

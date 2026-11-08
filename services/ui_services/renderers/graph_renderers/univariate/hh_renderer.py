@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from services.ui_services.renderers.graph_renderers.graph_renderer import Renderer
-from models.stat_distributions import StatisticalDistribution
+from models.stat_distributions import BaseDistribution
 
 
 class HHRenderer(Renderer):
@@ -10,14 +10,14 @@ class HHRenderer(Renderer):
     Renderer for drawing H-H plot (theoretical vs empirical quantiles).
     """
     @staticmethod
-    def render(ax: plt.Axes, data: pd.Series, dist: StatisticalDistribution, 
+    def render(ax: plt.Axes, data: pd.Series, dist: BaseDistribution, 
                color: str = None, label: str = None) -> bool:
         """
         Plot H-H plot for the given distribution.
         Args:
             ax: Matplotlib axis to draw on
             data: pandas Series with input data
-            dist: StatisticalDistribution instance to fit and render
+            dist: BaseStatDistribution instance to fit and render
             color: optional color override
             label: optional label for legend
         Return:

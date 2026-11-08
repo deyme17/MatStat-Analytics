@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
 from utils import AppContext
 from services import UIMessager
 from controllers import EstimationController
-from models.stat_distributions import StatisticalDistribution
+from models.stat_distributions import BaseDistribution
 
 MIN_TABLE_HEIGHT = 100
 
@@ -15,7 +15,7 @@ class ParamEstimationWidget(QWidget):
     """Estimates distribution parameters using the selected method."""
     def __init__(self, context: AppContext, 
                  estimator: EstimationController,
-                 get_dist_func: Callable[[], StatisticalDistribution | None] | None = None) -> None:
+                 get_dist_func: Callable[[], BaseDistribution | None] | None = None) -> None:
         super().__init__()
         self.context = context
         self.messanger: UIMessager = context.messanger
@@ -73,7 +73,7 @@ class ParamEstimationWidget(QWidget):
         except Exception as e:
             self.messanger.show_error("Estimation Error", f"Error during estimation: {e}")
 
-    def _display_results(self, distribution: StatisticalDistribution, params: list) -> None:
+    def _display_results(self, distribution: BaseDistribution, params: list) -> None:
         param_names = list(distribution.distribution_params.keys())
         self.result_table.setRowCount(len(params))
         for i, (name, value) in enumerate(zip(param_names, params)):
@@ -83,5 +83,5 @@ class ParamEstimationWidget(QWidget):
     def clear_results(self) -> None:
         self.result_table.setRowCount(0)
 
-    def set_distribution_access(self, get_dist_func: Callable[[], StatisticalDistribution]) -> None:
+    def set_distribution_access(self, get_dist_func: Callable[[], BaseDistribution]) -> None:
         self.get_dist_func = get_dist_func

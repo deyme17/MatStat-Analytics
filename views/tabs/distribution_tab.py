@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt
 
 from controllers import DistributionRegister
-from models.stat_distributions import StatisticalDistribution
+from models.stat_distributions import BaseDistribution
 from views.widgets.distributionwidgets import (
     ParamEstimationWidget, GOFTestWidget
 )
@@ -86,7 +86,7 @@ class DistributionTab(QWidget):
         layout.addWidget(content)
         return group
 
-    def get_distribution(self) -> StatisticalDistribution | None:
+    def get_distribution(self) -> BaseDistribution | None:
         """Return a fresh instance of the currently selected distribution."""
         dist_class = self.dist_register.get_dist(self.dist_combo.currentText())
         return dist_class() if dist_class else None
