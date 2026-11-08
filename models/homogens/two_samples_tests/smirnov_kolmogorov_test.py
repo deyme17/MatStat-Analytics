@@ -1,5 +1,5 @@
 import numpy as np
-from models.homogens.base_homogen_test import BaseHomogenTest
+from models.homogens.base import BaseHomogenTest
 
 
 class SmirnovKolmogorovTest(BaseHomogenTest):

@@ -13,7 +13,7 @@ from .n_samples_tests.cochran_Q_test import CochranQTest
 from .n_samples_tests.kruskal_wallis_H_test import HTest
 from .n_samples_tests.multivariate_normal_test import MultiNormalTest
 
-from .base_homogen_test import BaseHomogenTest
+from .base import BaseHomogenTest
 
 homogen_tests: list[BaseHomogenTest] = [
     NormalHomogenTest(),

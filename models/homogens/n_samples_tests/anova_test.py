@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.stats import f
-from models.homogens.base_homogen_test import BaseHomogenTest
+from models.homogens.base import BaseHomogenTest
 
 
 class ANOVATest(BaseHomogenTest):

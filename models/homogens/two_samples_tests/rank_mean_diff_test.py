@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.stats import norm, rankdata
-from models.homogens.base_homogen_test import BaseHomogenTest
+from models.homogens.base import BaseHomogenTest
 
 
 class RankMeanDiffTest(BaseHomogenTest):

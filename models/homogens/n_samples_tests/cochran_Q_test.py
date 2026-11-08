@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.stats import chi2
-from models.homogens.base_homogen_test import BaseHomogenTest
+from models.homogens.base import BaseHomogenTest
 
 
 class CochranQTest(BaseHomogenTest):
