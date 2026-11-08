@@ -2,7 +2,7 @@ from typing import Dict, Any, Optional
 from abc import ABC, abstractmethod
 import numpy as np
 
-class IOptimizationAlgorithm(ABC):
+class BaseOptimization(ABC):
     """Base interface for optimization algorithms used in regression models."""
     @abstractmethod
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:

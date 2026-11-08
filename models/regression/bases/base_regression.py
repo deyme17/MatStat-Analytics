@@ -2,7 +2,7 @@ from typing import Dict, Any, Optional, List, Tuple
 from abc import ABC, abstractmethod
 import numpy as np
 
-class IRegression(ABC):
+class BaseRegression(ABC):
     """Base interface for regression models"""
     features_: List[str] | None
     target_: str | None = None

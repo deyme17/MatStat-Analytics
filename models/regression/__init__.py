@@ -1,8 +1,8 @@
-from .interfaces import IRegression
+from .bases import BaseRegression
 from .regression_models import LinearRegression, PolynomialRegression
 from .algorithms import OLS
 
-regression_models: list[IRegression] = [
+regression_models: list[BaseRegression] = [
     LinearRegression(algorithm=OLS()),
     PolynomialRegression(algorithm=OLS(),
                          degree=2),

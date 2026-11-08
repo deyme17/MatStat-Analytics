@@ -2,7 +2,7 @@ from typing import List, Dict, Any, Tuple, Optional
 import pandas as pd
 import numpy as np
 from utils.helpers import validate_feature_names
-from models.regression.interfaces import IRegression
+from models.regression.bases import BaseRegression
 
 
 class RegressionController:
@@ -10,12 +10,12 @@ class RegressionController:
     Main controller class for regression tasks.
     Provides a unified interface for various regression models.
     """
-    def __init__(self, regression_models: List[IRegression]):
-        self._models: Dict[str, IRegression] = {}
-        self._current_model: IRegression | None = None
+    def __init__(self, regression_models: List[BaseRegression]):
+        self._models: Dict[str, BaseRegression] = {}
+        self._current_model: BaseRegression | None = None
         self._register_models(regression_models)
 
-    def _register_models(self, regression_models: List[IRegression]):
+    def _register_models(self, regression_models: List[BaseRegression]):
         for regression in regression_models:
             self._models[regression.name] = regression
 

@@ -1,13 +1,13 @@
-from ..interfaces import IRegression, IOptimizationAlgorithm
+from ..bases import BaseRegression, BaseOptimization
 from typing import Dict, Any, Optional, List, Tuple
 from itertools import combinations_with_replacement
 from scipy import stats
 import numpy as np
 
-class PolynomialRegression(IRegression):
+class PolynomialRegression(BaseRegression):
     """Polynomial regression model"""
-    def __init__(self, algorithm: IOptimizationAlgorithm, degree: int = 2):
-        self.algorithm: IOptimizationAlgorithm = algorithm
+    def __init__(self, algorithm: BaseOptimization, degree: int = 2):
+        self.algorithm: BaseOptimization = algorithm
         self.degree: int = degree
 
         self.X_: np.ndarray | None = None

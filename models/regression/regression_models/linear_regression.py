@@ -1,12 +1,12 @@
-from ..interfaces import IRegression, IOptimizationAlgorithm
+from ..bases import BaseRegression, BaseOptimization
 from typing import Dict, Any, Optional, List, Tuple
 from scipy import stats
 import numpy as np
 
-class LinearRegression(IRegression):
+class LinearRegression(BaseRegression):
     """Linear regression model"""
-    def __init__(self, algorithm: IOptimizationAlgorithm):
-        self.algorithm: IOptimizationAlgorithm = algorithm
+    def __init__(self, algorithm: BaseOptimization):
+        self.algorithm: BaseOptimization = algorithm
 
         self.X_: np.ndarray | None = None
         self.y_: np.ndarray | None = None

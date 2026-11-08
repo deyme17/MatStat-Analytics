@@ -1,9 +1,9 @@
 import numpy as np
 from scipy import stats
-from ..interfaces import IOptimizationAlgorithm
+from ..bases import BaseOptimization
 from typing import Any, Dict
 
-class OLS(IOptimizationAlgorithm):
+class OLS(BaseOptimization):
     """
     Ordinary Least Squares (OLS) regression class.
     """
