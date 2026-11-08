@@ -8,6 +8,16 @@ class PCA:
     def __init__(self):
         self.clear_state()
 
+    def clear_state(self) -> None:
+        """Clear PCA model state."""
+        self.X_orig_: np.ndarray | None = None
+        self.eigenvalues_: np.ndarray | None = None
+        self.eigenvectors_: np.ndarray | None = None
+        self.components_: np.ndarray | None = None
+        self.evr_: np.ndarray | None = None
+        self.mean_: np.ndarray | None = None
+        self.fitted: bool = False
+
     @property
     def principal_components(self) -> np.ndarray | None:
         return self.components_
@@ -133,13 +143,3 @@ class PCA:
         else:
             explained_variance = np.sum(self.eigenvalues_)
             return explained_variance, evr
-    
-    def clear_state(self) -> None:
-        """Clear PCA model state."""
-        self.X_orig_: np.ndarray | None = None
-        self.eigenvalues_: np.ndarray | None = None
-        self.eigenvectors_: np.ndarray | None = None
-        self.components_: np.ndarray | None = None
-        self.evr_: np.ndarray | None = None
-        self.mean_: np.ndarray | None = None
-        self.fitted: bool = False
