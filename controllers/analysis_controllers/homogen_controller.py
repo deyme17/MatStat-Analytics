@@ -1,4 +1,3 @@
-from typing import Optional, List, Dict
 from models.homogens import BaseHomogenTest
 import pandas as pd
 
@@ -7,16 +6,20 @@ class HomogenController:
     """
     Controller for managing and executing homogeneity tests.
     """
-    def __init__(self, homogen_tests: List[BaseHomogenTest]):
-        self._tests: Dict[str, BaseHomogenTest] = {}
+    def __init__(self, homogen_tests: list[BaseHomogenTest]):
+        self._tests: dict[str, BaseHomogenTest] = {}
         self._register_tests(homogen_tests)
 
-    def _register_tests(self, homogen_tests: List[BaseHomogenTest]):
+    def _register_tests(self, homogen_tests: list[BaseHomogenTest]):
         """Register all available homogeneity tests."""
         for homogen_test in homogen_tests:
             self._tests[homogen_test.name()] = homogen_test
 
-    def run_test(self, test_name: str, samples: List[pd.Series|pd.DataFrame], alpha: float = 0.05, is_independent: bool = False) -> Optional[Dict]:
+    def run_test(self, 
+                 test_name: str, 
+                 samples: list[pd.Series|pd.DataFrame], 
+                 alpha: float = 0.05, 
+                 is_independent: bool = False) -> dict | None:
         """
         Run a homogeneity test for samples.
         Args:

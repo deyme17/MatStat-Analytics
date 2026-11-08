@@ -1,4 +1,3 @@
-from typing import Optional, Tuple, List
 from enum import Enum, auto
 import pandas as pd
 import numpy as np
@@ -25,14 +24,14 @@ class ComponentController:
         self.event_bus: EventBus = context.event_bus
         self.version_manager: DataVersionManager = context.version_manager
 
-        self._orig_full_df_: Optional[pd.DataFrame] = None  # original df
-        self.orig_X_df_: Optional[pd.DataFrame] = None      # original df of selected features
-        self._bystander_df_: Optional[pd.DataFrame] = None  # df of non-selected columns
+        self._orig_full_df_: pd.DataFrame | None = None  # original df
+        self.orig_X_df_: pd.DataFrame | None = None      # original df of selected features
+        self._bystander_df_: pd.DataFrame | None = None  # df of non-selected columns
 
-        self.pca_labels: Optional[List[str]] = None
+        self.pca_labels: list[str] | None = None
         self._state: PCAState = PCAState.IDLE
-        self._fitted_ds_name: Optional[str] = None
-        self._snapshot_ds_name: Optional[str] = None
+        self._fitted_ds_name: str | None = None
+        self._snapshot_ds_name: str | None = None
 
         self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_data_reverted)
 
@@ -62,8 +61,8 @@ class ComponentController:
                   X_df: pd.DataFrame,
                   full_df: pd.DataFrame,
                   fit: bool = True,
-                  n_components: Optional[int] = None,
-                  ev_threshold: Optional[float] = None) -> None:
+                  n_components: int | None = None,
+                  ev_threshold: float | None = None) -> None:
         """
         Transform selected features with PCA; preserve non-selected columns.\n
         Result column order: [non-selected columns..., PC_1, PC_2, ...]
@@ -162,18 +161,18 @@ class ComponentController:
         self._snapshot_ds_name = None
         self._emit()
 
-    def get_explained_variance(self) -> Tuple[float, List[float]]:
+    def get_explained_variance(self) -> tuple[float, list[float]]:
         """Return: (Explained Variance, Explained Variance ratio for each component)."""
         explained_variance, evr = self.pca.get_explained_variance()
         return explained_variance, evr.tolist()
 
-    def get_principal_components(self) -> Optional[np.ndarray]:
+    def get_principal_components(self) -> np.ndarray | None:
         return self.pca.principal_components
 
-    def get_eigenvalues(self) -> Optional[np.ndarray]:
+    def get_eigenvalues(self) -> np.ndarray | None:
         return self.pca.eigenvalues
 
-    def get_eigenvectors(self) -> Optional[np.ndarray]:
+    def get_eigenvectors(self) -> np.ndarray | None:
         return self.pca.eigenvectors
 
     def _emit(self) -> None:

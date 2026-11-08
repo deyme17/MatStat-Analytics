@@ -1,5 +1,4 @@
 import pandas as pd
-from typing import Optional, Dict, List
 from models.stat_distributions.base import BaseDistribution
 from models.gofs import BaseGOFTest
 
@@ -8,16 +7,16 @@ class GOFController:
     """
     Controller for managing and executing goodness-of-fit (GOF) tests.
     """
-    def __init__(self, gof_tests: List[BaseGOFTest]):
-        self._tests: Dict[str, BaseGOFTest] = {}
+    def __init__(self, gof_tests: list[BaseGOFTest]):
+        self._tests: dict[str, BaseGOFTest] = {}
         self._register_tests(gof_tests)
 
-    def _register_tests(self, gof_tests: List[BaseGOFTest]):
+    def _register_tests(self, gof_tests: list[BaseGOFTest]):
         """Register all available GOF tests."""
         for gof_test in gof_tests:
             self._tests[gof_test.name()] = gof_test
 
-    def run_test(self, test_name: str, data: pd.Series|pd.DataFrame, dist: BaseDistribution, alpha: float) -> Optional[Dict]:
+    def run_test(self, test_name: str, data: pd.Series|pd.DataFrame, dist: BaseDistribution, alpha: float) -> dict | None:
         """
         Run specific test by name and return result.
         Args:

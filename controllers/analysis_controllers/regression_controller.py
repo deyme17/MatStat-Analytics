@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Tuple, Optional
+from typing import Any
 import pandas as pd
 import numpy as np
 from utils.helpers import validate_feature_names
@@ -10,17 +10,17 @@ class RegressionController:
     Main controller class for regression tasks.
     Provides a unified interface for various regression models.
     """
-    def __init__(self, regression_models: List[BaseRegression]):
-        self._models: Dict[str, BaseRegression] = {}
+    def __init__(self, regression_models: list[BaseRegression]):
+        self._models: dict[str, BaseRegression] = {}
         self._current_model: BaseRegression | None = None
         self._register_models(regression_models)
 
-    def _register_models(self, regression_models: List[BaseRegression]):
+    def _register_models(self, regression_models: list[BaseRegression]):
         for regression in regression_models:
             self._models[regression.name] = regression
 
     @property
-    def regression_models(self) -> List[str]:
+    def regression_models(self) -> list[str]:
         return list(self._models.keys())
 
     @property
@@ -76,14 +76,14 @@ class RegressionController:
         preds = self._current_model.predict(X_df.to_numpy(dtype=float))
         return pd.Series(preds, name="prediction")
 
-    def summary(self) -> Dict[str, Any]:
+    def summary(self) -> dict[str, Any]:
         """Returns model's summary (coefficients, intercept, equation, metrics, etc.)"""
         if not self._current_model:
             return {}
         summary = self._current_model.summary()
         return summary
 
-    def confidence_intervals(self, alpha: float = 0.05) -> Dict[str, Any]:
+    def confidence_intervals(self, alpha: float = 0.05) -> dict[str, Any]:
         """
         Returns dictionary with t-stat, p-value and confidance intervals for coefficients.
         Returns: 
@@ -112,7 +112,7 @@ class RegressionController:
             'significant': p_values < alpha,
         }
     
-    def predict_intervals(self, X_df: pd.DataFrame, alpha: float = 0.05) -> Dict[str, Tuple[float, float]]:
+    def predict_intervals(self, X_df: pd.DataFrame, alpha: float = 0.05) -> dict[str, tuple[float, float]]:
         """
         Returns confidence and prediction intervals for X.
         Returns:
@@ -129,7 +129,7 @@ class RegressionController:
             for key, bounds in pred_intrv.items()
         }
     
-    def confidence_band(self, X_df: pd.DataFrame, alpha: float = 0.05) -> Tuple[np.ndarray, np.ndarray]:
+    def confidence_band(self, X_df: pd.DataFrame, alpha: float = 0.05) -> tuple[np.ndarray, np.ndarray]:
         """
         Returns CI_mean lower/upper bounds for each row in X_df.
         Used for drawing confidence band on regression plot.
@@ -147,13 +147,13 @@ class RegressionController:
             uppers.append(upper)
         return np.array(lowers), np.array(uppers)
 
-    def predict_tolerance(self, alpha: float = 0.05) -> Dict[str, Any]:
+    def predict_tolerance(self, alpha: float = 0.05) -> dict[str, Any]:
         """
         Computes variance estimation and its tolerance bounds.
         Args:
             alpha (float): Significance level (e.g., 0.05 for 95% interval).
         Returns:
-            Dict[str, Any]: {
+            dict[str, Any]: {
                 "var": (float) variance estimation.
                 'CI': (lower_bound, upper_bound) for the tolerance bounds.
             }
@@ -167,7 +167,7 @@ class RegressionController:
         
         return tolerance
     
-    def model_significance(self, alpha: float = 0.05) -> Dict[str, Any]:
+    def model_significance(self, alpha: float = 0.05) -> dict[str, Any]:
         """
         Returns dictionary with stat, p-value and conclusion of significance for model.
         Returns: 
@@ -186,7 +186,7 @@ class RegressionController:
         
         return model_sagn
     
-    def standardized_coefficients(self) -> Optional[Dict[str, Any]]:
+    def standardized_coefficients(self) -> dict[str, Any] | None:
         """
         Returns standardized (beta) coefficients for the current model.
         Returns None if model doesn't support standardization.

@@ -2,14 +2,17 @@ from services import DataSaver, DataExporter, DataVersionManager, UIMessager
 from models import SimulationEngine
 from models.stat_distributions.base import BaseDistribution
 from utils import AppContext, EventType, EventBus
-from typing import Optional, List, Tuple
 
 
 class SimulationController:
     """
     Main controller class for statistical simulation operations.
     """
-    def __init__(self, context: AppContext, simulation_engine: SimulationEngine, data_saver: DataSaver, data_exporter: DataExporter):
+    def __init__(self, 
+                 context: AppContext, 
+                 simulation_engine: SimulationEngine, 
+                 data_saver: DataSaver, 
+                 data_exporter: DataExporter):
         """
         Args:
             simulation_engine: Class for performing statistical simulations
@@ -24,7 +27,7 @@ class SimulationController:
         self.event_bus: EventBus = context.event_bus
         self.messanger: UIMessager = context.messanger
     
-    def run_experiment(self, dist: BaseDistribution, sizes: List[int], repeats: int, true_mean: float, alpha: float):
+    def run_experiment(self, dist: BaseDistribution, sizes: list[int], repeats: int, true_mean: float, alpha: float):
         """
         Run statistical experiment with optional data saving.
         Args:
@@ -45,7 +48,7 @@ class SimulationController:
             return []
         
     def generate_data(self, distribution: BaseDistribution, n_features: int,
-                      params_list: List[Tuple], coor_coeffs: Optional[List[List[float]]],
+                      params_list: list[tuple], coor_coeffs: list[list[float]] | None,
                       sample_size: int, export_data: bool = False) -> None:
         """
         Generate simulated data from statistical distribution with optional export.

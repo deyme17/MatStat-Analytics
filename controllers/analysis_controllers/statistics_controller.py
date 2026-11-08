@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from typing import Callable
 from services.ui_services.renderers.table_renderers.table_renderer import TableRenderer
 from models import StatisticsCalculator
 from models.data_model import DataModel
@@ -9,17 +9,15 @@ class StatisticsController:
     """
     Controller for managing the display of statistical characteristics in the UI.
     """
-    def __init__(
-        self,
-        context: AppContext,
-        stat_calculator: StatisticsCalculator,
-        stats_renderer: Optional[TableRenderer] = None,
-        var_renderer: Optional[TableRenderer] = None,
-        multi_renderer: Optional[TableRenderer] = None,
-        get_bins_value: Optional[Callable[[], int]] = None, 
-        get_precision_value: Optional[Callable[[], int]] = None,
-        get_confidence_value: Optional[Callable[[], float]] = None
-    ):
+    def __init__(self,
+                 context: AppContext,
+                 stat_calculator: StatisticsCalculator,
+                 stats_renderer: TableRenderer | None = None,
+                 var_renderer: TableRenderer | None = None,
+                 multi_renderer: TableRenderer | None = None,
+                 get_bins_value: Callable[[], int] | None = None, 
+                 get_precision_value: Callable[[], int] | None = None,
+                 get_confidence_value: Callable[[], float] | None = None):
         """
         Args:
             context: Shared application context (version_manager, event_bus, messager)
