@@ -56,11 +56,14 @@ class ComponentTab(QWidget):
         self._refresh_buttons()
 
     def _on_data_reverted(self, event: Event) -> None:
+        """Clears PCA results; call `_on_data_changed` and set data_model.pca_state to False."""
         self.pca_result_widget.clear()
         self._on_data_changed(event)
+        self.context.data_model.set_pca_space(False)
         self._set_status("Data reverted to original", ok=True)
 
     def _init_ui(self) -> None:
+        """Initializes unit interface of component tab."""
         main_layout = QVBoxLayout(self)
         
         scroll = QScrollArea()
@@ -118,6 +121,7 @@ class ComponentTab(QWidget):
         return box
 
     def _build_params_group(self) -> QGroupBox:
+        """Build parameter group for PCA configuring."""
         box = QGroupBox("Component Selection Mode")
         layout = QVBoxLayout()
 
@@ -167,6 +171,7 @@ class ComponentTab(QWidget):
         return box
 
     def _build_actions_group(self) -> QGroupBox:
+        """Build group of available actions."""
         box = QGroupBox("Actions")
         layout = QVBoxLayout()
 
@@ -194,6 +199,7 @@ class ComponentTab(QWidget):
         return box
 
     def _build_status_label(self) -> QLabel:
+        """Builds status label for something."""
         label = QLabel()
         label.setAlignment(Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
         label.setFixedHeight(30)
@@ -204,6 +210,7 @@ class ComponentTab(QWidget):
     
     # --- callbacks ---
     def _on_mode_toggled(self) -> None:
+        """Toggle n_spinbox and ev_spinbox on/of."""
         n_mode = self.radio_n.isChecked()
         self.n_spinbox.setEnabled(n_mode)
         self.ev_spinbox.setEnabled(not n_mode)
@@ -217,6 +224,10 @@ class ComponentTab(QWidget):
             self.n_spinbox.setMaximum(count)
 
     def _on_fit(self) -> None:
+        """
+        Fit Principal Component Analysis model with selected columns.
+        Call `pca_result_widget.create_results` and set fit status.
+        """
         data = self._get_data()
         if data is None: return
         df, selected_cols = data
@@ -231,10 +242,16 @@ class ComponentTab(QWidget):
             self.messenger.show_error("Fit failed", str(e))
 
     def _on_transform(self) -> None:
+        """
+        Transform data using fitted PCA model (if not fitted, apply fit_transform).
+        Call `pca_result_widget.create_results()`. Set DataModel.pca_space to True and update UI.
+        """
         data = self._get_data()
-        if data is None: return
+        if data is None: 
+            return
         df, selected_cols = data
-        if df is None: return
+        if df is None: 
+            return
 
         n_components, ev_threshold = self._get_params()
         state = self.controller.current_state
@@ -243,6 +260,7 @@ class ComponentTab(QWidget):
                       self.controller.fitted_ds_name != current_dataset)
         try:
             self.controller.transform(df[selected_cols], df, fit_needed, n_components, ev_threshold)
+            self.context.data_model.set_pca_space(True)
             self.pca_result_widget.create_results()
             self._refresh_buttons()
             self._set_status(
@@ -252,6 +270,7 @@ class ComponentTab(QWidget):
             self.messenger.show_error("Transform failed", str(e))
 
     def _on_scree_plot(self) -> None:
+        """Open dialog wimdow with plotted Scree Plot."""
         try:
             _, evr = self.controller.get_explained_variance()
             dialog = ScreeEVRPlot(evr, parent=self)
@@ -260,19 +279,23 @@ class ComponentTab(QWidget):
             self.messenger.show_error("Scree plot failed", str(e))
 
     def _on_inverse_transform(self) -> None:
+        """Apply inverse transform to data, set DataModel.pca_space to Fasle and update UI."""
         df = self.context.data_model.dataframe
         if df is None:
             return
         try:
             self.controller.inverse_transform(df)
+            self.context.data_model.set_pca_space(False)
             self._refresh_buttons()
             self._set_status("Data inverse-transformed", ok=True)
         except Exception as e:
             self.messenger.show_error("Inverse transform failed", str(e))
 
     def _on_to_original(self) -> None:
+        """Revert data to original, set DataModel.pca_space to Fasle and update UI."""
         try:
             self.controller.to_original()
+            self.context.data_model.set_pca_space(False)
             self.pca_result_widget.refresh()
             self._refresh_buttons()
             self._set_status("Restored original data", ok=True)
@@ -292,7 +315,7 @@ class ComponentTab(QWidget):
         self.feature_list.blockSignals(True)
         self.feature_list.clear()
 
-        is_pca_space = bool(columns) and all(c.startswith("PC_") for c in columns)
+        is_pca_space = self.context.data_model.pca_space
         if not is_pca_space:
             for col in columns:
                 self.feature_list.addItem(col)
@@ -310,6 +333,7 @@ class ComponentTab(QWidget):
         return [item.text() for item in self.feature_list.selectedItems()]
 
     def _select_all_features(self) -> None:
+        """Select all items in feature_list."""
         self.feature_list.selectAll()
 
     def _get_data(self) -> tuple[pd.DataFrame, list[str]] | None:
@@ -344,7 +368,8 @@ class ComponentTab(QWidget):
             self.messenger.show_error("Data Read Error", str(e))
             return None
 
-    def _get_params(self):
+    def _get_params(self) -> tuple[int | None, None | float]:
+        """Return n_spinbox and ev_spinbox values (One of which is None based on radio button)."""
         if self.radio_n.isChecked():
             return self.n_spinbox.value(), None
         return None, self.ev_spinbox.value()
@@ -364,6 +389,7 @@ class ComponentTab(QWidget):
                                     state != PCAState.INVERSE_TRANSFORMED)
 
     def _set_status(self, msg: str, ok: bool = True) -> None:
+        """Set status label to `msg` in color based on `ok`."""
         color = "#e8f5e9" if ok else "#ffebee"
         border = "#a5d6a7" if ok else "#ef9a9a"
         self.status_label.setStyleSheet(
