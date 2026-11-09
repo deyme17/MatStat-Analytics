@@ -65,6 +65,10 @@ class PFM:
         return (self.loadings_**2).sum(axis=0) if self.loadings_ is not None else None
 
     @property
+    def total_variance_(self) -> float | None:
+        return float(self.factor_var_contributions_.sum()) if self.loadings_ is not None else None
+
+    @property
     def fitted(self) -> bool:
         return (self.fitting_result != PFMFittingResult.NOT_FITTED and 
                 self.loadings_ is not None)
