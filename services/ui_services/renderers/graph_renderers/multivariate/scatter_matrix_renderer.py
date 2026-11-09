@@ -3,7 +3,7 @@ import pandas as pd
 from pandas.plotting import scatter_matrix
 import matplotlib.pyplot as plt
 from utils.helpers import get_default_bin_count
-from services.ui_services.renderers.graph_renderers.graph_renderer import Renderer
+from services.ui_services.renderers.graph_renderers.base import Renderer
 
 
 class ScatterMatrixRenderer(Renderer):

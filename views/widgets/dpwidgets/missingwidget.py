@@ -1,4 +1,4 @@
-from .base_dp_widget import BaseDataWidget
+from .base import BaseDataWidget
 from PyQt6.QtWidgets import QLabel
 from controllers import MissingDataController
 from utils import EventBus, EventType, Event

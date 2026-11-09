@@ -1,5 +1,5 @@
 from typing import Callable
-from services.ui_services.renderers.table_renderers.table_renderer import TableRenderer
+from services.ui_services.renderers.table_renderers.base import BaseTableRenderer
 from models import StatisticsCalculator
 from models.data_model import DataModel
 from utils import EventBus, EventType, Event, AppContext
@@ -12,9 +12,9 @@ class StatisticsController:
     def __init__(self,
                  context: AppContext,
                  stat_calculator: StatisticsCalculator,
-                 stats_renderer: TableRenderer | None = None,
-                 var_renderer: TableRenderer | None = None,
-                 multi_renderer: TableRenderer | None = None,
+                 stats_renderer: BaseTableRenderer | None = None,
+                 var_renderer: BaseTableRenderer | None = None,
+                 multi_renderer: BaseTableRenderer | None = None,
                  get_bins_value: Callable[[], int] | None = None, 
                  get_precision_value: Callable[[], int] | None = None,
                  get_confidence_value: Callable[[], float] | None = None):
@@ -32,9 +32,9 @@ class StatisticsController:
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
         self.stat_calculator: StatisticsCalculator = stat_calculator
-        self.stats_renderer: TableRenderer = stats_renderer
-        self.var_renderer: TableRenderer = var_renderer
-        self.multi_renderer: TableRenderer = multi_renderer
+        self.stats_renderer: BaseTableRenderer = stats_renderer
+        self.var_renderer: BaseTableRenderer = var_renderer
+        self.multi_renderer: BaseTableRenderer = multi_renderer
         self.get_bins_value = get_bins_value             
         self.get_precision_value = get_precision_value        
         self.get_confidence_value = get_confidence_value
@@ -123,9 +123,9 @@ class StatisticsController:
 
     def connect_ui(
         self,
-        stats_renderer: TableRenderer,
-        var_renderer: TableRenderer,
-        multi_renderer: TableRenderer,
+        stats_renderer: BaseTableRenderer,
+        var_renderer: BaseTableRenderer,
+        multi_renderer: BaseTableRenderer,
         get_bins_value: Callable[[], int], 
         get_precision_value: Callable[[], int],
         get_confidence_value: Callable[[], float]

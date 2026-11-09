@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from typing import Callable
 import matplotlib.pyplot as plt
-from services.ui_services.renderers.graph_renderers.graph_renderer import Renderer
+from services.ui_services.renderers.graph_renderers.base import Renderer
 from models.correlation_coeffs._significance_test_result import SignificanceTestResult
 
 

@@ -1,4 +1,4 @@
-from .base_dp_widget import BaseDataWidget
+from .base import BaseDataWidget
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QDoubleSpinBox
 from controllers import AnomalyController
 from utils import EventBus, EventType

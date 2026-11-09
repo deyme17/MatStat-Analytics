@@ -1,8 +1,8 @@
 from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem
-from .table_renderer import TableRenderer
+from .base import BaseTableRenderer
 
 
-class StatsRenderer(TableRenderer):
+class StatsRenderer(BaseTableRenderer):
     """Handles rendering of statistical data into a QTableWidget with consistent formatting."""
 
     CI_MAPPING = {

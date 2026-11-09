@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QLabel
 import pandas as pd
-from views.widgets.distributionwidgets.gof_panels.gof_test_panel import BaseTestPanel
+from views.widgets.distributionwidgets.gof_panels.base import BaseTestPanel
 from models.stat_distributions.base import BaseDistribution
 
 

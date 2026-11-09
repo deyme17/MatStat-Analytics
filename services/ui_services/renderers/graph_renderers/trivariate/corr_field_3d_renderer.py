@@ -1,6 +1,6 @@
 import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
-from services.ui_services.renderers.graph_renderers.graph_renderer import Renderer
+from services.ui_services.renderers.graph_renderers.base import Renderer
 
 
 class CorrField3dRenderer(Renderer):

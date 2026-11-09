@@ -1,8 +1,8 @@
 from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem
-from .table_renderer import TableRenderer
+from .base import BaseTableRenderer
 
 
-class VarSerRenderer(TableRenderer):
+class VarSerRenderer(BaseTableRenderer):
     """Handles rendering of variation series data into a QTableWidget with consistent formatting."""
 
     def __init__(self, table: QTableWidget):

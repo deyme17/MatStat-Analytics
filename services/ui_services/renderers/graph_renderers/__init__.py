@@ -17,7 +17,7 @@ from .trivariate.regression_plot_renderer import RegressionPlot
 from .bivariate.resfitted_plot_renderer import ResidualsFittedPlot
 from .univariate.scree_evr_plot import ScreeEVRPlot
 
-from .graph_renderer import Renderer
+from .base import Renderer
 
 RENDERERS: dict[str, type[Renderer]] = {
     'histogram': HistRenderer,

@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QTableWidget
 from abc import ABC, abstractmethod
 
 
-class TableRenderer(ABC):
+class BaseTableRenderer(ABC):
     def __init__(self, table: QTableWidget):
         self._table = table
 

@@ -1,8 +1,8 @@
 from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem
-from .table_renderer import TableRenderer
+from .base import BaseTableRenderer
 
 
-class MultiVarRenderer(TableRenderer):
+class MultiVarRenderer(BaseTableRenderer):
     """Renders statistical data into a QTableWidget where columns are variables and rows are statistics."""
     def __init__(self, table: QTableWidget):
         super().__init__(table)

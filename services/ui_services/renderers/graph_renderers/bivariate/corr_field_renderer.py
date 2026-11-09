@@ -1,4 +1,4 @@
-from services.ui_services.renderers.graph_renderers.graph_renderer import Renderer
+from services.ui_services.renderers.graph_renderers.base import Renderer
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np

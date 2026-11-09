@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QTableWidget, QHeaderView
 )
-from services.ui_services.renderers.table_renderers.table_renderer import TableRenderer
+from services.ui_services.renderers.table_renderers.base import BaseTableRenderer
 
 
 
@@ -10,9 +10,9 @@ class StatisticsTab(QWidget):
     A QWidget tab displaying a table of confidence intervals
     for statistical summaries and variation series.
     """
-    def __init__(self, stat_renderer_cls: type[TableRenderer], 
-                       var_renderer_cls: type[TableRenderer],
-                       multi_renderer_cls: type[TableRenderer],    
+    def __init__(self, stat_renderer_cls: type[BaseTableRenderer], 
+                       var_renderer_cls: type[BaseTableRenderer],
+                       multi_renderer_cls: type[BaseTableRenderer],    
                        parent=None):
         """
         Args:

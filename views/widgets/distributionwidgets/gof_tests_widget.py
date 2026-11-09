@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QDoubleSpinBox, QHBoxLayout, QPushButton
 from models.stat_distributions import BaseDistribution
 from models import DataModel
-from .gof_panels.gof_test_panel import BaseTestPanel
+from .gof_panels.base import BaseTestPanel
 from typing import Callable
 from controllers import GOFController
 from utils import EventBus, EventType, Event, AppContext

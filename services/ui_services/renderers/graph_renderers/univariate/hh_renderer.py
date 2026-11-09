@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from services.ui_services.renderers.graph_renderers.graph_renderer import Renderer
+from services.ui_services.renderers.graph_renderers.base import Renderer
 from models.stat_distributions import BaseDistribution
 
 
