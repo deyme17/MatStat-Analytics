@@ -75,3 +75,11 @@ def support_multivariate(method):
                     )
         return method(self, samples, alpha, is_independent, *args, **kwargs)
     return wrapper
+
+
+def validate_fitted(method):
+    def wrapper(self, *args, **kwargs):
+        if not self.pfm.fitted:
+            raise RuntimeError("Model is not fitted.")
+        return method(self, *args, **kwargs)
+    return wrapper
