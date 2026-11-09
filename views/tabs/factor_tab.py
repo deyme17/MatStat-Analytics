@@ -58,7 +58,7 @@ class FactorTab(QWidget):
             )
 
     def _init_ui(self) -> None:
-        """Initializes unit interface if factor tab."""
+        """Initializes unit interface of factor tab."""
         main_layout = QVBoxLayout(self)
         
         scroll = QScrollArea()
