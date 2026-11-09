@@ -8,5 +8,6 @@ from .gofs import *
 from .correlation_coeffs import *
 from .regression import *
 from .component_analysis import *
+from .factor_analysis import *
 from .homogens import *
 from .simulation import *

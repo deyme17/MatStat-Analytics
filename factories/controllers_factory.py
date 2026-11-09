@@ -9,18 +9,18 @@ from services import (
 
 # Models
 from models import (
-    stat_distributions, estimation_methods, gof_tests, 
-    homogen_tests, regression_models, corr_coeffs, 
+    stat_distributions, estimation_methods, communality_estimators,
+    gof_tests, homogen_tests, regression_models, corr_coeffs, 
     StatisticsCalculator, MultipleCorrelation, PartialCorrelation,
     TransformationProcessor, AnomalyProcessor, MissingProcessor,
-    SimulationEngine, PCA,
+    SimulationEngine, PCA, PFM
 )
 
 # Controllers
 from controllers import (
     AnomalyController, MissingDataController, DataTransformController, StatisticsController, 
     EstimationController, GOFController, HomogenController, SimulationController,
-    CorrelationController, RegressionController, ComponentController,
+    CorrelationController, RegressionController, ComponentController, FactorController,
     DataLoadController, DatasetController, DistributionRegister,
 )
 
@@ -41,6 +41,7 @@ class Controllers:
     regression: RegressionController
     dist_register: DistributionRegister
     component: ComponentController
+    factor: FactorController
 
 
 
@@ -91,4 +92,5 @@ class ControllersFactory:
             regression=RegressionController(regression_models),
             dist_register=DistributionRegister(stat_distributions),
             component=ComponentController(context=self.context, pca=PCA()),
+            factor=FactorController(pfm=PFM(h2_estimators=communality_estimators))
         )
