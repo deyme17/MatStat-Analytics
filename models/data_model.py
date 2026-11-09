@@ -57,7 +57,7 @@ class DataModel:
         self.current_col_idx: int = current_col_idx
         self.bins: int = bins
         self.anomalies_removed: bool = False
-        self.pca_state: bool = False
+        self.pca_space: bool = False
 
         self._cache: dict = {}
         self._recompute_cache()
@@ -75,9 +75,9 @@ class DataModel:
     def series(self) -> pd.Series:
         return self._df.iloc[:, self.current_col_idx]
 
-    def set_pca_state(self, is_pca: bool) -> None:
-        """Sets datamodels `pca_state` to `is_pca`"""
-        self.pca_state = is_pca
+    def set_pca_space(self, is_pca: bool) -> None:
+        """Sets datamodels `pca_space` to `is_pca`"""
+        self.pca_space = is_pca
 
     def select_column(self, idx: int) -> None:
         """Select a different column by index as current series."""
