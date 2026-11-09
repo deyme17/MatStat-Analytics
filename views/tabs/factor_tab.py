@@ -11,7 +11,7 @@ from PyQt6.QtCore import Qt
 from services import UIMessager
 from utils import AppContext, EventBus, Event, EventType
 from controllers import FactorController
-from views.widgets import PFMResultWidget
+from views.widgets.factorwidgets import PFMResultWidget
 from utils.ui_styles import groupMargin, groupStyle
 from utils.helpers import create_section_header
 
@@ -278,7 +278,7 @@ class FactorTab(QWidget):
     def _is_pca_space(self) -> bool:
         """True if the current dataset holds PCA scores."""
         data_model = self.context.data_model
-        return data_model.pca_state
+        return data_model.pca_space
 
     def _get_selected_features(self) -> list[str]:
         """Return list of currently selected feature names."""
