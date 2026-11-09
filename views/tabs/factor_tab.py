@@ -352,7 +352,7 @@ class FactorTab(QWidget):
         )
 
     def _set_status(self, msg: str, ok: bool = True) -> None:
-        """Set status label to `msg` in color based `ok`."""
+        """Set status label to `msg` in color based on `ok`."""
         color = "#e8f5e9" if ok else "#ffebee"
         border = "#a5d6a7" if ok else "#ef9a9a"
         self.status_label.setStyleSheet(
