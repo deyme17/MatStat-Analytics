@@ -4,5 +4,6 @@ from .gof_controller import GOFController
 from .correlation_controller import CorrelationController
 from .regression_controller import RegressionController
 from .component_controller import ComponentController
+from .factor_controller import FactorController
 from .homogen_controller import HomogenController
 from .simulation_controller import SimulationController
