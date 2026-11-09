@@ -57,14 +57,14 @@ class UIFactory:
         To add a tab: write a _build_xxx_tab method and add one line.
         """
         return [
-            TabSpec("data_tab",  "Data Processing",      self._build_data_tab),
-            TabSpec("stat_tab",  "Statistics",           self._build_stat_tab),
-            TabSpec("dist_tab",  "Distribution Fitting", self._build_dist_tab),
-            TabSpec("corr_tab",  "Correlation",          self._build_corr_tab),
-            TabSpec("regr_tab",  "Regression",           self._build_regr_tab),
-            TabSpec("comp_tab",  "Component Analysis",   self._build_comp_tab),
-            TabSpec("homo_tab",  "Homogeneity Tests",    self._build_homo_tab),
-            TabSpec("sim_tab",   "Simulation",           self._build_sim_tab),
+            TabSpec("data_tab",  "Data Processing",     self._build_data_tab),
+            TabSpec("stat_tab",  "Statistics",          self._build_stat_tab),
+            TabSpec("dist_tab",  "Distribution",        self._build_dist_tab),
+            TabSpec("corr_tab",  "Correlation",         self._build_corr_tab),
+            TabSpec("regr_tab",  "Regression",          self._build_regr_tab),
+            TabSpec("comp_tab",  "Component-Factor",    self._build_comp_tab),
+            TabSpec("homo_tab",  "Homogeneity Tests",   self._build_homo_tab),
+            TabSpec("sim_tab",   "Simulation",          self._build_sim_tab),
         ]
 
     def _setup_left_tabs(self) -> None:
