@@ -2,8 +2,8 @@ from .statistics_controller import StatisticsController
 from .estimation_controller import EstimationController
 from .gof_controller import GOFController
 from .correlation_controller import CorrelationController
-from .regression_controller import RegressionController
+from .homogen_controller import HomogenController
 from .component_controller import ComponentController
 from .factor_controller import FactorController
-from .homogen_controller import HomogenController
+from .regression_controller import RegressionController
 from .simulation_controller import SimulationController

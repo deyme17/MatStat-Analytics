@@ -24,7 +24,7 @@ FEATURE_LIST_WIDTH = 310
 
 
 
-class ComponentAnalysisTab(QWidget):
+class ComponentTab(QWidget):
     """Component analysis tab that implements Principal Component Analysis."""
     def __init__(self, context: AppContext, 
                  component_controller: ComponentController,

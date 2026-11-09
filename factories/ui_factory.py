@@ -14,14 +14,15 @@ from services import (
 from PyQt6.QtWidgets import QTabWidget, QWidget
 from views import (
     # tabs
-    DataProcessingTab, DistributionTab, SimulationTab, StatisticsTab, HomogenTab, CorrelationTab, RegressionTab,
+    DataProcessingTab, StatisticsTab, DistributionTab, HomogenTab,
+    CorrelationTab, ComponentTab, FactorTab, RegressionTab, SimulationTab,
     # widgets
-    WindowWidgets,
-    AnomalyWidget, MissingWidget, TransformDataWidget, PCAResultWidget, RegrSummaryWidget, RegrPredictionWidget,
+    WindowWidgets, AnomalyWidget, MissingWidget, TransformDataWidget,
+    PCAResultWidget, PFMResultWidget, RegrSummaryWidget, RegrPredictionWidget,
     ParamEstimationWidget, GOFTestWidget, KolmogorovSmirnovPanel, PearsonChi2Panel, Pearson2DNormalPanel, 
-    GenerationWidget, ExperimentWidget, CorrelationTestWidget, PartialCorrWidget, MultiCorrWidget, ComponentAnalysisTab,
-    NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel, SignsCriterionPanel, 
-    AbbePanel, ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel, MultiNormalPanel,
+    GenerationWidget, ExperimentWidget, CorrelationTestWidget, PartialCorrWidget, MultiCorrWidget,
+    NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel, 
+    AbbePanel, ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel, MultiNormalPanel, SignsCriterionPanel,
     GraphPanel, DistributionSelector,
 )
 from views.tabs.graph_tabs import (
@@ -57,14 +58,15 @@ class UIFactory:
         To add a tab: write a _build_xxx_tab method and add one line.
         """
         return [
-            TabSpec("data_tab",  "Data Processing",     self._build_data_tab),
-            TabSpec("stat_tab",  "Statistics",          self._build_stat_tab),
-            TabSpec("dist_tab",  "Distribution",        self._build_dist_tab),
-            TabSpec("corr_tab",  "Correlation",         self._build_corr_tab),
-            TabSpec("regr_tab",  "Regression",          self._build_regr_tab),
-            TabSpec("comp_tab",  "Component-Factor",    self._build_comp_tab),
-            TabSpec("homo_tab",  "Homogeneity Tests",   self._build_homo_tab),
-            TabSpec("sim_tab",   "Simulation",          self._build_sim_tab),
+            TabSpec("data_tab",  "Data Processing", self._build_data_tab),
+            TabSpec("stat_tab",  "Statistics",      self._build_stat_tab),
+            TabSpec("dist_tab",  "Distribution",    self._build_dist_tab),
+            TabSpec("corr_tab",  "Correlation",     self._build_corr_tab),
+            TabSpec("homo_tab",  "Homogeneity",     self._build_homo_tab),
+            TabSpec("comp_tab",  "Component",       self._build_comp_tab),
+            TabSpec("fact_tab",  "Factor",          self._build_fact_tab),
+            TabSpec("regr_tab",  "Regression",      self._build_regr_tab),
+            TabSpec("sim_tab",   "Simulation",      self._build_sim_tab),
         ]
 
     def _setup_left_tabs(self) -> None:
@@ -138,21 +140,6 @@ class UIFactory:
             multi_corr_widget=MultiCorrWidget,
         )
 
-    def _build_regr_tab(self) -> RegressionTab:
-        return RegressionTab(
-            context=self.context,
-            regr_controller=self.controllers.regression,
-            summary_widget=RegrSummaryWidget,
-            prediction_widget=RegrPredictionWidget,
-        )
-
-    def _build_comp_tab(self) -> ComponentAnalysisTab:
-        return ComponentAnalysisTab(
-            context=self.context,
-            component_controller=self.controllers.component,
-            pca_result_widget=PCAResultWidget,
-        )
-
     def _build_homo_tab(self) -> HomogenTab:
         return HomogenTab(
             homogen_controller=self.controllers.homogen,
@@ -165,6 +152,28 @@ class UIFactory:
                 ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel, MultiNormalPanel,
             ],
             hamogen_1sample_panels=[AbbePanel],
+        )
+    
+    def _build_comp_tab(self) -> ComponentTab:
+        return ComponentTab(
+            context=self.context,
+            component_controller=self.controllers.component,
+            pca_result_widget=PCAResultWidget,
+        )
+
+    def _build_fact_tab(self) -> FactorTab:
+        return FactorTab(
+            context=self.context,
+            factor_controller=self.controllers.factor,
+            pfm_result_widget=PFMResultWidget
+        )
+
+    def _build_regr_tab(self) -> RegressionTab:
+        return RegressionTab(
+            context=self.context,
+            regr_controller=self.controllers.regression,
+            summary_widget=RegrSummaryWidget,
+            prediction_widget=RegrPredictionWidget,
         )
 
     def _build_sim_tab(self) -> SimulationTab:
