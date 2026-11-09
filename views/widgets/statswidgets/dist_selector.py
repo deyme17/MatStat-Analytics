@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QGroupBox, QGridLayout, QRadioButton, QButtonGroup
-from typing import Callable, Optional
+from typing import Callable
 from utils.ui_styles import groupStyle, groupMargin
 from models.stat_distributions.base import BaseDistribution
 from controllers import DistributionRegister
@@ -21,7 +21,7 @@ class DistributionSelector(QGroupBox):
         """
         super().__init__("Statistical Distributions")
         self.dist_register: DistributionRegister = dist_register
-        self._on_change: Optional[Callable[[], None]] = None
+        self._on_change: Callable[[], None] | None = None
         self._setup_ui()
 
     def _setup_ui(self) -> None:
@@ -53,7 +53,7 @@ class DistributionSelector(QGroupBox):
             layout.addWidget(btn, (index + 1) // DIST_IN_ROW, (index + 1) % DIST_IN_ROW)
             btn.toggled.connect(self._handle_change)
 
-    def get_selected_distribution(self) -> Optional[BaseDistribution]:
+    def get_selected_distribution(self) -> BaseDistribution | None:
         """
         Get an instance of the currently selected distribution.
         Returns:

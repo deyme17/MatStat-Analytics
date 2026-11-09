@@ -4,7 +4,6 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt
 import pandas as pd
 import re
-from typing import List
 
 
 def get_default_bin_count(df: pd.DataFrame) -> int:
@@ -18,7 +17,7 @@ def get_default_bin_count(df: pd.DataFrame) -> int:
     return max(bins, 1)
 
 
-def validate_feature_names(feature_names: List[str]) -> bool:
+def validate_feature_names(feature_names: list[str]) -> bool:
     """Validate that feature names"""
     try:
         if not feature_names:

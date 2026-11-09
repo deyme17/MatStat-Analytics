@@ -1,25 +1,24 @@
 from abc import ABC, abstractmethod
-from typing import Optional
 import pandas as pd
 
 
 class FileLoader(ABC):
     """Abstract base class for file loaders."""
     @abstractmethod
-    def load(self, path: str, header: Optional[int] = None) -> pd.DataFrame:
+    def load(self, path: str, header: int | None = None) -> pd.DataFrame:
         """Load data from file and return DataFrame."""
         pass
 
 
 class ExcelLoader(FileLoader):
     """Loader for Excel files (.xlsx, .xls)."""
-    def load(self, path: str, header: Optional[int] = None) -> pd.DataFrame:
+    def load(self, path: str, header: int | None = None) -> pd.DataFrame:
         return pd.read_excel(path, header=header)
 
 
 class CSVLoader(FileLoader):
     """Loader for CSV files."""
-    def load(self, path: str, header: Optional[int] = None) -> pd.DataFrame:
+    def load(self, path: str, header: int | None = None) -> pd.DataFrame:
         for sep in [',', ';', '\t']:
             try:
                 return pd.read_csv(path, sep=sep, header=header)
@@ -30,7 +29,7 @@ class CSVLoader(FileLoader):
 
 class TextLoader(FileLoader):
     """Loader for text files with custom parsing logic."""
-    def load(self, path: str, header: Optional[int] = None) -> pd.DataFrame:
+    def load(self, path: str, header: int | None = None) -> pd.DataFrame:
         try:
             df = pd.read_csv(path, header=header, sep=r'\s+', engine='python')
             if df.apply(lambda x: pd.to_numeric(x, errors='coerce').notna()).all().all():

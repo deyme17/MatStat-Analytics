@@ -2,7 +2,6 @@ from .base import BaseCorrelationCoefficient
 from models.correlation_coeffs._significance_test_result import SignificanceTestResult
 from scipy import stats
 import numpy as np
-from typing import Tuple
 
 class KendallCorrelation(BaseCorrelationCoefficient):
     """
@@ -53,7 +52,7 @@ class KendallCorrelation(BaseCorrelationCoefficient):
         se = np.sqrt(var)
         return var, se
 
-    def _interval(self, alpha: float = 0.05) -> Tuple[float, float]:
+    def _interval(self, alpha: float = 0.05) -> tuple[float, float]:
         """
         Compute the confidence interval using the asymptotic normal approximation.
         """

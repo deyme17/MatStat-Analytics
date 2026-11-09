@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import stats
 from ..bases import BaseOptimization
-from typing import Any, Dict
+from typing import Any
 
 class OLS(BaseOptimization):
     """
@@ -73,7 +73,7 @@ class OLS(BaseOptimization):
         if not self.fitted: raise RuntimeError("Model not fitted yet")
         return {"coef": self.coef_, "intercept": self.intercept_}
 
-    def compute_confidence_intervals(self, X: np.ndarray, residuals: np.ndarray, alpha: float = 0.05) -> Dict[str, Any]:
+    def compute_confidence_intervals(self, X: np.ndarray, residuals: np.ndarray, alpha: float = 0.05) -> dict[str, Any]:
         """
         Returns dictionary with t-stat, p-value and confidance intervals for coefficients.
         Returns: 
@@ -100,7 +100,7 @@ class OLS(BaseOptimization):
             'CI': np.column_stack([self._all_params_, self._std_err_, ci_lower, ci_upper])
         }
     
-    def compute_prediction_standard_errors(self, X_new: np.ndarray, X: np.ndarray, residuals: np.ndarray) -> Dict[str, np.ndarray]:
+    def compute_prediction_standard_errors(self, X_new: np.ndarray, X: np.ndarray, residuals: np.ndarray) -> dict[str, np.ndarray]:
         """
         Compute standard errors for prediction at X_new.
         Args:
@@ -108,7 +108,7 @@ class OLS(BaseOptimization):
             X (np.ndarray): Training feature matrix.
             residuals (np.ndarray): Residuals from the training data.
         Returns:
-            Dict[str, np.ndarray]: {
+            dict[str, np.ndarray]: {
                 'SE_mean': np.ndarray (Std error for the mean response (Confidence Interval))
                 'SE_ind': np.ndarray (Std error for the individual prediction (Prediction Interval))
             }
@@ -139,7 +139,7 @@ class OLS(BaseOptimization):
             'SE_ind': SE_ind,
         }
     
-    def compute_model_significance(self, X: np.ndarray, y: np.ndarray, alpha: float = 0.05) -> Dict[str, Any]:
+    def compute_model_significance(self, X: np.ndarray, y: np.ndarray, alpha: float = 0.05) -> dict[str, Any]:
         """
         Returns dictionary with F-stat, p-value and conclusion of significance for model.
         Returns: 

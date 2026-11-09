@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List, Any
+from typing import Callable, Any
 from enum import Enum, auto
 
 
@@ -35,7 +35,7 @@ class Event:
 
 class EventBus:
     def __init__(self):
-        self._subscribers: Dict[EventType, List[Callable]] = {}
+        self._subscribers: dict[EventType, list[Callable]] = {}
     
     def subscribe(self, event_type: EventType, callback: Callable[[Event], None]) -> None:
         """Subscribe on the event"""

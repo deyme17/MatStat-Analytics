@@ -1,7 +1,7 @@
 import seaborn as sns
 import numpy as np
 import pandas as pd
-from typing import Callable, Optional
+from typing import Callable
 import matplotlib.pyplot as plt
 from services.ui_services.renderers.graph_renderers.graph_renderer import Renderer
 from models.correlation_coeffs._significance_test_result import SignificanceTestResult
@@ -14,7 +14,7 @@ class CorrMatrixRenderer(Renderer):
     @staticmethod
     def render(ax: plt.Axes, data: pd.DataFrame, corr_callable: Callable[[str, pd.Series, pd.Series], float], 
                corr_name: str, annot: bool = True, cmap: str = "Blues", 
-               significance_callable: Optional[Callable[[str, pd.Series, pd.Series, float], SignificanceTestResult]] = None, 
+               significance_callable: Callable[[str, pd.Series, pd.Series, float], SignificanceTestResult] | None = None, 
                alpha: float = 0.05,):
         """
         Render correlation matrix on the given Matplotlib axis.

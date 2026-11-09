@@ -1,4 +1,3 @@
-from typing import Optional, List, Tuple
 import pandas as pd
 
 from PyQt6.QtWidgets import (
@@ -313,7 +312,7 @@ class ComponentAnalysisTab(QWidget):
     def _select_all_features(self) -> None:
         self.feature_list.selectAll()
 
-    def _get_data(self) -> Optional[Tuple[pd.DataFrame, List[str]]]:
+    def _get_data(self) -> tuple[pd.DataFrame, list[str]] | None:
         """Return a DataFrame and user-selected features."""
         try:
             df = self.context.data_model.dataframe

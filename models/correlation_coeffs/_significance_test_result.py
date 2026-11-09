@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional, Tuple, Dict
 
 @dataclass
 class SignificanceTestResult:
@@ -10,9 +9,9 @@ class SignificanceTestResult:
     is_significant: bool
     alpha: float
     test_name: str
-    critical_value: Optional[float] = None
-    CI: Optional[Tuple[float, float]] = None
-    extra: Optional[Dict[str, str|float]] = None
+    critical_value: float | None = None
+    CI: tuple[float, float] | None = None
+    extra: dict[str, str|float] | None = None
     
     def __str__(self) -> str:
         sig = "SIGNIFICANT" if self.is_significant else "NOT SIGNIFICANT"

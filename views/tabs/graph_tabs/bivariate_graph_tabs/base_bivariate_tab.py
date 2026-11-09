@@ -1,6 +1,5 @@
 from PyQt6.QtWidgets import QComboBox, QLabel, QHBoxLayout, QWidget
 from ..graph_tab import BaseGraphTab
-from typing import Tuple, Optional, List
 from utils import AppContext, EventBus, EventType, Event
 
 CONTROLS_HEIGHT = 25
@@ -52,7 +51,7 @@ class Base2VarGraphTab(BaseGraphTab):
         main_layout = self.layout()
         main_layout.addWidget(self.selector_widget)
     
-    def update_column_list(self, columns: List[str] = None) -> None:
+    def update_column_list(self, columns: list[str] = None) -> None:
         """Update available columns in selector from data model or provided list"""
         # if columns not provided, get from data model
         if columns is None:
@@ -76,7 +75,7 @@ class Base2VarGraphTab(BaseGraphTab):
 
         self.second_column_selector.blockSignals(False)
     
-    def get_current_column_names(self) -> Optional[Tuple[str, str]]:
+    def get_current_column_names(self) -> tuple[str, str] | None:
         """
         Returns the names of two chosen columns
         """

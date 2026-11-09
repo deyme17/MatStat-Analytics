@@ -1,5 +1,4 @@
 from services.ui_services.renderers.graph_renderers.graph_renderer import Renderer
-from typing import Optional, Tuple
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -10,7 +9,7 @@ class CorrelationFieldRenderer(Renderer):
     Renderer for drawing correlation field for two columns of a DataFrame.
     """
     @staticmethod
-    def render(ax: plt.Axes, df: pd.DataFrame, col_x: str, col_y: str, regression_coeffs: Optional[Tuple[float, float]] = None):
+    def render(ax: plt.Axes, df: pd.DataFrame, col_x: str, col_y: str, regression_coeffs: tuple[float, float] | None = None):
         """
         Render correlation field on the given Matplotlib axis.
         Args:

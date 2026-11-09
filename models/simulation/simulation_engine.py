@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from typing import List, Optional, Dict
 from scipy.stats import t
 from models.stat_distributions.base import BaseDistribution
 from services.stat_services.test_performer import TestPerformer
@@ -17,7 +16,7 @@ class SimulationEngine:
         """
         self.test_performer: TestPerformer = test_performer
 
-    def generate_sample(self, distribution: BaseDistribution, size: int, params: Dict) -> np.ndarray:
+    def generate_sample(self, distribution: BaseDistribution, size: int, params: dict) -> np.ndarray:
         """
         Generate a random sample from a distribution using the inverse CDF method.
         Args:
@@ -36,8 +35,8 @@ class SimulationEngine:
             print(f"[SimulationEngine] Error in generate_sample: {e}")
             return None
 
-    def run_experiment(self, distribution: BaseDistribution, sizes: List[int], n_repeat: int,
-                       true_mean: float, alpha: float = 0.05) -> List[Dict]:
+    def run_experiment(self, distribution: BaseDistribution, sizes: list[int], n_repeat: int,
+                       true_mean: float, alpha: float = 0.05) -> list[dict]:
         """
         Run repeated T-tests on simulated samples of varying sizes.
         Args:
@@ -85,7 +84,7 @@ class SimulationEngine:
         return results
     
     def generate_data(self, distribution: BaseDistribution, n_features: int,
-                      params_list: list[tuple[float]], corr_coeffs: Optional[List[List[float]]], 
+                      params_list: list[tuple[float]], corr_coeffs: list[list[float]] | None, 
                       size: int) -> np.ndarray:
         """
         Generate multivariate correlated data from specified statistical distribution.
@@ -119,7 +118,7 @@ class SimulationEngine:
         # apply correlation
         return self._apply_correlation(independent_samples, corr_coeffs)
     
-    def _apply_correlation(self, data: np.ndarray, corr_matrix: List[List[float]]) -> np.ndarray:
+    def _apply_correlation(self, data: np.ndarray, corr_matrix: list[list[float]]) -> np.ndarray:
         """
         Apply correlation structure to independent data using Cholesky decomposition.
         Args:
@@ -146,7 +145,7 @@ class SimulationEngine:
         return correlated
     
     @staticmethod
-    def _validate_correlation_matrix(corr_coeffs: List[List[float]], n_features: int) -> None:
+    def _validate_correlation_matrix(corr_coeffs: list[list[float]], n_features: int) -> None:
         """
         Validate that correlation matrix is properly formatted and mathematically valid.
         Args:

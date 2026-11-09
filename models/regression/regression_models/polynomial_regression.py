@@ -1,5 +1,5 @@
 from ..bases import BaseRegression, BaseOptimization
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Any
 from itertools import combinations_with_replacement
 from scipy import stats
 import numpy as np
@@ -14,7 +14,7 @@ class PolynomialRegression(BaseRegression):
         self.X_poly_: np.ndarray | None = None  # transformed features
         self.y_: np.ndarray | None = None
 
-        self.features_: List[str] | None = None
+        self.features_: list[str] | None = None
         self.target_: str | None = None
         self.coef_: np.ndarray | None = None
         self.intercept_: float | None = None
@@ -24,7 +24,7 @@ class PolynomialRegression(BaseRegression):
         self.r_squared_: float | None = None
         self.r_squared_adj_:  float | None = None
 
-        self._model_signif_cache_: Dict[str, Any] | None = None
+        self._model_signif_cache_: dict[str, Any] | None = None
 
     @property
     def name(self) -> str:
@@ -72,7 +72,7 @@ class PolynomialRegression(BaseRegression):
         X_poly = self._transform(X)
         return self.algorithm.predict(X_poly)
 
-    def summary(self) -> Dict[str, Any]:
+    def summary(self) -> dict[str, Any]:
         """
         Returns model's summary (coefficients, intercept, metrics, etc.)
         """
@@ -93,7 +93,7 @@ class PolynomialRegression(BaseRegression):
             }
         }
 
-    def confidence_intervals(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
+    def confidence_intervals(self, alpha: float = 0.05) -> dict[str, Any] | None:
         """
         Returns dictionary with t-stat, p-value and confidence intervals for coefficients.
         """
@@ -104,7 +104,7 @@ class PolynomialRegression(BaseRegression):
         ci_result["CI"] = np.column_stack([variables, ci_result["CI"]])
         return ci_result
     
-    def predict_intervals(self, X_new: np.ndarray, alpha: float = 0.05) -> Dict[str, Tuple[np.ndarray, np.ndarray]]:
+    def predict_intervals(self, X_new: np.ndarray, alpha: float = 0.05) -> dict[str, tuple[np.ndarray, np.ndarray]]:
         """
         Computes Confidence and Prediction Intervals for X_new.
         """
@@ -141,7 +141,7 @@ class PolynomialRegression(BaseRegression):
             'CI_ind': (CI_ind_lower, CI_ind_upper),
         }
     
-    def predict_tolerance(self, alpha: float = 0.05) -> Dict[str, Tuple[float, Tuple[float, float]]]:
+    def predict_tolerance(self, alpha: float = 0.05) -> dict[str, tuple[float, tuple[float, float]]]:
         """
         Computes residual variance estimation and its confidence (tolerance) bounds.
         Args:
@@ -177,7 +177,7 @@ class PolynomialRegression(BaseRegression):
             "CI": (float(lower), float(upper))
         }
     
-    def model_significance(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
+    def model_significance(self, alpha: float = 0.05) -> dict[str, Any] | None:
         """
         Returns dictionary with F-stat, p-value and conclusion of significance for model.
         """

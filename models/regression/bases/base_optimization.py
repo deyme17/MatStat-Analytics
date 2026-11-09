@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional
+from typing import Any
 from abc import ABC, abstractmethod
 import numpy as np
 
@@ -26,7 +26,7 @@ class BaseOptimization(ABC):
         pass
     
     @abstractmethod
-    def get_params(self) -> Dict:
+    def get_params(self) -> dict:
         """
         Get fitted model parameters.
         Returns:
@@ -35,7 +35,7 @@ class BaseOptimization(ABC):
         pass
     
     @abstractmethod
-    def compute_confidence_intervals(self, X: np.ndarray, residuals: np.ndarray, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
+    def compute_confidence_intervals(self, X: np.ndarray, residuals: np.ndarray, alpha: float = 0.05) -> dict[str, Any] | None:
         """
         Returns dictionary with t-stat, p-value and confidance intervals for coefficients.
         Args:
@@ -51,7 +51,7 @@ class BaseOptimization(ABC):
         """
         pass
 
-    def compute_prediction_standard_errors(self, X_new: np.ndarray, X: np.ndarray, residuals: np.ndarray) -> Dict[str, np.ndarray]:
+    def compute_prediction_standard_errors(self, X_new: np.ndarray, X: np.ndarray, residuals: np.ndarray) -> dict[str, np.ndarray]:
         """
         Compute standard errors for prediction at X_new.
         Args:
@@ -59,7 +59,7 @@ class BaseOptimization(ABC):
             X (np.ndarray): Training feature matrix.
             residuals (np.ndarray): Residuals from the training data.
         Returns:
-            Dict[str, np.ndarray]: {
+            dict[str, np.ndarray]: {
                 'SE_mean': np.ndarray (Std error for the mean response (Confidence Interval))
                 'SE_ind': np.ndarray (Std error for the individual prediction (Prediction Interval))
             }
@@ -67,7 +67,7 @@ class BaseOptimization(ABC):
         pass
 
     @abstractmethod
-    def compute_model_significance(self, X: np.ndarray, y: np.ndarray, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
+    def compute_model_significance(self, X: np.ndarray, y: np.ndarray, alpha: float = 0.05) -> dict[str, Any] | None:
         """
         Returns dictionary with stat, p-value and conclusion of significance for model.
         Args:
@@ -76,7 +76,7 @@ class BaseOptimization(ABC):
             alpha (float): Significance level (e.g., 0.05 for 95% interval).
         Returns: 
             {
-                'stat': Dict[str, float|str] (contain 'name' and 'val'),
+                'stat': dict[str, float|str] (contain 'name' and 'val'),
                 'p_value': float,
             }
         """

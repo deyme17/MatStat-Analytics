@@ -1,7 +1,6 @@
 import os
 from services.data_services.data_loader import loaders
 from utils.helpers import validate_feature_names
-from typing import Optional
 import pandas as pd
 
 
@@ -26,7 +25,7 @@ class DataLoaderService:
         """Get list of supported file extensions."""
         return list(self._loaders.keys())
     
-    def load_data(self, path: str) -> Optional[pd.DataFrame]:
+    def load_data(self, path: str) -> pd.DataFrame | None:
         """
         Load numerical data from file.
         Args:
@@ -108,7 +107,7 @@ class DataLoaderService:
         return df
 
     @staticmethod
-    def select_file(parent=None) -> Optional[str]:
+    def select_file(parent=None) -> str | None:
         """
         Open file dialog and let user select a data file.
             parent: parent Qt widget (optional)

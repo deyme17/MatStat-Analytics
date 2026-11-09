@@ -1,5 +1,5 @@
 from ..bases import BaseRegression, BaseOptimization
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Any
 from scipy import stats
 import numpy as np
 
@@ -11,7 +11,7 @@ class LinearRegression(BaseRegression):
         self.X_: np.ndarray | None = None
         self.y_: np.ndarray | None = None
 
-        self.features_: List[str] | None = None
+        self.features_: list[str] | None = None
         self.target_: str | None = None
         self.coef_: np.ndarray | None = None
         self.intercept_: float | None = None
@@ -21,7 +21,7 @@ class LinearRegression(BaseRegression):
         self.r_squared_: float | None = None
         self.r_squared_adj_:  float | None = None
 
-        self._model_sagn_cache_: Dict[str, Any] | None = None
+        self._model_sagn_cache_: dict[str, Any] | None = None
 
     @property
     def name(self) -> str:
@@ -62,7 +62,7 @@ class LinearRegression(BaseRegression):
             raise RuntimeError("Model not fitted yet")
         return self.algorithm.predict(X)
 
-    def summary(self) -> Dict[str, Any]:
+    def summary(self) -> dict[str, Any]:
         """
         Returns model's summary (coefficients, intercept, metrics, etc.)
         Example: {
@@ -93,7 +93,7 @@ class LinearRegression(BaseRegression):
             }
         }
 
-    def confidence_intervals(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
+    def confidence_intervals(self, alpha: float = 0.05) -> dict[str, Any] | None:
         """
         Returns dictionary with t-stat, p-value and confidance intervals for coefficients.
         Args:
@@ -112,14 +112,14 @@ class LinearRegression(BaseRegression):
         ci_result["CI"] = np.column_stack([variables, ci_result["CI"]])
         return ci_result
     
-    def predict_intervals(self, X_new: np.ndarray, alpha: float = 0.05) -> Dict[str, Tuple[np.ndarray, np.ndarray]]:
+    def predict_intervals(self, X_new: np.ndarray, alpha: float = 0.05) -> dict[str, tuple[np.ndarray, np.ndarray]]:
         """
         Computes Confidence and Prediction Intervals for X_new.
         Args:
             X_new (np.ndarray): New feature matrix.
             alpha (float): Significance level (e.g., 0.05 for 95% interval).
         Returns:
-            Dict[str, Tuple[np.ndarray, np.ndarray]]: {
+            dict[str, Tuple[np.ndarray, np.ndarray]]: {
                 'CI_mean': (lower_bound, upper_bound) for the Confidence Interval.
                 'CI_ind': (lower_bound, upper_bound) for the Prediction Interval.
             }
@@ -152,13 +152,13 @@ class LinearRegression(BaseRegression):
             'CI_ind': (CI_ind_lower, CI_ind_upper),
         }
     
-    def predict_tolerance(self, alpha: float = 0.05) -> Dict[str, Tuple[float, Tuple[float, float]]]:
+    def predict_tolerance(self, alpha: float = 0.05) -> dict[str, tuple[float, tuple[float, float]]]:
         """
         Computes variance estimation and its tolerance bounds.
         Args:
             alpha (float): Significance level (e.g., 0.05 for 95% interval).
         Returns:
-            Dict[str, Any]: {
+            dict[str, Any]: {
                 "var": (float) variance estimation.
                 'CI': (lower_bound, upper_bound) for the tolerance bounds.
             }
@@ -184,14 +184,14 @@ class LinearRegression(BaseRegression):
             "CI": (lower, upper)
         }
     
-    def model_significance(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
+    def model_significance(self, alpha: float = 0.05) -> dict[str, Any] | None:
         """
         Returns dictionary with F-stat, p-value and conclusion of significance for model.
         Args:
             alpha (float): Significance level (e.g., 0.05 for 95% interval).
         Returns: 
             {
-                'stat': Dict[str, float|str] (contain 'name' and 'val'),
+                'stat': dict[str, float|str] (contain 'name' and 'val'),
                 'p_value': float,
                 'significant': bool,
             }
@@ -201,7 +201,7 @@ class LinearRegression(BaseRegression):
         self._model_sagn_cache_["significant"] = self._model_sagn_cache_["p_value"] < alpha
         return self._model_sagn_cache_
     
-    def standardized_coefficients(self) -> Optional[Dict[str, Any]]:
+    def standardized_coefficients(self) -> dict[str, Any] | None:
         """
         Returns standardized (beta) coefficients.
         Beta_i = coef_i * (std(X_i) / std(y))

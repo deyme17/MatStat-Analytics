@@ -1,5 +1,4 @@
 from models.correlation_coeffs._significance_test_result import SignificanceTestResult
-from typing import List
 from .base import BaseCorrelationCoefficient
 from scipy import stats
 import numpy as np
@@ -10,7 +9,7 @@ class PartialCorrelation(BaseCorrelationCoefficient):
     Implements Partial correlation coefficient (r) for two variables controlling for multiple control variables.
     Uses the t-test for significance and confidence intervals based on Fisher's z-transform.
     """
-    def fit(self, x: np.ndarray, y: np.ndarray, controls: List[np.ndarray]) -> float:
+    def fit(self, x: np.ndarray, y: np.ndarray, controls: list[np.ndarray]) -> float:
         if len(x) != len(y):
             raise ValueError("x and y must have the same length")
         self.controls = controls
@@ -18,7 +17,7 @@ class PartialCorrelation(BaseCorrelationCoefficient):
         self.n = len(x)
         return self.r
 
-    def _calc_partial_correlation(self, x: np.ndarray, y: np.ndarray, controls: List[np.ndarray]) -> tuple[float, float]:
+    def _calc_partial_correlation(self, x: np.ndarray, y: np.ndarray, controls: list[np.ndarray]) -> tuple[float, float]:
         X = np.column_stack(controls)
         beta_x = np.linalg.lstsq(X, x, rcond=None)[0]
         beta_y = np.linalg.lstsq(X, y, rcond=None)[0]

@@ -1,10 +1,10 @@
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Any
 from abc import ABC, abstractmethod
 import numpy as np
 
 class BaseRegression(ABC):
     """Base interface for regression models"""
-    features_: List[str] | None
+    features_: list[str] | None
     target_: str | None = None
     coef_: np.ndarray | None
     intercept_: float | None
@@ -34,7 +34,7 @@ class BaseRegression(ABC):
         pass
 
     @abstractmethod
-    def summary(self) -> Dict[str, Any]:
+    def summary(self) -> dict[str, Any]:
         """
         Returns model's summary (coefficients, intercept, metrics, etc.)
         Example: {
@@ -48,7 +48,7 @@ class BaseRegression(ABC):
         pass
 
     @abstractmethod
-    def confidence_intervals(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
+    def confidence_intervals(self, alpha: float = 0.05) -> dict[str, Any] | None:
         """
         Returns dictionary with t-stat, p-value and confidance intervals for coefficients.
         Args:
@@ -63,14 +63,14 @@ class BaseRegression(ABC):
         pass
     
     @abstractmethod
-    def predict_intervals(self, X_new: np.ndarray, alpha: float = 0.05) -> Dict[str, Tuple[np.ndarray, np.ndarray]]:
+    def predict_intervals(self, X_new: np.ndarray, alpha: float = 0.05) -> dict[str, tuple[np.ndarray, np.ndarray]]:
         """
         Computes Confidence and Prediction Intervals for X_new.
         Args:
             X_new (np.ndarray): New feature matrix (x0) of shape (n_samples_new, n_features).
             alpha (float): Significance level (e.g., 0.05 for 95% interval).
         Returns:
-            Dict[str, Tuple[np.ndarray, np.ndarray]]: {
+            dict[str, tuple[np.ndarray, np.ndarray]]: {
                 'CI_mean': (lower_bound, upper_bound) for the Confidence Interval.
                 'CI_ind': (lower_bound, upper_bound) for the Prediction Interval.
             }
@@ -78,13 +78,13 @@ class BaseRegression(ABC):
         pass
     
     @abstractmethod
-    def predict_tolerance(alpha: float = 0.05) -> Dict[str, Tuple[np.ndarray, np.ndarray]]:
+    def predict_tolerance(alpha: float = 0.05) -> dict[str, tuple[np.ndarray, np.ndarray]]:
         """
         Computes variance estimation and its tolerance bounds.
         Args:
             alpha (float): Significance level (e.g., 0.05 for 95% interval).
         Returns:
-            Dict[str, Any]: {
+            dict[str, Any]: {
                 "var": (float) variance estimation.
                 'CI': (lower_bound, upper_bound) for the tolerance bounds.
             }
@@ -92,14 +92,14 @@ class BaseRegression(ABC):
         pass
     
     @abstractmethod
-    def model_significance(self, alpha: float = 0.05) -> Optional[Dict[str, Any]]:
+    def model_significance(self, alpha: float = 0.05) -> dict[str, Any] | None:
         """
         Returns dictionary with stat, p-value and conclusion of significance for model.
         Args:
             alpha (float): Significance level (e.g., 0.05 for 95% interval).
         Returns: 
             {
-                'stat': Dict[str, float|str] (contain 'name' and 'val'),
+                'stat': dict[str, float|str] (contain 'name' and 'val'),
                 'p_value': float,
                 'significant': bool,
             }
@@ -117,14 +117,14 @@ class BaseRegression(ABC):
         """Generate names for model features"""
         pass
 
-    def standardized_coefficients(self) -> Optional[Dict[str, Any]]:
+    def standardized_coefficients(self) -> dict[str, Any] | None:
         """
         Returns standardized (beta) coefficients.
         Beta_i = coef_i * (std(X_i) / std(y))
         Not all models support this (e.g. Polynomial).
         Returns None by default.
         Returns:
-            Optional[Dict]: {
+            Dict]: {
                 'features': List[str],
                 'beta_coef': np.ndarray,
             }
@@ -132,7 +132,7 @@ class BaseRegression(ABC):
         return None
 
     @property
-    def residuals(self) -> Optional[np.ndarray]:
+    def residuals(self) -> np.ndarray | None:
         """Returns residuals of the fitted model."""
         return self.residuals_
     

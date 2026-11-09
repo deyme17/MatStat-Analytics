@@ -1,7 +1,7 @@
 from utils import AppContext, EventType, EventBus, Event
 from services.data_services.data_version_manager import DataVersionManager
 from utils.callbacks import ComboUICallbacks
-from typing import Callable, Optional
+from typing import Callable
 
 
 class DatasetController:
@@ -12,9 +12,9 @@ class DatasetController:
     def __init__(
         self,
         context: AppContext,
-        version_combo_controls: Optional[ComboUICallbacks] = None,
-        columns_combo_control: Optional[ComboUICallbacks] = None,
-        set_bins_value: Optional[Callable[[int], None]] = None
+        version_combo_controls: ComboUICallbacks | None = None,
+        columns_combo_control: ComboUICallbacks | None = None,
+        set_bins_value: Callable[[int], None] | None = None
     ):
         """
         Args:

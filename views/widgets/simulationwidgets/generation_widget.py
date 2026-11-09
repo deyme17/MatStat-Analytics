@@ -2,7 +2,6 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QCheckBox, QLabel, QPushButton, QSpinBox, 
     QHBoxLayout, QLineEdit, QScrollArea, QFrame
 )
-from typing import Optional, List, Tuple
 
 from models.stat_distributions import BaseDistribution
 from controllers import SimulationController
@@ -27,8 +26,8 @@ class GenerationWidget(QWidget):
         super().__init__()
         self.messanger: UIMessager = messanger
         self.simulation_controller: SimulationController = simulation_controller
-        self.correlation_inputs: List[Tuple] = []
-        self.feature_param_inputs: List[QLineEdit] = []
+        self.correlation_inputs: list[tuple] = []
+        self.feature_param_inputs: list[QLineEdit] = []
         self._cached_placeholder = " "
         self._init_ui()
     
@@ -138,7 +137,11 @@ class GenerationWidget(QWidget):
             elif item.layout():
                 self._clear_layout(item.layout())
 
-    def _create_input_row(self, label_text: str, placeholder: str, max_width: Optional[int] = None, min_width: Optional[int] = None) -> Tuple[QLabel, QLineEdit, QHBoxLayout]:
+    def _create_input_row(self, 
+                          label_text: str, 
+                          placeholder: str, 
+                          max_width: int | None = None, 
+                          min_width: int | None = None) -> tuple[QLabel, QLineEdit, QHBoxLayout]:
             """creates a row with qlabel, qlineedit and a h_layout."""
             layout = QHBoxLayout()
             
@@ -173,7 +176,7 @@ class GenerationWidget(QWidget):
         for line_edit in self.feature_param_inputs:
             line_edit.setPlaceholderText(placeholder)
     
-    def get_params(self) -> Optional[List[Tuple]]:
+    def get_params(self) -> list[tuple] | None:
         """
         Parse feature-specific parameters.
         Returns list of parameter tuples, one per feature.
@@ -222,7 +225,7 @@ class GenerationWidget(QWidget):
             dist_cls(), n_features, params_list, corr_matrix, sample_size, export_data,
         )
     
-    def get_correlation_matrix(self) -> Optional[List[List[float]]]:
+    def get_correlation_matrix(self) -> list[list[float]] | None:
         """Parse correlation coefficients and construct correlation matrix."""
         n_features = self.n_features_spin.value()
         if n_features <= 1: return None

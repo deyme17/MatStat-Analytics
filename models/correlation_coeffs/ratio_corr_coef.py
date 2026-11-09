@@ -2,7 +2,6 @@ from .base import BaseCorrelationCoefficient
 from models.correlation_coeffs._significance_test_result import SignificanceTestResult
 import numpy as np
 from scipy import stats
-from typing import Tuple
 
 class CorrelationRatio(BaseCorrelationCoefficient):
     """
@@ -67,7 +66,7 @@ class CorrelationRatio(BaseCorrelationCoefficient):
             }
         )
 
-    def _interval(self, alpha: float = 0.05, n_bootstrap: int = 1000) -> Tuple[float, float]:
+    def _interval(self, alpha: float = 0.05, n_bootstrap: int = 1000) -> tuple[float, float]:
         """
         Compute confidence interval using bootstrap percentile method.
         Note: No simple analytical CI exists for eta, so bootstrap is appropriate here.

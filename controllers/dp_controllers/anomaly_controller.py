@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from typing import Callable
 import pandas as pd
 
 from utils import AppContext, EventBus, EventType

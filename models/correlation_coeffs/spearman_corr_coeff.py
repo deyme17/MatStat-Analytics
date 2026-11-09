@@ -2,7 +2,6 @@ from models.correlation_coeffs._significance_test_result import SignificanceTest
 from .base import BaseCorrelationCoefficient
 from scipy import stats
 import numpy as np
-from typing import Tuple
 
 class SpearmanCorrelation(BaseCorrelationCoefficient):
     """
@@ -49,7 +48,7 @@ class SpearmanCorrelation(BaseCorrelationCoefficient):
             }
         )
     
-    def _interval(self, alpha: float = 0.05, n_bootstrap: int = 1000) -> Tuple[float, float]:
+    def _interval(self, alpha: float = 0.05, n_bootstrap: int = 1000) -> tuple[float, float]:
         """
         Compute the confidence interval using the Bootstrap method (percentile method).
         """

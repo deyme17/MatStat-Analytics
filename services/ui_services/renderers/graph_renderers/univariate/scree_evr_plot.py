@@ -3,7 +3,6 @@ from PyQt6.QtCore import Qt
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import numpy as np
-from typing import List
 
 DIALOG_WIDTH = 700
 DIALOG_HEIGHT = 600
@@ -14,7 +13,7 @@ class ScreeEVRPlot(QDialog):
     Modal dialog for visualizing scree plot of Explained Variance Ratio.
     It shows the proportion of data variance accounted by each principal component.
     """
-    def __init__(self, evr: List[float], parent=None):
+    def __init__(self, evr: list[float], parent=None):
         """
         Args:
             evr: Explained Variance Ratios for each principal component.    
@@ -46,7 +45,7 @@ class ScreeEVRPlot(QDialog):
 
         self.setLayout(layout)
 
-    def _plot(self, evr: List[float]) -> None:
+    def _plot(self, evr: list[float]) -> None:
         ax = self.figure.add_subplot(111)
         ax.clear()
         pc_labels = [f"PC_{i+1}" for i in range(len(evr))]

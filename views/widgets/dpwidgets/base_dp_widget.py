@@ -1,11 +1,11 @@
 from PyQt6.QtWidgets import QGroupBox, QVBoxLayout, QPushButton
-from typing import Tuple, Callable, List
+from typing import Callable
 from utils.ui_styles import groupStyle
 from utils import EventBus, Event
 
 class BaseDataWidget(QGroupBox):
     """Base class for all data processing widgets."""
-    def __init__(self, title, controller, event_bus: EventBus, buttons_config: List[Tuple[str, str, Callable]]):
+    def __init__(self, title, controller, event_bus: EventBus, buttons_config: list[tuple[str, str, Callable]]):
         super().__init__(title)
         self.controller = controller
         self.event_bus: EventBus = event_bus

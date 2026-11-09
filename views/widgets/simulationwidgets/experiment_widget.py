@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import (
     QPushButton, QSpinBox, QTableWidget, 
     QTableWidgetItem, QHBoxLayout, QLineEdit
 )
-from typing import Optional, Dict, Any, List
+from typing import Any
 
 from models.stat_distributions import BaseDistribution
 from controllers import SimulationController
@@ -95,7 +95,7 @@ class ExperimentWidget(QWidget):
         """Update parameter input placeholder."""
         self.param_input.setPlaceholderText(placeholder)
 
-    def get_params(self) -> Optional[tuple]:
+    def get_params(self) -> tuple | None:
         """Parse and validate parameters."""
         params_str = self.param_input.text().strip()
         if not params_str:
@@ -135,7 +135,7 @@ class ExperimentWidget(QWidget):
         )
         self._populate_table(results)
     
-    def _parse_alpha(self) -> Optional[float]:
+    def _parse_alpha(self) -> float | None:
         """Parse and validate alpha value."""
         try:
             alpha = float(self.alpha_input.text())
@@ -146,7 +146,7 @@ class ExperimentWidget(QWidget):
             self.messanger.show_error("Invalid α", "Significance level α must be between 0 and 1.")
             return None
     
-    def _populate_table(self, results: List[Dict[str, Any]]) -> None:
+    def _populate_table(self, results: list[dict[str, Any]]) -> None:
         """Populate the result table with experiment results."""
         self.result_table.setRowCount(len(results))
         for i, res in enumerate(results):

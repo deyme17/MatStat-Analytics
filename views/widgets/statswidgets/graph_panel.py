@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import (
     QSpinBox, QDoubleSpinBox, QCheckBox, QTabWidget
 )
 from PyQt6.QtCore import QTimer
-from typing import Any, Dict, Optional
+from typing import Any
 from utils import AppContext, EventBus, EventType, Event
 from views.tabs.graph_tabs.graph_tab import BaseGraphTab
 from .dist_selector import DistributionSelector
@@ -28,12 +28,12 @@ class GraphPanel(QWidget):
     Visualization panel hosting graph tabs and controls.
     """
     def __init__(self, context: AppContext, dist_selector: DistributionSelector, 
-                 graph_tabs: Dict[str, BaseGraphTab]):
+                 graph_tabs: dict[str, BaseGraphTab]):
         super().__init__()
         self.dist_selector = dist_selector
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
-        self.graph_tabs: Dict[str, BaseGraphTab] = graph_tabs
+        self.graph_tabs: dict[str, BaseGraphTab] = graph_tabs
 
         # debounce timer
         self.render_timer = QTimer()
@@ -135,7 +135,7 @@ class GraphPanel(QWidget):
         if active_tab:
             self.refresh_all()
 
-    def _request_render(self, event: Optional[Event] = None) -> None:
+    def _request_render(self, event: Event | None = None) -> None:
         """Request a render operation."""
         self.render_timer.start(RENDER_DELAY_MS)
 
