@@ -2,7 +2,10 @@ from typing import Any
 import pandas as pd
 import numpy as np
 from utils.decorators import validate_fitted
-from models.factor_analysis import PFM
+from models.factor_analysis import PFM, PFMFittingResult
+
+OK_RESULT = [PFMFittingResult.CONVERGED, 
+             PFMFittingResult.OBJECTIVE_INCREASED]
 
 
 class FactorController:
@@ -64,6 +67,7 @@ class FactorController:
             - f: final objective.
             - f_first: objective after the first pass.
             - result: FittingResult (convergence status).
+            - ok: si fitting sucessful (bool).
         """
         feats, factors = self._feature_names, self._factor_labels()
         return {
@@ -78,6 +82,7 @@ class FactorController:
             "f": self.pfm.objective_,
             "f_first": self.pfm.history[0]["f"],
             "result": self.pfm.fitting_result,
+            "ok": self.pfm.fitting_result in OK_RESULT,
         }
 
     @validate_fitted
@@ -109,4 +114,10 @@ class FactorController:
         return self.pfm.get_h2_estimators_names()
 
     def _factor_labels(self) -> list[str]:
+        """Retirn new factor-labels ({F_i, i=1,n_factors})."""
         return [f"F_{i}" for i in range(1, self.pfm.n_factors_ + 1)]
+
+    def clear(self) -> None:
+        """Clears controller state."""
+        self.pfm.clear_state()
+        self._feature_names = []
