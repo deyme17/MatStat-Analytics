@@ -31,5 +31,5 @@ class BaseCommunalityEstimator(ABC):
     def _abs_zerodiag(R: np.ndarray) -> np.ndarray:
         """Return `R` with absolute values and zero-diagonal."""
         R = np.abs(R).copy()
-        R = np.fill_diagonal(R, 0.0)
+        np.fill_diagonal(R, 0.0)
         return R
