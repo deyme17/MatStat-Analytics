@@ -228,12 +228,12 @@ class FactorTab(QWidget):
         h2_estimator = self._get_h2_estimator()
         
         try:
-            factor_reflection = self.controller.fit_transform(
+            self.controller.fit_transform(
                 df[selected_cols], 
                 h2_estimator_name=h2_estimator, 
                 n_factors=n_factors,
             )
-            self.pfm_result_widget.create_results(factor_reflection)
+            self.pfm_result_widget.create_results()
             self._set_fit_status()
         except Exception as e:
             self.messenger.show_error("Fit failed", str(e))

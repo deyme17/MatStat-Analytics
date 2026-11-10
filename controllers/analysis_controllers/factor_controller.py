@@ -34,6 +34,11 @@ class FactorController:
         return pd.DataFrame(X_transformed, columns=pfm_labels, index=X_df.index)
 
     @validate_fitted
+    def get_history(self) -> list[dict]:
+        """Raw per-iteration records (numpy): iter, Rh, A, h2, f."""
+        return self.pfm.history
+
+    @validate_fitted
     def get_iteration(self, idx: int) -> dict[str, Any]:
         """
         Labeled results of one accepted iteration.

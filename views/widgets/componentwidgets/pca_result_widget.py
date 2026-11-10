@@ -27,6 +27,7 @@ class PCAResultWidget(QWidget):
         self._init_ui()
 
     def _init_ui(self) -> None:
+        """Initialize unit inteface for PCA results widget."""
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
 
@@ -45,6 +46,7 @@ class PCAResultWidget(QWidget):
         main_layout.addWidget(container)
 
     def _build_ev_group(self) -> QGroupBox:
+        """Build explained variance group."""
         box = QGroupBox("Explained Variance")
         layout = QVBoxLayout()
         self.ev_label = QLabel("—")
@@ -102,6 +104,7 @@ class PCAResultWidget(QWidget):
         self._clear_loadings_table()
 
     def _update_ev_group(self) -> None:
+        """Update explained variance group."""
         try:
             total_ev, evr = self.controller.get_explained_variance()
             lines = [f"Total explained variance: <b>{total_ev:.4f}</b>", ""]
@@ -201,6 +204,7 @@ class PCAResultWidget(QWidget):
             self.messanger.show_error("Loadings table error", str(e))
 
     def _clear_loadings_table(self) -> None:
+        """Clear loading table and resets columns/rows."""
         self.loadings_table.clearContents()
         self.loadings_table.setRowCount(0)
         self.loadings_table.setColumnCount(0)
