@@ -1,14 +1,15 @@
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QComboBox, QGroupBox, QScrollArea
+    QWidget, QVBoxLayout, QLabel, QComboBox, QScrollArea
 )
 from PyQt6.QtCore import Qt
 
 from controllers import DistributionRegister
 from models.stat_distributions import BaseDistribution
 from views.widgets.distributionwidgets import (
-    ParamEstimationWidget, GOFTestWidget
+    ParamEstimationWidget, GOFTestsWidget
 )
 from utils.ui_styles import groupMargin, groupStyle
+from views.widgets.utils import make_group_box
 
 
 class DistributionTab(QWidget):
@@ -19,7 +20,7 @@ class DistributionTab(QWidget):
     def __init__(self,
                  dist_register: DistributionRegister,
                  param_estimation_widget: ParamEstimationWidget,
-                 gof_tests_widget: GOFTestWidget) -> None:
+                 gof_tests_widget: GOFTestsWidget) -> None:
         """
         Args:
             dist_register: Register of available distributions.
@@ -46,15 +47,15 @@ class DistributionTab(QWidget):
         container.setStyleSheet(groupStyle + groupMargin)
         container_layout = QVBoxLayout(container)
 
-        container_layout.addWidget(self._make_group(
+        container_layout.addWidget(make_group_box(
             "Distribution",
             self._build_selector(),
         ))
-        container_layout.addWidget(self._make_group(
+        container_layout.addWidget(make_group_box(
             "Parameter Estimation",
             self.param_widget,
         ))
-        container_layout.addWidget(self._make_group(
+        container_layout.addWidget(make_group_box(
             "Goodness-of-Fit Tests",
             self.gof_widget,
         ))
@@ -77,14 +78,6 @@ class DistributionTab(QWidget):
         layout.addWidget(QLabel("Distribution:"))
         layout.addWidget(self.dist_combo)
         return widget
-
-    @staticmethod
-    def _make_group(title: str, content: QWidget) -> QGroupBox:
-        """Wrap a widget into a titled group box."""
-        group = QGroupBox(title)
-        layout = QVBoxLayout(group)
-        layout.addWidget(content)
-        return group
 
     def get_distribution(self) -> BaseDistribution | None:
         """Return a fresh instance of the currently selected distribution."""

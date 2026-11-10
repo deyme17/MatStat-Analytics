@@ -32,21 +32,3 @@ def validate_feature_names(feature_names: list[str]) -> bool:
     except Exception as e:
         # print(f"[ValidationError in `validate_feature_names`]: {e}")
         return False
-
-
-def create_section_header(text: str) -> QVBoxLayout:
-    layout = QVBoxLayout()
-    label = QLabel(text)
-    label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-    label.setStyleSheet("""
-        font-weight: 777;
-        font-size: 12px;
-        margin-top: 2px;
-        margin-bottom: 1px;
-    """)
-    line = QFrame()
-    line.setFrameShape(QFrame.Shape.HLine)
-    line.setFrameShadow(QFrame.Shadow.Sunken)
-    layout.addWidget(label)
-    layout.addWidget(line)
-    return layout

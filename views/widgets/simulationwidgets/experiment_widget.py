@@ -9,7 +9,7 @@ from models.stat_distributions import BaseDistribution
 from controllers import SimulationController
 from services import UIMessager
 from utils.ui_styles import groupMargin, groupStyle
-from utils.helpers import create_section_header
+from views.widgets.utils import create_section_header
 
 
 DEFAULT_SAMPLE_SIZES = [20, 50, 100, 400, 1000, 2000, 5000]

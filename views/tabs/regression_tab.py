@@ -1,13 +1,16 @@
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QComboBox, QPushButton, QScrollArea,
-    QGroupBox, QTextEdit, QLabel, QListWidget, QAbstractItemView, QDoubleSpinBox
+    QWidget, QVBoxLayout, QHBoxLayout, QComboBox,
+    QGroupBox, QLabel, QDoubleSpinBox, QScrollArea
 )
 from PyQt6.QtCore import Qt
+
 from views.widgets.regressionwidgets import RegrSummaryWidget, RegrPredictionWidget
+from views.widgets.utils.common_widgets import FeatureSelectorWidget
 from utils import AppContext, EventBus, EventType, Event
 from services import UIMessager
 from controllers import RegressionController
 from utils.ui_styles import groupMargin, groupStyle
+from views.widgets.utils import make_button
 
 
 LIST_WIDGET_HEIGHT = 100
@@ -20,11 +23,8 @@ ALPHA_PRECISION = 2
 DEFAULT_ALPHA = 0.05
 
 
-
 class RegressionTab(QWidget):
-    """
-    Tab for conducting regression analysis.
-    """
+    """Tab for conducting regression analysis."""
     def __init__(self, context: AppContext, 
                  regr_controller: RegressionController,
                  summary_widget: type[RegrSummaryWidget], 
@@ -66,11 +66,19 @@ class RegressionTab(QWidget):
         container_layout = QVBoxLayout()
         
         self._init_model_selector(container_layout)
-        self._init_independent_vars_selector(container_layout)
+        
+        self.independent_selector = FeatureSelectorWidget(
+            title="Independent Variables (X)", 
+            label_prefix="variables", 
+            height=LIST_WIDGET_HEIGHT, 
+            width=LIST_WIDGET_WIDTH
+        )
+        self.independent_selector.setMaximumHeight(MAX_GROUP_HEIGHT)
+        container_layout.addWidget(self.independent_selector)
+
         self._init_dependent_var_selector(container_layout)
         
-        self.fit_btn = QPushButton("Fit the model")
-        self.fit_btn.clicked.connect(self._fit_model)
+        self.fit_btn = make_button("Fit the model", callback=self._fit_model)
         container_layout.addWidget(self.fit_btn)
         
         self._init_alpha_controls(container_layout)
@@ -106,7 +114,7 @@ class RegressionTab(QWidget):
         layout.addLayout(alpha_layout)
 
     def _init_model_selector(self, layout: QVBoxLayout) -> None:
-        """Initialize model selection (QComboBox)"""
+        """Initialize model selection combobox."""
         group = QGroupBox("Model Selection")
         group_layout = QVBoxLayout()
         
@@ -119,34 +127,8 @@ class RegressionTab(QWidget):
         group.setLayout(group_layout)
         layout.addWidget(group)
 
-    def _init_independent_vars_selector(self, layout: QVBoxLayout) -> None:
-        """Initialize independent variables selection (QListWidget)"""
-        group = QGroupBox("Independent Variables (X)")
-        group_layout = QVBoxLayout()
-        
-        self.independent_list = QListWidget()
-        self.independent_list.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
-        self.independent_list.setMaximumHeight(LIST_WIDGET_HEIGHT)
-        self.independent_list.setMaximumWidth(LIST_WIDGET_WIDTH)
-        
-        # selection buttons
-        btns_layout = QHBoxLayout()
-        self.select_all_x_btn = QPushButton("Select ALL")
-        self.clear_x_btn = QPushButton("Clear selection")
-        btns_layout.addWidget(self.select_all_x_btn)
-        btns_layout.addWidget(self.clear_x_btn)
-        
-        self.selected_x_label = QLabel("Selected: 0 variables")
-        
-        group_layout.addWidget(self.independent_list)
-        group_layout.addLayout(btns_layout)
-        group_layout.addWidget(self.selected_x_label)
-        group.setMaximumHeight(MAX_GROUP_HEIGHT)
-        group.setLayout(group_layout)
-        layout.addWidget(group)
-
     def _init_dependent_var_selector(self, layout: QVBoxLayout) -> None:
-        """Initialize dependent variable selection (QComboBox)"""
+        """Initialize dependent variable selection combobox."""
         group = QGroupBox("Dependent Variable (Y)")
         group_layout = QVBoxLayout()
         
@@ -156,62 +138,41 @@ class RegressionTab(QWidget):
         group.setLayout(group_layout)
         layout.addWidget(group)
 
-    def _init_results_section(self) -> QWidget:
-        """Initialize results display section."""
-        group = QGroupBox("Results")
-        layout = QVBoxLayout()
-        
-        self.results_text = QTextEdit()
-        self.results_text.setReadOnly(True)
-        self.results_text.setPlaceholderText("Model results will appear here after fitting...")
-        
-        layout.addWidget(self.results_text)
-        group.setLayout(layout)
-        return group
-
     def _connect_signals(self) -> None:
         """Connect UI signals."""
-        self.independent_list.itemSelectionChanged.connect(self._update_selected_x_label)
-        self.select_all_x_btn.clicked.connect(self._select_all_x)
-        self.clear_x_btn.clicked.connect(self.independent_list.clearSelection)
+        self.independent_selector.list_widget.itemSelectionChanged.connect(
+            self.independent_selector.update_count_label
+        )
 
     def _on_alpha_changed(self) -> None:
-        """Calls on alpha spinbox update"""
+        """Handle alpha spinbox change."""
         alpha = self.alpha_spinbox.value()
         self.summary_widget.create_summary(alpha)
         self.prediction_widget.set_alpha_value(alpha)
 
     def _refresh_data(self) -> None:
-        """Refresh available datasets and variables."""
-        self.independent_list.clear()
+        """Refresh available datasets and feature options."""
+        self.independent_selector.list_widget.clear()
         self.dependent_combo.clear()
         
         data_model = self.context.data_model
-        if data_model is None: return
+        if data_model is None: 
+            return
         df = data_model.dataframe
-        if df.empty: return
+        if df.empty: 
+            return
 
-        columns = set(df.columns)
+        columns = sorted(list(set(df.columns)))
+        self.independent_selector.populate(columns, select_all=False)
         
-        for col in sorted(columns):
-            self.independent_list.addItem(col)
+        for col in columns:
             self.dependent_combo.addItem(col)
 
         if self.dependent_combo.count() > 0:
             self.dependent_combo.setCurrentIndex(self.dependent_combo.count() - 1)
 
-    def _select_all_x(self) -> None:
-        """Select all independent variables."""
-        for i in range(self.independent_list.count()):
-            self.independent_list.item(i).setSelected(True)
-
-    def _update_selected_x_label(self) -> None:
-        """Update label showing number of selected X variables."""
-        count = len(self.independent_list.selectedItems())
-        self.selected_x_label.setText(f"Selected: {count} variables")
-
     def _fit_model(self) -> None:
-        """Fit a selected model on current data and selected variables."""
+        """Fit a selected regression model."""
         if not self._validate_configuration():
             return
         self.summary_widget.clear()
@@ -219,20 +180,21 @@ class RegressionTab(QWidget):
 
         try:
             model_name = self.model_combo.currentText()
-            x_vars = [item.text() for item in self.independent_list.selectedItems()]
+            x_vars = self.independent_selector.get_selected_items()
             y_var = self.dependent_combo.currentText()
             
             # get data
             data_model = self.context.data_model
-            if data_model is None: return
+            if data_model is None: 
+                return
             df = data_model.dataframe
-            if df.empty: return
+            if df.empty: 
+                return
             
             # check if all columns exist
             missing_cols = [col for col in x_vars + [y_var] if col not in df.columns]
             if missing_cols:
-                self.messenger.show_error("Fitting error", 
-                    f"Missing columns: {', '.join(missing_cols)}")
+                self.messenger.show_error("Fitting error", f"Missing columns: {', '.join(missing_cols)}")
                 return
             
             # data preperation
@@ -246,25 +208,23 @@ class RegressionTab(QWidget):
             self.summary_widget.create_summary()
             self.prediction_widget.setup_for_model(x_vars)
             
-            self.messenger.show_info("Success", 
-                f"Model '{model_name}' fitted successfully on {len(X_df)} observations")
-            
+            self.messenger.show_info(
+                "Success", 
+                f"Model '{model_name}' fitted successfully on {len(X_df)} observations"
+            )
         except Exception as e:
             self.messenger.show_error("Fitting error", str(e))
 
     def _validate_configuration(self) -> bool:
-        """Validate selected dependent/independent variables."""
-        if not self.independent_list.selectedItems():
-            self.messenger.show_error("Validation error", 
-                "Please select at least one independent variable")
+        """Validate selected dependent and independent variables."""
+        selected_x = self.independent_selector.get_selected_items()
+        if not selected_x:
+            self.messenger.show_error("Validation error", "Please select at least one independent variable")
             return False
         
-        x_vars = [item.text() for item in self.independent_list.selectedItems()]
         y_var = self.dependent_combo.currentText()
-        
-        if y_var in x_vars:
-            self.messenger.show_error("Validation error", 
-                "Dependent variable cannot be in independent variables list")
+        if y_var in selected_x:
+            self.messenger.show_error("Validation error", "Dependent variable cannot be in independent variables list")
             return False
         
         return True

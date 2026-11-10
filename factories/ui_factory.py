@@ -19,7 +19,7 @@ from views import (
     # widgets
     WindowWidgets, AnomalyWidget, MissingWidget, TransformDataWidget,
     PCAResultWidget, PFMResultWidget, RegrSummaryWidget, RegrPredictionWidget,
-    ParamEstimationWidget, GOFTestWidget, KolmogorovSmirnovPanel, PearsonChi2Panel, Pearson2DNormalPanel, 
+    ParamEstimationWidget, GOFTestsWidget, KolmogorovSmirnovPanel, PearsonChi2Panel, Pearson2DNormalPanel, 
     GenerationWidget, ExperimentWidget, CorrelationTestWidget, PartialCorrWidget, MultiCorrWidget,
     NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel, 
     AbbePanel, ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel, MultiNormalPanel, SignsCriterionPanel,
@@ -123,7 +123,7 @@ class UIFactory:
                 context=self.context,
                 estimator=self.controllers.estimation,
             ),
-            gof_tests_widget=GOFTestWidget(
+            gof_tests_widget=GOFTestsWidget(
                 context=self.context,
                 gof_controller=self.controllers.gof,
                 test_panels=[PearsonChi2Panel, KolmogorovSmirnovPanel],

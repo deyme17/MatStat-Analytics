@@ -1,13 +1,14 @@
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QListWidget, 
-    QPushButton, QAbstractItemView, QLabel, QDoubleSpinBox, 
-    QGroupBox, QComboBox, QScrollArea, QCheckBox
+    QWidget, QVBoxLayout, QHBoxLayout, 
+    QPushButton, QLabel, QGroupBox, QComboBox, QScrollArea, QCheckBox
 )
 from services import UIMessager, DataVersionManager
 from utils import AppContext, EventBus, EventType, Event
 from controllers import HomogenController
 from views.widgets.homogenwidgets.homogen_panel import BaseHomoTestPanel
+from views.widgets.utils.common_widgets import FeatureSelectorWidget
 from utils.ui_styles import groupMargin, groupStyle
+from views.widgets.utils import make_alpha_spinbox, make_button
 
 ALPHA_MIN, ALPHA_MAX = 0.01, 0.99
 ALPHA_STEP = 0.01
@@ -17,7 +18,6 @@ DEFAULT_ALPHA = 0.05
 MAX_GROUP_HEIGHT = 159
 LIST_WIDGET_HEIGHT = 150
 LIST_WIDGET_WIDTH = 320
-
 
 
 class HomogenTab(QWidget):
@@ -85,11 +85,9 @@ class HomogenTab(QWidget):
     def _create_alpha_spinbox(self) -> QHBoxLayout:
         """Create alpha parameter selection section."""
         layout = QHBoxLayout()
-        self.alpha_spinbox = QDoubleSpinBox()
-        self.alpha_spinbox.setRange(ALPHA_MIN, ALPHA_MAX)
-        self.alpha_spinbox.setSingleStep(ALPHA_STEP)
-        self.alpha_spinbox.setDecimals(ALPHA_PRECISION)
-        self.alpha_spinbox.setValue(DEFAULT_ALPHA)
+        self.alpha_spinbox = make_alpha_spinbox(
+            ALPHA_MIN, ALPHA_MAX, ALPHA_STEP, ALPHA_PRECISION, DEFAULT_ALPHA
+        )
         layout.addWidget(QLabel("Significance level α:"))
         layout.addWidget(self.alpha_spinbox)
         layout.addStretch()
@@ -97,31 +95,25 @@ class HomogenTab(QWidget):
 
     def _create_data_selection_section(self) -> QGroupBox:
         """Create data selection section."""
-        group = QGroupBox("Select datasets for testing")
-        layout = QVBoxLayout()
-        self.list_widget = QListWidget()
-        self.list_widget.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
-        self.list_widget.setMaximumHeight(LIST_WIDGET_HEIGHT)
-        self.list_widget.setMaximumWidth(LIST_WIDGET_WIDTH)
+        self.selector_widget = FeatureSelectorWidget(
+            title="Select datasets for testing",
+            label_prefix="datasets",
+            height=LIST_WIDGET_HEIGHT,
+            width=LIST_WIDGET_WIDTH
+        )
+        self.list_widget = self.selector_widget.list_widget
+        self.select_all_btn = self.selector_widget.select_all_btn
+        self.clear_selection_btn = self.selector_widget.clear_sel_btn
+        self.selected_count_label = self.selector_widget.count_label
 
-        btns_layout = QHBoxLayout()
-        self.select_all_btn = QPushButton("Select ALL")
-        self.clear_selection_btn = QPushButton("Clear selection")
-        btns_layout.addWidget(self.select_all_btn)
-        btns_layout.addWidget(self.clear_selection_btn)
-
-        self.selected_count_label = QLabel("Selected: 0 datasets")
         self.independence_checkbox = QCheckBox("Samples are independent")
         self.independence_checkbox.setChecked(False)
 
-        layout.addWidget(self.list_widget)
-        layout.addLayout(btns_layout)
-        layout.addWidget(self.selected_count_label)
+        layout = self.selector_widget.layout()
         layout.addWidget(self.independence_checkbox)
 
-        group.setLayout(layout)
-        group.setMaximumHeight(MAX_GROUP_HEIGHT)
-        return group
+        self.selector_widget.setMaximumHeight(MAX_GROUP_HEIGHT)
+        return self.selector_widget
 
     def _create_test_section(self, title: str, panels: list[BaseHomoTestPanel]) -> QGroupBox:
         """Create a test section with panels, run button, and clear button."""
@@ -135,8 +127,8 @@ class HomogenTab(QWidget):
         layout.addWidget(combo)
 
         btns_layout = QHBoxLayout()
-        run_btn = QPushButton("Run test")
-        clear_btn = QPushButton("Clear")
+        run_btn = make_button("Run test")
+        clear_btn = make_button("Clear")
         btns_layout.addWidget(run_btn)
         btns_layout.addWidget(clear_btn)
         layout.addLayout(btns_layout)
@@ -157,20 +149,21 @@ class HomogenTab(QWidget):
     def _connect_signals(self) -> None:
         """Connect UI signals."""
         self.list_widget.itemSelectionChanged.connect(self._update_selected_models)
-        self.select_all_btn.clicked.connect(lambda: [self.list_widget.item(i).setSelected(True) for i in range(self.list_widget.count())])
-        self.clear_selection_btn.clicked.connect(self.list_widget.clearSelection)
+        self.select_all_btn.clicked.connect(self.selector_widget.select_all)
+        self.clear_selection_btn.clicked.connect(self.selector_widget.clear_selection)
 
     def _refresh_data_list(self) -> None:
         """Refresh the data models list."""
-        self.list_widget.clear()
-        for name, model in (self.version_manager.datasets or {}).items():
-            if model.series is not None and not model.series.empty:
-                self.list_widget.addItem(name)
+        valid_names = [
+            name for name, model in (self.version_manager.datasets or {}).items()
+            if model.series is not None and not model.series.empty
+        ]
+        self.selector_widget.populate(valid_names, select_all=False)
 
     def _update_selected_models(self) -> None:
         """Update selected models list and label."""
-        self.selected_models = [item.text() for item in self.list_widget.selectedItems()]
-        self.selected_count_label.setText(f"Selected: {len(self.selected_models)} datasets")
+        self.selected_models = self.selector_widget.get_selected_items()
+        self.selector_widget.update_count_label()
 
     def _run_selected_test(self, group: QGroupBox) -> None:
         """Run selected panel in the group."""

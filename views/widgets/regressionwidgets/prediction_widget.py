@@ -7,7 +7,7 @@ from services.ui_services.messager import UIMessager
 from controllers import RegressionController
 from utils import AppContext
 from utils.ui_styles import groupMargin, groupStyle
-from utils.helpers import create_section_header
+from views.widgets.utils import create_section_header
 import pandas as pd
 
 

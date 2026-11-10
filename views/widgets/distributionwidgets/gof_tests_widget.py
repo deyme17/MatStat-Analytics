@@ -5,7 +5,7 @@ from .gof_panels.base import BaseTestPanel
 from typing import Callable
 from controllers import GOFController
 from utils import EventBus, EventType, Event, AppContext
-from utils.helpers import create_section_header
+from views.widgets.utils import create_section_header
 
 
 ALPHA_MIN, ALPHA_MAX = 0.01, 0.99
@@ -14,7 +14,7 @@ ALPHA_PRECISION = 2
 DEFAULT_ALPHA = 0.05
 
 
-class GOFTestWidget(QWidget):
+class GOFTestsWidget(QWidget):
     """A widget for evaluating Goodness-of-Fit (GOF) tests."""
     def __init__(self, context: AppContext,
                  gof_controller: GOFController,

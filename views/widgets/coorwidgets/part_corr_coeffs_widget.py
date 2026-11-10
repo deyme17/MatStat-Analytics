@@ -7,7 +7,7 @@ from services.ui_services.messager import UIMessager
 from controllers import CorrelationController
 from utils import AppContext, EventBus, EventType, Event
 from utils.ui_styles import groupMargin, groupStyle
-from utils.helpers import create_section_header
+from views.widgets.utils import create_section_header
 
 
 DEFAULT_ALPHA_VAL_LABEL = "0.05"

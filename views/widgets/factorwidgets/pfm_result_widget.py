@@ -10,7 +10,7 @@ from services.ui_services import UIMessager
 from controllers import FactorController
 from utils import AppContext
 from utils.ui_styles import groupMargin, groupStyle
-from utils.helpers import create_section_header
+from views.widgets.utils import create_section_header
 
 
 MAX_TABLE_HEIGHT = 400
