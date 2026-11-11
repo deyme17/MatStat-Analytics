@@ -1,8 +1,10 @@
-from PyQt6.QtWidgets import QGroupBox, QVBoxLayout, QHBoxLayout, QListWidget, QLabel, QAbstractItemView
+from PyQt6.QtWidgets import (
+    QGroupBox, QVBoxLayout, QHBoxLayout, 
+    QListWidget, QLabel, QAbstractItemView, 
+    QWidget, QDoubleSpinBox
+)
+from PyQt6.QtCore import pyqtSignal
 from .helpers import make_button
-
-DEFAULT_LIST_HEIGHT = 110
-DEFAULT_LIST_WIDTH = 310
 
 
 class FeatureSelectorWidget(QGroupBox):
@@ -10,8 +12,8 @@ class FeatureSelectorWidget(QGroupBox):
     def __init__(self, 
                  title: str = "Features (X)", 
                  label_prefix: str = "features", 
-                 height: int = DEFAULT_LIST_HEIGHT, 
-                 width: int = DEFAULT_LIST_WIDTH, 
+                 height: int = 110, 
+                 width: int = 310, 
                  parent=None):
         super().__init__(title, parent)
         self.label_prefix = label_prefix
@@ -73,3 +75,37 @@ class FeatureSelectorWidget(QGroupBox):
         self.list_widget.setEnabled(enabled)
         self.select_all_btn.setEnabled(enabled)
         self.clear_sel_btn.setEnabled(enabled)
+
+
+class AlphaControlWidget(QWidget):
+    """Widget providing a standardized layout and spinbox for significance level (alpha)."""
+    alpha_changed = pyqtSignal(float)
+
+    ALPHA_MIN, ALPHA_MAX = 0.01, 0.99
+    ALPHA_STEP = 0.01
+    ALPHA_PRECISION = 2
+    DEFAULT_ALPHA = 0.05
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self._init_ui()
+
+    def _init_ui(self) -> None:
+        """Initialize alpha spinbox control layout."""
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        self.spinbox = QDoubleSpinBox()
+        self.spinbox.setRange(self.ALPHA_MIN, self.ALPHA_MAX)
+        self.spinbox.setSingleStep(self.ALPHA_STEP)
+        self.spinbox.setDecimals(self.ALPHA_PRECISION)
+        self.spinbox.setValue(self.DEFAULT_ALPHA)
+        self.spinbox.valueChanged.connect(self.alpha_changed.emit)
+
+        layout.addWidget(QLabel("Significance level α:"))
+        layout.addWidget(self.spinbox)
+        layout.addStretch()
+
+    def value(self) -> float:
+        """Return current alpha value."""
+        return self.spinbox.value()

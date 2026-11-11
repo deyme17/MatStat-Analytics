@@ -3,6 +3,8 @@ from PyQt6.QtWidgets import (
     QDoubleSpinBox, QWidget, QGroupBox
 )
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QColor
+from PyQt6.QtWidgets import QTableWidget, QHeaderView
 
 
 def create_section_header(text: str) -> QVBoxLayout:
@@ -92,3 +94,43 @@ def make_alpha_spinbox(min_val: float = 0.01, max_val: float = 0.99, step: float
     spinbox.setDecimals(decimals)
     spinbox.setValue(default)
     return spinbox
+
+
+def create_styled_result_table() -> QTableWidget:
+    """Factory helper to build a styled QTableWidget for result matrices."""
+    table = QTableWidget()
+    table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+    table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
+    table.setAlternatingRowColors(True)
+    table.verticalHeader().setVisible(False)
+    table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+    table.setStyleSheet("""
+        QTableWidget { font-size: 11px; }
+        QHeaderView::section {
+            background-color: #e3f2fd;
+            color: #131212;
+            font-weight: bold;
+            padding: 3px;
+            border: 1px solid #bbdefb;
+        }
+        QTableWidget::item { padding: 2px 6px; }
+    """)
+    return table
+
+
+def get_loading_heatmap_color(value: float) -> QColor:
+    """Return background QColor depending on factor loading magnitude."""
+    abs_v = abs(value)
+    if abs_v >= 0.5:
+        return QColor("#f3bab6")
+    if abs_v <= 0.1:
+        return QColor("#d7ffde")
+    return QColor("#9ddff3")
+
+
+def fit_table_height(table: QTableWidget, max_h: int = 400) -> None:
+    """Adjust QTableWidget fixed height dynamically according to content rows."""
+    row_h = sum(table.rowHeight(r) for r in range(table.rowCount()))
+    header_h = table.horizontalHeader().height()
+    scroll_h = table.horizontalScrollBar().sizeHint().height() if table.horizontalScrollBar().isVisible() else 0
+    table.setFixedHeight(min(row_h + header_h + scroll_h + 6, max_h))

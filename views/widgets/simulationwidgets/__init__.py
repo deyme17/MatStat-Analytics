@@ -1,2 +1,3 @@
-from .experiment_widget import ExperimentWidget
-from .generation_widget import GenerationWidget
+from .experiment import ExperimentWidget
+from .generation import GenerationWidget
+from .subwidgets import *

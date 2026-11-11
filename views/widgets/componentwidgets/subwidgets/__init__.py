@@ -1,0 +1,1 @@
+from .pca_loadings_table import PCALoadingsTableWidget
