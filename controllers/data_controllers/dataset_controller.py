@@ -81,7 +81,8 @@ class DatasetController:
         model = self.context.data_model
         if not model: return
 
-        if list(model.dataframe.columns) != list(model.original.columns):
+        if (list(model.dataframe.columns) != list(model.original.columns) or
+            len(model.dataframe) != len(model.original)):
             whole_dataset = True
 
         original = model.revert_to_original(whole_dataset)
