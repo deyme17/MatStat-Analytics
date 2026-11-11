@@ -106,6 +106,7 @@ class ComponentController:
             new_df = pc_df.reset_index(drop=True)
 
         new_model = self.context.data_model.add_version(new_df, "PCA Transformed")
+        new_model.set_pca_space(True)
         self.version_manager.sync_columns(new_model)
         self._state = PCAState.TRANSFORMED
         self._emit()
@@ -144,6 +145,7 @@ class ComponentController:
             new_df = reconstructed_df
 
         new_model = self.context.data_model.add_version(new_df, "PCA Inv-Transformed")
+        new_model.set_pca_space(False)
         self.version_manager.sync_columns(new_model)
         self._state = PCAState.INVERSE_TRANSFORMED
         self._emit()
@@ -155,6 +157,7 @@ class ComponentController:
         if restore_df is None:
             raise ValueError("Original dataframe doesn't exist.")
         orig_model = self.context.data_model.add_version(restore_df, "Reverted to pre-PCA")
+        orig_model.set_pca_space(False)
         self.version_manager.sync_columns(orig_model)
         self._state = PCAState.IDLE
         self._fitted_ds_name = None
