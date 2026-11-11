@@ -13,14 +13,7 @@ BUTTON_WIDTH, BUTTON_HEIGHT = 111, 30
 
 
 class DataProcessingTab(QWidget):
-    """
-    A UI tab for managing data preprocessing steps including:
-    - Data version selection
-    - Transformations
-    - Anomaly detection
-    - Missing data handling
-    - Original data restoration
-    """
+    """A UI tab for managing data preprocessing steps including."""
     def __init__(self, context: AppContext, 
                  data_exporter: DataExporter, 
                  dataset_controller: DatasetController, 
@@ -110,10 +103,8 @@ class DataProcessingTab(QWidget):
 
         # add preprocessing widgets
         self._add_preprocessing_widgets(layout)
-        
         layout.addLayout(nav_layout)
         layout.addStretch()
-
         self.setLayout(layout)
 
     def _add_preprocessing_widgets(self, layout: QVBoxLayout) -> None:

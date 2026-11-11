@@ -8,28 +8,24 @@ from views.widgets.simulationwidgets import ExperimentWidget, GenerationWidget
 from services import UIMessager
 
 
-
 class SimulationTab(QWidget):
     """Main tab that combines experiment and generation widgets."""
-    def __init__(self, messanger: UIMessager, 
+    def __init__(self, 
+                 messanger: UIMessager, 
                  simulation_controller: SimulationController, 
-                 dist_register: DistributionRegister, 
-                 experiment_widget: type[ExperimentWidget], 
-                 generation_widget: type[GenerationWidget]):
+                 dist_register: DistributionRegister):
         """
         Args:
             messanger: Service class used for message sending.
             simulation_controller: Controller for simulation performing.
             dist_register: Controller for selected distribution access.
-            experiment_widget: Widget for experiments launch.
-            generation_widget: Widget for samples generating.
         """
         super().__init__()
         self.messanger: UIMessager = messanger
         self.simulation_controller: SimulationController = simulation_controller
         self.dist_register: DistributionRegister = dist_register
-        self.experiment_widget: ExperimentWidget = experiment_widget(messanger, simulation_controller)
-        self.generation_widget: GenerationWidget = generation_widget(messanger, simulation_controller)
+        self.experiment_widget = ExperimentWidget(messanger, simulation_controller)
+        self.generation_widget = GenerationWidget(messanger, simulation_controller)
         self._init_ui()
         self._update_param_placeholders()
     
@@ -50,11 +46,11 @@ class SimulationTab(QWidget):
         
         # generation widget
         layout.addWidget(self.generation_widget)
-        self.generation_widget.save_button.clicked.connect(self.save_generated_data)
+        self.generation_widget.set_on_save_callback(self.save_generated_data)
 
         # experiment widget
         layout.addWidget(self.experiment_widget)
-        self.experiment_widget.run_button.clicked.connect(self.run_experiment)
+        self.experiment_widget.set_on_run_callback(self.run_experiment)
         
         layout.addStretch()
         
