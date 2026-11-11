@@ -105,7 +105,7 @@ class UIFactory:
         )
 
     def _build_stat_tab(self) -> StatisticsTab:
-        return StatisticsTab()
+        return StatisticsTab(self.context.event_bus)
 
     def _build_dist_tab(self) -> DistributionTab:
         return DistributionTab(

@@ -4,8 +4,9 @@ from PyQt6.QtWidgets import (
     QPushButton, QHBoxLayout, QGroupBox
 )
 
-from utils import EventBus, EventType, Event, AppContext
 from controllers import DatasetController
+from utils import EventBus, EventType, Event, AppContext
+from utils.callbacks import build_combo_callbacks, ComboUICallbacks
 from services import DataExporter, UIMessager, DataVersionManager
 from views.widgets.utils import make_button, make_combo, make_checkbox
 
@@ -166,3 +167,11 @@ class DataProcessingTab(QWidget):
 
         except Exception as e:
             self.messanger.show_error("Export error", f"Export failed: {e}")
+
+    def get_version_callbacks(self) -> ComboUICallbacks:
+        """Return data version ComboUICallbacks."""
+        return build_combo_callbacks(self.data_version_combo)
+
+    def get_columns_callbacks(self) -> ComboUICallbacks:
+        """"Return dataframe columns ComboUICallbacks."""
+        return build_combo_callbacks(self.dataframe_cols_combo)

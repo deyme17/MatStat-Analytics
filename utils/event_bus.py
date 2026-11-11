@@ -20,6 +20,10 @@ class EventType(Enum):
     DISTRIBUTION_CHANGED = auto()
     ADDITIONAL_GRAPH_TOGGLED = auto()
     MISSING_VALUES_INFO = auto()
+
+    # Stats event
+    STATS_UPDATED = auto()
+    STATS_CLEARED = auto()
     
     # State events
     MISSING_VALUES_DETECTED = auto()

@@ -1,6 +1,5 @@
 from .controllers_factory import Controllers
 from utils import EventBus, EventType
-from utils.callbacks import build_combo_callbacks
 
 
 class ConnectFactory:
@@ -10,23 +9,22 @@ class ConnectFactory:
         self.controllers = controllers
 
     def connect_ui(self) -> None:
-        self.win.controls_bar.load_button.clicked.connect(lambda: self.controllers.data_loader.load_data_file())
-        self.win.controls_bar.precision_spinbox.valueChanged.connect(self._on_precision_changed)
+        """Connect all UI components with corresponding controllers."""
+        self._connect_window_controls()
+        self._connect_data_version_controller()
 
-        self.controllers.statistics.connect_ui(
-            stats_renderer=self.win.stat_tab.stat_renderer,
-            var_renderer=self.win.stat_tab.var_renderer,
-            multi_renderer=self.win.stat_tab.multi_renderer,
-            get_bins_value=lambda: self.win.graph_panel.control_bar.get_control_params()["bins"],
-            get_confidence_value=lambda: self.win.graph_panel.control_bar.get_control_params()["confidence"],
-            get_precision_value=self.win.controls_bar.precision_spinbox.value,
+    def _connect_window_controls(self) -> None:
+        """Connect global controls bar events."""
+        controls_bar = self.win.controls_bar
+        controls_bar.on_load_clicked(self.controllers.data_loader.load_data_file)
+        controls_bar.on_precision_changed(
+            lambda value: self.event_bus.emit_type(EventType.PRECISION_CHANGED, value)
         )
 
+    def _connect_data_version_controller(self) -> None:
+        """Connect data version controller with dropdown controls."""
+        data_tab = self.win.data_tab
         self.controllers.data_version.connect_ui(
-            version_combo_controls=build_combo_callbacks(self.win.data_tab.data_version_combo),
-            columns_combo_control=build_combo_callbacks(self.win.data_tab.dataframe_cols_combo),
-            set_bins_value=self.win.graph_panel.control_bar.bins_spinbox.setValue,
+            version_combo_control=data_tab.get_version_callbacks(),
+            columns_combo_control=data_tab.get_columns_callbacks(),
         )
-
-    def _on_precision_changed(self) -> None:
-        self.event_bus.emit_type(EventType.PRECISION_CHANGED)

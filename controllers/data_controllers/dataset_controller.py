@@ -1,7 +1,6 @@
 from utils import AppContext, EventType, EventBus, Event
 from services.data_services.data_version_manager import DataVersionManager
 from utils.callbacks import ComboUICallbacks
-from typing import Callable
 
 
 class DatasetController:
@@ -12,23 +11,20 @@ class DatasetController:
     def __init__(
         self,
         context: AppContext,
-        version_combo_controls: ComboUICallbacks | None = None,
-        columns_combo_control: ComboUICallbacks | None = None,
-        set_bins_value: Callable[[int], None] | None = None
+        version_combo_control: ComboUICallbacks | None = None,
+        columns_combo_control: ComboUICallbacks | None = None
     ):
         """
         Args:
             context: Shared application context (data, history, etc.)
-            version_combo_controls: Container of dataset combo control callbacks
+            version_combo_control: Container of dataset combo control callbacks
             columns_combo_control: Container of column changing combo control callbacks
-            set_bins_value: Function for setting bin count configuration
         """
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
         self.version_manager: DataVersionManager = context.version_manager
-        self.version_combo_controls = version_combo_controls
+        self.version_combo_control = version_combo_control
         self.columns_combo_control = columns_combo_control
-        self.set_bins_value = set_bins_value
         
         self._subscribe_to_events()
 
@@ -41,9 +37,7 @@ class DatasetController:
         self.update_dataset_list()
 
     def on_dataset_selection_changed(self, index: int) -> None:
-        """
-        Called when the user selects a different dataset from the dropdown.
-        """
+        """Called when the user selects a different dataset from the dropdown."""
         dataset_names = self.version_manager.get_all_dataset_names()
         
         if 0 <= index < len(dataset_names):
@@ -51,13 +45,10 @@ class DatasetController:
             self.version_manager.switch_to_dataset(dataset_name)
             self.context.data_model = self.version_manager.get_current_data_model()
             self.update_columns_list()
-            self._set_bins_for_new_data()
             self.event_bus.emit_type(EventType.DATASET_CHANGED)
 
     def on_current_col_changed(self, index: int) -> None:
-        """
-        Called when the user changes a different column from the dropdown.
-        """        
+        """Called when the user changes a different column from the dropdown."""
         dataset_name = self.version_manager.get_current_dataset_name()
         col_names = self.version_manager.get_all_columns_names(dataset_name)
         
@@ -75,11 +66,10 @@ class DatasetController:
             self.event_bus.emit_type(EventType.COLUMN_CHANGED)
 
     def revert_to_original(self, whole_dataset: bool = False) -> None:
-        """
-        Revert current dataset to its original version.
-        """
+        """Revert current dataset to its original version."""
         model = self.context.data_model
-        if not model: return
+        if not model: 
+            return
 
         if (list(model.dataframe.columns) != list(model.original.columns) or
             len(model.dataframe) != len(model.original)):
@@ -93,30 +83,24 @@ class DatasetController:
         self.event_bus.emit_type(EventType.DATA_REVERTED)
 
     def update_dataset_list(self) -> None:
-        """
-        Update dropdown menu with all available datasets.
-        """
-        if not self.version_combo_controls:
+        """Update dropdown menu with all available datasets."""
+        if not self.version_combo_control:
             return
             
         dataset_names = self.version_manager.get_all_dataset_names()
         
-        self.version_combo_controls.block_signals(True)
-        self.version_combo_controls.set(dataset_names)
+        self.version_combo_control.block_signals(True)
+        self.version_combo_control.set(dataset_names)
 
         current_name = self.version_manager.get_current_dataset_name()
         if current_name in dataset_names:
-            self.version_combo_controls.set_current_index(dataset_names.index(current_name))
+            self.version_combo_control.set_current_index(dataset_names.index(current_name))
 
-        self.version_combo_controls.block_signals(False)
-
+        self.version_combo_control.block_signals(False)
         self.update_columns_list()
-        self._set_bins_for_new_data()
 
     def update_columns_list(self):
-        """
-        Update dropdown menu with all available dataset's columns.
-        """
+        """Update dropdown menu with all available dataset's columns."""
         if not self.columns_combo_control:
             return
             
@@ -138,17 +122,7 @@ class DatasetController:
 
         self.columns_combo_control.block_signals(False)
 
-    def _set_bins_for_new_data(self) -> None:
-        """
-        Internal helper to refresh bins after switching dataset.
-        """
-        if self.context.data_model and self.set_bins_value:
-            self.set_bins_value(self.context.data_model.bins)
-
-    def connect_ui(self, 
-                   version_combo_controls: ComboUICallbacks,
-                   columns_combo_control: ComboUICallbacks,
-                   set_bins_value: Callable[[int], None]) -> None:
-        self.version_combo_controls = version_combo_controls
+    def connect_ui(self, version_combo_control: ComboUICallbacks,
+                         columns_combo_control: ComboUICallbacks) -> None:
+        self.version_combo_control = version_combo_control
         self.columns_combo_control = columns_combo_control
-        self.set_bins_value = set_bins_value

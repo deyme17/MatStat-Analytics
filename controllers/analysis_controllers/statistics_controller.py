@@ -1,144 +1,82 @@
-from typing import Callable
-from services.ui_services.renderers.table_renderers.base import BaseTableRenderer
 from models import StatisticsCalculator
-from models.data_model import DataModel
 from utils import EventBus, EventType, Event, AppContext
 
 
 class StatisticsController:
     """
-    Controller for managing the display of statistical characteristics in the UI.
+    Controller for managing statistical calculations and broadcasting standard results.
     """
-    def __init__(self,
-                 context: AppContext,
-                 stat_calculator: StatisticsCalculator,
-                 stats_renderer: BaseTableRenderer | None = None,
-                 var_renderer: BaseTableRenderer | None = None,
-                 multi_renderer: BaseTableRenderer | None = None,
-                 get_bins_value: Callable[[], int] | None = None, 
-                 get_precision_value: Callable[[], int] | None = None,
-                 get_confidence_value: Callable[[], float] | None = None):
+    def __init__(self, context: AppContext, stat_calculator: StatisticsCalculator):
         """
         Args:
-            context: Shared application context (version_manager, event_bus, messager)
-            stat_calculator: Class for statistics handling
-            stats_renderer: Responsible for drawing statistics in table
-            multi_renderer: Responsible for drawing multivariable statistics in table
-            var_renderer: Responsible for drawing variation series in table
-            get_bins_value: Function for getting bin count configuration
-            get_precision_value: Function for getting precision configuration
-            get_confidence_value: Function for getting confidence level selection
+            context: Shared application context (with event_bus).
+            stat_calculator: Class for statistics handling.
         """
         self.context: AppContext = context
         self.event_bus: EventBus = context.event_bus
         self.stat_calculator: StatisticsCalculator = stat_calculator
-        self.stats_renderer: BaseTableRenderer = stats_renderer
-        self.var_renderer: BaseTableRenderer = var_renderer
-        self.multi_renderer: BaseTableRenderer = multi_renderer
-        self.get_bins_value = get_bins_value             
-        self.get_precision_value = get_precision_value        
-        self.get_confidence_value = get_confidence_value
-        
+
+        self.bins: int | None = None
+        self.precision: int = 2
+        self.confidence: float = 0.95
+
         self._subscribe_to_events()
 
-    def _subscribe_to_events(self):
-        self.event_bus.subscribe(EventType.MISSING_VALUES_HANDLED, self._on_changed)
+    def _subscribe_to_events(self) -> None:
+        """Subscribe to data state changes and parameter input events."""
+        self.event_bus.subscribe(EventType.MISSING_VALUES_HANDLED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.DATA_TRANSFORMED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_data_changed)
+        self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_data_changed)
         self.event_bus.subscribe(EventType.MISSING_VALUES_DETECTED, self._on_missings)
-        self.event_bus.subscribe(EventType.DATA_TRANSFORMED, self._on_changed)
-        self.event_bus.subscribe(EventType.DATASET_CHANGED, self._on_changed)
-        self.event_bus.subscribe(EventType.COLUMN_CHANGED, self._on_changed)
-        self.event_bus.subscribe(EventType.DATA_REVERTED, self._on_changed)
-        self.event_bus.subscribe(EventType.BINS_CHANGED, self._on_changed)
-        self.event_bus.subscribe(EventType.CONFIDENCE_CHANGED, self._on_changed)
-        self.event_bus.subscribe(EventType.PRECISION_CHANGED, self._on_changed)
+        self.event_bus.subscribe(EventType.BINS_CHANGED, self._on_bins_changed)
+        self.event_bus.subscribe(EventType.CONFIDENCE_CHANGED, self._on_confidence_changed)
+        self.event_bus.subscribe(EventType.PRECISION_CHANGED, self._on_precision_changed)
 
-    def _on_changed(self, event: Event):
+    def _on_bins_changed(self, event: Event) -> None:
+        if isinstance(event.data, int):
+            self.bins = event.data
+            self.recalculate()
+
+    def _on_confidence_changed(self, event: Event) -> None:
+        if isinstance(event.data, (float, int)):
+            self.confidence = float(event.data)
+            self.recalculate()
+
+    def _on_precision_changed(self, event: Event) -> None:
+        if isinstance(event.data, int):
+            self.precision = event.data
+            self.recalculate()
+
+    def _on_data_changed(self, event: Event) -> None:
+        self.recalculate()
+
+    def _on_missings(self, event: Event) -> None:
+        self.event_bus.emit_type(EventType.STATS_CLEARED)
+
+    def recalculate(self) -> None:
+        """Recalculate statistics and emit calculated results via EventBus."""
         model = self.context.data_model
-        if model:
-            self.update_tables(model)
-
-    def _on_missings(self, event: Event):
-        self.clear_tables()
-
-    def update_tables(self, model: DataModel = None) -> None:
-        """Updates all the UI tables"""
-        if not self._check_ui_connected():
-            return
-            
         if model is None or model.series.empty:
             return
-        
-        bins = self.get_bins_value()
-        model.update_bins(bins)
-        
-        self._update_statistics_table(model)
-        self._update_var_series_table(model)
-        self._update_multi_var_table(model)
 
-    def _update_statistics_table(self, model: DataModel) -> None:
-        """
-        Recalculate statistics and update the UI tables.
-        Args:
-            model: DataModel
-        """
+        if self.bins is not None:
+            model.update_bins(self.bins)
+        
         stats_data = self.stat_calculator.get_characteristics(model.hist)
         ci_data = self.stat_calculator.compute_intervals(
             model.series,
-            confidence_level=self.get_confidence_value(),
-            precision=self.get_precision_value()
+            confidence_level=self.confidence,
+            precision=self.precision
         )
-        self.stats_renderer.render(
-            stats_data.to_dict(),
-            ci_data.to_dict(),
-            precision=self.get_precision_value()
-        )
+        var_series_data = self.stat_calculator.get_var_series(model.hist)
+        multi_var_data = self.stat_calculator.get_multi_var_stats(model.dataframe)
 
-    def _update_var_series_table(self, model: DataModel) -> None:
-        """
-        Recalculate variation series and update the UI tables.
-        Args:
-            model: DataModel
-        """
-        data = self.stat_calculator.get_var_series(model.hist)
-        self.var_renderer.render(data.to_dict())
-
-    def _update_multi_var_table(self, model: DataModel) -> None:
-        """
-        Recalculate multivariable statistics and update the UI tables.
-        Args:
-            model: DataModel
-        """
-        data = self.stat_calculator.get_multi_var_stats(model.dataframe)
-        self.multi_renderer.render(data, precision=self.get_precision_value())
-
-    def clear_tables(self) -> None:
-        """
-        Clear the contents of tables via renderer.
-        """
-        if not self._check_ui_connected():
-            return
-        self.stats_renderer._setup_headers()
-        self.var_renderer._setup_headers()
-        self.multi_renderer._setup_headers()
-
-    def connect_ui(
-        self,
-        stats_renderer: BaseTableRenderer,
-        var_renderer: BaseTableRenderer,
-        multi_renderer: BaseTableRenderer,
-        get_bins_value: Callable[[], int], 
-        get_precision_value: Callable[[], int],
-        get_confidence_value: Callable[[], float]
-    ) -> None:
-        self.stats_renderer = stats_renderer
-        self.var_renderer = var_renderer
-        self.multi_renderer = multi_renderer
-        self.get_bins_value = get_bins_value             
-        self.get_precision_value = get_precision_value        
-        self.get_confidence_value = get_confidence_value
-
-    def _check_ui_connected(self) -> bool:
-        return bool(
-            self.stats_renderer and self.var_renderer and self.multi_renderer 
-            and self.get_bins_value and self.get_precision_value and self.get_confidence_value
-        )
+        self.event_bus.emit_type(EventType.STATS_UPDATED, {
+            "stats": stats_data.to_dict(),
+            "ci": ci_data.to_dict(),
+            "var_series": var_series_data.to_dict(),
+            "multi_var": multi_var_data,
+            "precision": self.precision
+        })

@@ -142,3 +142,15 @@ class GraphPanel(QWidget):
         params = self.control_bar.get_control_params()
         params["distribution"] = self.dist_selector.get_selected_distribution()
         return params
+    
+    def get_bins(self) -> int:
+        """Get current bins value from control bar."""
+        return self.control_bar.get_control_params()["bins"]
+
+    def get_confidence(self) -> float:
+        """Get current confidence value from control bar."""
+        return self.control_bar.get_control_params()["confidence"]
+
+    def set_bins(self, value: int) -> None:
+        """Set bins value in control bar."""
+        self.control_bar.bins_spinbox.setValue(value)
