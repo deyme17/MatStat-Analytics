@@ -137,6 +137,7 @@ class DataModel:
             )
         self.label = "Original"
         self.anomalies_removed = False
+        self.set_pca_space(False)
         self._recompute_cache()
         return self
 
