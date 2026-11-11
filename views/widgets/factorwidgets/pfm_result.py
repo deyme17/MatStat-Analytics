@@ -68,7 +68,7 @@ class PFMResultWidget(QWidget):
             self._update_summary()
             self._update_loadings()
             self.corr_table.populate(self.controller.get_results()["R"])
-            self._update_iterations()
+            self._update_iterations_group()
         except Exception as e:
             self.messanger.show_error("PFM result error", str(e))
 
