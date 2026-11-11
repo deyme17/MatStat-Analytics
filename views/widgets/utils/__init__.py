@@ -4,3 +4,5 @@ from .helpers import (
     make_button, make_combo, make_checkbox, make_alpha_spinbox, make_group_box,
     create_styled_result_table, get_loading_heatmap_color, fit_table_height,
 )
+
+from .base_analysis_tab import BaseAnalysisTab
