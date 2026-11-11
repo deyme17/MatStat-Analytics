@@ -40,7 +40,7 @@ class Window(QMainWindow):
         main_panel.addWidget(self.graph_panel, stretch=3)
 
         main_layout = QVBoxLayout()
-        main_layout.addLayout(self.widgets.layout)
+        main_layout.addLayout(self.controls_bar.layout)
         main_layout.addLayout(main_panel)
 
         central_widget = QWidget()

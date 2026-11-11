@@ -5,9 +5,7 @@ from utils import AppContext
 
 # Services
 from services import (
-    ConfidenceAssesment, SimpleLinearRegression,
-    StatsRenderer, VarSerRenderer, MultiVarRenderer,
-    DataExporter,
+    ConfidenceAssesment, SimpleLinearRegression, DataExporter,
 )
 
 # Views
@@ -17,13 +15,10 @@ from views import (
     DataProcessingTab, StatisticsTab, DistributionTab, HomogenTab,
     CorrelationTab, ComponentTab, FactorTab, RegressionTab, SimulationTab,
     # widgets
-    WindowWidgets, AnomalyWidget, MissingWidget, TransformDataWidget,
-    PCAResultWidget, PFMResultWidget, RegrSummaryWidget, RegrPredictionWidget,
-    ParamEstimationWidget, GOFTestsWidget, KolmogorovSmirnovPanel, PearsonChi2Panel, Pearson2DNormalPanel, 
-    GenerationWidget, ExperimentWidget, CorrelationTestWidget, PartialCorrWidget, MultiCorrWidget,
+    ControlsBarWidget, AnomalyWidget, MissingWidget, TransformDataWidget, ParamEstimationWidget, GOFTestsWidget,
+    GraphPanel, DistributionSelector, KolmogorovSmirnovPanel, PearsonChi2Panel, Pearson2DNormalPanel, 
     NormalHomogenPanel, WilcoxonPanel, MannWhitneyUPanel, RankMeanDiffPanel, SmirnovKolmogorovPanel, 
     AbbePanel, ANOVAPanel, BurtlettPanel, CochranQPanel, HPanel, MultiNormalPanel, SignsCriterionPanel,
-    GraphPanel, DistributionSelector,
 )
 from views.tabs.graph_tabs import (
     EDFTab, HistogramTab, HHTab, 
@@ -48,7 +43,7 @@ class UIFactory:
         self.controllers = controllers
 
     def setup_ui(self) -> None:
-        self.win.widgets = WindowWidgets.create_controls_bar()
+        self.win.controls_bar = ControlsBarWidget.create_controls_bar()
         self.win.graph_panel = self._build_graph_panel()
         self._setup_left_tabs()
 
@@ -101,7 +96,7 @@ class UIFactory:
         return DataProcessingTab(
             context=self.context,
             dataset_controller=self.controllers.data_version,
-            data_exporter=DataExporter,
+            data_exporter=DataExporter(),
             widget_data=[
                 ("transform_widget", TransformDataWidget, self.controllers.data_transform),
                 ("anomaly_widget", AnomalyWidget, self.controllers.anomaly_data),
@@ -110,11 +105,7 @@ class UIFactory:
         )
 
     def _build_stat_tab(self) -> StatisticsTab:
-        return StatisticsTab(
-            stat_renderer_cls=StatsRenderer,
-            var_renderer_cls=VarSerRenderer,
-            multi_renderer_cls=MultiVarRenderer,
-        )
+        return StatisticsTab()
 
     def _build_dist_tab(self) -> DistributionTab:
         return DistributionTab(
@@ -135,9 +126,6 @@ class UIFactory:
         return CorrelationTab(
             context=self.context,
             corr_controller=self.controllers.correlation,
-            corr_test_widget=CorrelationTestWidget,
-            partial_corr_widget=PartialCorrWidget,
-            multi_corr_widget=MultiCorrWidget,
         )
 
     def _build_homo_tab(self) -> HomogenTab:
@@ -157,23 +145,19 @@ class UIFactory:
     def _build_comp_tab(self) -> ComponentTab:
         return ComponentTab(
             context=self.context,
-            component_controller=self.controllers.component,
-            pca_result_widget=PCAResultWidget,
+            component_controller=self.controllers.component
         )
 
     def _build_fact_tab(self) -> FactorTab:
         return FactorTab(
             context=self.context,
             factor_controller=self.controllers.factor,
-            pfm_result_widget=PFMResultWidget
         )
 
     def _build_regr_tab(self) -> RegressionTab:
         return RegressionTab(
             context=self.context,
             regr_controller=self.controllers.regression,
-            summary_widget=RegrSummaryWidget,
-            prediction_widget=RegrPredictionWidget,
         )
 
     def _build_sim_tab(self) -> SimulationTab:
@@ -181,6 +165,4 @@ class UIFactory:
             messanger=self.context.messanger,
             simulation_controller=self.controllers.simulation,
             dist_register=self.controllers.dist_register,
-            experiment_widget=ExperimentWidget,
-            generation_widget=GenerationWidget,
         )
