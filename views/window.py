@@ -5,20 +5,21 @@ from utils.ui_styles import appStyle
 from utils.app_context import AppContext
 from factory import Factory
 
-WINDOW_WIDTH, WINDOW_HEIGHT = 1400, 700
-WINDOW_PALETTE_RED, WINDOW_PALETTE_BLUE, WINDOW_PALETTE_GREEN = 240, 248, 255
-BASE_PALETTE_RED, BASE_PALETTE_BLUE, BASE_PALETTE_GREEN = 245, 250, 255
+WIN_ICON_PATH = "resources/MatStat.jpeg"
+WIN_TITLE_PATH = "MatStat Analytics"
+
+WIN_WIDTH, WIN_HEIGHT = 1400, 700
+WIN_PALETTE_R, WIN_PALETTE_B, WIN_PALETTE_G = 240, 248, 255
+BASE_PALETTE_R, BASE_PALETTE_B, BASE_PALETTE_G = 245, 250, 255
 
 
 class Window(QMainWindow):
-    """
-    Main application window for the MatStat Analytics tool.
-    """
+    """Main application window for the MatStat Analytics tool."""
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('MatStat Analytics')
-        self.setWindowIcon(QIcon("resources/MatStat.jpeg"))
-        self.resize(WINDOW_WIDTH, WINDOW_HEIGHT)
+        self.setWindowTitle(WIN_TITLE_PATH)
+        self.setWindowIcon(QIcon(WIN_ICON_PATH))
+        self.resize(WIN_WIDTH, WIN_HEIGHT)
 
         self._init_palette()
         self.setStyleSheet(appStyle)
@@ -30,8 +31,8 @@ class Window(QMainWindow):
 
     def _init_palette(self):
         palette = self.palette()
-        palette.setColor(QPalette.ColorRole.Window, QColor(WINDOW_PALETTE_RED, WINDOW_PALETTE_BLUE, WINDOW_PALETTE_GREEN))
-        palette.setColor(QPalette.ColorRole.Base, QColor(BASE_PALETTE_RED, BASE_PALETTE_BLUE, BASE_PALETTE_GREEN))
+        palette.setColor(QPalette.ColorRole.Window, QColor(WIN_PALETTE_R, WIN_PALETTE_B, WIN_PALETTE_G))
+        palette.setColor(QPalette.ColorRole.Base, QColor(BASE_PALETTE_R, BASE_PALETTE_B, BASE_PALETTE_G))
         self.setPalette(palette)
 
     def _create_layout(self):
